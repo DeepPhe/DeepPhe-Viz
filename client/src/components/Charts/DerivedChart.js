@@ -1,7 +1,7 @@
 import React from "react";
 import * as d3 from "d3v4";
-//import * as Cohort from '../../cohort.js'
 import * as $ from "jquery";
+import * as Cohort from '../../cohort.js'
 
 const allStagesLabel = "All stages";
 const baseUri = "http://localhost:3000";
@@ -354,7 +354,7 @@ export default class DerivedChart extends React.Component {
         }
         function getDiagnosis(patientIds) {
             $.ajax({
-                url: "http://localhost:3001/api" + '/diagnosis/' + patientIds.join('+'),
+                url: "http://localhost:3001/api/diagnosis/" + patientIds.join('+'),
                 method: 'GET',
                 async : true,
                 dataType : 'json'
@@ -368,27 +368,27 @@ export default class DerivedChart extends React.Component {
         }
 
 
-        function getBiomarkers(patientIds) {
-            let obj = JSON.parse(`{"biomarkersOverviewData":[{"label":"Patients with biomarkers found","count":"0.714"},{"label":"Patients without biomarkers found","count":"0.286"}],"patientsWithBiomarkersData":{"biomarkersPool":["has_ER_Status","has_PR_Status","has_HER2_Status"],"biomarkerStatus":["positive","negative","unknown"],"data":[{"biomarker":"has_ER_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_PR_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_HER2_Status","positive":"0.200","negative":"0.800","unknown":"0.000"}]}}`)
-            showBiomarkersOverviewChart("biomarkers_overview", obj.biomarkersOverviewData);
-            showPatientsWithBiomarkersChart("patients_with_biomarkers", obj.patientsWithBiomarkersData);
-
-            // $.ajax({
-            //     url: baseUri + '/biomarkers/' + patientIds.join('+'),
-            //     method: 'GET',
-            //     async : true,
-            //     dataType : 'json'
-            // })
-            //     .done(function(response) {
-            //         response
-            //         //console.log(response);
-            //         showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
-            //         showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
-            //     })
-            //     .fail(function () {
-            //         console.log("Ajax error - can't get patients biomarkers info");
-            //     });
-        }
+        // function getBiomarkers(patientIds) {
+        //     let obj = JSON.parse(`{"biomarkersOverviewData":[{"label":"Patients with biomarkers found","count":"0.714"},{"label":"Patients without biomarkers found","count":"0.286"}],"patientsWithBiomarkersData":{"biomarkersPool":["has_ER_Status","has_PR_Status","has_HER2_Status"],"biomarkerStatus":["positive","negative","unknown"],"data":[{"biomarker":"has_ER_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_PR_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_HER2_Status","positive":"0.200","negative":"0.800","unknown":"0.000"}]}}`)
+        //     showBiomarkersOverviewChart("biomarkers_overview", obj.biomarkersOverviewData);
+        //     showPatientsWithBiomarkersChart("patients_with_biomarkers", obj.patientsWithBiomarkersData);
+        //
+        //     // $.ajax({
+        //     //     url: baseUri + '/biomarkers/' + patientIds.join('+'),
+        //     //     method: 'GET',
+        //     //     async : true,
+        //     //     dataType : 'json'
+        //     // })
+        //     //     .done(function(response) {
+        //     //         response
+        //     //         //console.log(response);
+        //     //         showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
+        //     //         showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
+        //     //     })
+        //     //     .fail(function () {
+        //     //         console.log("Ajax error - can't get patients biomarkers info");
+        //     //     });
+        // }
 
         function showPatientsWithBiomarkersChart(svgContainerId, data) {
             const svgWidth = 480;
@@ -750,7 +750,7 @@ export default class DerivedChart extends React.Component {
                 getDiagnosis(patientIds);
 
                 // Make another ajax call to get biomarkers info for the list of patients
-                getBiomarkers(patientIds);
+                 Cohort.getBiomarkers(patientIds);
             } else {
                 console.log("Empty target patients list");
                 // We'll need to remove the previous resulting charts
@@ -764,7 +764,7 @@ export default class DerivedChart extends React.Component {
 
         fetchData().then(function (response) {
             response.json().then(function (jsonResponse) {
-
+debugger;
                 let currentFirstEncounterAgeRange = [0, 100];
                 let allPatients = jsonResponse.patients;
                 showDerivedChart(allPatients, allStagesLabel, currentFirstEncounterAgeRange );

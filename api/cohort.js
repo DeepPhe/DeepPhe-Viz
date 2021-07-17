@@ -1659,7 +1659,8 @@ function getBiomarkers(patientIds) {
         dataType : 'json'
     })
         .done(function(response) {
-            //console.log(response);
+            debugger;
+            console.log(response);
             showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
             showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
         })

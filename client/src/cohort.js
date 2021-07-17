@@ -27,7 +27,7 @@ export const allStagesLabel = "All stages";
 // Array that contains the current min age and max age based on age chart selection
 export let currentFirstEncounterAgeRange = [];
 
-let baseUri = "api";
+let baseUri = "http://localhost:3001/api";
 
 // All stages in a sorted order
 export const orderedCancerStages = [
@@ -71,7 +71,6 @@ let maxAge;
 
 // Return the intersection of two patient arrays
 export function getTargetPatients(patientsByStage, patientsByFirstEncounterAge) {
-    debugger;
     // Create a list of IDs
     let patientsByStageIds = patientsByStage.map(function(obj) {
         return obj.patientId;
@@ -557,7 +556,7 @@ function showPatientFirstEncounterAgePerStageChart(svgContainerId, data) {
             x = e ? 1 : -1,
             y = chartHeight / 2;
 
-        return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
+        return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "ZM" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
     };
 
     let customBrushHandle = ageSelectionBrush.selectAll(".handle--custom")
@@ -645,7 +644,7 @@ function showPatientFirstEncounterAgePerStageChart(svgContainerId, data) {
 
         let lowerAge = Math.round(extent[0]);
         let upperAge = Math.round(extent[1]);
-debugger;
+
         // Update patientsByFirstEncounterAge by filtering allPatients
         patientsByFirstEncounterAge = allPatients.filter(function(obj) {
             return ((obj.firstEncounterAge >= lowerAge) && (obj.firstEncounterAge <= upperAge));
@@ -918,6 +917,7 @@ debugger;
                     if (addedSubStages.indexOf(d.stage) !== -1) {
                         return d.stage;
                     }
+                    //return null; //trying to get rid of a warning
                 });
 
                 // Reposition the exisiting stages BEFORE adding new sub stages
@@ -949,7 +949,7 @@ debugger;
 
 // No rest call since each stage data contains the patients list info
 export function showDerivedCharts(patientsArr, stage, firstEncounterAgeRange) {
-    debugger;
+
     if (patientsArr.length > 0) {
         let patientIds = [];
         patientsArr.forEach(function(patient) {
@@ -1489,6 +1489,7 @@ function showPatientsWithBiomarkersChart(svgContainerId, data) {
     var stackData = stack(data.data);
 
     // Only draw everything for the first time
+
     if (d3.select(".biomarkers_chart_group").empty()) {
         let svg = d3.select("#" + svgContainerId).append("svg")
             .attr("class", "biomarkers_chart") // Used for CSS styling
@@ -1623,6 +1624,7 @@ function showPatientsWithBiomarkersChart(svgContainerId, data) {
                 return d.charAt(0).toUpperCase() + d.slice(1);;
             });
     } else {
+
         // Update the data
         let biomarkerStatusGrp = d3.selectAll(".biomarkers_chart_group").selectAll(".biomarker_status_group")
             .data(stackData);
@@ -1648,6 +1650,7 @@ function showPatientsWithBiomarkersChart(svgContainerId, data) {
         biomarkerStatusGrp.selectAll(".biomarker_status_percentage")
         // here d is each object in the stackData array
             .data(function(d) {
+
                 // Add status property to make it available in the text()
                 d.forEach(function(item) {
                     item.status = d.key;
@@ -1668,7 +1671,8 @@ function showPatientsWithBiomarkersChart(svgContainerId, data) {
 }
 
 
-function getBiomarkers(patientIds) {
+export function getBiomarkers(patientIds) {
+
     $.ajax({
         url: baseUri + '/biomarkers/' + patientIds.join('+'),
         method: 'GET',
@@ -1676,11 +1680,12 @@ function getBiomarkers(patientIds) {
         dataType : 'json'
     })
         .done(function(response) {
-            //console.log(response);
+            debugger;
             showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
             showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
         })
         .fail(function () {
+            debugger;
             console.log("Ajax error - can't get patients biomarkers info");
         });
 }

@@ -151,7 +151,7 @@ const _ = require('lodash');
         let info = {};
         info.biomarkersOverviewData = [];
         info.patientsWithBiomarkersData = {};
-        info.patientsWithBiomarkersData.biomarkersPool = ["has_ER_Status", "has_PR_Status", "has_HER2_Status"];
+        info.patientsWithBiomarkersData.biomarkersPool = ["ER_", "PR_", "HER2"];
         info.patientsWithBiomarkersData.biomarkerStatus = ['positive', 'negative', 'unknown'];
         info.patientsWithBiomarkersData.data = [];
 
@@ -171,17 +171,18 @@ const _ = require('lodash');
         });
 
 
-
+       let jsonData = JSON.parse(neo4jRawArr)
         // Parse the receptor type and status
-        neo4jRawArr.forEach(function(obj) {
+        jsonData.forEach(function(obj) {
             // Count patients with biomarkers
             if (patientsWithBiomarkers.indexOf(obj.patientId) === -1) {
                 patientsWithBiomarkers.push(obj.patientId);
             }
 
         	// Skip the case when there's no "valueText" property
-        	if (typeof obj.tumorFact.valueText !== "undefined") {
-                let status = obj.tumorFact.valueText.toLowerCase();
+
+        	if ((typeof obj.valueText != "undefined") && ((obj.valueText === "positive") || (obj.valueText === "negative") || (obj.valueText === "unknown"))) {
+                let status = obj.valueText.toLowerCase();
                 if (biomarkersData[obj.tumorFactRelation][status].indexOf(obj.patientId) === -1) {
                     biomarkersData[obj.tumorFactRelation][status].push(obj.patientId);
                 }

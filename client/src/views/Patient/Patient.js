@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import {useParams, useLocation} from 'react-router-dom'
+import {useParams} from 'react-router-dom'
 // @material-ui/core components
-import {makeStyles} from "@material-ui/core/styles";
+
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -21,26 +21,26 @@ import $ from 'jquery'
 
 const baseUri = "http://localhost:3001/api";
 
-const styles = {
-    cardCategoryWhite: {
-        color: "rgba(255,255,255,.62)",
-        margin: "0",
-        fontSize: "14px",
-        marginTop: "0",
-        marginBottom: "0"
-    },
-    cardTitleWhite: {
-        color: "#FFFFFF",
-        marginTop: "0px",
-        minHeight: "auto",
-        fontWeight: "300",
-        fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-        marginBottom: "3px",
-        textDecoration: "none"
-    }
-};
+// const styles = {
+//     cardCategoryWhite: {
+//         color: "rgba(255,255,255,.62)",
+//         margin: "0",
+//         fontSize: "14px",
+//         marginTop: "0",
+//         marginBottom: "0"
+//     },
+//     cardTitleWhite: {
+//         color: "#FFFFFF",
+//         marginTop: "0px",
+//         minHeight: "auto",
+//         fontWeight: "300",
+//         fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+//         marginBottom: "3px",
+//         textDecoration: "none"
+//     }
+// };
 
-const useStyles = makeStyles(styles);
+//const useStyles = makeStyles(styles); removing, not in use
 
 function Patient() {
     const { patientId }  = useParams();
@@ -477,23 +477,27 @@ function Patient() {
         $("#table_view_" + factId).addClass(cssClass);
     });
 
-    const classes = useStyles();
+    // removed, not used const classes = useStyles();
     const [summary, setSummary] = useState(null);
 
 
-    useEffect((props) => {
-        async function GetSummary() {
+    useEffect(() => {
+        function GetSummary(patientId) {
+            let isMounted = true;
+
+            fetch('http://localhost:3001/api/patient/'+patientId+'/cancerAndTumorSummary').then(response => response.json()).then(data => {
+                if (isMounted)
+                   setSummary(data);
+            })
+            return () => isMounted = false;
+
+        }
+        GetSummary(patientId)
+        },[patientId]);
 
 
-                const response = await fetch('http://localhost:3001/api/patient/'+patientId+'/cancerAndTumorSummary');
-                const json = await response.json();
-                setSummary(json);
-            }
-        GetSummary();
-    }, []);
 
-
-   if (summary == undefined ) {
+   if (summary === undefined ) {
        return(<div> Loading... </div>)
    } else {
        const cancers = summary;

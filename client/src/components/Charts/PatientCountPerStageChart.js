@@ -67,6 +67,7 @@ export default class PatientCountPerStageChart extends React.Component {
                 if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
                     return d.stage;
                 }
+                //return null; //trying to get rid of a warning
             });
 
             let xCount = d3.scaleLinear()
@@ -119,7 +120,7 @@ export default class PatientCountPerStageChart extends React.Component {
                 xCountAxis = d3.axisBottom(xCount).tickValues(xCountTickValues).tickSize(0).tickFormat(d3.format("d"));
             }
 
-            var axis = d3.axisBottom;
+            //var axis = d3.axisBottom;  removing to get rid of a warning
 
 
             // Add patients count top X axis
@@ -155,7 +156,6 @@ export default class PatientCountPerStageChart extends React.Component {
                     })
                     .attr("height", y.bandwidth())
                     .on("click", function (d) {
-                        debugger;
                         let clickedBar = d3.select(this);
                         let css = "clicked_bar";
 
@@ -275,6 +275,7 @@ export default class PatientCountPerStageChart extends React.Component {
                             if (addedSubStages.indexOf(d.stage) !== -1) {
                                 return d.stage;
                             }
+                            //return null; //trying to get rid of a warning
                         });
 
                         // Reposition the exisiting stages BEFORE adding new sub stages
@@ -308,7 +309,7 @@ export default class PatientCountPerStageChart extends React.Component {
 
         fetchData().then(function (response) {
             response.json().then(function (jsonResponse) {
-                debugger;
+
                 Cohort.setPatientsByStage(jsonResponse.patients)
                 Cohort.setAllPatients(jsonResponse.patients)
                 Cohort.setPatientsByFirstEncounterAge(jsonResponse.patients);

@@ -35,6 +35,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
 
         function showPatientFirstEncounterAgePerStageChart(svgContainerId, data) {
+
             let patientsCounts = {};
 
             // In order to get the minAge and maxAge
@@ -115,7 +116,11 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             let defaultStagesData = data.filter(function(d) {
                 if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
                     return d.stage;
+                } else {
+                    //trying to get rid of a warning
+                     return null;
                 }
+
             });
 
             // set the ranges
@@ -200,7 +205,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                     x = e ? 1 : -1,
                     y = chartHeight / 2;
 
-                return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "Z" + "M" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
+                return "M" + (.5 * x) + "," + y + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6) + "V" + (2 * y - 6) + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y) + "ZM" + (2.5 * x) + "," + (y + 8) + "V" + (2 * y - 8) + "M" + (4.5 * x) + "," + (y + 8) + "V" + (2 * y - 8);
             };
 
             let customBrushHandle = ageSelectionBrush.selectAll(".handle--custom")
@@ -290,7 +295,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 let lowerAge = Math.round(extent[0]);
                 let upperAge = Math.round(extent[1]);
                 // Update patientsByFirstEncounterAge by filtering allPatients
-                debugger;
+
                 let patientsByFirstEncounterAge = Cohort.allPatients.filter(function(obj) {
                     return ((obj.firstEncounterAge >= lowerAge) && (obj.firstEncounterAge <= upperAge));
                 });
@@ -554,6 +559,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                             .attr("transform", function(d) {
                                 return "translate(0, " + (y(d.stage) + y.bandwidth()/2) + ")";
                             });
+                        //return null; //trying to get rid of a warning.
                     }
 
                     // Add sub stage bars and boxplots
@@ -598,6 +604,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
         fetchData().then(function (response) {
             response.json().then(function (jsonResponse) {
+                debugger;
                 showPatientFirstEncounterAgePerStageChart("john", jsonResponse.stagesInfo);
             });
         });
