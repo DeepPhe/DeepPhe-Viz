@@ -186,10 +186,10 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             // Restrict the brush move between minAge and maxAge
                 .extent([[x(minAge), 0], [x(maxAge), (chartHeight - chartTopMargin)]])
                 //TODO: fix duringBrush, endBrush, maybe crashing becase all people are the same age?
-                //.on("brush", duringBrush)
+                .on("brush", during1Brush)
                 // Only activate listener at the end of a brush gesture, such as on mouseup.
                 // Update the resulting charts on brush end
-                //.on("end", endBrush);
+                .on("end", end1Brush);
             ;
 
             let ageSelectionBrush = ageSelectionGrp.append("g")

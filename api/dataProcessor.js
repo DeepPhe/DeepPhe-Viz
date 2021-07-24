@@ -20,6 +20,7 @@ const _ = require('lodash');
 //     ////////////////////////////////////////////////////////////////////////////////////////
 
     const getCohortData = (neo4jRawArr) => {
+        neo4jRawArr = JSON.parse(neo4jRawArr)
         let self = this;
         let stagesJson = {};
         stagesJson.stagesInfo = [];
