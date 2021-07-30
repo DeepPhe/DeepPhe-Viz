@@ -15,6 +15,7 @@
 		return 'return deepphe.getCohortData() AS cohortData';
 	}
 
+
 	// The neo4j function deepphe.getDiagnosis() returns a list of diagnosis per patient
  	const getDiagnosis = (patientIds) =>{
     	return "return deepphe.getDiagnosis(['" + patientIds.join("','") + "']) AS diagnosis";

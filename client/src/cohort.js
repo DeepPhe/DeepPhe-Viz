@@ -656,7 +656,7 @@ function showPatientFirstEncounterAgePerStageChart(svgContainerId, data) {
         // Update currentFirstEncounterAgeRange
         currentFirstEncounterAgeRange = [lowerAge, upperAge];
 
-        showDerivedCharts(targetPatients, allStagesLabel, currentFirstEncounterAgeRange);
+       // showDerivedCharts(targetPatients, allStagesLabel, currentFirstEncounterAgeRange);
     }
 
 
@@ -956,7 +956,7 @@ export function showDerivedCharts(patientsArr, stage, firstEncounterAgeRange) {
             patientIds.push(patient.patientId);
         });
 
-        showResultsTitle("results_title", patientsArr, stage, firstEncounterAgeRange);
+        //showResultsTitle("results_title", patientsArr, stage, firstEncounterAgeRange);
 
         // Resulting target patients list
         showPatientsList("patients", patientsArr, stage, firstEncounterAgeRange);
@@ -1680,7 +1680,6 @@ export function getBiomarkers(patientIds) {
         dataType : 'json'
     })
         .done(function(response) {
-            debugger;
             showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
             showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
         })
@@ -1698,6 +1697,7 @@ function getDiagnosis(patientIds) {
         dataType : 'json'
     })
         .done(function(response) {
+            debugger;
             showDiagnosisChart("diagnosis", response);
         })
         .fail(function () {

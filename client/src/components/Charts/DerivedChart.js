@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import * as d3 from "d3v4";
 import * as $ from "jquery";
 import * as Cohort from '../../cohort.js'
@@ -8,39 +8,36 @@ const baseUri = "http://localhost:3000";
 const transitionDuration = 800; // time in ms
 
 
-
-
 export default class DerivedChart extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            loaded: false,
-            data: null
+            data: false,
+            title: false,
         };
     }
 
-
-
-
     componentDidMount() {
+        const componentThis = this;
 
-        const fetchData = async () => {
-            return new Promise(function (resolve, reject) {
-                fetch('http://localhost:3001/api/cohortData').then(function (response) {
-                    if (response) {
-                        resolve(response);
-                    } else {
-                        reject('User not logged in');
-                    }
+        function GetCohortData() {
+            fetch('http://localhost:3001/api/cohortData').then(response => response.json()).then(cohortData => {
+
+                componentThis.setState({data: cohortData}, () => {
+                    let patientData = componentThis.state.data.patients;
+                    patientData.sort((a, b) => a.firstEncounterAge.localeCompare(b.firstEncounterAge));
+                    let youngest = patientData[0].firstEncounterAge;
+                    let oldest = patientData[patientData.length-1].firstEncounterAge;
+                    componentThis.setState({title: "Target Patients " + patientData.length + ", first encounter age between " + youngest + " and " + oldest + ")"});
                 });
-
-            });
-
+            })
         }
 
+        GetCohortData();
+
         function highlightTargetPatients(patientsArr) {
-            patientsArr.forEach(function(patient) {
+            patientsArr.forEach(function (patient) {
                 $("#" + patient).addClass("highlighted_target_patient_in_diagnosis");
             });
         }
@@ -80,10 +77,11 @@ export default class DerivedChart extends React.Component {
 
             let diagnosisDots = [];
 
-            data.data.forEach(function(d) {
+            data.data.forEach(function (d) {
+
                 xDomain.push(d.patient);
 
-                d.diagnosisGroups.forEach(function(diagGrp) {
+                d.diagnosisGroups.forEach(function (diagGrp) {
                     let dot = {};
                     dot.patientId = d.patient;
                     dot.diagnosisGroups = diagGrp;
@@ -92,7 +90,7 @@ export default class DerivedChart extends React.Component {
                 });
             });
 
-            let widthPerPatient = (chartWidth - gapBetweenYAxisAndXAxis*2)/(xDomain.length - 1);
+            let widthPerPatient = (chartWidth - gapBetweenYAxisAndXAxis * 2) / (xDomain.length - 1);
             let patientsNumDisplay = 4;
 
             // Show the first patientsNumDisplay patients by default
@@ -116,32 +114,32 @@ export default class DerivedChart extends React.Component {
                 .range([0, overviewHeight]);
 
             // Replace all spaces, commas, and () with underscores
-            let diagnosis2Class = function(diagnosis) {
+            let diagnosis2Class = function (diagnosis) {
                 return diagnosis.replace(/ |,|\(|\)|/g, "_");
             };
 
             // Chart title
             svg.append("text")
                 .attr("class", "diagnosis_chart_title")
-                .attr("transform", function(d) {
-                    return "translate(" + svgWidth/2 + ", " + svgPadding.top + ")";
+                .attr("transform", function (d) {
+                    return "translate(" + svgWidth / 2 + ", " + svgPadding.top + ")";
                 })
                 .text("Diagnosis");
 
             // Patient diagnosis dots
             diagnosisChartGrp.selectAll(".diagnosis_dot")
-                .data(diagnosisDots.filter(function(obj) {
+                .data(diagnosisDots.filter(function (obj) {
                     // By default only show the dots of patients in the x.domain()
                     return x.domain().indexOf(obj.patientId) !== -1
                 }))
                 .enter().append("circle")
-                .attr("class", function(d) {
+                .attr("class", function (d) {
                     return "diagnosis_dot " + d.patientId;
                 })
-                .attr("cx", function(d, i) {
+                .attr("cx", function (d, i) {
                     return x(d.patientId);
                 })
-                .attr("cy", function(d) {
+                .attr("cy", function (d) {
                     return y(d.diagnosisGroups);
                 })
                 .attr("r", diagnosisDotRadius)
@@ -163,7 +161,7 @@ export default class DerivedChart extends React.Component {
                     .call(d3.axisBottom(x))
                     .selectAll("text")
                     .attr("class", "diagnosis_x_label")
-                    .on("mouseover", function(d) {
+                    .on("mouseover", function (d) {
                         // Highlight all dots of this patient
                         d3.selectAll("." + d)
                             .attr("r", highlightedDotRadius)
@@ -178,11 +176,11 @@ export default class DerivedChart extends React.Component {
                             .attr("y2", chartHeight - chartTopMargin);
 
                         // Also highlight the corresponding Y labels
-                        data.patients[d].forEach(function(diagnosis) {
+                        data.patients[d].forEach(function (diagnosis) {
                             $("." + diagnosis2Class(diagnosis)).addClass("highlighted_diagnosis_label");
                         });
                     })
-                    .on("mouseout", function(d) {
+                    .on("mouseout", function (d) {
                         // Reset dot size and color
                         d3.selectAll("." + d)
                             .attr("r", diagnosisDotRadius)
@@ -192,7 +190,7 @@ export default class DerivedChart extends React.Component {
                         d3.selectAll(".diagnosis_guideline").remove();
 
                         // Also dehighlight the corresponding Y labels
-                        data.patients[d].forEach(function(diagnosis) {
+                        data.patients[d].forEach(function (diagnosis) {
                             $("." + diagnosis2Class(diagnosis)).removeClass("highlighted_diagnosis_label");
                         });
                     });
@@ -203,11 +201,11 @@ export default class DerivedChart extends React.Component {
                 .call(d3.axisLeft(y))
                 // Now add class to the label text
                 .selectAll("text")
-                .attr("class", function(d) {
+                .attr("class", function (d) {
                     return diagnosis2Class(d);
                 })
                 // Replace underscore with white space
-                .text(function(d) {
+                .text(function (d) {
                     return d;
                 });
 
@@ -226,17 +224,17 @@ export default class DerivedChart extends React.Component {
                     .data(diagnosisDots)
                     .enter().append("g").append("circle")
                     .attr('class', 'overview_diagnosis_dot')
-                    .attr("cx", function(d) {
+                    .attr("cx", function (d) {
                         return overviewX(d.patientId);
                     })
-                    .attr("cy", function(d) {
+                    .attr("cy", function (d) {
                         return overviewY(d.diagnosisGroups);
                     })
                     .attr("r", overviewDotRadius)
                     .attr("fill", dotColor);
 
                 // Add overview step slider
-                let sliderWidth = widthPerPatient * (patientsNumDisplay - 1) + 2*overviewDotRadius;
+                let sliderWidth = widthPerPatient * (patientsNumDisplay - 1) + 2 * overviewDotRadius;
 
                 // Highlight the target patients in target patients list by default
                 highlightTargetPatients(defaultPatients);
@@ -249,7 +247,7 @@ export default class DerivedChart extends React.Component {
                     .attr("x", gapBetweenYAxisAndXAxis - overviewDotRadius)
                     .attr("y", -overviewDotRadius) // take care of the radius
                     .attr("width", sliderWidth)
-                    .attr("height", overviewHeight + 2*overviewDotRadius)
+                    .attr("height", overviewHeight + 2 * overviewDotRadius)
                     .attr("pointer-events", "all")
                     .attr("cursor", "ew-resize")
                     .call(drag);
@@ -272,10 +270,10 @@ export default class DerivedChart extends React.Component {
                     }
 
                     // Now we need to know the start and end index of the domain array
-                    let startIndex = Math.floor(dragX/widthPerPatient);
+                    let startIndex = Math.floor(dragX / widthPerPatient);
 
                     // Step Slider
-                    let midPoint = (overviewX(xDomain[startIndex]) + overviewX(xDomain[startIndex + 1]))/2;
+                    let midPoint = (overviewX(xDomain[startIndex]) + overviewX(xDomain[startIndex + 1])) / 2;
 
                     let targetIndex = null;
                     if (dragX < midPoint) {
@@ -301,7 +299,7 @@ export default class DerivedChart extends React.Component {
                     diagnosisChartGrp.selectAll(".diagnosis_x_axis").remove();
                     createXAxis();
 
-                    let newDiagnosisDots = diagnosisDots.filter(function(obj) {
+                    let newDiagnosisDots = diagnosisDots.filter(function (obj) {
                         return newXDomain.indexOf(obj.patientId) !== -1
                     });
 
@@ -312,13 +310,13 @@ export default class DerivedChart extends React.Component {
                     diagnosisChartGrp.selectAll(".diagnosis_dot")
                         .data(newDiagnosisDots)
                         .enter().append("circle")
-                        .attr("class", function(d) {
+                        .attr("class", function (d) {
                             return "diagnosis_dot " + d.patientId;
                         })
-                        .attr("cx", function(d) {
+                        .attr("cx", function (d) {
                             return x(d.patientId);
                         })
-                        .attr("cy", function(d) {
+                        .attr("cy", function (d) {
                             return y(d.diagnosisGroups);
                         })
                         .attr("r", 4)
@@ -331,35 +329,39 @@ export default class DerivedChart extends React.Component {
             }
         }
 
-        function showResultsTitle(containerId, data, stage, firstEncounterAgeRange) {
-            removeChart(containerId);
+        // function showResultsTitle(containerId, data, stage, firstEncounterAgeRange) {
+        //     removeChart(containerId);
+        //
+        //     let html = 'Target Patients (' + data.length + ' patients from ' + stage + ', first encounter age between ' + firstEncounterAgeRange[0] + ' and ' + firstEncounterAgeRange[1] + ')';
+        //
+        //     $("#" + containerId).html(html);
+        // }
 
-            let html = 'Target Patients (' + data.length + ' patients from ' + stage + ', first encounter age between ' + firstEncounterAgeRange[0] + ' and ' + firstEncounterAgeRange[1] + ')';
+        //TODO: Start here friday.  Maybe make this patient list reactive!
 
-            $("#" + containerId).html(html);
-        }
         function showPatientsList(containerId, data, stage, firstEncounterAgeRange) {
             removeChart(containerId);
 
-            let html = '<ul class="patient_list">';
+            let html = '<div><ul class="patient_list">';
 
-            data.forEach(function(patient) {
+            data.forEach(function (patient) {
 
-                html += '<li><a id="' + patient.patientId + '" class="target_patient" href="' + baseUri + '/patient/' + patient.patientId + '" target="_blank">' + patient.patientId + '</a> (' + patient.firstEncounterAge + '/' + patient.lastEncounterAge + ')</li>';
+                html += '<li><a id="' + patient.patientId + '" class="target_patient" href="' + baseUri + '/patient/' + patient.patientId + '" target="_blank">' + patient.patientId + '</a> (' + patient.firstEncounterAge + ')</li>';
             });
 
-            html += '</ul>';
+            html += '</ul></div>';
 
             $("#" + containerId).html(html);
         }
+
         function getDiagnosis(patientIds) {
             $.ajax({
                 url: "http://localhost:3001/api/diagnosis/" + patientIds.join('+'),
                 method: 'GET',
-                async : true,
-                dataType : 'json'
+                async: true,
+                dataType: 'json'
             })
-                .done(function(response) {
+                .done(function (response) {
                     showDiagnosisChart("diagnosis", response);
                 })
                 .fail(function () {
@@ -447,39 +449,39 @@ export default class DerivedChart extends React.Component {
                 // Chart title
                 svg.append("text")
                     .attr("class", "biomarkers_chart_title")
-                    .attr("transform", function(d) {
-                        return "translate(" + svgWidth/2 + ", " + svgPadding.top + ")";
+                    .attr("transform", function (d) {
+                        return "translate(" + svgWidth / 2 + ", " + svgPadding.top + ")";
                     })
                     .text("Patients With Biomarkers Found");
 
                 let biomarkerStatusGrp = biomarkersChartGrp.selectAll(".biomarker_status_group")
                     .data(stackData)
                     .enter().append("g")
-                    .attr("class", function(d) {
+                    .attr("class", function (d) {
                         return "biomarker_status_group " + d.key;
                     })
-                    .attr("fill", function(d) {
+                    .attr("fill", function (d) {
                         return color(d.key);
                     });
 
                 // Status bars inside each biomarker group
                 biomarkerStatusGrp.selectAll(".biomarker_status_bar")
                     // here d is each object in the stackData array
-                    .data(function(d) {
+                    .data(function (d) {
                         return d;
                     })
                     .enter().append("rect")
                     .attr("class", "biomarker_status_bar")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d[0]);
                     })
-                    .attr("y", function(d) {
+                    .attr("y", function (d) {
                         return y(d.data.biomarker);
                     })
                     .attr("height", y.bandwidth())
                     .transition()
                     .duration(transitionDuration)
-                    .attr("width", function(d) {
+                    .attr("width", function (d) {
                         // Return the absolute value to avoid errors due to negative value
                         return Math.abs(x(d[1]) - x(d[0]));
                     });
@@ -487,26 +489,26 @@ export default class DerivedChart extends React.Component {
                 // Append the percentage text
                 biomarkerStatusGrp.selectAll(".biomarker_status_percentage")
                     // here d is each object in the stackData array
-                    .data(function(d) {
+                    .data(function (d) {
                         // Add status property to make it available in the text()
-                        d.forEach(function(item) {
+                        d.forEach(function (item) {
                             item.status = d.key;
                         });
 
                         return d;
                     })
                     .enter().append("text")
-                    .attr("id", function(d) {
+                    .attr("id", function (d) {
                         return d.data.biomarker + "_" + d.status;
                     })
                     .attr("class", "biomarker_status_percentage")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d[0]) + 5; // Add 5px margin to left
                     })
-                    .attr("y", function(d) {
-                        return y(d.data.biomarker) + y.bandwidth()/2;
+                    .attr("y", function (d) {
+                        return y(d.data.biomarker) + y.bandwidth() / 2;
                     })
-                    .text(function(d) {
+                    .text(function (d) {
                         // Only show percentage text for values bigger than 10%
                         if (d.data[d.status] > 0.1) {
                             return formatPercentBarText(d.data[d.status]);
@@ -519,7 +521,7 @@ export default class DerivedChart extends React.Component {
                     .call(d3.axisLeft(y))
                     // Now modify the label text to add patients count
                     .selectAll("text")
-                    .text(function(d) {
+                    .text(function (d) {
                         if (d === "has_ER_Status") {
                             return "ER";
                         } else if (d === "has_PR_Status") {
@@ -543,7 +545,7 @@ export default class DerivedChart extends React.Component {
                     .selectAll("g")
                     .data(data.biomarkerStatus)
                     .enter().append("g")
-                    .attr("transform", function(d, i) {
+                    .attr("transform", function (d, i) {
                         return "translate(0," + i * (legendRectSize + legnedTextRectPad) + ")";
                     });
 
@@ -552,10 +554,10 @@ export default class DerivedChart extends React.Component {
                     .attr("x", chartWidth - legendRectSize)
                     .attr("width", legendRectSize)
                     .attr("height", legendRectSize)
-                    .attr("fill", function(d) {
+                    .attr("fill", function (d) {
                         return color(d);
                     })
-                    .attr("stroke", function(d) {
+                    .attr("stroke", function (d) {
                         return color(d);
                     });
 
@@ -563,9 +565,10 @@ export default class DerivedChart extends React.Component {
                     .attr("class", "biomarker_status_legend_text")
                     .attr("x", chartWidth - legendRectSize - legnedTextRectPad)
                     .attr("y", 9)
-                    .text(function(d) {
+                    .text(function (d) {
                         // Capitalized
-                        return d.charAt(0).toUpperCase() + d.slice(1);;
+                        return d.charAt(0).toUpperCase() + d.slice(1);
+                        ;
                     });
             } else {
                 // Update the data
@@ -575,15 +578,15 @@ export default class DerivedChart extends React.Component {
                 // Update the status bars position and width
                 biomarkerStatusGrp.selectAll(".biomarker_status_bar")
                     // here d is each object in the stackData array
-                    .data(function(d) {
+                    .data(function (d) {
                         return d;
                     })
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d[0]);
                     })
                     .transition()
                     .duration(transitionDuration)
-                    .attr("width", function(d, i) {
+                    .attr("width", function (d, i) {
                         // Return the absolute value to avoid errors due to negative value
                         // during transitioning from one stage to another stage
                         return Math.abs(x(d[1]) - x(d[0]));
@@ -592,18 +595,18 @@ export default class DerivedChart extends React.Component {
                 // Update the percentage text and x position
                 biomarkerStatusGrp.selectAll(".biomarker_status_percentage")
                     // here d is each object in the stackData array
-                    .data(function(d) {
+                    .data(function (d) {
                         // Add status property to make it available in the text()
-                        d.forEach(function(item) {
+                        d.forEach(function (item) {
                             item.status = d.key;
                         });
 
                         return d;
                     })
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d[0]) + 5;
                     })
-                    .text(function(d) {
+                    .text(function (d) {
                         // Only show percentage text for values bigger than 10%
                         if (d.data[d.status] > 0.1) {
                             return formatPercentBarText(d.data[d.status]);
@@ -621,7 +624,7 @@ export default class DerivedChart extends React.Component {
             const chartTopMargin = 35;
 
             let yLables = [];
-            data.forEach(function(obj) {
+            data.forEach(function (obj) {
                 yLables.push(obj.label);
             });
 
@@ -653,8 +656,8 @@ export default class DerivedChart extends React.Component {
                 // Chart title
                 svg.append("text")
                     .attr("class", "biomarkers_chart_title")
-                    .attr("transform", function(d) {
-                        return "translate(" + svgWidth/2 + ", " + svgPadding.top + ")";
+                    .attr("transform", function (d) {
+                        return "translate(" + svgWidth / 2 + ", " + svgPadding.top + ")";
                     })
                     .text("Biomarkers Overview");
 
@@ -672,27 +675,27 @@ export default class DerivedChart extends React.Component {
                 barGrp.append("rect")
                     .attr("class", "biomarkers_overview_chart_bar")
                     .attr("x", 0)
-                    .attr("y", function(d) {
+                    .attr("y", function (d) {
                         return y(d.label);
                     })
                     .attr("height", y.bandwidth())
                     .transition()
                     .duration(transitionDuration)
-                    .attr("width", function(d) {
+                    .attr("width", function (d) {
                         return x(d.count);
                     });
 
                 // Percentage text
                 barGrp.append("text")
-                    .attr("id", function(d) {
+                    .attr("id", function (d) {
                         return d.label + "_" + d.status;
                     })
                     .attr("class", "biomarkers_overview_chart_bar_percentage")
                     .attr("x", 5)
-                    .attr("y", function(d) {
-                        return y(d.label) + y.bandwidth()/2;
+                    .attr("y", function (d) {
+                        return y(d.label) + y.bandwidth() / 2;
                     })
-                    .text(function(d) {
+                    .text(function (d) {
                         return formatPercentBarText(d.count);
                     });
 
@@ -715,14 +718,14 @@ export default class DerivedChart extends React.Component {
                 biomarkersPatientsGrp.select(".biomarkers_overview_chart_bar")
                     .transition()
                     .duration(transitionDuration)
-                    .attr("width", function(d) {
+                    .attr("width", function (d) {
                         return x(d.count);
                     });
 
 
                 // Update the percentage text
                 biomarkersPatientsGrp.select(".biomarkers_overview_chart_bar_percentage")
-                    .text(function(d) {
+                    .text(function (d) {
                         return formatPercentBarText(d.count);
                     });
             }
@@ -734,14 +737,13 @@ export default class DerivedChart extends React.Component {
 
 
         function showDerivedChart(patientsArr, stage, firstEncounterAgeRange) {
-
             if (patientsArr.length > 0) {
                 let patientIds = [];
-                patientsArr.forEach(function(patient) {
+                patientsArr.forEach(function (patient) {
                     patientIds.push(patient.patientId);
                 });
 
-                showResultsTitle("results_title", patientsArr, stage, firstEncounterAgeRange);
+                //showResultsTitle("results_title", patientsArr, stage, firstEncounterAgeRange);
 
                 // Resulting target patients list
                 showPatientsList("patients", patientsArr, stage, firstEncounterAgeRange);
@@ -750,7 +752,7 @@ export default class DerivedChart extends React.Component {
                 getDiagnosis(patientIds);
 
                 // Make another ajax call to get biomarkers info for the list of patients
-                 Cohort.getBiomarkers(patientIds);
+                Cohort.getBiomarkers(patientIds);
             } else {
                 console.log("Empty target patients list");
                 // We'll need to remove the previous resulting charts
@@ -760,29 +762,23 @@ export default class DerivedChart extends React.Component {
             }
         }
 
-
-
-        fetchData().then(function (response) {
-            response.json().then(function (jsonResponse) {
-debugger;
-                let currentFirstEncounterAgeRange = [0, 100];
-                let allPatients = jsonResponse.patients;
-                showDerivedChart(allPatients, allStagesLabel, currentFirstEncounterAgeRange );
-            });
-        });
-
-
     }
 
-
-
-
-render() {
-    // return (<div>{this.state.res}</div>);
-    return (
-        <div className="DerivedChart" id="john-derived">
-
-        </div>
-    );
-}
+    render() {
+        const title  = this.state.title;
+        if (title) {
+            debugger;
+            return (
+                <React.Fragment>
+                    <div>Target Patients 334</div>
+                    {/*<div className="DerivedChart" id="john-derived"></div>*/}
+                    <div>{this.state.title}</div>
+                </React.Fragment>
+            );
+        } else {
+            return (
+                <span>Loading patient data...</span>
+            )
+        }
+    }
 }

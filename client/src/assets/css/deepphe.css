@@ -64,9 +64,9 @@ border: 1px solid #ddd;
 #patients2 {
 background:#fff;
 border:1px solid #fff;
-margin:10px;
-padding:0px;
-float:left;
+/*margin:10px;*/
+/*padding:0px;*/
+/*float:left;*/
 }
 
 /* Minimize the text rendering inconsistency across browsers */
@@ -187,20 +187,22 @@ text-align: center;
 
 /* Target patients list */
 #patients {
-padding:10px;
+/*padding:10px;*/
 }
 
 .patient_list {
-width:330px;
-list-style: none;
-margin:0;
-padding:0;
+    /*text-align : center;*/
+
+
+/*margin:auto;*/
+/*padding:0;*/
 }
 
 .patient_list li {
 float:left;
-width:160px;
-margin:2px 5px 2px 0;
+min-width: 100px;
+    width:20%;
+/*margin:2px 5px 2px 0;*/
 }
 
 .highlighted_target_patient_in_diagnosis {

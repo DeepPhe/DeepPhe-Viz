@@ -31,11 +31,11 @@ const _ = require('lodash');
 
         for (let i = 0; i < neo4jRawArr.length; i++) {
             let stagesArr = neo4jRawArr[i].stages.forEach(function(stage) {
-                let shortStageName = getShortStageName(stage);
-
+                let stageName = getShortStageName(stage);
+                stageName = getRomanNumeralStageName(stageName)
                 // Any shortStageName that is not in the order list, will be ignored.
-                if (getOrderedCancerStages().indexOf(shortStageName) !== -1 && uniqueStages.indexOf(shortStageName) === -1) {
-                    uniqueStages.push(shortStageName);
+                if (getOrderedCancerStages().indexOf(stageName) !== -1 && uniqueStages.indexOf(stageName) === -1) {
+                    uniqueStages.push(stageName);
                 }
             });  
         }
@@ -60,19 +60,27 @@ const _ = require('lodash');
                 'Stage Unknown': ['Stage Unknown']
             };
 
-            // Top level stage should also contain all patients from sub-leve stages
-            if (Object.keys(topLevelStages).indexOf(stage) !== -1) {
-                for (let i = 0; i < neo4jRawArr.length; i++) {
-                    let patient = neo4jRawArr[i];
-                    patient.stages.forEach(function(s) {
-                        let shortStageName = getShortStageName(s);
-                        // Use lodash's _.findIndex() instead of the native indexOf() to avoid duplicates
-                        if ((topLevelStages[stage].indexOf(shortStageName) !== -1) && (_.findIndex(obj.patients, patient) === -1)) {
-                            obj.patients.push(patient);
-                        }
-                    });
+
+
+            let FOUND_STAGE = false;
+            Object.keys(topLevelStages).forEach(function(topLevelStage) {
+                if (topLevelStages[topLevelStage].indexOf(stage) !== -1) {
+                    FOUND_STAGE = true;
+                    for (let i = 0; i < neo4jRawArr.length; i++) {
+                        let patient = neo4jRawArr[i];
+                        patient.stages.forEach(function (s) {
+                            let stageName = getShortStageName(s);
+                            stageName = getRomanNumeralStageName(stageName);
+                            // Use lodash's _.findIndex() instead of the native indexOf() to avoid duplicates
+                           // if ((topLevelStages[stage].indexOf(stageName) !== -1) &&
+                             if (_.findIndex(obj.patients, patient) === -1) {
+                                obj.patients.push(patient);
+                            }
+                        });
+                    }
                 }
-            } else {
+            });
+            if (!FOUND_STAGE) {
                 for (let i = 0; i < neo4jRawArr.length; i++) {
                     let patient = neo4jRawArr[i];
                     patient.stages.forEach(function(s) {
@@ -84,6 +92,7 @@ const _ = require('lodash');
                     });
                 }
             }
+
 
             obj.patientsCount = obj.patients.length;
             
@@ -104,6 +113,7 @@ const _ = require('lodash');
     };
 
     const getDiagnosis = (patientIds, neo4jRawArr) => {
+        neo4jRawArr = JSON.parse(neo4jRawArr);
         let self = this;
         let diagnosisInfo = {};
         diagnosisInfo.patients = {};
@@ -132,6 +142,7 @@ const _ = require('lodash');
             for (let i = 0; i < neo4jRawArr.length; i++) {
                 neo4jRawArr[i].diagnosisGroups.forEach(function(diagGrp) {
                     if (neo4jRawArr[i].patientId === pid && obj.diagnosisGroups.indexOf(diagGrp) === -1) {
+                        //this should get called!?!
                         obj.diagnosisGroups.push(diagGrp);
                     }
                 });
@@ -906,6 +917,11 @@ const _ = require('lodash');
     // Only get the first two words, e.g., "Stage IA"
     const getShortStageName = (longStageName) => {
         return longStageName.split(/\s+/).slice(0, 2).join(' ');
+    }
+
+    // "stage_2a"
+    const getRomanNumeralStageName = (arabicStageName) => {
+        return arabicStageName.replace("_", " ").replace("1", "I").replace("2", "II")
     }
 
     // Used by episode

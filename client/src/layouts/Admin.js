@@ -94,18 +94,19 @@ export default function Admin({ ...rest }) {
   }, [mainPanel]);
   return (
     <div className={classes.wrapper}>
-      <Sidebar
-        routes={routes}
-        logoText={"DeepPhe"}
-        logo={logo}
-        image={image}
-       // handleDrawerToggle={handleDrawerToggle}
-        //open={mobileOpen}
-        //  open={"false"}
-        color={color}
-        {...rest}
-      />
-      <div className={classes.mainPanel} ref={mainPanel}>
+      {/*<Sidebar*/}
+      {/*  routes={routes}*/}
+      {/*  logoText={"DeepPhe"}*/}
+      {/*  logo={logo}*/}
+      {/*  image={image}*/}
+      {/* // handleDrawerToggle={handleDrawerToggle}*/}
+      {/*  //open={mobileOpen}*/}
+      {/*  //  open={"false"}*/}
+      {/*  color={color}*/}
+      {/*  {...rest}*/}
+      {/*/>*/}
+      {/*<div className={classes.mainPanel} ref={mainPanel}>*/}
+        <div ref={mainPanel}>
         <Navbar
           routes={routes}
           //handleDrawerToggle={handleDrawerToggle}

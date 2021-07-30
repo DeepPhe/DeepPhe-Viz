@@ -604,7 +604,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
         fetchData().then(function (response) {
             response.json().then(function (jsonResponse) {
-                debugger;
+
                 showPatientFirstEncounterAgePerStageChart("john", jsonResponse.stagesInfo);
             });
         });
