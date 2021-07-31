@@ -902,7 +902,7 @@ const _ = require('lodash');
         // Build the TNM object of this type
         // collatedFacts contains all the cancer categories, we only need the TNM relationships of this type
         for (let i = 0; i < collatedFacts.length; i++) {
-            console.log(collatedFacts[i].category);
+            //console.log(collatedFacts[i].category);
             if (tnmClassifications.indexOf(collatedFacts[i].category) !== -1) {
                 let itemObj = {};
                 // Extracted the last letter of the classification, "T", or "N", or "M"

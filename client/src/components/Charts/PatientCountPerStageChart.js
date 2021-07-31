@@ -2,6 +2,9 @@ import React from "react";
 import * as d3 from "d3v4";
 import * as Cohort from '../../cohort.js'
 
+import {showDerivedChart} from "./DerivedChart";
+
+
 
 
 export default class PatientCountPerStageChart extends React.Component {
@@ -171,7 +174,7 @@ export default class PatientCountPerStageChart extends React.Component {
 
                             let targetPatients = Cohort.getTargetPatients(Cohort.patientsByStage, Cohort.patientsByFirstEncounterAge);
 
-                            Cohort.showDerivedCharts(targetPatients, d.stage, Cohort.currentFirstEncounterAgeRange);
+                            showDerivedChart(targetPatients, d.stage, Cohort.currentFirstEncounterAgeRange);
                         } else {
                             // When clicked again, remove highlight and show all patients
                             clickedBar.classed(css, false);
@@ -182,7 +185,7 @@ export default class PatientCountPerStageChart extends React.Component {
 
                             let targetPatients = Cohort.getTargetPatients(Cohort.patientsByStage, Cohort.patientsByFirstEncounterAge);
 
-                            Cohort.showDerivedCharts(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
+                            showDerivedChart(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
                         }
                     })
                     .transition()

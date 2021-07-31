@@ -21,7 +21,7 @@ router.use(cors());
 
 router.get('/cohortData', function (req, res) {
   const session = neo4jDriver.session(neo4j.session.READ);
-  let promise = session.run(neo4jFunctions.getCohortData())
+  session.run(neo4jFunctions.getCohortData())
       .then(function(neo4jResult) {
         session.close();
 

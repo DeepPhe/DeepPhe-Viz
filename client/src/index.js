@@ -32,22 +32,44 @@ import Patient from "./views/Patient/Patient";
 import CancerAndTumorSummaryView from "./views/Summaries/CancerAndTumorSummaryView";
 import TimelineView from "./views/Timeline/TimelineView";
 import ReactDOM from "react-dom";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {CssBaseline} from "@material-ui/core";
+import {createMuiTheme, ThemeProvider} from "@material-ui/core";
 
 const hist = createBrowserHistory();
+const themeLight = createMuiTheme({
+    palette: {
+        background: {
+            default: "#e4f0e2"
+        }
+    }
+});
+
+const themeDark = createMuiTheme({
+    palette: {
+        background: {
+            default: "#143267"
+        },
+        text: {
+            primary: "#ffffff"
+        }
+    }
+});
+
 
 ReactDOM.render(
     <Router history={hist}>
+        <ThemeProvider theme={themeDark}>
+            <CssBaseline/>
+            <Switch>
+                <Route path="/admin" component={Admin}/>
+                <Route path="/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
+                <Route path="/patient/:patientId/timeline" component={TimelineView}/>
+                <Route path="/patient/:patientId" component={Patient}/>
 
-        <Switch>
-            <Route path="/admin" component={Admin}/>
-            <Route path="/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
-            <Route path="/patient/:patientId/timeline" component={TimelineView}/>
-            <Route path="/patient/:patientId" component={Patient}/>
-
-            <Redirect from="/" to="/admin/dashboard"/>
-        </Switch>
-
+                <Redirect from="/" to="/admin/dashboard"/>
+            </Switch>
+        </ThemeProvider>
     </Router>
     ,
     document.getElementById("root")

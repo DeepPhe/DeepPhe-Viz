@@ -1,6 +1,7 @@
 import React from "react";
 import * as d3 from "d3v4";
 import * as Cohort from '../../cohort.js'
+import {showDerivedChart} from "./DerivedChart";
 
 
 
@@ -289,7 +290,6 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             // Filter the patients based on age selection
             // Then update derived resulting charts
             function  end1Brush() {
-                //jdl
                 let extent = d3.event.selection.map(x.invert, x);
 
                 let lowerAge = Math.round(extent[0]);
@@ -306,7 +306,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // Update curre ntFirstEncounterAgeRange
                 currentFirstEncounterAgeRange = [lowerAge, upperAge];
 
-                Cohort.showDerivedCharts(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
+                showDerivedChart(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
             }
 
 

@@ -157,6 +157,9 @@ text-anchor: middle;
 cursor:default;
 }
 
+#diagnosis {
+    text-align: center;
+}
 .diagnosis_x_label:hover {
 font-weight:bold;
 fill:rgb(230, 85, 13);
@@ -193,15 +196,16 @@ text-align: center;
 .patient_list {
     /*text-align : center;*/
 
-
 /*margin:auto;*/
 /*padding:0;*/
 }
 
+
+
 .patient_list li {
-float:left;
-min-width: 100px;
-    width:20%;
+/*float:left;*/
+/*min-width: 100px;*/
+/*    width:20%;*/
 /*margin:2px 5px 2px 0;*/
 }
 
@@ -231,6 +235,9 @@ font-weight: bold;
 dominant-baseline:text-before-edge;
 }
 
+#target_patients_title {
+    margin-bottom: 8px;
+}
 .biomarker_status_bar,
 .biomarker_status_legend {
 fill-opacity:0.3;
@@ -363,7 +370,9 @@ text-decoration: underline;
 /**
 * Remove most spacing between table cells.
 */
-
+body {
+    background-color: #2a265d;
+}
 table {
 background-color:#fff;
 border-collapse: collapse;
@@ -789,7 +798,7 @@ float: left;
 .view_options label {
 display: inline-block;
 width: 80px;
-background-color: #fff;
+/*background-color: #fff;*/
 color: rgba(0, 0, 0, 0.6);
 text-align: center;
 font-size: .85em;
