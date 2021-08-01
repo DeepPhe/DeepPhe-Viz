@@ -190,7 +190,7 @@ text-align: center;
 
 /* Target patients list */
 #patients {
-/*padding:10px;*/
+padding-left:26px;
 }
 
 .patient_list {
@@ -230,6 +230,7 @@ margin-bottom:20px;
 text-anchor: middle;
 font-size:12px;
 font-weight: bold;
+    color: white;
 /* https://stackoverflow.com/questions/12250403/vertical-alignment-of-text-element-in-svg */
 /* upper left corner of the text is the position of text */
 dominant-baseline:text-before-edge;

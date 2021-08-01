@@ -81,9 +81,9 @@ export default class DerivedChart extends React.Component {
         if (title) {
             return (
                 <React.Fragment>
-                    <Container>
+
                         <Card>
-                            <CardHeader color="warning">
+                            <CardHeader  style={{'font-size':'18px'}} color="warning">
                                 Case Details Given Age and Inclusion Criteria
                             </CardHeader>
                             <CardBody>
@@ -112,7 +112,7 @@ export default class DerivedChart extends React.Component {
                                 </Row>
                             </CardBody>
                         </Card>
-                    </Container>
+
                 </React.Fragment>
             );
         } else {

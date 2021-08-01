@@ -27,7 +27,7 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 //import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
-import {Navbar} from "react-bootstrap";
+import {Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {Container} from "react-bootstrap";
 import CardFooter from "components/Card/CardFooter.js";
 
@@ -43,18 +43,21 @@ import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js"
 import PatientCountPerStageChart from "../../components/Charts/PatientCountPerStageChart";
 import PatientFirstEncounterAgePerStageChart from "../../components/Charts/PatientFirstEncounterAgePerStageChart";
 import DerivedChart from "../../components/Charts/DerivedChart";
+import Footer from "../../components/Footer/Footer";
 
 const useStyles = makeStyles(styles);
 
 export default function Dashboard() {
     const classes = useStyles();
+
     return (<span>
         <Navbar bg="light" expand="lg">
             <Container>
-                <Navbar.Brand href="#home">DeepPhe Visualizer</Navbar.Brand>
+                <Navbar.Brand href="#home" style={{'font-size':'25px'}}>DeepPhe Visualizer<span style={{"font-size":'20px'}}> v2.0.0.0</span></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
-                    {/*<Nav className="me-auto">*/}
+                    {/*<Nav className="me-auto" style={{'float':'right'}}>*/}
+
                     {/*    <Nav.Link href="#home">Home</Nav.Link>*/}
                     {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
                     {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
@@ -75,7 +78,7 @@ export default function Dashboard() {
                 <GridItem xs={12} sm={12} md={2}/>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"success"}>Set Corpus by Age Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px'}}>Set Corpus by Age Criteria</CardHeader>
                         <CardBody>
                             <PatientFirstEncounterAgePerStageChart id="john"></PatientFirstEncounterAgePerStageChart>
                         </CardBody>
@@ -83,7 +86,7 @@ export default function Dashboard() {
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"success"}>Cases Matching Inclusion Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px'}}>Cases Matching Inclusion Criteria</CardHeader>
                         {/*<CardHeader color="warning">*/}
                         {/*  <ChartistGraph*/}
                         {/*    className="ct-chart"*/}
@@ -112,16 +115,16 @@ export default function Dashboard() {
             <GridContainer>
                 <GridItem xs={12} sm={12} md={2}/>
                 <GridItem xs={12} sm={12} md={8}>
-                    <Card>
-                        <CardBody className={"text-center"}>
+
                             <DerivedChart>
                             </DerivedChart>
-                        </CardBody>
-                    </Card>
+
                 </GridItem>
                 <GridItem xs={12} sm={12} md={2}/>
             </GridContainer>
         </div>
+
+
         </span>
     );
 }

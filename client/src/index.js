@@ -35,6 +35,7 @@ import ReactDOM from "react-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {CssBaseline} from "@material-ui/core";
 import {createMuiTheme, ThemeProvider} from "@material-ui/core";
+import Footer from "./components/Footer/Footer";
 
 const hist = createBrowserHistory();
 const themeLight = createMuiTheme({
@@ -48,11 +49,20 @@ const themeLight = createMuiTheme({
 const themeDark = createMuiTheme({
     palette: {
         background: {
-            default: "#143267"
+            default: "#0d47a1",
+            secondary:"#333"
         },
         text: {
             primary: "#ffffff"
-        }
+        },
+
+    },
+
+    typography: {
+        // In Chinese and Japanese the characters are usually larger,
+        // so a smaller fontsize may be appropriate.
+        fontSize: 26,
+        htmlFontSize: 26
     }
 });
 

@@ -14,9 +14,9 @@ import CancerAndTumorSummary from "../../components/Summaries/CancerAndTumorSumm
 import Timeline from "../../components/Charts/Timeline";
 
 
-
 import $ from 'jquery'
-
+import CardHeader from "../../components/Card/CardHeader";
+import {Container, Navbar} from "react-bootstrap";
 
 
 const baseUri = "http://localhost:3001/api";
@@ -43,15 +43,12 @@ const baseUri = "http://localhost:3001/api";
 //const useStyles = makeStyles(styles); removing, not in use
 
 function Patient() {
-    const { patientId }  = useParams();
+    const {patientId} = useParams();
 
     // Highlight the selected report circle
     function highlightReportBasedOnFact(reportId) {
         d3.select('#main_' + reportId).classed("fact_highlighted_report", true);
     }
-
-
-
 
 
     let factBasedReports = {};
@@ -350,7 +347,7 @@ function Patient() {
         // Also highlight the same fact in table view
         $("#table_view_" + factId).addClass(cssClass);
     });
-    $(document).on("click", ".cancer_and_tnm .fact", function() {
+    $(document).on("click", ".cancer_and_tnm .fact", function () {
         const cssClass = 'highlighted_fact';
 
         // Remove the previous highlighting
@@ -405,8 +402,8 @@ function Patient() {
     // Toggle for each tumor type under list view
     $(document).on("click", ".list_view_tumor_type", function () {
 
-    //    $(this).next().find(".toggleable").toggle("fast");
-       // $(this).find(".fa-caret-right, .fa-caret-down").toggle();
+        //    $(this).next().find(".toggleable").toggle("fast");
+        // $(this).find(".fa-caret-right, .fa-caret-down").toggle();
         //$(this).find(".fa-caret-right").toggle();
     });
 
@@ -485,39 +482,74 @@ function Patient() {
         function GetSummary(patientId) {
             let isMounted = true;
 
-            fetch('http://localhost:3001/api/patient/'+patientId+'/cancerAndTumorSummary').then(response => response.json()).then(data => {
+            fetch('http://localhost:3001/api/patient/' + patientId + '/cancerAndTumorSummary').then(response => response.json()).then(data => {
                 if (isMounted)
-                   setSummary(data);
+                    setSummary(data);
             })
             return () => isMounted = false;
 
         }
+
         GetSummary(patientId)
-        },[patientId]);
+    }, [patientId]);
 
 
+    if (summary === undefined) {
+        return (<div> Loading... </div>)
+    } else {
+        const cancers = summary;
+        const melanomaAttributes = []; // obj.melanomaAttributes;
+        return (<span>
+           <Navbar bg="light" expand="lg">
+               <Container>
+                   <Navbar.Brand href="#home" style={{'font-size': '25px'}}>DeepPhe Visualizer<span
+                       style={{"font-size": '20px'}}> v2.0.0.0</span></Navbar.Brand>
+                   <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                   <Navbar.Collapse id="basic-navbar-nav">
+                       {/*<Nav className="me-auto" style={{'float':'right'}}>*/}
 
-   if (summary === undefined ) {
-       return(<div> Loading... </div>)
-   } else {
-       const cancers = summary;
-       const melanomaAttributes = []; // obj.melanomaAttributes;
-       return (
-           <div>
+                       {/*    <Nav.Link href="#home">Home</Nav.Link>*/}
+                       {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
+                       {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
+                       {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
+                       {/*        <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>*/}
+                       {/*        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>*/}
+                       {/*        <NavDropdown.Divider />*/}
+                       {/*        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>*/}
+                       {/*    </NavDropdown>*/}
+                       {/*</Nav>*/}
+                   </Navbar.Collapse>
+               </Container>
+           </Navbar>
+
                <GridContainer>
+
+                   <GridItem xs={12} sm={12} md={2}/>
                    <GridItem xs={12} sm={12} md={8}>
                        <Card>
-                           <div className="section_heading">Patient Information</div>
+                           <CardHeader color={"warning"} style={{"font-size": "18px"}}>Patient ID and Demographics</CardHeader>
                            <CardBody>
                                <CustomTable></CustomTable>
+                           </CardBody>
+                       </Card>
+
+                       <Card>
+                           <CardHeader color={"warning"}
+                                       style={{"font-size": "18px"}}>Click on a Cancer or Tumor Detail</CardHeader>
+                           <CardBody>
+
                                <div id="summary">
 
-                                   <CancerAndTumorSummary cancers={cancers} melanomaAttributes={melanomaAttributes}
-                                                          message={"23"}></CancerAndTumorSummary>
+                                   <CancerAndTumorSummary cancers={cancers}></CancerAndTumorSummary>
                                </div>
+                           </CardBody>
+                       </Card>
+                       <Card>
 
-                               <Timeline patientId={patientId}></Timeline>
-                               <div className="right" id="report_instance">
+
+                            <CardHeader color={"warning"} style={{"font-size": "18px"}}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                           <CardBody>
+                            <div className="right" id="report_instance">
 
                                    <div className="section_heading">Report</div>
 
@@ -549,10 +581,11 @@ function Patient() {
                            </CardBody>
                        </Card>
                    </GridItem>
+                    <GridItem xs={12} sm={12} md={2}/>
                </GridContainer>
-           </div>
-       )
-   }
+</span>
+        )
+    }
 }
 
 export default Patient

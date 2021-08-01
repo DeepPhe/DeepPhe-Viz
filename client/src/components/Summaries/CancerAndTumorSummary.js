@@ -12,7 +12,7 @@ const source = `
 
 {{#if cancers.length}}
 
-<div class="section_heading">Cancer & Tumor Summary</div>
+<!--<div class="section_heading">Cancer & Tumor Summary</div>-->
 
 {{#each cancers}}
 <div class="cancer_and_tumor_summary clearfix">
