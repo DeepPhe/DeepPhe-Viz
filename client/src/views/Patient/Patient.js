@@ -500,8 +500,8 @@ function Patient() {
         const cancers = summary;
         const melanomaAttributes = []; // obj.melanomaAttributes;
         return (<span>
-           <Navbar bg="light" expand="lg">
-               <Container>
+           <Navbar bg="light" expand="lg" style={{'background': 'linear-gradient(60deg, #ffa726, #fb8c00)'}}>
+               <Container >
                    <Navbar.Brand href="#home" style={{'font-size': '25px'}}>DeepPhe Visualizer<span
                        style={{"font-size": '20px'}}> v2.0.0.0</span></Navbar.Brand>
                    <Navbar.Toggle aria-controls="basic-navbar-nav"/>
@@ -526,7 +526,7 @@ function Patient() {
 
                    <GridItem xs={12} sm={12} md={2}/>
                    <GridItem xs={12} sm={12} md={8}>
-                       <Card>
+                       <Card style={{'margin-top':'45px'}}>
                            <CardHeader color={"warning"} style={{"font-size": "18px"}}>Patient ID and Demographics</CardHeader>
                            <CardBody>
                                <CustomTable></CustomTable>

@@ -44,6 +44,8 @@ import PatientCountPerStageChart from "../../components/Charts/PatientCountPerSt
 import PatientFirstEncounterAgePerStageChart from "../../components/Charts/PatientFirstEncounterAgePerStageChart";
 import DerivedChart from "../../components/Charts/DerivedChart";
 import Footer from "../../components/Footer/Footer";
+import {AppBar, Typography} from "@material-ui/core";
+import Toolbar from "@material-ui/core/Toolbar";
 
 const useStyles = makeStyles(styles);
 
@@ -51,7 +53,7 @@ export default function Dashboard() {
     const classes = useStyles();
 
     return (<span>
-        <Navbar bg="light" expand="lg">
+        <Navbar bg="light" expand="lg" style={{'background': 'linear-gradient(60deg, #ffa726, #fb8c00)'}}>
             <Container>
                 <Navbar.Brand href="#home" style={{'font-size':'25px'}}>DeepPhe Visualizer<span style={{"font-size":'20px'}}> v2.0.0.0</span></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -72,13 +74,13 @@ export default function Dashboard() {
             </Container>
         </Navbar>
 
-        <div className="justify-content-center">
+        <div className="justify-content-center" >
 
-            <GridContainer spacing={2}>
+            <GridContainer spacing={2} >
                 <GridItem xs={12} sm={12} md={2}/>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px'}}>Set Corpus by Age Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px', 'margin-top':'15px'}}>Set Corpus by Age Criteria</CardHeader>
                         <CardBody>
                             <PatientFirstEncounterAgePerStageChart id="john"></PatientFirstEncounterAgePerStageChart>
                         </CardBody>
@@ -86,7 +88,7 @@ export default function Dashboard() {
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px'}}>Cases Matching Inclusion Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px', 'margin-top':'15px'}}>Cases Matching Inclusion Criteria</CardHeader>
                         {/*<CardHeader color="warning">*/}
                         {/*  <ChartistGraph*/}
                         {/*    className="ct-chart"*/}
