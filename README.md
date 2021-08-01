@@ -9,9 +9,7 @@ This project contains two services:
 1. Run DeepPhe CLI and write the output database to {NEO4J_HOME_DIRECTORY}/data/databases/{DEEPPHE_CLI_DB_OUTPUT_DIRECTORY} 
 e.g. /opt/neo4j-community-3.5.12/data/database/ontology.db
 1. Copy in the dphe-neo4j-plugin-0.4.0.jar into the {NEO4J_HOME_DIRECTORY}/plugins
-1. In {NEO4J_HOME_DIRECTORY}/conf/neo4j.conf file, set the entry dbms.active_database to {DEEPPHE_CLI_DB_OUTPUT_DIRECTORY}
-
-e.g. "ontology.db"
+1. In {NEO4J_HOME_DIRECTORY}/conf/neo4j.conf file, set the entry dbms.active_database to {DEEPPHE_CLI_DB_OUTPUT_DIRECTORY} e.g. "ontology.db"
 1. From: {Neo4J Home Directory}/bin, run ./neo4j console
 ## Run the DeepPhe Webserver
 1. Clone this repository {DEEPPHE_REPOS_FOLDER}
