@@ -14,7 +14,7 @@ e.g. /opt/neo4j-community-3.5.12/data/database/ontology.db
 ## Run the DeepPhe Webserver
 1. Clone this repository {DEEPPHE_REPOS_FOLDER}
 1. Change to the {DEEPPHE_REPOS_FOLDER}/api folder
-1. run the command PORT=3001 /usr/local/bin/node bin/www /Users/johnlevander/dev/viz/api/app.js
+1. run the command PORT=3001 /usr/local/bin/node bin/www {PATH_TO_DEEPPHE_REPOS_FOLDER}/api/app.js (e.g. /Users/MyUser/dir/DeepPhe-Viz-v2/api/app.js)
 ## Run the DeepPhe GUI client
 1. Change to the {DEEPPHE_REPOS_FOLDER}/client folder
 1. run the command npm start
