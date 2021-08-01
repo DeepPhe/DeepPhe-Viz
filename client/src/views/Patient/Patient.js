@@ -527,7 +527,7 @@ function Patient() {
                    <GridItem xs={12} sm={12} md={2}/>
                    <GridItem xs={12} sm={12} md={8}>
                        <Card style={{'margin-top':'45px'}}>
-                           <CardHeader color={"warning"} style={{"font-size": "18px"}}>Patient ID and Demographics</CardHeader>
+                           <CardHeader color={"warning"} style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Patient ID and Demographics</CardHeader>
                            <CardBody>
                                <CustomTable></CustomTable>
                            </CardBody>
@@ -535,7 +535,7 @@ function Patient() {
 
                        <Card>
                            <CardHeader color={"warning"}
-                                       style={{"font-size": "18px"}}>Click on a Cancer or Tumor Detail</CardHeader>
+                                       style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Click on a Cancer or Tumor Detail</CardHeader>
                            <CardBody>
 
                                <div id="summary">
@@ -547,11 +547,11 @@ function Patient() {
                        <Card>
 
 
-                            <CardHeader color={"warning"} style={{"font-size": "18px"}}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                            <CardHeader color={"warning"} style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
                            <CardBody>
                             <div className="right" id="report_instance">
 
-                                   <div className="section_heading">Report</div>
+                                   {/*<div className="section_heading">Report</div>*/}
 
                                    <div className="report_section clearfix">
                                        <div id="timeline" className="clearfix"></div>

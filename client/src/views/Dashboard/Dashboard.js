@@ -76,11 +76,11 @@ export default function Dashboard() {
 
         <div className="justify-content-center" >
 
-            <GridContainer spacing={2} >
+            <GridContainer style={{"margin-top":"14px"}} spacing={2} >
                 <GridItem xs={12} sm={12} md={2}/>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px', 'margin-top':'15px'}}>Set Corpus by Age Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px', 'padding':'2px', 'text-align':'center'}}>Set Corpus by Age Criteria</CardHeader>
                         <CardBody>
                             <PatientFirstEncounterAgePerStageChart id="john"></PatientFirstEncounterAgePerStageChart>
                         </CardBody>
@@ -88,7 +88,7 @@ export default function Dashboard() {
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px', 'margin-top':'15px'}}>Cases Matching Inclusion Criteria</CardHeader>
+                        <CardHeader color={"warning"} style={{'font-size':'18px', padding:'2px', 'text-align':'center'}}>Cases Matching Inclusion Criteria</CardHeader>
                         {/*<CardHeader color="warning">*/}
                         {/*  <ChartistGraph*/}
                         {/*    className="ct-chart"*/}
