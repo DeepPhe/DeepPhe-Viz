@@ -16,7 +16,7 @@ import Timeline from "../../components/Charts/Timeline";
 
 import $ from 'jquery'
 import CardHeader from "../../components/Card/CardHeader";
-import {Container, Navbar} from "react-bootstrap";
+import {Col, Container, Nav, Navbar, Row} from "react-bootstrap";
 
 
 const baseUri = "http://localhost:3001/api";
@@ -165,6 +165,7 @@ function Patient() {
     }
 
     function getReport(reportId, factId) {
+        $("#docs").show();
         // Must use encodeURIComponent() otherwise may have URI parsing issue
         $.ajax({
             url: baseUri + '/reports/' + reportId,
@@ -418,6 +419,8 @@ function Patient() {
 
         let reportId = $(this).attr('data-report');
         let factId = $(this).attr('data-fact');
+
+
         getReport(reportId, factId);
 
         // Also highlight the selected report circle in timeline
@@ -445,7 +448,7 @@ function Patient() {
 
         // Reload timeline
         $('#timeline').html('');
-        // getTimeline(patientId, "timeline");
+        //getTimeline(patientId, "timeline");
 
         // Reset the fact detail and displaying document content
         $('#fact_detail').html('');
@@ -500,79 +503,70 @@ function Patient() {
         const cancers = summary;
         const melanomaAttributes = []; // obj.melanomaAttributes;
         return (<span>
-           <Navbar bg="light" expand="lg" style={{'background': 'linear-gradient(60deg, #ffa726, #fb8c00)'}}>
-               <Container >
-                   <Navbar.Brand href="#home" style={{'font-size': '25px'}}>DeepPhe Visualizer<span
-                       style={{"font-size": '20px'}}> v2.0.0.0</span></Navbar.Brand>
-                   <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                   <Navbar.Collapse id="basic-navbar-nav">
-                       {/*<Nav className="me-auto" style={{'float':'right'}}>*/}
+          <Navbar className={"mainNavBar"}>
+            <Container>
+                <Navbar.Brand className={"mainNavBar"} href="/">DeepPhe Visualizer<span style={{fontSize:'20px'}}> v2.0.0.0</span></Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Collapse id="basic-navbar-nav" >
+                    <Nav className="justify-content-end" style={{ width: "100%" }}>
 
-                       {/*    <Nav.Link href="#home">Home</Nav.Link>*/}
-                       {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
-                       {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
-                       {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
-                       {/*        <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>*/}
-                       {/*        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>*/}
-                       {/*        <NavDropdown.Divider />*/}
-                       {/*        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>*/}
-                       {/*    </NavDropdown>*/}
-                       {/*</Nav>*/}
-                   </Navbar.Collapse>
-               </Container>
-           </Navbar>
+                       <Nav.Link className={"navItem"} target="_blank" href="https://deepphe.github.io/jekyll-website/">About</Nav.Link>
+                        <Nav.Link className={"navItem"} target="_blank" href="https://github.com/DeepPhe/">GitHub</Nav.Link>
+
+                        {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
+                        {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
+                        {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
+                        {/*        <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>*/}
+                        {/*        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>*/}
+                        {/*        <NavDropdown.Divider />*/}
+                        {/*        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>*/}
+                        {/*    </NavDropdown>*/}
+                    </Nav>
+                </Navbar.Collapse>
+            </Container>
+        </Navbar>
 
                <GridContainer>
-
-                   <GridItem xs={12} sm={12} md={2}/>
-                   <GridItem xs={12} sm={12} md={8}>
-                       <Card style={{'margin-top':'45px'}}>
-                           <CardHeader color={"warning"} style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Patient ID and Demographics</CardHeader>
+                   <GridItem xs={12} sm={12} md={1}/>
+                   <GridItem xs={12} sm={12} md={10}>
+                       <Card style={{'marginTop':'45px'}}>
+                           <CardHeader className={"basicCardHeader"}>Patient ID and Demographics</CardHeader>
                            <CardBody>
                                <CustomTable></CustomTable>
                            </CardBody>
                        </Card>
 
                        <Card>
-                           <CardHeader color={"warning"}
-                                       style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Click on a Cancer or Tumor Detail</CardHeader>
+                           <CardHeader className={"basicCardHeader"}>Click on a Cancer or Tumor Detail</CardHeader>
                            <CardBody>
-
                                <div id="summary">
-
                                    <CancerAndTumorSummary cancers={cancers}></CancerAndTumorSummary>
                                </div>
                            </CardBody>
                        </Card>
                        <Card>
-
-
-                            <CardHeader color={"warning"} style={{"font-size": "18px", 'padding':'2px', 'text-align':'center'}}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                           <CardHeader className={"basicCardHeader"}>Patient Episode Timeline</CardHeader>
+                           <CardBody>
+                          <Timeline patientId={patientId}></Timeline>
+                           </CardBody>
+                       </Card>
+                       <Card id={"docs"}>
+                            <CardHeader className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
                            <CardBody>
                             <div className="right" id="report_instance">
-
-                                   {/*<div className="section_heading">Report</div>*/}
-
                                    <div className="report_section clearfix">
+
                                        <div id="timeline" className="clearfix"></div>
-
                                        <div className="divider clearfix"></div>
-
                                        <div id="fact_detail"></div>
-
                                        <div id="report_id"></div>
-
                                        <div id="report_info">
-
                                            <div id="report_mentioned_terms"></div>
                                        </div>
 
                                        <div id="report_text"></div>
-
                                    </div>
-
                                </div>
-
 
                                {/*<CardHeader color="primary">*/}
 
@@ -581,8 +575,22 @@ function Patient() {
                            </CardBody>
                        </Card>
                    </GridItem>
-                    <GridItem xs={12} sm={12} md={2}/>
+                    <GridItem xs={12} sm={12} md={1}/>
                </GridContainer>
+                <div className={"mainFooter"}>
+
+                    <Row>
+                <Col md={1}></Col>
+                <Col md={4}>Supported by the <a target="_blank" href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
+                <Col md={1}></Col>
+                <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
+               <Col md={1}></Col>
+            </Row>
+
+
+
+        </div>
+
 </span>
         )
     }

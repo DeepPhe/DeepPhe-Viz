@@ -27,7 +27,7 @@ import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 //import CardIcon from "components/Card/CardIcon.js";
 import CardBody from "components/Card/CardBody.js";
-import {Nav, Navbar, NavDropdown} from "react-bootstrap";
+import {Col, Nav, Navbar, NavDropdown, NavItem, Row} from "react-bootstrap";
 import {Container} from "react-bootstrap";
 import CardFooter from "components/Card/CardFooter.js";
 
@@ -53,14 +53,16 @@ export default function Dashboard() {
     const classes = useStyles();
 
     return (<span>
-        <Navbar bg="light" expand="lg" style={{'background': 'linear-gradient(60deg, #ffa726, #fb8c00)'}}>
+        <Navbar className={"mainNavBar"}>
             <Container>
-                <Navbar.Brand href="#home" style={{'font-size':'25px'}}>DeepPhe Visualizer<span style={{"font-size":'20px'}}> v2.0.0.0</span></Navbar.Brand>
+                <Navbar.Brand className={"mainNavBar"} href="#home">DeepPhe Visualizer<span style={{"font-size":'20px'}}> v2.0.0.0</span></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    {/*<Nav className="me-auto" style={{'float':'right'}}>*/}
+                <Navbar.Collapse id="basic-navbar-nav" >
+                    <Nav className="justify-content-end" style={{ width: "100%" }}>
 
-                    {/*    <Nav.Link href="#home">Home</Nav.Link>*/}
+                       <Nav.Link className={"navItem"} target="_blank" href="https://deepphe.github.io/jekyll-website/">About</Nav.Link>
+                        <Nav.Link className={"navItem"} target="_blank" href="https://github.com/DeepPhe/">GitHub</Nav.Link>
+
                     {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
                     {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
                     {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
@@ -69,18 +71,18 @@ export default function Dashboard() {
                     {/*        <NavDropdown.Divider />*/}
                     {/*        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>*/}
                     {/*    </NavDropdown>*/}
-                    {/*</Nav>*/}
+                    </Nav>
                 </Navbar.Collapse>
             </Container>
         </Navbar>
 
         <div className="justify-content-center" >
 
-            <GridContainer style={{"margin-top":"14px"}} spacing={2} >
+            <GridContainer style={{marginTop:"14px"}} spacing={2} >
                 <GridItem xs={12} sm={12} md={2}/>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px', 'padding':'2px', 'text-align':'center'}}>Set Corpus by Age Criteria</CardHeader>
+                        <CardHeader className={'basicCardHeader'}>Set Corpus by Age Criteria</CardHeader>
                         <CardBody>
                             <PatientFirstEncounterAgePerStageChart id="john"></PatientFirstEncounterAgePerStageChart>
                         </CardBody>
@@ -88,7 +90,7 @@ export default function Dashboard() {
                 </GridItem>
                 <GridItem xs={12} sm={12} md={4}>
                     <Card>
-                        <CardHeader color={"warning"} style={{'font-size':'18px', padding:'2px', 'text-align':'center'}}>Cases Matching Inclusion Criteria</CardHeader>
+                        <CardHeader className={'basicCardHeader'}>Cases Matching Inclusion Criteria</CardHeader>
                         {/*<CardHeader color="warning">*/}
                         {/*  <ChartistGraph*/}
                         {/*    className="ct-chart"*/}
@@ -126,7 +128,25 @@ export default function Dashboard() {
             </GridContainer>
         </div>
 
+        <div className={"mainFooter"}>
 
+                {/*<Navbar.Brand className={"mainFooter"} href="#home"><div>© 2021</div><span style={{"font-size":'12px'}}>Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center</span></Navbar.Brand>*/}
+                {/*<Navbar.Toggle aria-controls="basic-navbar-nav" />*/}
+                {/*<Navbar.Collapse id="basic-navbar-nav">*/}
+                {/*    <Nav className="me-auto" style={{'float':'right'}}>
+                */}
+            <Row>
+                <Col md={1}></Col>
+                <Col md={4}>Supported by the <a target="_blank" href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
+                <Col md={1}></Col>
+                <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
+               <Col md={1}></Col>
+            </Row>
+
+
+
+        </div>
         </span>
+
     );
 }

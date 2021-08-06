@@ -37,7 +37,7 @@ export default function TimelineView({...rest}) {
 
                     {/*when sean gets time we will look at populating these cancer and tumor summaries more,*/}
                     {/*that will need to be done by passing something in below as a parameter*/}
-                    {/*<Timeline/>*/}
+                   {/*// <Timeline/>*/}
 
                 </GridItem>
             </GridContainer>

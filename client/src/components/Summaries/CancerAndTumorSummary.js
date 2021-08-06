@@ -217,10 +217,13 @@ Handlebars.registerHelper('inArray',
                     return opts.inverse(this);
                 }
             } else {
+
                 console.error("ERROR: arr is not an array!");
                 console.error("Item:" + item);
                 console.error("OptsL" + opts);
+                return false;
             }
+
     }
 );
 

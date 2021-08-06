@@ -83,10 +83,10 @@ export default class DerivedChart extends React.Component {
                 <React.Fragment>
 
                         <Card>
-                            <CardHeader  style={{'font-size':'18px', padding:"2px", 'text-align':'center'}} color="warning">
+                            <CardHeader  className={"basicCardHeader"}>
                                 Case Details Given Age and Inclusion Criteria
                             </CardHeader>
-                            <CardBody>
+                            <CardBody className={"basicCard"}>
                                 <Row>
                                     <div id="target_patients_title" className="patients_table_title">{this.state.title}</div>
                                 </Row>

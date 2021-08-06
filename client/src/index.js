@@ -49,7 +49,7 @@ const themeLight = createMuiTheme({
 const themeDark = createMuiTheme({
     palette: {
         background: {
-            default: "#0d47a1",
+            default: "#f5f5f5",
             secondary:"#333"
         },
         text: {

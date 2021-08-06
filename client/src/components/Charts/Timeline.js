@@ -851,7 +851,7 @@ export default class Timeline extends React.Component {
                     })
                     .on("click", function (d) {
 
-
+                        $("#docs").show();
                         // Check to see if this report is one of the fact-based reports that are being highlighted
                         // d.id has no prefix, just raw id
                         if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
@@ -1061,11 +1061,8 @@ export default class Timeline extends React.Component {
 
         }
 
-//just trying to get the URL param to get read....like patient02
-
         this.fetchData(url).then(
             function (response) {
-
                 response.json().then(
                     function(jsonResponse) {
                         processTimelineResponse(jsonResponse) })
