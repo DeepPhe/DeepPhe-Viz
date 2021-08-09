@@ -510,7 +510,7 @@ function Patient() {
                 <Navbar.Collapse id="basic-navbar-nav" >
                     <Nav className="justify-content-end" style={{ width: "100%" }}>
 
-                       <Nav.Link className={"navItem"} target="_blank" href="https://deepphe.github.io/jekyll-website/">About</Nav.Link>
+                       <Nav.Link className={"navItem"} target="_blank" href="https://deepphe.github.io/">About</Nav.Link>
                         <Nav.Link className={"navItem"} target="_blank" href="https://github.com/DeepPhe/">GitHub</Nav.Link>
 
                         {/*    <Nav.Link href="#link">Link</Nav.Link>*/}

@@ -193,14 +193,15 @@ svg .tick text {
 }
 
 .basicCard {
-font-size:14px !important;
+    font-size: 14px !important;
 }
+
 .basicCardHeader {
-font-size: 18px;
-padding: 2px;
-text-align: center;
-background: #44829b !important;
-    color : #f5f5f5;
+    font-size: 18px;
+    padding: 2px;
+    text-align: center;
+    background: #dfe6e0 !important;
+    color: #264653;
     border-radius: 7px !important;
 }
 
@@ -217,13 +218,14 @@ background: #44829b !important;
     padding-right: 25px !important;
     margin-left: 15px;
     margin-right: 15px;
-    font-size:18px !important;
-    color:#f5f5f5 !important;
+    font-size: 18px !important;
+    color: #f5f5f5 !important;
 }
+
 .mainFooter {
     background-color: #264653 !important;
-    font-size:12px !important;
-    color:#f5f5f5 !important;
+    font-size: 12px !important;
+    color: #f5f5f5 !important;
     margin-left: -15px;
     margin-right: -15px;
     margin-top: 75px;
@@ -238,12 +240,13 @@ background: #44829b !important;
 }
 
 .mainNavBar {
-font-size:25px !important;
-    color:#f5f5f5 !important;
+    font-size: 25px !important;
+    color: #f5f5f5 !important;
     background-color: #264653 !important;
     margin-left: -15px;
     margin-right: -15px;
 }
+
 /* Target patients list */
 #patients {
     padding-left: 26px;
