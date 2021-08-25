@@ -1,4 +1,4 @@
-# DeepPhe-Viz-v2
+# DeepPhe-Viz
 
 This project contains two services:
 1. in the api directory, the DeepPhe Webserver
