@@ -5,7 +5,6 @@ import ReactDOM from "react-dom";
 import {withRouter} from "react-router-dom";
 
 
-
 const { Component, createElement } = React;
 
 const source = `

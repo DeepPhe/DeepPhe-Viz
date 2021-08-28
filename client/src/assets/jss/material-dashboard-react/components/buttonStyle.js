@@ -1,14 +1,14 @@
 import {
-  grayColor,
-  primaryColor,
-  infoColor,
-  successColor,
-  warningColor,
-  dangerColor,
-  roseColor,
-  whiteColor,
-  blackColor,
-  hexToRgb
+    blackColor,
+    dangerColor,
+    grayColor,
+    hexToRgb,
+    infoColor,
+    primaryColor,
+    roseColor,
+    successColor,
+    warningColor,
+    whiteColor
 } from "assets/jss/material-dashboard-react.js";
 
 const buttonStyle = {

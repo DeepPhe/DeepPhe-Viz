@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  withScriptjs,
-  withGoogleMap,
-  GoogleMap,
-  Marker
-} from "react-google-maps";
+import {GoogleMap, Marker, withGoogleMap, withScriptjs} from "react-google-maps";
 
 const CustomSkinMap = withScriptjs(
   withGoogleMap(() => (

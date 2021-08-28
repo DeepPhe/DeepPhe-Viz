@@ -4,40 +4,37 @@ import * as Cohort from '../../cohort.js'
 
 import {showDerivedChart} from "./DerivedChart";
 
-
-
-
 export default class PatientCountPerStageChart extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             loaded: false,
-            data: null
+            data: null,
+            docId : this.props.docId
         };
+
+        this.fetchData.bind(this);
 
 
     }
 
-
-
-    componentDidMount() {
-
-        const fetchData = async () => {
-            return new Promise(function (resolve, reject) {
-                fetch('http://localhost:3001/api/cohortData').then(function (response) {
-                    if (response) {
-                        resolve(response);
-                    } else {
-                        reject('User not logged in');
-                    }
-                });
-
+    fetchData = async () => {
+        return new Promise(function (resolve, reject) {
+            fetch('http://localhost:3001/api/cohortData').then(function (response) {
+                if (response) {
+                    resolve(response);
+                } else {
+                    reject('User not logged in');
+                }
             });
 
-        }
+        });
 
-        function showPatientCountPerStageChart(svgContainerId, data) {
+    }
+
+    componentDidMount() {
+        function showPatientCountPerStageChart(id, data) {
             let patientsCounts = {};
             // Calculate and add the box plot data to each stageInfo object
             data.forEach(function (stageInfo) {
@@ -86,7 +83,7 @@ export default class PatientCountPerStageChart extends React.Component {
                 .range([0, chartHeight - chartTopMargin]) // top to bottom: stages by patients count in ascending order
                 .padding(0.32); // blank space between bands
 
-            let svg = d3.select("#john").append("svg")
+            let svg = d3.select("#"+id).append("svg")
             //d3.select("#" + svgContainerId).append("svg")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight);
@@ -308,31 +305,20 @@ export default class PatientCountPerStageChart extends React.Component {
 
 
         }
-
-
-        fetchData().then(function (response) {
+        const that = this;
+        this.fetchData().then(function (response) {
             response.json().then(function (jsonResponse) {
-
                 Cohort.setPatientsByStage(jsonResponse.patients)
                 Cohort.setAllPatients(jsonResponse.patients)
                 Cohort.setPatientsByFirstEncounterAge(jsonResponse.patients);
-//
-//             // Set as all the target patients for the first load
-//             patientsByStage = response.patients;
-//             patientsByFirstEncounterAge = response.patients;
-//
-                showPatientCountPerStageChart("john", jsonResponse.stagesInfo);
+                showPatientCountPerStageChart(that.props.docId, jsonResponse.stagesInfo);
             });
         });
-
-
     }
 
-
     render() {
-       // return (<div>{this.state.res}</div>);
         return (
-            <div className="BarChart" id='john'>
+            <div className="BarChart" id='pcps-chart'>
 
             </div>
         );

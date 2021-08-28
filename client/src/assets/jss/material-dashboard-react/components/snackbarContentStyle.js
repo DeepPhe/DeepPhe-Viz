@@ -1,21 +1,21 @@
 import {
-  defaultFont,
-  primaryBoxShadow,
-  infoBoxShadow,
-  successBoxShadow,
-  warningBoxShadow,
-  dangerBoxShadow,
-  roseBoxShadow,
-  whiteColor,
-  blackColor,
-  grayColor,
-  infoColor,
-  successColor,
-  dangerColor,
-  roseColor,
-  primaryColor,
-  warningColor,
-  hexToRgb
+    blackColor,
+    dangerBoxShadow,
+    dangerColor,
+    defaultFont,
+    grayColor,
+    hexToRgb,
+    infoBoxShadow,
+    infoColor,
+    primaryBoxShadow,
+    primaryColor,
+    roseBoxShadow,
+    roseColor,
+    successBoxShadow,
+    successColor,
+    warningBoxShadow,
+    warningColor,
+    whiteColor
 } from "assets/jss/material-dashboard-react.js";
 
 const snackbarContentStyle = {

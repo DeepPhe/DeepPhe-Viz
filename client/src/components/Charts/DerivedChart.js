@@ -1,12 +1,9 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import * as d3 from "d3v4";
 import * as $ from "jquery";
 import * as Cohort from '../../cohort.js'
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {ListGroup} from "react-bootstrap";
-import {ListGroupItem} from "react-bootstrap";
 import CardHeader from "../Card/CardHeader";
 import Card from "../Card/Card";
 import CardBody from "../Card/CardBody";
@@ -47,29 +44,6 @@ export default class DerivedChart extends React.Component {
         }
 
         GetCohortData();
-
-
-        // function getBiomarkers(patientIds) {
-        //     let obj = JSON.parse(`{"biomarkersOverviewData":[{"label":"Patients with biomarkers found","count":"0.714"},{"label":"Patients without biomarkers found","count":"0.286"}],"patientsWithBiomarkersData":{"biomarkersPool":["has_ER_Status","has_PR_Status","has_HER2_Status"],"biomarkerStatus":["positive","negative","unknown"],"data":[{"biomarker":"has_ER_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_PR_Status","positive":"0.667","negative":"0.333","unknown":"0.000"},{"biomarker":"has_HER2_Status","positive":"0.200","negative":"0.800","unknown":"0.000"}]}}`)
-        //     showBiomarkersOverviewChart("biomarkers_overview", obj.biomarkersOverviewData);
-        //     showPatientsWithBiomarkersChart("patients_with_biomarkers", obj.patientsWithBiomarkersData);
-        //
-        //     // $.ajax({
-        //     //     url: baseUri + '/biomarkers/' + patientIds.join('+'),
-        //     //     method: 'GET',
-        //     //     async : true,
-        //     //     dataType : 'json'
-        //     // })
-        //     //     .done(function(response) {
-        //     //         response
-        //     //         //console.log(response);
-        //     //         showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
-        //     //         showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
-        //     //     })
-        //     //     .fail(function () {
-        //     //         console.log("Ajax error - can't get patients biomarkers info");
-        //     //     });
-        // }
 
 
     }

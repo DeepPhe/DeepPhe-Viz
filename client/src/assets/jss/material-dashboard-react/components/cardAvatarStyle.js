@@ -1,4 +1,4 @@
-import { hexToRgb, blackColor } from "assets/jss/material-dashboard-react.js";
+import {blackColor, hexToRgb} from "assets/jss/material-dashboard-react.js";
 
 const cardAvatarStyle = {
   cardAvatar: {

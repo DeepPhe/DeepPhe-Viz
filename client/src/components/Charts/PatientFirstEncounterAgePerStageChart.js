@@ -3,39 +3,21 @@ import * as d3 from "d3v4";
 import * as Cohort from '../../cohort.js'
 import {showDerivedChart} from "./DerivedChart";
 
-
-
 export default class PatientFirstEncounterAgePerStageChart extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            docId : this.props.docId,
             loaded: false,
             data: null
         };
+        this.fetchData.bind(this);
+        this.showChart.bind(this);
     }
 
-
-
-    componentDidMount() {
-
-        const fetchData = async () => {
-            return new Promise(function (resolve, reject) {
-                fetch('http://localhost:3001/api/cohortData').then(function (response) {
-                    if (response) {
-                        resolve(response);
-                    } else {
-                        reject('User not logged in');
-                    }
-                });
-
-            });
-
-        }
-
-
-
-        function showPatientFirstEncounterAgePerStageChart(svgContainerId, data) {
+    showChart = (jsonResponse)  => {
+        const showPatientFirstEncounterAgePerStageChart = (id, data) => {
 
             let patientsCounts = {};
 
@@ -44,11 +26,11 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             let maxAges = [];
 
             // Calculate and add the box plot data to each stageInfo object
-            data.forEach(function(stageInfo) {
+            data.forEach(function (stageInfo) {
                 // Must sort the ages by asending order
                 // By default, the sort method sorts elements alphabetically.
                 // To sort numerically just add a new method which handles numeric sorts
-                stageInfo.ages.sort(function(a, b) {
+                stageInfo.ages.sort(function (a, b) {
                     return a - b;
                 });
 
@@ -108,18 +90,18 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             const textBottomPadding = 3;
 
             // All stages found in data
-            let allStages = data.map(function(d) {
+            let allStages = data.map(function (d) {
                 return d.stage;
             });
 
             // By default only show the top level stages if has data
             // otherwise show sub stages directly
-            let defaultStagesData = data.filter(function(d) {
+            let defaultStagesData = data.filter(function (d) {
                 if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
                     return d.stage;
                 } else {
                     //trying to get rid of a warning
-                     return null;
+                    return null;
                 }
 
             });
@@ -134,13 +116,13 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 .range([0, chartWidth]);
 
             let y = d3.scaleBand()
-                .domain(defaultStagesData.map(function(d) {
+                .domain(defaultStagesData.map(function (d) {
                     return d.stage;
                 }))
                 .range([0, chartHeight - chartTopMargin]) // top to bottom: stages by patients count in ascending order
                 .padding(0.2); // blank space between bands
 
-            let svg = d3.select("#john2").append("svg")
+            let svg = d3.select("#" + id).append("svg")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight);
 
@@ -154,10 +136,10 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             // Chart title
             svg.append("text")
                 .attr("class", "stages_chart_title")
-                .attr("transform", function(d) {
+                .attr("transform", function (d) {
                     // Works together with "dominant-baseline:text-before-edge;"" in CSS
                     // to position the text based on upper left corner
-                    return "translate(" + svgWidth/2 + ", " + svgPadding.top + ")";
+                    return "translate(" + svgWidth / 2 + ", " + svgPadding.top + ")";
                 })
                 .text("Patient Age of First Encounter Per Stage");
 
@@ -184,7 +166,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
 
             let brush = d3.brushX()
-            // Restrict the brush move between minAge and maxAge
+                // Restrict the brush move between minAge and maxAge
                 .extent([[x(minAge), 0], [x(maxAge), (chartHeight - chartTopMargin)]])
                 //TODO: fix duringBrush, endBrush, maybe crashing becase all people are the same age?
                 .on("brush", during1Brush)
@@ -201,7 +183,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             let customBrushHandlesData = [{type: "w"}, {type: "e"}];
 
             // Function expression to create custom brush handle path
-            let createCustomBrushHandle = function(d) {
+            let createCustomBrushHandle = function (d) {
                 let e = +(d.type === "e"),
                     x = e ? 1 : -1,
                     y = chartHeight / 2;
@@ -215,28 +197,28 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 .attr("class", "handle--custom")
                 .attr("cursor", "ew-resize")
                 .attr("d", createCustomBrushHandle)
-                .attr("transform", function(d, i) {
+                .attr("transform", function (d, i) {
                     // Position the custom handles based on the default selection range
                     let selection = [minAge, maxAge].map(x);
-                    return "translate(" + [selection[i], -chartHeight/8] + ")";
+                    return "translate(" + [selection[i], -chartHeight / 8] + ")";
                 });
 
             // Function expression of updating custom handles positions
-            let moveCustomBrushHandles = function(selection) {
+            let moveCustomBrushHandles = function (selection) {
                 customBrushHandle
-                    .attr("transform", function(d, i) {
-                        return "translate(" + [selection[i], -chartHeight/3] + ")";
+                    .attr("transform", function (d, i) {
+                        return "translate(" + [selection[i], -chartHeight / 3] + ")";
                     });
             };
 
             // Attach brush and move to default position
             // must call this before removing pointer events
             ageSelectionBrush.call(brush)
-            // By default, move the brush to start at minAge and end at maxAge
+                // By default, move the brush to start at minAge and end at maxAge
                 .call(brush.move, [minAge, maxAge].map(x))
 
             // Update the default currentFirstEncounterAgeRange
-           let currentFirstEncounterAgeRange = [minAge, maxAge];
+            let currentFirstEncounterAgeRange = [minAge, maxAge];
 
             // Remove pointer events on brushe overlay, this prevents new brush from being made
             // when users click outside the current brush area
@@ -289,14 +271,14 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
             // Filter the patients based on age selection
             // Then update derived resulting charts
-            function  end1Brush() {
+            function end1Brush() {
                 let extent = d3.event.selection.map(x.invert, x);
 
                 let lowerAge = Math.round(extent[0]);
                 let upperAge = Math.round(extent[1]);
                 // Update patientsByFirstEncounterAge by filtering allPatients
 
-                let patientsByFirstEncounterAge = Cohort.allPatients.filter(function(obj) {
+                let patientsByFirstEncounterAge = Cohort.allPatients.filter(function (obj) {
                     return ((obj.firstEncounterAge >= lowerAge) && (obj.firstEncounterAge <= upperAge));
                 });
 
@@ -314,25 +296,25 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             function renderDistribution(data) {
                 // Only show the patient age when the stage has only one patient
                 let singlePatientGrp = distributionGrp.append("g").selectAll(".single_patient_group")
-                    .data(data.filter(function(d) {
+                    .data(data.filter(function (d) {
                         return d.patientsCount === 1;
                     }))
                     .enter().append("g")
-                    .attr("class", function(d) {
+                    .attr("class", function (d) {
                         return "single_patient_group " + d.stage.replace(" ", "_");
                     })
-                    .attr("transform", function(d) {
-                        return "translate(0, " + (y(d.stage) + y.bandwidth()/2) + ")";
+                    .attr("transform", function (d) {
+                        return "translate(0, " + (y(d.stage) + y.bandwidth() / 2) + ")";
                     });
 
                 // Verical line of single age
                 singlePatientGrp.append("line")
                     .attr("class", "single_patient_age_line")
-                    .attr("x1", function(d) {
+                    .attr("x1", function (d) {
                         return x(d.ageStats.minVal);
                     })
                     .attr("y1", 0)
-                    .attr("x2", function(d) {
+                    .attr("x2", function (d) {
                         return x(d.ageStats.minVal);
                     })
                     .attr("y2", boxHeight);
@@ -340,62 +322,62 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // Text of single age
                 singlePatientGrp.append("text")
                     .attr("class", "single_patient_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.minVal);
                     })
                     .attr("y", -textBottomPadding)
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.minVal;
                     });
 
                 // Show the box plot for stage that has more than one patient
                 let boxplotGrp = distributionGrp.append("g").selectAll(".boxplot")
-                    .data(data.filter(function(d) {
+                    .data(data.filter(function (d) {
                         return d.patientsCount > 1;
                     }))
                     .enter().append("g")
-                    .attr("class", function(d) {
+                    .attr("class", function (d) {
                         return "boxplot " + d.stage.replace(" ", "_");
                     })
-                    .attr("transform", function(d) {
-                        return "translate(0, " + (y(d.stage) + y.bandwidth()/2) + ")";
+                    .attr("transform", function (d) {
+                        return "translate(0, " + (y(d.stage) + y.bandwidth() / 2) + ")";
                     });
 
                 // Verical line of min age
                 boxplotGrp.append("line")
                     .attr("class", "boxplot_min")
-                    .attr("x1", function(d) {
+                    .attr("x1", function (d) {
                         return x(d.ageStats.minVal);
                     })
                     .attr("y1", 0)
-                    .attr("x2", function(d) {
+                    .attr("x2", function (d) {
                         return x(d.ageStats.minVal);
                     })
-                    .attr("y2", function(d) {
+                    .attr("y2", function (d) {
                         return boxHeight;
                     });
 
                 // Text of min age
                 boxplotGrp.append("text")
                     .attr("class", "boxplot_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.minVal);
                     })
-                    .attr("y", function(d) {
+                    .attr("y", function (d) {
                         return -textBottomPadding;
                     })
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.minVal;
                     });
 
                 // Vertical line of max age
                 boxplotGrp.append("line")
                     .attr("class", "boxplot_max")
-                    .attr("x1", function(d) {
+                    .attr("x1", function (d) {
                         return x(d.ageStats.maxVal);
                     })
                     .attr("y1", 0)
-                    .attr("x2", function(d) {
+                    .attr("x2", function (d) {
                         return x(d.ageStats.maxVal);
                     })
                     .attr("y2", boxHeight);
@@ -403,30 +385,30 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // Text of max age
                 boxplotGrp.append("text")
                     .attr("class", "boxplot_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.maxVal);
                     })
                     .attr("y", -textBottomPadding)
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.maxVal;
                     });
 
                 // Horizontal whisker lines
                 boxplotGrp.append("line")
                     .attr("class", "boxplot_whisker")
-                    .attr("x1",  function(d) {
+                    .attr("x1", function (d) {
                         return x(d.ageStats.minVal);
                     })
-                    .attr("y1", boxHeight/2)
-                    .attr("x2",  function(d) {
+                    .attr("y1", boxHeight / 2)
+                    .attr("x2", function (d) {
                         return x(d.ageStats.maxVal);
                     })
-                    .attr("y2", boxHeight/2);
+                    .attr("y2", boxHeight / 2);
 
                 // Rect for iqr
                 boxplotGrp.append("rect")
                     .attr("class", "boxplot_box")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.q1Val);
                     })
                     .attr("y", 0)
@@ -434,29 +416,29 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                     // Add transition on box rect rendering
                     .transition()
                     .duration(Cohort.transitionDuration)
-                    .attr("width", function(d) {
+                    .attr("width", function (d) {
                         return x(d.ageStats.q3Val) - x(d.ageStats.q1Val);
                     });
 
                 // Text of q1 age
                 boxplotGrp.append("text")
                     .attr("class", "boxplot_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.q1Val);
                     })
                     .attr("y", -textBottomPadding)
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.q1Val;
                     });
 
                 // Text of q3 age
                 boxplotGrp.append("text")
                     .attr("class", "boxplot_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.q3Val);
                     })
                     .attr("y", -textBottomPadding)
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.q3Val;
                     });
 
@@ -464,11 +446,11 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // Vertical line of median age
                 boxplotGrp.append("line")
                     .attr("class", "boxplot_median")
-                    .attr("x1", function(d) {
+                    .attr("x1", function (d) {
                         return x(d.ageStats.medianVal);
                     })
                     .attr("y1", 0)
-                    .attr("x2", function(d) {
+                    .attr("x2", function (d) {
                         return x(d.ageStats.medianVal);
                     })
                     .attr("y2", boxHeight);
@@ -476,12 +458,12 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // Text of median age
                 boxplotGrp.append("text")
                     .attr("class", "boxplot_text")
-                    .attr("x", function(d) {
+                    .attr("x", function (d) {
                         return x(d.ageStats.medianVal);
                     })
                     .attr("y", -textBottomPadding)
                     .attr("text-anchor", "middle")
-                    .text(function(d) {
+                    .text(function (d) {
                         return d.ageStats.medianVal;
                     });
             }
@@ -494,26 +476,26 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                     .call(d3.axisLeft(y))
                     // Add custom id to each tick group
                     .selectAll(".tick")
-                    .attr("class", function(d) {
+                    .attr("class", function (d) {
                         // Distiguish the top stage and sub stage labels using different colors
                         return "tick " + ((Cohort.topLevelStages.indexOf(d) !== -1) ? "top_stage" : "sub_stage");
                     })
                     // Now modify the label text to add patients count
                     .selectAll("text")
-                    .text(function(d) {
+                    .text(function (d) {
                         return d + " (" + patientsCounts[d] + ")";
                     });
 
                 // Only add click event to top level stages
-                svg.selectAll(".top_stage").on("click", function(d) {
+                svg.selectAll(".top_stage").on("click", function (d) {
                     let displayStages = y.domain();
 
                     // Click top-level stage label to show sub level stages
-                    let subLevels = [d + "A",  d + "B", d  + "C"];
+                    let subLevels = [d + "A", d + "B", d + "C"];
                     let addedSubStages = [];
                     let removedSubStages = [];
 
-                    subLevels.forEach(function(stage) {
+                    subLevels.forEach(function (stage) {
                         // sub stage must belong to the allStages
                         if (allStages.indexOf(stage) !== -1) {
                             // Add this sub stage to the stages to display when expanding the top stage
@@ -548,23 +530,23 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                         svg.selectAll(".single_patient_group")
                             .transition()
                             .duration(Cohort.transitionDuration)
-                            .attr("transform", function(d) {
-                                return "translate(0, " + (y(d.stage) + y.bandwidth()/2) + ")";
+                            .attr("transform", function (d) {
+                                return "translate(0, " + (y(d.stage) + y.bandwidth() / 2) + ")";
                             });
 
                         // Reposition the boxplots
                         svg.selectAll(".boxplot")
                             .transition()
                             .duration(Cohort.transitionDuration)
-                            .attr("transform", function(d) {
-                                return "translate(0, " + (y(d.stage) + y.bandwidth()/2) + ")";
+                            .attr("transform", function (d) {
+                                return "translate(0, " + (y(d.stage) + y.bandwidth() / 2) + ")";
                             });
                         //return null; //trying to get rid of a warning.
                     }
 
                     // Add sub stage bars and boxplots
                     if (addedSubStages.length > 0) {
-                        let updatedData = data.filter(function(d) {
+                        let updatedData = data.filter(function (d) {
                             if (addedSubStages.indexOf(d.stage) !== -1) {
                                 return d.stage;
                             }
@@ -579,7 +561,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
                     // Or remove sub stage bars and boxplots
                     if (removedSubStages.length > 0) {
-                        removedSubStages.forEach(function(stage) {
+                        removedSubStages.forEach(function (stage) {
                             // Can't get the transition work here with reposition
                             svg.selectAll("." + stage.replace(" ", "_"))
                                 .remove();
@@ -595,32 +577,35 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 });
             }
         }
+        showPatientFirstEncounterAgePerStageChart(this.props.docId, jsonResponse.stagesInfo);
+    }
 
-
-
-
-
-
-
-        fetchData().then(function (response) {
-            response.json().then(function (jsonResponse) {
-
-                showPatientFirstEncounterAgePerStageChart("john", jsonResponse.stagesInfo);
+    fetchData = async () => {
+        return new Promise(function (resolve, reject) {
+            fetch('http://localhost:3001/api/cohortData').then(function (response) {
+                if (response) {
+                    resolve(response);
+                } else {
+                    reject('User not logged in');
+                }
             });
-        });
 
+        });
 
     }
 
+    componentDidMount() {
+    let that = this;
+        this.fetchData().then(
+            function (response) {
+                response.json().then(e => that.showChart(e))
+            });
+    }
 
     render() {
-       // return (<div>{this.state.res}</div>);
         return (
-            <div className="BarChart" id='john2'>
-
+            <div className="BarChart" id={this.props.docId}>
             </div>
         );
     }
-
-
 }

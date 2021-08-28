@@ -1,46 +1,19 @@
 import React, {useEffect, useState} from "react";
 import {useParams} from 'react-router-dom'
-// @material-ui/core components
-
-// core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import * as d3 from "d3v4";
-
 import CustomTable from "../../components/CustomTables/CustomTable";
 import CancerAndTumorSummary from "../../components/Summaries/CancerAndTumorSummary";
 import Timeline from "../../components/Charts/Timeline";
-
-
 import $ from 'jquery'
 import CardHeader from "../../components/Card/CardHeader";
 import {Col, Container, Nav, Navbar, Row} from "react-bootstrap";
 
 
 const baseUri = "http://localhost:3001/api";
-
-// const styles = {
-//     cardCategoryWhite: {
-//         color: "rgba(255,255,255,.62)",
-//         margin: "0",
-//         fontSize: "14px",
-//         marginTop: "0",
-//         marginBottom: "0"
-//     },
-//     cardTitleWhite: {
-//         color: "#FFFFFF",
-//         marginTop: "0px",
-//         minHeight: "auto",
-//         fontWeight: "300",
-//         fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-//         marginBottom: "3px",
-//         textDecoration: "none"
-//     }
-// };
-
-//const useStyles = makeStyles(styles); removing, not in use
 
 function Patient() {
     const {patientId} = useParams();
@@ -49,7 +22,6 @@ function Patient() {
     function highlightReportBasedOnFact(reportId) {
         d3.select('#main_' + reportId).classed("fact_highlighted_report", true);
     }
-
 
     let factBasedReports = {};
 
@@ -241,10 +213,9 @@ function Patient() {
         })
             .done(function (response) {
                 let docIds = Object.keys(response.groupedTextProvenances);
-
                 // Render the html fact info
                 let factHtml = '<ul class="fact_detail_list">'
-                    + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
+                    + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact + '</li>';
 
                 if (docIds.length > 0) {
                     factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
@@ -505,22 +476,16 @@ function Patient() {
         return (<span>
           <Navbar className={"mainNavBar"}>
             <Container>
-                <Navbar.Brand className={"mainNavBar"} href="/">DeepPhe Visualizer<span style={{fontSize:'20px'}}> v2.0.0.0</span></Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav" >
-                    <Nav className="justify-content-end" style={{ width: "100%" }}>
+                <Navbar.Brand className={"mainNavBar"} href="/">DeepPhe Visualizer<span
+                    style={{fontSize: '20px'}}> v2.0.0.0</span></Navbar.Brand>
+                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="justify-content-end" style={{width: "100%"}}>
 
-                       <Nav.Link className={"navItem"} target="_blank" href="https://deepphe.github.io/">About</Nav.Link>
-                        <Nav.Link className={"navItem"} target="_blank" href="https://github.com/DeepPhe/">GitHub</Nav.Link>
-
-                        {/*    <Nav.Link href="#link">Link</Nav.Link>*/}
-                        {/*    <NavDropdown title="Dropdown" id="basic-nav-dropdown">*/}
-                        {/*        <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
-                        {/*        <NavDropdown.Item href="#action/3.2">Another action</NavDropdown.Item>*/}
-                        {/*        <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>*/}
-                        {/*        <NavDropdown.Divider />*/}
-                        {/*        <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>*/}
-                        {/*    </NavDropdown>*/}
+                       <Nav.Link className={"navItem"} target="_blank"
+                                 href="https://deepphe.github.io/">About</Nav.Link>
+                        <Nav.Link className={"navItem"} target="_blank"
+                                  href="https://github.com/DeepPhe/">GitHub</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>
@@ -529,7 +494,7 @@ function Patient() {
                <GridContainer>
                    <GridItem xs={12} sm={12} md={1}/>
                    <GridItem xs={12} sm={12} md={10}>
-                       <Card style={{'marginTop':'45px'}}>
+                       <Card style={{'marginTop': '45px'}}>
                            <CardHeader className={"basicCardHeader"}>Patient ID and Demographics</CardHeader>
                            <CardBody>
                                <CustomTable></CustomTable>
@@ -551,7 +516,8 @@ function Patient() {
                            </CardBody>
                        </Card>
                        <Card id={"docs"}>
-                            <CardHeader className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                            <CardHeader
+                                className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
                            <CardBody>
                             <div className="right" id="report_instance">
                                    <div className="report_section clearfix">
@@ -586,12 +552,8 @@ function Patient() {
                 <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
                <Col md={1}></Col>
             </Row>
-
-
-
         </div>
-
-</span>
+    </span>
         )
     }
 }

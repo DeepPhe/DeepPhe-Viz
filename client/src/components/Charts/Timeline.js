@@ -1,15 +1,11 @@
 import React from "react";
 import * as d3 from "d3v4";
-//import * as Cohort from '../../cohort.js'
 import * as $ from "jquery";
 
-//const allStagesLabel = "All stages";
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
 
-
 export default class Timeline extends React.Component {
-
 
     constructor(props) {
         super(props);
@@ -27,7 +23,6 @@ export default class Timeline extends React.Component {
     }
 
     fetchData = async (url) => {
-
         return new Promise(function (resolve, reject) {
             fetch(url).then(function (response) {
                 if (response) {
@@ -39,14 +34,11 @@ export default class Timeline extends React.Component {
         });
     }
 
-
-
-
     componentDidMount() {
         let url = this.getUrl(this.props.patientId);
         const processTimelineResponse = (response) => {
             this.setState({json: response});
-            renderTimeline("john-timeline", response.patientInfo, response.reportTypes, response.typeCounts, response.maxVerticalCountsPerType, response.episodes, response.episodeCounts, response.episodeDates, response.reportData, response.reportsGroupedByDateAndTypeObj)
+            renderTimeline("timeline", response.patientInfo, response.reportTypes, response.typeCounts, response.maxVerticalCountsPerType, response.episodes, response.episodeCounts, response.episodeDates, response.reportData, response.reportsGroupedByDateAndTypeObj)
         }
         const renderTimeline = (svgContainerId, patientInfo, reportTypes, typeCounts, maxVerticalCountsPerType, episodes, episodeCounts, episodeDates, reportData, reportsGroupedByDateAndTypeObj) => {
            // console.log(reportTypes)
@@ -1070,18 +1062,12 @@ export default class Timeline extends React.Component {
 
 
 
-
     }
 
-
-    //this is running, no errors, it's just not displaying anything!  But Timeline/john-timeline *are* in the doc...just nothing else
-    //probably need to call "show" functions like in DerivedChart.js, pickup on monday
     render() {
-
-
         return (
-            <div className="Timeline" id="john-timeline">
-                {/*{this.state.json}*/}
+            <div className="Timeline" id="timeline">
+
             </div>
         );
     }

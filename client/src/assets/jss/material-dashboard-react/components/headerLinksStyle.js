@@ -1,8 +1,4 @@
-import {
-  defaultFont,
-  dangerColor,
-  whiteColor
-} from "assets/jss/material-dashboard-react.js";
+import {dangerColor, defaultFont, whiteColor} from "assets/jss/material-dashboard-react.js";
 
 import dropdownStyle from "assets/jss/material-dashboard-react/dropdownStyle.js";
 
