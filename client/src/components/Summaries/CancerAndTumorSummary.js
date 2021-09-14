@@ -16,7 +16,7 @@ const source = `
 {{#each cancers}}
 <div class="cancer_and_tumor_summary clearfix">
 
-<div class="cancer_id">{{title}}: </div>
+<div class="cancer_id">Cancer ID: {{title}} </div>
 
 <div class="cancer_and_tnm">
 

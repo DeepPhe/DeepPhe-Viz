@@ -333,11 +333,13 @@ svg .tick text {
     shape-rendering: crispEdges;
 }
 
-/* Individual patient view */
+#summary > .container {
+    margin-left: 0px;
+}
 .cancer_and_tumor_summary {
-    padding: 5px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
+    padding: 0px;
+    margin: 0px 0;
+    border: 0px solid #ddd;
 }
 
 .cancer_facts {
@@ -420,6 +422,7 @@ svg .tick text {
 .fact {
     color: #0275d8;
     cursor: pointer;
+    font-style: italic;
 }
 
 .fact:hover {

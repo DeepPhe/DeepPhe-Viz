@@ -215,7 +215,7 @@ function Patient() {
                 let docIds = Object.keys(response.groupedTextProvenances);
                 // Render the html fact info
                 let factHtml = '<ul class="fact_detail_list">'
-                    + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact + '</li>';
+                    + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
 
                 if (docIds.length > 0) {
                     factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
@@ -519,7 +519,7 @@ function Patient() {
                             <CardHeader
                                 className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
                            <CardBody>
-                            <div className="right" id="report_instance">
+                            <div id="report_instance">
                                    <div className="report_section clearfix">
 
                                        <div id="timeline" className="clearfix"></div>

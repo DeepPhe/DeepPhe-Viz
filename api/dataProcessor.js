@@ -72,8 +72,10 @@ const _ = require('lodash');
                             let stageName = getShortStageName(s);
                             stageName = getRomanNumeralStageName(stageName);
                             // Use lodash's _.findIndex() instead of the native indexOf() to avoid duplicates
-                           // if ((topLevelStages[stage].indexOf(stageName) !== -1) &&
-                             if (_.findIndex(obj.patients, patient) === -1) {
+
+
+                            if ((topLevelStages[topLevelStage].indexOf(stageName) !== -1) &&
+                               (_.findIndex(obj.patients, patient) === -1)) {
                                 obj.patients.push(patient);
                             }
                         });
@@ -349,7 +351,8 @@ const _ = require('lodash');
 
                 // The name of category
                 collatedCancerFactObj.category = sortedUniqueCancerFactRelnArr[j];
-                collatedCancerFactObj.categoryName = relationPrettyNameMap.get(sortedUniqueCancerFactRelnArr[j]);
+                collatedCancerFactObj.categoryName = titleCase(relationPrettyNameMap.get(sortedUniqueCancerFactRelnArr[j]));
+
 
                 // Array of facts of this category
                 collatedCancerFactObj.facts = [];
@@ -364,8 +367,9 @@ const _ = require('lodash');
 
                             let factObj = {};
                             factObj.id = cancerFact.cancerFactInfo.id;
-                            factObj.name = cancerFact.cancerFactInfo.name;
+                            factObj.name = cancerFact.relationPrettyName;
                             factObj.prettyName = cancerFact.cancerFactInfo.prettyName;
+
 
                             if (factObj.id == undefined || factObj.name == undefined || factObj.prettyName == undefined) {
                                 console.log("error reading cancer facts")
@@ -379,9 +383,10 @@ const _ = require('lodash');
                     }
                 }
 
+
                 // Array of facts of this category
                 // Remove duplicates using lodash's _.uniqWith() then sort by the alphabetical order of 'prettyName'
-                collatedCancerFactObj.facts = _.sortBy(_.uniqWith(factsArr, _.isEqual), ['prettyName']);
+                collatedCancerFactObj.facts = _.sortBy(_.uniqWith(factsArr, _.isEqual), ['name']);
 
                 // Add collatedFactObj to allCollatedFacts only when the facts array is not empty after all the above filtering
                 // E.g., treatment facts can be an empty array if the treatements are OtherTherapeuticProcedure and OtherMedication
@@ -390,6 +395,13 @@ const _ = require('lodash');
                     allCollatedCancerFacts.push(collatedCancerFactObj);
                 }
             }
+            allCollatedCancerFacts = allCollatedCancerFacts.sort(function(a, b) {
+                const nameA = a.category;
+                const nameB = b.category;
+                if (nameA > nameB) return 1;
+                if (nameA < nameB) return -1;
+                return 0;
+            });
 
             // Will use this to build TNM staging table
             const tnmClassifications = {
@@ -921,7 +933,24 @@ const _ = require('lodash');
 
     // "stage_2a"
     const getRomanNumeralStageName = (arabicStageName) => {
-        return arabicStageName.replace("_", " ").replace("1", "I").replace("2", "II")
+        return arabicStageName.replace("_", " ").replace("1", "I").replace("2", "II").replace("3", "III").replace("4", "IV")
+    }
+
+    const titleCase = (str) => {
+        str = str.replace(/ $/, '');
+        if (str != "ER" && str != "HER2" && str != "PR") {
+            return str.toLowerCase().split(' ').map(function (word) {
+                return word.replace(word[0], word[0].toUpperCase());
+            }).join(' ');
+        } else {
+            return str;
+        }
+
+    }
+
+    const getStageWithoutLetter = (stageWithLetter) => {
+        return stageWithLetter.replace("IA", "I").replace("IB", "I").replace("IC", "I").replace("VA", "V").replace("VB", "V").replace("VC", "V");
+
     }
 
     // Used by episode
