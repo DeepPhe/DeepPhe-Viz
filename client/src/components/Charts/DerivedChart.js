@@ -471,7 +471,6 @@ export function showDerivedChart(patientsArr, stage, firstEncounterAgeRange) {
 
 export function showDiagnosisChart(svgContainerId, data) {
     removeChart(svgContainerId);
-
     const diagnosisDotRadius = 4;
     const highlightedDotRadius = 5;
     const overviewDotRadius = 1.5;

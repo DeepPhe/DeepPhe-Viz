@@ -26,7 +26,7 @@ const source = `
         <span class="cancer_fact_category_name">{{categoryName}}: </span>
         <ul class="cancer_fact_list">
           {{#each facts}}
-            <li><span class="fact" id="{{id}}">{{prettyName}}</span></li>
+            <li><span class="fact" id="{{id}}">{{value}}</span></li>
           {{/each}}
         </ul>
     </li>
@@ -45,7 +45,7 @@ const source = `
             {{#if data.T}}
             <ul class="cancer_tnm_fact_list">
                 {{#each data.T}}
-                <li><span class="fact" id="{{id}}">{{prettyName}}</span></li>
+                <li><span class="fact" id="{{id}}">{{value}}</span></li>
                 {{/each}}
             </ul>
             {{/if}}
@@ -53,7 +53,7 @@ const source = `
             {{#if data.N}}
             <ul class="cancer_tnm_fact_list">
                 {{#each data.N}}
-                <li><span class="fact" id="{{id}}">{{prettyName}}</span></li>
+                <li><span class="fact" id="{{id}}">{{value}}</span></li>
                 {{/each}}
             </ul>
             {{/if}}
@@ -61,7 +61,7 @@ const source = `
             {{#if data.M}}
             <ul class="cancer_tnm_fact_list">
                 {{#each data.M}}
-                <li><span class="fact" id="{{id}}">{{prettyName}}</span></li>
+                <li><span class="fact" id="{{id}}">{{value}}</span></li>
                 {{/each}}
             </ul>
             {{/if}}

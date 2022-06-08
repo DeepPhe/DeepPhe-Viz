@@ -16,6 +16,59 @@ a {
 
 }
 
+#zoom_controls {
+text-align: right;
+    margin-top: 10px;
+}
+
+#mention_search_input {
+   width: -webkit-fill-available;
+}
+
+#sort_label,
+#search_label {
+    margin-top: 10px;
+}
+
+#report_mentioned_terms {
+    margin-top: 5px;
+}
+
+
+#mentions_container,
+#report_id,
+#report_instance {
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+#mentions_container2 {
+    padding: 0px !important;
+    margin-top: -5px !important;
+}
+.sort_radio_item > label {
+    text-align: center;
+}
+#mentions_container {
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(232, 232, 232);
+    padding: 10px !important;
+}
+
+#mentions_container label {
+    color:black;
+}
+
+#report_instance .makeStyles-grid-1 {
+    margin: 0px !important;
+}
+
+#mentions_container  div,
+#mentions_container  div  div {
+    padding: 0px !important;
+}
+
 .header {
     color: #fff;
     background-color: #1e88e5;
@@ -551,12 +604,12 @@ th {
 
 .divider {
     border-bottom: 1px solid #dbdbdb;
-    margin: 0 10px;
+    /*margin: 0 10px;*/
 }
 
 /* Fact detail area */
 #fact_detail {
-    margin: 10px;
+    /*margin: 10px;*/
 }
 
 .fact_detail_list,
@@ -583,7 +636,7 @@ th {
 }
 
 .fact_detail_list li {
-    margin: 5px 10px;
+    /*margin: 5px 10px;*/
 }
 
 /* Remove the margin of last child due to the bottom border of fact_detail_list */
@@ -632,13 +685,15 @@ th {
 
 #report_id {
     padding-left: 10px;
+    margin-top:15px !important;
+    margin-bottom:5px !important;
 }
 
 #report_text {
     position: relative; /* Must explicitly specify the position of this dive for dynamic scrolling */
     float: left;
     width: 600px;
-    height: 600px;
+    height: 100%;
     padding: 10px 10px 10px 5px;
     overflow-y: scroll;
     font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
@@ -656,9 +711,11 @@ th {
 
 .mentioned_terms_list {
     list-style-type: none;
+    font-size: 18px;
     font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
     padding: 0;
-    margin: 0;
+
+    margin-top: 10px;
 }
 
 .report_mentioned_term {
@@ -687,7 +744,7 @@ th {
 }
 
 .highlighted_term {
-    display: inline-block;
+    /*display: inline-block;*/
     background: #FFDC00;
 }
 
@@ -699,7 +756,7 @@ th {
 }
 
 .episode_legend_text {
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .hide {
@@ -796,7 +853,7 @@ th {
 .report_type_label,
 .overview_label,
 .age_label {
-    font-size: 11px;
+    font-size: 14px;
     text-anchor: end;
 }
 

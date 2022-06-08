@@ -284,8 +284,11 @@ export default class Timeline extends React.Component {
                         // for highlighting and scroll to
                         let factBasedTermsWithPosition = [];
 
-                        let renderedMentionedTerms = '<ul class="mentioned_terms_list">';
+                        let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
+                        mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+
                         mentionedTerms.forEach(function(obj) {
+                            console.log(JSON.stringify(obj))
                             let fact_based_term_class = '';
                             if (factBasedTerms.indexOf(obj.term) !== -1) {
                                 factBasedTermsWithPosition.push(obj);
@@ -293,7 +296,7 @@ export default class Timeline extends React.Component {
                             }
                             renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
                         });
-                        renderedMentionedTerms += "</ul>";
+                        renderedMentionedTerms += "</ol>";
 
                         $('#report_mentioned_terms').html(renderedMentionedTerms);
 
@@ -358,21 +361,21 @@ export default class Timeline extends React.Component {
                 }
             })};
 
-            const margin = {top: 20, right: 20, bottom: 10, left: 170};
+            const margin = {top: 20, right: 20, bottom: 10, left: 250};
             const mainReportTypeRowHeightPerCount = 16;
             const overviewReportTypeRowHeightPerCount = 3;
 
             const legendHeight = 22;
             const legendSpacing = 2;
-            const widthPerLetter = 9;
+            const widthPerLetter = 12;
             const episodeLegendAnchorPositionX = 60;
             const episodeLegendAnchorPositionY = 6;
 
             const gapBetweenlegendAndMain = 5;
 
-            const width = 660;
+            const width = 1000;
             // Dynamic height based on vertical counts
-            const height = totalMaxVerticalCounts * mainReportTypeRowHeightPerCount;
+            const height = totalMaxVerticalCounts * mainReportTypeRowHeightPerCount * 2;
 
             const pad = 25;
 

@@ -126,7 +126,7 @@ const _ = require('lodash');
 
         // Build an array of unique diagnosis
         for (let i = 0; i < neo4jRawArr.length; i++) {
-            neo4jRawArr[i].diagnosisGroups.forEach(function(diagGrp) {
+            neo4jRawArr[i].diagnosis.forEach(function(diagGrp) {
                 if (uniqueDiagnosisGroupsArr.indexOf(diagGrp) === -1) {
                     uniqueDiagnosisGroupsArr.push(diagGrp);
                 }
@@ -142,7 +142,7 @@ const _ = require('lodash');
             obj.diagnosisGroups = [];
 
             for (let i = 0; i < neo4jRawArr.length; i++) {
-                neo4jRawArr[i].diagnosisGroups.forEach(function(diagGrp) {
+                neo4jRawArr[i].diagnosis.forEach(function(diagGrp) {
                     if (neo4jRawArr[i].patientId === pid && obj.diagnosisGroups.indexOf(diagGrp) === -1) {
                         //this should get called!?!
                         obj.diagnosisGroups.push(diagGrp);
@@ -369,9 +369,10 @@ const _ = require('lodash');
                             factObj.id = cancerFact.cancerFactInfo.id;
                             factObj.name = cancerFact.relationPrettyName;
                             factObj.prettyName = cancerFact.cancerFactInfo.prettyName;
+                            factObj.value = cancerFact.cancerFactInfo.value;
 
 
-                            if (factObj.id == undefined || factObj.name == undefined || factObj.prettyName == undefined) {
+                            if (factObj.id == undefined || factObj.name == undefined || factObj.prettyName == undefined || factObj.value == undefined) {
                                 console.log("error reading cancer facts")
                             } else {
                             // Add to facts array

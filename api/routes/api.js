@@ -71,9 +71,7 @@ router.get('/diagnosis/:patientIds', function (req, res) {
     let promise = session.run(neo4jFunctions.getDiagnosis(patientIds))
         .then(function(neo4jResult) {
             session.close();
-
             let neo4jRawArr = neo4jResult.records[0].get('diagnosis');
-
             // Convert the body into desired json data structure
             res.send(dataProcessor.getDiagnosis(patientIds, neo4jRawArr));
         })

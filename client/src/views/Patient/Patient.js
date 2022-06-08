@@ -162,7 +162,7 @@ function Patient() {
                 $('#terms_list_' + reportId + "_" + factId).children().find(">:first-child").addClass(currentFactTermsCssClass);
 
                 // Show report ID
-                $('#report_id').html('<i fa fa-file-o></i><span "display_report_id ' + currentReportCssClass + '">' + reportId + '</span>');
+                $('#report_id').html('<i class="fa fa-file-o"></i><span class="display_report_id ' + currentReportCssClass + '">' + reportId + '</span>');
 
                 // Show rendered mentioned terms
                 // First check if this report is a fact-based report so we cna highlight the fact-related terms
@@ -175,7 +175,8 @@ function Patient() {
                 // for highlighting and scroll to
                 let factBasedTermsWithPosition = [];
 
-                let renderedMentionedTerms = '<ul class="mentioned_terms_list">';
+                let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
+
                 mentionedTerms.forEach(function (obj) {
                     let fact_based_term_class = '';
                     if (factBasedTerms.indexOf(obj.term) !== -1) {
@@ -184,7 +185,7 @@ function Patient() {
                     }
                     renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
                 });
-                renderedMentionedTerms += "</ul>";
+                renderedMentionedTerms += "</ol>";
 
                 $('#report_mentioned_terms').html(renderedMentionedTerms);
 
@@ -428,7 +429,18 @@ function Patient() {
         $('#report_text').html('');
     });
 
-    $(document).on("click", ".list_view .fact", function () {
+    $(document).on("click", "#zoom_in_btn", function () {
+        let newFontSize= parseInt($('#report_text').css('font-size')) + 1;
+        $('#report_text').css('font-size', newFontSize);
+    });
+
+    $(document).on("click", "#zoom_out_btn", function () {
+        let newFontSize= parseInt($('#report_text').css('font-size')) - 1;
+        $('#report_text').css('font-size', newFontSize);
+    });
+
+
+        $(document).on("click", ".list_view .fact", function () {
 
         const cssClass = 'highlighted_fact';
 
@@ -447,6 +459,81 @@ function Patient() {
         // Also highlight the same fact in table view
         $("#table_view_" + factId).addClass(cssClass);
     });
+
+    $('input[type=radio][name="sort_order"]').change(function () {
+        const value = $(this).val();
+        if (value == "alphabetically") {
+
+        } else if (value == "occurrence") {
+
+        }
+
+        // Declaring Variables
+        var geek_list, i, run, li, stop;
+        // Taking content of list as input
+        geek_list = document.getElementById("mentions");
+
+        run = true;
+
+        while (run) {
+            run = false;
+            li = geek_list.getElementsByTagName("li");
+
+            // Loop traversing through all the list items
+            for (i = 0; i < (li.length - 1); i++) {
+                stop = false;
+                if (value == "alphabetically") {
+                    if (li[i].textContent.toLowerCase() >
+                        li[i + 1].textContent.toLowerCase()) {
+                        stop = true;
+                        break;
+                    }
+                } else if (value == "occurrence") {
+
+                    if (parseInt(li[i].getAttribute("data-begin")) >
+                        (parseInt(li[i + 1].getAttribute("data-begin")))) {
+                        stop = true;
+                        break;
+                    }
+                }
+            }
+
+            /* If the current item is smaller than
+               the next item then adding it after
+               it using insertBefore() method */
+            if (stop) {
+                li[i].parentNode.insertBefore(
+                    li[i + 1], li[i]);
+
+                run = true;
+            }
+        }
+
+
+    })
+
+    $(document).on("input", "#mention_search_input", function () {
+
+        // Declare variables
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('mention_search_input');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("mentions");
+        li = ul.getElementsByTagName('li');
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < li.length; i++) {
+
+            a = li[i]
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    });
+
 
     // removed, not used const classes = useStyles();
     const [summary, setSummary] = useState(null);
@@ -473,27 +560,28 @@ function Patient() {
     } else {
         const cancers = summary;
         const melanomaAttributes = []; // obj.melanomaAttributes;
-        return (<span>
-          <Navbar className={"mainNavBar"}>
-            <Container>
-                <Navbar.Brand className={"mainNavBar"} href="/">DeepPhe Visualizer<span
-                    style={{fontSize: '20px'}}> v2.0.0.0</span></Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="justify-content-end" style={{width: "100%"}}>
+        return (
+            <span>
+                <Navbar className={"mainNavBar"}>
+                    <Container>
+                        <Navbar.Brand className={"mainNavBar"} href="/">DeepPhe Visualizer<span
+                            style={{fontSize: '20px'}}> v2.0.0.0</span></Navbar.Brand>
+                        <Navbar.Toggle aria-controls="basic-navbar-nav"/>
+                        <Navbar.Collapse id="basic-navbar-nav">
+                            <Nav className="justify-content-end" style={{width: "100%"}}>
 
-                       <Nav.Link className={"navItem"} target="_blank"
-                                 href="https://deepphe.github.io/">About</Nav.Link>
-                        <Nav.Link className={"navItem"} target="_blank"
-                                  href="https://github.com/DeepPhe/">GitHub</Nav.Link>
-                    </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+                               <Nav.Link className={"navItem"} target="_blank"
+                                         href="https://deepphe.github.io/">About</Nav.Link>
+                                <Nav.Link className={"navItem"} target="_blank"
+                                          href="https://github.com/DeepPhe/">GitHub</Nav.Link>
+                            </Nav>
+                        </Navbar.Collapse>
+                    </Container>
+                </Navbar>
 
-               <GridContainer>
-                   <GridItem xs={12} sm={12} md={1}/>
-                   <GridItem xs={12} sm={12} md={10}>
+                <GridContainer>
+                    <GridItem xs={12} sm={12} md={1}/>
+                    <GridItem xs={12} sm={12} md={10}>
                        <Card style={{'marginTop': '45px'}}>
                            <CardHeader className={"basicCardHeader"}>Patient ID and Demographics</CardHeader>
                            <CardBody>
@@ -516,44 +604,69 @@ function Patient() {
                            </CardBody>
                        </Card>
                        <Card id={"docs"}>
-                            <CardHeader
-                                className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
-                           <CardBody>
-                            <div id="report_instance">
-                                   <div className="report_section clearfix">
+                            <CardHeader className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                            <CardBody>
+                                <div id="report_instance">
+                                   <GridItem className="report_section clearfix">
+                                       <GridContainer>
+                                            <div id="timeline" className="clearfix"></div>
+                                            <div className="divider clearfix"></div>
+                                            <div id="fact_detail"></div>
+                                            <GridItem xs={6} id="report_id"></GridItem>
+                                            <GridItem xs={6} id="zoom_controls">
+                                                <button id="zoom_in_btn" type="button"><i className="fa  fa-search-plus"></i></button>
+                                                <button id="zoom_out_btn" type="button"><i className="fa  fa-search-minus"></i></button>
+                                            </GridItem>
 
-                                       <div id="timeline" className="clearfix"></div>
-                                       <div className="divider clearfix"></div>
-                                       <div id="fact_detail"></div>
-                                       <div id="report_id"></div>
-                                       <div id="report_info">
-                                           <div id="report_mentioned_terms"></div>
-                                       </div>
+                                            <GridContainer id="term_container2">
+                                                <GridItem xs={4} sm={4} md={3} id="mentions_container2">
+                                                    <CardHeader id="mentions_label" className={"basicCardHeader"}>Mentioned Terms</CardHeader>
+                                                    <GridItem xs={12} id="mentions_container">
+                                                        <GridContainer>
+                                                            <GridItem xs={12} id="search_label">Filter Mentions:</GridItem>
+                                                            <GridItem xs={12}>
+                                                                <input type="search" id="mention_search_input" placeholder="Search for mentions.."></input>
+                                                            </GridItem>
 
-                                       <div id="report_text"></div>
-                                   </div>
+                                                            <GridItem xs={12} id="sort_label">Sort mentions:</GridItem>
+                                                            <GridItem md={12} lg={6} className="sort_radio_item">
+                                                                <input id="occ_radio" type="radio" name="sort_order"
+                                                                       value="occurrence" checked></input>
+                                                                <label htmlFor="occ_radio">&nbsp; By Occurrence</label>
+                                                            </GridItem>
+                                                            <GridItem md={12} lg={6} className="sort_radio_item">
+                                                               <input id="alpha_radio" type="radio" name="sort_order"
+                                                                      value="alphabetically"></input>
+                                                               <label htmlFor="alpha_radio">&nbsp; Alphabetically</label>
+                                                            </GridItem>
+
+                                                            <div id="report_mentioned_terms"></div>
+                                                        </GridContainer>
+                                                    </GridItem>
+                                                </GridItem>
+                                                <GridItem xs={8} sm={8} md={9} id="report_text"/>
+                                            </GridContainer>
+                                       </GridContainer>
+                                   </GridItem>
                                </div>
-
-                               {/*<CardHeader color="primary">*/}
-
-                               {/*</CardHeader>*/}
-
                            </CardBody>
                        </Card>
-                   </GridItem>
+                    </GridItem>
                     <GridItem xs={12} sm={12} md={1}/>
-               </GridContainer>
-                <div className={"mainFooter"}>
+                </GridContainer>
 
+                <div className={"mainFooter"}>
                     <Row>
-                <Col md={1}></Col>
-                <Col md={4}>Supported by the <a target="_blank" href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
-                <Col md={1}></Col>
-                <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
-               <Col md={1}></Col>
-            </Row>
-        </div>
-    </span>
+                        <Col md={1}></Col>
+                        <Col md={4}>Supported by the <a target="_blank" href="https://itcr.cancer.gov/">National Cancer
+                            Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
+                        <Col md={1}></Col>
+                        <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical
+                            Center.</Col>
+                        <Col md={1}></Col>
+                    </Row>
+                </div>
+            </span>
         )
     }
 }
