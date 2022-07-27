@@ -1,8 +1,9 @@
 import * as $ from "jquery";
-import DerivedChart, {
-    showBiomarkersOverviewChart,
-    showPatientsWithBiomarkersChart
-} from "./components/Charts/DerivedChart";
+import {showBiomarkersOverviewChart, showPatientsWithBiomarkersChart} from "./components/Charts/DerivedChart";
+// import DerivedChart, {
+//     showBiomarkersOverviewChart,
+//     showPatientsWithBiomarkersChart
+// } from "./components/Charts/DerivedChart";
 // Global settings
 export const transitionDuration = 800; // time in ms
 
@@ -32,7 +33,6 @@ export const allStagesLabel = "All stages";
 export let currentFirstEncounterAgeRange = [];
 
 let baseUri = "http://localhost:3001/api";
-let baseGuiUri = "http://localhost:3000";
 
 // All stages in a sorted order
 export const orderedCancerStages = [
@@ -70,9 +70,6 @@ export const topLevelStages = [
     'Stage IV'
 ];
 
-// Min and max age across all the patients
-let minAge;
-let maxAge;
 
 // Return the intersection of two patient arrays
 export function getTargetPatients(patientsByStage, patientsByFirstEncounterAge) {
@@ -144,18 +141,18 @@ export function getBiomarkers(patientIds) {
         });
 }
 
-function getDiagnosis(patientIds) {
-    $.ajax({
-        url: baseUri + '/diagnosis/' + patientIds.join('+'),
-        method: 'GET',
-        async : true,
-        dataType : 'json'
-    })
-        .done(function(response) {
-            DerivedChart.showDiagnosisChart("diagnosis", response);
-        })
-        .fail(function () {
-            console.log("Ajax error - can't get patients diagnosis info");
-        });
-}
+// function getDiagnosis(patientIds) {
+//     $.ajax({
+//         url: baseUri + '/diagnosis/' + patientIds.join('+'),
+//         method: 'GET',
+//         async : true,
+//         dataType : 'json'
+//     })
+//         .done(function(response) {
+//             DerivedChart.showDiagnosisChart("diagnosis", response);
+//         })
+//         .fail(function () {
+//             console.log("Ajax error - can't get patients diagnosis info");
+//         });
+// }
 

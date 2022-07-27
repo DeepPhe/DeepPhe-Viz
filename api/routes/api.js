@@ -176,13 +176,4 @@ router.get('/fact/:patientId/:factId', function(req, res) {
         });
 });
 
-
-
-
-
-
-
-
-
-
 module.exports = router;

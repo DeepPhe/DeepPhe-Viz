@@ -384,7 +384,6 @@ const _ = require('lodash');
                     }
                 }
 
-
                 // Array of facts of this category
                 // Remove duplicates using lodash's _.uniqWith() then sort by the alphabetical order of 'prettyName'
                 collatedCancerFactObj.facts = _.sortBy(_.uniqWith(factsArr, _.isEqual), ['name']);
@@ -546,15 +545,13 @@ const _ = require('lodash');
                     // Then add the data
                     sortedFactRelationships.forEach(function(reln) {
                         let dataObj = {};
-                        dataObj.category = relationPrettyNameMap.get(reln);
+                        dataObj.category = titleCase(relationPrettyNameMap.get(reln));
                         dataObj.categoryClass = getCategoryClass(reln);
                         dataObj.facts = [];
 
                         origTumor.tumorFacts.forEach(function(tumorFact) {
                             if (tumorFact.relation === reln) {
-
                                     dataObj.facts.push(tumorFact.tumorFactInfo);
-
                             }
                         });
 
@@ -562,6 +559,19 @@ const _ = require('lodash');
                         targetTumor.data.push(dataObj);
                     });
                 }
+            });
+            targetTumor.data.sort((a,b) => {
+                let sa = a.category;
+                let sb = b.category;
+
+                if (sa < sb) {
+                    return -1;
+                }
+
+                if (sa > sb) {
+                    return 1;
+                }
+                return 0;
             });
         });
 
@@ -591,7 +601,7 @@ const _ = require('lodash');
         sortedAllFactRelationships.forEach(function(reln) {
             let factsByCategoryObj = {};
             // Convert the 'hasXXX' relationship to category
-            factsByCategoryObj.category = relationPrettyNameMap.get(reln);
+            factsByCategoryObj.category = titleCase(relationPrettyNameMap.get(reln));
             factsByCategoryObj.categoryClass = getCategoryClass(reln);
             factsByCategoryObj.data = [];
 
@@ -618,6 +628,19 @@ const _ = require('lodash');
             tumorSummary.tableViewData.push(factsByCategoryObj);
         });
 
+        tumorSummary.tableViewData.sort((a,b) => {
+            let sa = a.category;
+            let sb = b.category;
+
+            if (sa < sb) {
+                return -1;
+            }
+
+            if (sa > sb) {
+                return 1;
+            }
+            return 0;
+        });
         // Finally all done
         return tumorSummary;
     }

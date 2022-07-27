@@ -63,12 +63,19 @@ export default class PatientCountPerStageChart extends React.Component {
             // By default only show the top level stages if has data
             // otherwise show sub stages directly
             // Here the data is already sorted by stage name in dataProcessor
-            let defaultStagesData = data.filter(function (d) {
+            let defaultStagesData = [];
+            data.forEach(function (d) {
                 if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
-                    return d.stage;
+                    defaultStagesData.push(d);
                 }
-                //return null; //trying to get rid of a warning
             });
+
+            // let defaultStagesData = data.filter(function (d) {
+            //     if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
+            //         return d.stage;
+            //     }
+            //     //return null; //trying to get rid of a warning
+            // });
 
             let xCount = d3.scaleLinear()
                 .domain([0, d3.max(data, function (d) {
@@ -269,13 +276,12 @@ export default class PatientCountPerStageChart extends React.Component {
                             });
                     }
 
-                    // Add sub stage bars and boxplots
                     if (addedSubStages.length > 0) {
-                        let updatedData = data.filter(function (d) {
+                        let updatedData = [];
+                        data.forEach(function (d) {
                             if (addedSubStages.indexOf(d.stage) !== -1) {
-                                return d.stage;
+                                updatedData.push(d);
                             }
-                            //return null; //trying to get rid of a warning
                         });
 
                         // Reposition the exisiting stages BEFORE adding new sub stages
@@ -283,6 +289,18 @@ export default class PatientCountPerStageChart extends React.Component {
 
                         // The last thing is to add new sub stages
                         renderDistribution(updatedData);
+
+                        // // Add sub stage bars and boxplots
+                        // if (addedSubStages.length > 0) {
+                        //     let updatedData = data.filter(function (d) {
+                        //         if (addedSubStages.indexOf(d.stage) !== -1) {
+                        //             return d.stage;
+                        //         }
+                        //         //return null; //trying to get rid of a warning
+                        //     });
+                        //
+                        //
+                        // }
                     }
 
                     // Or remove sub stage bars and boxplots

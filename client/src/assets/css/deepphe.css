@@ -531,15 +531,17 @@ th {
 }
 
 /* clearfix hack http://nicolasgallagher.com/micro-clearfix-hack/ */
-.clearfix:before,
-.clearfix:after {
-    content: " "; /* 1 */
-    display: table; /* 2 */
-}
+/*.clearfix:before,*/
+/*.clearfix:after {*/
+/*    content: ""; !* 1 *!*/
+/*    display: table; !* 2 *!*/
+/*}*/
 
+/*
 .clearfix:after {
-    clear: both;
+    !*clear: both;*!
 }
+*/
 
 
 /* Fact */
@@ -963,7 +965,7 @@ th {
 }
 
 .list_view_tumor_type {
-    width: 175px;
+    width: 100%;
     float: left;
     font-weight: bold;
     margin-right: 5px;
@@ -971,7 +973,7 @@ th {
 }
 
 .list_view_tumor_list {
-    width: 728px;
+    width: 100%;
     float: left;
     list-style-type: none;
     padding: 0;

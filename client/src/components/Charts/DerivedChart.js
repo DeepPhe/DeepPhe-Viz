@@ -8,7 +8,6 @@ import CardHeader from "../Card/CardHeader";
 import Card from "../Card/Card";
 import CardBody from "../Card/CardBody";
 
-const allStagesLabel = "All stages";
 const baseUri = "http://localhost:3001";
 const baseGuiUri = "http://localhost:3000";
 const transitionDuration = 800; // time in ms
@@ -461,7 +460,7 @@ export function showDerivedChart(patientsArr, stage, firstEncounterAgeRange) {
         // Make another ajax call to get biomarkers info for the list of patients
         Cohort.getBiomarkers(patientIds);
     } else {
-        console.log("Empty target patients list");
+        //console.log("Empty target patients list");
         // We'll need to remove the previous resulting charts
         removeChart("patients");
         removeChart("diagnosis");

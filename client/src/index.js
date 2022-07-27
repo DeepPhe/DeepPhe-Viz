@@ -29,21 +29,14 @@ import "assets/css/normalize.css";
 
 import Patient from "./views/Patient/Patient";
 import CancerAndTumorSummaryView from "./views/Summaries/CancerAndTumorSummaryView";
-import TimelineView from "./views/Timeline/TimelineView";
 import ReactDOM from "react-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {createMuiTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
+import {createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
 
 const hist = createBrowserHistory();
-const themeLight = createMuiTheme({
-    palette: {
-        background: {
-            default: "#e4f0e2"
-        }
-    }
-});
 
-const themeDark = createMuiTheme({
+
+const themeDark = createTheme({
     palette: {
         background: {
             default: "#f5f5f5",
@@ -71,7 +64,7 @@ ReactDOM.render(
             <Switch>
                 <Route path="/admin" component={Admin}/>
                 <Route path="/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
-                <Route path="/patient/:patientId/timeline" component={TimelineView}/>
+                {/*<Route path="/patient/:patientId/timeline" component={TimelineView}/>*/}
                 <Route path="/patient/:patientId" component={Patient}/>
 
                 <Redirect from="/" to="/admin/dashboard"/>

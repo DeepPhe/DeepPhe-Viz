@@ -61,9 +61,9 @@ export default function Admin({ ...rest }) {
       setFixedClasses("dropdown");
     }
   };
-  const handleDrawerToggle = () => {
-    //setMobileOpen(!mobileOpen);
-  };
+  // const handleDrawerToggle = () => {
+  //   //setMobileOpen(!mobileOpen);
+  // };
   const getRoute = () => {
     return window.location.pathname !== "/admin/maps";
   };

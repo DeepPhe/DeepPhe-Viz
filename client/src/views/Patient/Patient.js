@@ -188,6 +188,7 @@ function Patient() {
                 renderedMentionedTerms += "</ol>";
 
                 $('#report_mentioned_terms').html(renderedMentionedTerms);
+                sortMentions("occurrence")
 
                 // Also scroll to the first fact based term if any in the report text
                 if (factBasedTermsWithPosition.length > 0) {
@@ -215,8 +216,11 @@ function Patient() {
             .done(function (response) {
                 let docIds = Object.keys(response.groupedTextProvenances);
                 // Render the html fact info
-                let factHtml = '<ul class="fact_detail_list">'
-                    + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
+                let factHtml = '<ul class="fact_detail_list">';
+
+                if (response.hasOwnProperty("prettyName")) {
+                    factHtml += '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
+                }
 
                 if (docIds.length > 0) {
                     factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
@@ -233,6 +237,8 @@ function Patient() {
 
                         factHtml += innerHtml + '</ul></li>';
                     });
+                } else {
+                    factHtml = '<span class="fact_detail_label">There are no direct mentions for this finding.</span>';
                 }
 
                 factHtml += '</ul>';
@@ -279,7 +285,9 @@ function Patient() {
 
                     // And highlight the current displaying report circle with a thicker stroke
                     highlightSelectedTimelineReport(docIds[0])
+
                     $("#report_instance").show();
+
                 } else {
                     // Dehighlight the previously selected report dot
                     const css = "selected_report";
@@ -292,6 +300,9 @@ function Patient() {
                     $('#report_id').empty();
                     $('#report_mentioned_terms').empty();
                     $('#report_text').empty();
+                    $("#docs").show();
+                    $("#report_instance").show();
+
                 }
             })
             .fail(function () {
@@ -300,61 +311,63 @@ function Patient() {
     }
 
     // // Tumor fact click - List View
-    $(document).on("click", ".list_view .fact", function () {
+    // $(document).on("click", ".list_view .fact", function () {
+    //
+    //     //JDL when someone clicks on a cancer fact, it goes here....probably need to make a map from old/new property names now to explain my thinking
+    //     const cssClass = 'highlighted_fact';
+    //
+    //     // Remove the previous highlighting
+    //     $('.fact').removeClass(cssClass);
+    //
+    //     // "list_view_{{id}}"
+    //     let id = $(this).attr('id');
+    //     let factId = id.replace("list_view_", "");
+    //
+    //     getFact(patientId, factId);
+    //
+    //     // Highlight the clicked fact
+    //     $(this).addClass(cssClass);
+    //
+    //     // Also highlight the same fact in table view
+    //     $("#table_view_" + factId).addClass(cssClass);
+    // });
 
-        //JDL when someone clicks on a cancer fact, it goes here....probably need to make a map from old/new property names now to explain my thinking
-        const cssClass = 'highlighted_fact';
-
-        // Remove the previous highlighting
-        $('.fact').removeClass(cssClass);
-
-        // "list_view_{{id}}"
-        let id = $(this).attr('id');
-        let factId = id.replace("list_view_", "");
-
-        getFact(patientId, factId);
-
-        // Highlight the clicked fact
-        $(this).addClass(cssClass);
-
-        // Also highlight the same fact in table view
-        $("#table_view_" + factId).addClass(cssClass);
-    });
-    $(document).on("click", ".cancer_and_tnm .fact", function () {
-        const cssClass = 'highlighted_fact';
-
-        // Remove the previous highlighting
-        $('.fact').removeClass(cssClass);
-
-        // In cacner summary table, factId has no prefix
-        let factId = $(this).attr('id');
-
-        getFact(patientId, factId);
-
-        // Highlight the clicked fact
-        $(this).addClass(cssClass);
-    });
-
-    // Tumor fact click - Table View
-    $(document).on("click", ".table_view .fact", function () {
+    $(document).on("click", ".fact", function(event) {
+        function hasParentClass(child, classname){
+            if(child.className.split(' ').indexOf(classname) >= 0) return true;
+            try{
+                //Throws TypeError if child doesn't have parent any more
+                return child.parentNode && hasParentClass(child.parentNode, classname);
+            }catch(TypeError){
+                return false;
+            }
+        }
 
         const cssClass = 'highlighted_fact';
-
-        // Remove the previous highlighting
         $('.fact').removeClass(cssClass);
+        let factId = event.target.id
+        let fact_id_prefix = ''
+        if (hasParentClass(event.target,"cancer_and_tnm")) {
 
-        // "table_view_{{id}}"
-        let id = $(this).attr('id');
-        let factId = id.replace("table_view_", "");
+        }
 
+        if (hasParentClass(event.target,"table_view")) {
+            factId = factId.replace("table_view_", "");
+            fact_id_prefix = "#table_view_";
+        }
+
+        if (hasParentClass(event.target,"list_view")) {
+            factId = factId.replace("list_view_", "");
+            fact_id_prefix = "#list_view_";
+        }
         getFact(patientId, factId);
-
         // Highlight the clicked fact
+        $(fact_id_prefix + factId).addClass(cssClass);
         $(this).addClass(cssClass);
+        event.stopPropagation();
 
-        // Also highlight the same fact in list view
-        $("#list_view_" + factId).addClass(cssClass);
     });
+
 
     // Tumor summary
     $(document).on("click", ".list_view_option", function () {
@@ -430,46 +443,20 @@ function Patient() {
     });
 
     $(document).on("click", "#zoom_in_btn", function () {
-        let newFontSize= parseInt($('#report_text').css('font-size')) + 1;
+        let newFontSize = parseInt($('#report_text').css('font-size')) + 1;
         $('#report_text').css('font-size', newFontSize);
     });
 
     $(document).on("click", "#zoom_out_btn", function () {
-        let newFontSize= parseInt($('#report_text').css('font-size')) - 1;
+        let newFontSize = parseInt($('#report_text').css('font-size')) - 1;
         $('#report_text').css('font-size', newFontSize);
     });
 
+    $("#occ_radio").prop('checked', true);
 
-        $(document).on("click", ".list_view .fact", function () {
-
-        const cssClass = 'highlighted_fact';
-
-        // Remove the previous highlighting
-        $('.fact').removeClass(cssClass);
-
-        // "list_view_{{id}}"
-        let id = $(this).attr('id');
-        let factId = id.replace("list_view_", "");
-
-        getFact(patientId, factId);
-
-        // Highlight the clicked fact
-        $(this).addClass(cssClass);
-
-        // Also highlight the same fact in table view
-        $("#table_view_" + factId).addClass(cssClass);
-    });
-
-    $('input[type=radio][name="sort_order"]').change(function () {
-        const value = $(this).val();
-        if (value == "alphabetically") {
-
-        } else if (value == "occurrence") {
-
-        }
-
+    function sortMentions(method) {
         // Declaring Variables
-        var geek_list, i, run, li, stop;
+        let geek_list, i, run, li, stop;
         // Taking content of list as input
         geek_list = document.getElementById("mentions");
 
@@ -482,14 +469,13 @@ function Patient() {
             // Loop traversing through all the list items
             for (i = 0; i < (li.length - 1); i++) {
                 stop = false;
-                if (value == "alphabetically") {
+                if (method === "alphabetically") {
                     if (li[i].textContent.toLowerCase() >
                         li[i + 1].textContent.toLowerCase()) {
                         stop = true;
                         break;
                     }
-                } else if (value == "occurrence") {
-
+                } else if (method === "occurrence") {
                     if (parseInt(li[i].getAttribute("data-begin")) >
                         (parseInt(li[i + 1].getAttribute("data-begin")))) {
                         stop = true;
@@ -508,8 +494,16 @@ function Patient() {
                 run = true;
             }
         }
+    }
 
-
+    $('input[type=radio][name="sort_order"]').change(function () {
+        const value = $(this).val();
+        if (value === "alphabetically") {
+            sortMentions(value);
+        } else {
+            //only other option
+            sortMentions("occurrence")
+        }
     })
 
     $(document).on("input", "#mention_search_input", function () {
@@ -559,7 +553,7 @@ function Patient() {
         return (<div> Loading... </div>)
     } else {
         const cancers = summary;
-        const melanomaAttributes = []; // obj.melanomaAttributes;
+        //const melanomaAttributes = []; // obj.melanomaAttributes;
         return (
             <span>
                 <Navbar className={"mainNavBar"}>
@@ -570,9 +564,9 @@ function Patient() {
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="justify-content-end" style={{width: "100%"}}>
 
-                               <Nav.Link className={"navItem"} target="_blank"
+                               <Nav.Link className={"navItem"} target="_blank" rel="noopener noreferrer"
                                          href="https://deepphe.github.io/">About</Nav.Link>
-                                <Nav.Link className={"navItem"} target="_blank"
+                                <Nav.Link className={"navItem"} target="_blank" rel="noopener noreferrer"
                                           href="https://github.com/DeepPhe/">GitHub</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
@@ -604,7 +598,8 @@ function Patient() {
                            </CardBody>
                        </Card>
                        <Card id={"docs"}>
-                            <CardHeader className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
+                            <CardHeader
+                                className={"basicCardHeader"}>Documents Related to Selected Cancer/Tumor Detail</CardHeader>
                             <CardBody>
                                 <div id="report_instance">
                                    <GridItem className="report_section clearfix">
@@ -614,8 +609,10 @@ function Patient() {
                                             <div id="fact_detail"></div>
                                             <GridItem xs={6} id="report_id"></GridItem>
                                             <GridItem xs={6} id="zoom_controls">
-                                                <button id="zoom_in_btn" type="button"><i className="fa  fa-search-plus"></i></button>
-                                                <button id="zoom_out_btn" type="button"><i className="fa  fa-search-minus"></i></button>
+                                                <button id="zoom_in_btn" type="button"><i
+                                                    className="fa  fa-search-plus"></i></button>
+                                                <button id="zoom_out_btn" type="button"><i
+                                                    className="fa  fa-search-minus"></i></button>
                                             </GridItem>
 
                                             <GridContainer id="term_container2">
@@ -623,21 +620,24 @@ function Patient() {
                                                     <CardHeader id="mentions_label" className={"basicCardHeader"}>Mentioned Terms</CardHeader>
                                                     <GridItem xs={12} id="mentions_container">
                                                         <GridContainer>
-                                                            <GridItem xs={12} id="search_label">Filter Mentions:</GridItem>
+                                                            <GridItem xs={12}
+                                                                      id="search_label">Filter Mentions:</GridItem>
                                                             <GridItem xs={12}>
-                                                                <input type="search" id="mention_search_input" placeholder="Search for mentions.."></input>
+                                                                <input type="search" id="mention_search_input"
+                                                                       placeholder="Search for mentions.."></input>
                                                             </GridItem>
 
                                                             <GridItem xs={12} id="sort_label">Sort mentions:</GridItem>
                                                             <GridItem md={12} lg={6} className="sort_radio_item">
                                                                 <input id="occ_radio" type="radio" name="sort_order"
-                                                                       value="occurrence" checked></input>
+                                                                       value="occurrence"></input>
                                                                 <label htmlFor="occ_radio">&nbsp; By Occurrence</label>
                                                             </GridItem>
                                                             <GridItem md={12} lg={6} className="sort_radio_item">
                                                                <input id="alpha_radio" type="radio" name="sort_order"
                                                                       value="alphabetically"></input>
-                                                               <label htmlFor="alpha_radio">&nbsp; Alphabetically</label>
+                                                               <label
+                                                                   htmlFor="alpha_radio">&nbsp; Alphabetically</label>
                                                             </GridItem>
 
                                                             <div id="report_mentioned_terms"></div>
@@ -658,7 +658,7 @@ function Patient() {
                 <div className={"mainFooter"}>
                     <Row>
                         <Col md={1}></Col>
-                        <Col md={4}>Supported by the <a target="_blank" href="https://itcr.cancer.gov/">National Cancer
+                        <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer" href="https://itcr.cancer.gov/">National Cancer
                             Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
                         <Col md={1}></Col>
                         <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical

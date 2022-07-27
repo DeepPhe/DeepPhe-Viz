@@ -94,17 +94,24 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 return d.stage;
             });
 
-            // By default only show the top level stages if has data
-            // otherwise show sub stages directly
-            let defaultStagesData = data.filter(function (d) {
+            let defaultStagesData = [];
+            data.forEach(function (d) {
                 if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
-                    return d.stage;
-                } else {
-                    //trying to get rid of a warning
-                    return null;
+                    defaultStagesData.push(d);
                 }
-
             });
+            // // By default only show the top level stages if has data
+            // // otherwise show sub stages directly
+            // let defaultStagesData = data.filter(function (d) {
+            //     if (Cohort.orderedCancerStages.indexOf(d.stage) !== -1) {
+            //         return d.stage;
+            //     } else {
+            //         //trying to get rid of a warning
+            //         return null;
+            //     }
+            //
+            // });
+
 
             // set the ranges
 
@@ -217,8 +224,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 // By default, move the brush to start at minAge and end at maxAge
                 .call(brush.move, [minAge, maxAge].map(x))
 
-            // Update the default currentFirstEncounterAgeRange
-            let currentFirstEncounterAgeRange = [minAge, maxAge];
+
 
             // Remove pointer events on brushe overlay, this prevents new brush from being made
             // when users click outside the current brush area
@@ -243,7 +249,8 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 .text(maxAge);
 
             // Set the default of currentFirstEncounterAgeRange
-            currentFirstEncounterAgeRange = [minAge, maxAge];
+            //let currentFirstEncounterAgeRange;
+            //= [minAge, maxAge];
 
             // Update/move the range limits as the brush moves
             // Also update the position of custom brush handles
@@ -286,7 +293,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                 let targetPatients = Cohort.getTargetPatients(Cohort.patientsByStage, patientsByFirstEncounterAge);
 
                 // Update curre ntFirstEncounterAgeRange
-                currentFirstEncounterAgeRange = [lowerAge, upperAge];
+                //currentFirstEncounterAgeRange = [lowerAge, upperAge];
 
                 showDerivedChart(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
             }
@@ -544,11 +551,13 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                         //return null; //trying to get rid of a warning.
                     }
 
+
+
                     // Add sub stage bars and boxplots
                     if (addedSubStages.length > 0) {
-                        let updatedData = data.filter(function (d) {
+                        let updatedData = data.forEach(function (d) {
                             if (addedSubStages.indexOf(d.stage) !== -1) {
-                                return d.stage;
+                                updatedData.push(d)
                             }
                         });
 
