@@ -79,7 +79,8 @@ export default function Admin({ ...rest }) {
         suppressScrollX: true,
         suppressScrollY: false
       });
-      document.body.style.overflow = "hidden";
+      // hidden breaks some Chrome configurations.
+      //document.body.style.overflow = "hidden";
     }
     window.addEventListener("resize", resizeFunction);
     // Specify how to clean up after this effect:
