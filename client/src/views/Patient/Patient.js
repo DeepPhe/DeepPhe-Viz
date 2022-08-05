@@ -68,6 +68,10 @@ function Patient() {
         // Highlight the selected circle in both overview and main areas
         $('#main_' + reportId).addClass(css);
         $('#overview_' + reportId).addClass(css);
+        $("#occ_radio").prop('checked', true);
+        const e = new Event("change");
+        const element = document.querySelector('input[type=radio][name="sort_order"]');
+        element.dispatchEvent(e);
     }
 
     function highlightTextMentions(textMentions, reportText) {
@@ -132,6 +136,10 @@ function Patient() {
         for (let j = 0; j < textFragments.length; j++) {
             highlightedReportText += textFragments[j];
         }
+
+        const e = new Event("change");
+        const element = document.querySelector('input[type=radio][name="sort_order"]');
+        element.dispatchEvent(e);
 
         return highlightedReportText;
     }
@@ -410,6 +418,7 @@ function Patient() {
 
         // Also highlight the selected report circle in timeline
         highlightSelectedTimelineReport(reportId)
+
     });
 
     // Click the report mentioned term to show it in the report text
@@ -427,7 +436,6 @@ function Patient() {
 
     // Reset button event
     $(document).on("click", "#reset", function () {
-
         // Remove highlighted fact
         $('.fact').removeClass('highlighted_fact');
 
@@ -456,44 +464,49 @@ function Patient() {
 
     function sortMentions(method) {
         // Declaring Variables
+        debugger;
         let geek_list, i, run, li, stop;
         // Taking content of list as input
         geek_list = document.getElementById("mentions");
 
-        run = true;
+        if (geek_list !== null && geek_list !== undefined) {
 
-        while (run) {
-            run = false;
-            li = geek_list.getElementsByTagName("li");
+            run = true;
 
-            // Loop traversing through all the list items
-            for (i = 0; i < (li.length - 1); i++) {
-                stop = false;
-                if (method === "alphabetically") {
-                    if (li[i].textContent.toLowerCase() >
-                        li[i + 1].textContent.toLowerCase()) {
-                        stop = true;
-                        break;
-                    }
-                } else if (method === "occurrence") {
-                    if (parseInt(li[i].getAttribute("data-begin")) >
-                        (parseInt(li[i + 1].getAttribute("data-begin")))) {
-                        stop = true;
-                        break;
+            while (run) {
+                run = false;
+                li = geek_list.getElementsByTagName("li");
+
+                // Loop traversing through all the list items
+                for (i = 0; i < (li.length - 1); i++) {
+                    stop = false;
+                    if (method === "alphabetically") {
+                        if (li[i].textContent.toLowerCase() >
+                            li[i + 1].textContent.toLowerCase()) {
+                            stop = true;
+                            break;
+                        }
+                    } else if (method === "occurrence") {
+                        if (parseInt(li[i].getAttribute("data-begin")) >
+                            (parseInt(li[i + 1].getAttribute("data-begin")))) {
+                            stop = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            /* If the current item is smaller than
-               the next item then adding it after
-               it using insertBefore() method */
-            if (stop) {
-                li[i].parentNode.insertBefore(
-                    li[i + 1], li[i]);
+                /* If the current item is smaller than
+                   the next item then adding it after
+                   it using insertBefore() method */
+                if (stop) {
+                    li[i].parentNode.insertBefore(
+                        li[i + 1], li[i]);
 
-                run = true;
+                    run = true;
+                }
             }
         }
+
     }
 
     $('input[type=radio][name="sort_order"]').change(function () {
