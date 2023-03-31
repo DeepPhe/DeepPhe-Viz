@@ -1,3 +1,10 @@
+const SuppressWarnings = require("suppress-warnings");
+SuppressWarnings([
+	// warning can be an Error object or a string
+	// name is always a string (can be absent)
+	// I really don't know what ctor is, but it's in the ts definition
+	(warning, name, ctor) => true
+]);
 var express = require('express');
 
 var router = express.Router();
@@ -36,6 +43,27 @@ router.get('/cohortData', function (req, res) {
         console.log('Failed to call the neo4j function: getCohortData()');
         console.error(error);
       });
+
+
+});
+
+router.get('/terms/term', function (req, res) {
+
+    let patientIds = req.params.patientIds.split('+');
+    const session = neo4jDriver.session(neo4j.session.READ);
+    let promise = session.run(neo4jFunctions.getSynonymsForTerm(patientIds))
+        .then(function(neo4jResult) {
+            session.close();
+            let neo4jRawArr = neo4jResult;
+            // Further process the data for target chart
+            res.send(list);
+        })
+        .catch(function(error) {
+            console.log('Failed to call the neo4j function: getBiomarkers()');
+            console.error(error);
+            res.send(error);
+        });
+
 
 
 });

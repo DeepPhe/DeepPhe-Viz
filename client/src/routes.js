@@ -24,7 +24,7 @@ import Dashboard from "@material-ui/icons/Dashboard";
 // import Notifications from "@material-ui/icons/Notifications";
 // import Unarchive from "@material-ui/icons/Unarchive";
 // import Language from "@material-ui/icons/Language";
-// core components/views for Admin layout
+// core components/views for Deepphe layout
 import DashboardPage from "views/Dashboard/Dashboard.js";
 // import UserProfile from "views/UserProfile/UserProfile.js";
 // import TableList from "views/TableList/TableList.js";
@@ -44,7 +44,7 @@ const dashboardRoutes = [
     rtlName: "لوحة القيادة",
     icon: Dashboard,
     component: DashboardPage,
-    layout: "/admin"
+    layout: "/deepphe"
   }
 ];
 

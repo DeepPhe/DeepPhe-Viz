@@ -18,15 +18,15 @@ export function setAllPatients(patients) {
 // Patients array based on the current stage chart selection
 export let patientsByStage = [];
 
-export function setPatientsByStage(patients) {
-    patientsByStage = patients
-}
-// Patients array based on the current first encounter age chart selection
-export let patientsByFirstEncounterAge = [];
-
-export function setPatientsByFirstEncounterAge(patients) {
-    patientsByFirstEncounterAge = patients
-}
+// export function setPatientsByStage(patients) {
+//     patientsByStage = patients
+// }
+// // Patients array based on the current first encounter age chart selection
+// export let patientsByFirstEncounterAge = [];
+//
+// export function setPatientsByFirstEncounterAge(patients) {
+//     patientsByFirstEncounterAge = patients
+// }
 export const allStagesLabel = "All stages";
 
 // Array that contains the current min age and max age based on age chart selection
@@ -124,22 +124,7 @@ export function sortByProvidedOrder(array, orderArr) {
     return sortedArray;
 }
 
-export function getBiomarkers(patientIds) {
-    $.ajax({
-        url: baseUri + '/biomarkers/' + patientIds.join('+'),
-        method: 'GET',
-        async : true,
-        dataType : 'json'
-    })
-        .done(function(response) {
-            showBiomarkersOverviewChart("biomarkers_overview", response.biomarkersOverviewData);
-            showPatientsWithBiomarkersChart("patients_with_biomarkers", response.patientsWithBiomarkersData);
-        })
-        .fail(function () {
-            debugger;
-            console.log("Ajax error - can't get patients biomarkers info");
-        });
-}
+
 
 // function getDiagnosis(patientIds) {
 //     $.ajax({

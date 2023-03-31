@@ -117,11 +117,11 @@
 // // function showPatientCountPerStageChart(svgContainerId, data) {
 // //     let patientsCounts = {};
 // //
-// //     // Calculate and add the box plot data to each stageInfo object
-// //     data.forEach(function(stageInfo) {
+// //     // Calculate and add the box plot data to each stagesInfo object
+// //     data.forEach(function(stagesInfo) {
 // //         // Add to patientsCounts object for later use (modify the Y label)
-// //         if (typeof patientsCounts[stageInfo.stage] === "undefined") {
-// //             patientsCounts[stageInfo.stage] = stageInfo.patientsCount;
+// //         if (typeof patientsCounts[stagesInfo.stage] === "undefined") {
+// //             patientsCounts[stagesInfo.stage] = stagesInfo.patientsCount;
 // //         }
 // //     });
 // //
@@ -388,12 +388,12 @@
 // //     let minAges = [];
 // //     let maxAges = [];
 // //
-// //     // Calculate and add the box plot data to each stageInfo object
-// //     data.forEach(function(stageInfo) {
+// //     // Calculate and add the box plot data to each stagesInfo object
+// //     data.forEach(function(stagesInfo) {
 // //         // Must sort the ages by asending order
 // //         // By default, the sort method sorts elements alphabetically.
 // //         // To sort numerically just add a new method which handles numeric sorts
-// //         stageInfo.ages.sort(function(a, b) {
+// //         stagesInfo.ages.sort(function(a, b) {
 // //             return a - b;
 // //         });
 // //
@@ -410,20 +410,20 @@
 // //         };
 // //
 // //         // calculate statistics
-// //         // stageInfo.ages is already sorted array
-// //         ageStats.minVal = stageInfo.ages[0];
-// //         ageStats.q1Val = Math.round(d3.quantile(stageInfo.ages, .25));
-// //         ageStats.medianVal = Math.round(d3.quantile(stageInfo.ages, .5));
-// //         ageStats.q3Val = Math.round(d3.quantile(stageInfo.ages, .75));
+// //         // stagesInfo.ages is already sorted array
+// //         ageStats.minVal = stagesInfo.ages[0];
+// //         ageStats.q1Val = Math.round(d3.quantile(stagesInfo.ages, .25));
+// //         ageStats.medianVal = Math.round(d3.quantile(stagesInfo.ages, .5));
+// //         ageStats.q3Val = Math.round(d3.quantile(stagesInfo.ages, .75));
 // //         ageStats.iqr = ageStats.q3Val - ageStats.q1Val;
-// //         ageStats.maxVal = stageInfo.ages[stageInfo.ages.length - 1];
+// //         ageStats.maxVal = stagesInfo.ages[stagesInfo.ages.length - 1];
 // //
 // //         // Add new property
-// //         stageInfo.ageStats = ageStats;
+// //         stagesInfo.ageStats = ageStats;
 // //
 // //         // Add to patientsCounts object for later use (modify the Y label)
-// //         if (typeof patientsCounts[stageInfo.stage] === "undefined") {
-// //             patientsCounts[stageInfo.stage] = stageInfo.patientsCount;
+// //         if (typeof patientsCounts[stagesInfo.stage] === "undefined") {
+// //             patientsCounts[stagesInfo.stage] = stagesInfo.patientsCount;
 // //         }
 // //
 // //         // Also kepp record of the min age and max age for rendering the x axis as well as

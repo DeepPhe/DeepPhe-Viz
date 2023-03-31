@@ -17,10 +17,10 @@
 */
 import React from "react";
 import {createBrowserHistory} from "history";
-import {Redirect, Route, Router, Switch} from "react-router-dom";
+import {BrowserRouter, Redirect, Route, Router, Switch} from "react-router-dom";
 
 // core components
-import Admin from "layouts/Admin.js";
+import Deepphe from "layouts/deepphe.js";
 // import RTL from "layouts/RTL.js";
 import "assets/css/font-awesome.min.css";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
@@ -56,18 +56,30 @@ const themeDark = createTheme({
     }
 });
 
+class DebugRouter extends BrowserRouter {
+    constructor(props){
+        super(props);
+        console.log('initial history is: ', JSON.stringify(this.history, null,2))
+        this.history.listen((location, action)=>{
+            console.log(
+                `The current URL is ${location.pathname}${location.search}${location.hash}`
+            )
+            console.log(`The last navigation action was ${action}`, JSON.stringify(this.history, null,2));
+        });
+    }
+}
 
 ReactDOM.render(
     <Router history={hist}>
         <ThemeProvider theme={themeDark}>
             <CssBaseline/>
             <Switch>
-                <Route path="/admin" component={Admin}/>
-                <Route path="/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
+                <Route exact path="/deepphe/dashboard" component={Deepphe}/>
+                <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
                 {/*<Route path="/patient/:patientId/timeline" component={TimelineView}/>*/}
-                <Route path="/patient/:patientId" component={Patient}/>
+                <Route exact path="/deepphe/patient/:patientId" component={Patient}/>
 
-                <Redirect from="/" to="/admin/dashboard"/>
+                <Redirect from="/" to="/deepphe/dashboard" />
             </Switch>
         </ThemeProvider>
     </Router>
