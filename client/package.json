@@ -1,9 +1,18 @@
 {
-  "name": "material-dashboard-react",
+  "name": "DeepPheVizClient",
   "version": "1.9.0",
-  "description": "Material Dashboard React. Coded by Creative Tim",
+  "description": "DeepPhe Visualizer",
   "private": false,
-  "main": "dist/index.js",
+  "main": "src/index.js",
+  "pkg": {
+    "assets": [
+      "./views/**/*",
+      "./build/**/*"
+    ]
+  },
+  "bin": {
+    "start": "start.js"
+  },
   "dependencies": {
     "@material-ui/core": "4.12.4",
     "@material-ui/icons": "4.11.3",
@@ -31,7 +40,8 @@
     "react-router-dom": "5.2.0",
     "react-script-tag": "^1.1.2",
     "react-scripts": "^3.4.4",
-    "react-swipeable-views": "0.13.9"
+    "react-swipeable-views": "0.13.9",
+    "serve-handler": "6.1.5"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -54,7 +64,7 @@
   "bugs": {
     "url": "https://github.com/creativetimofficial/material-dashboard-react/issues"
   },
-  "homepage": "https://creativetimofficial.github.io/material-dashboard-react/#/dashboard",
+  "homepage": "/",
   "optionalDependencies": {
     "@types/googlemaps": "3.39.6",
     "@types/markerclustererplus": "2.1.33",

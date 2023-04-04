@@ -7,7 +7,6 @@ import Col from "react-bootstrap/Col";
 export default class DiagnosisChart extends React.Component {
 
     state = {
-        patients: this.props.patients,
         diagnosisData: null,
         width: 0,
         height: 0,
@@ -21,7 +20,7 @@ export default class DiagnosisChart extends React.Component {
     updateDiagnosisData = async () => {
         const that = this;
         const fetchData = async () => {
-            const patientIds = this.props.patients.map(patient => patient.patientId)
+            const patientIds = that.props.patientsAndStagesInfo.patients.map(patient => patient.patientId)
             return new Promise(function (resolve, reject) {
                 fetch('http://localhost:3001/api/diagnosis/' + patientIds.join('+')).then(function (response) {
                     if (response) {
@@ -67,7 +66,7 @@ export default class DiagnosisChart extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const internalUpdate = JSON.stringify(prevProps.patients) != JSON.stringify(this.props.patients) ||
+        const internalUpdate = JSON.stringify(prevProps.patientsAndStagesInfo) != JSON.stringify(this.props.patientsAndStagesInfo) ||
             JSON.stringify(prevState.diagnosisData) != JSON.stringify(this.state.diagnosisData)
 
         const sizeChange = prevState.width != this.state.width;

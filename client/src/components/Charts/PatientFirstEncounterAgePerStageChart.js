@@ -5,17 +5,11 @@ import * as Cohort from '../../cohort.js'
 export default class PatientFirstEncounterAgePerStageChart extends React.Component {
 
     state = {
-        docId: this.props.docId,
-        patients: this.props.data.patients,
-        stagesInfo: this.props.data.stagesInfo,
-        maxAge: this.props.data.maxAge,
-        minAge: this.props.data.minAge,
-        selectedStage: null,
         loaded: false,
-        allPatients: this.props.data.patients,
-        allstagesInfo: this.props.data.stagesInfo,
         width: 0,
-        height: 0
+        height: 0,
+        minAge: 0,
+        maxAge: 0,
     };
 
     constructor(props) {
@@ -26,9 +20,10 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
         this.setState({width: document.getElementById('chart1').clientWidth, height: 350});
     };
 
+
     showChart = (that) => {
-        const id = this.state.docId;
-        const data = JSON.parse(JSON.stringify(that.state.stagesInfo));
+        const id = this.props.docId;
+        const data = JSON.parse(JSON.stringify(this.props.patientsAndStagesInfo.stagesInfo));
 
         let patientsCounts = {};
         // In order to get the minAge and maxAge
@@ -36,7 +31,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
         let maxAges = [];
 
         let selectedStages = [];
-        that.state.patients.forEach((patient) => {
+        this.props.patientsAndStagesInfo.patients.forEach((patient) => {
                 if (patient.stages.length > 0) {
                     if (patient.stages[0] === "Stage_2A") {
                         selectedStages.push("Stage IIA")
@@ -69,13 +64,13 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             }
         }
         const patientInStagesInfo = (patient) => {
-            return that.state.stagesInfo.map(el => el.patients.map(el2 => el2.patientId)).flat().includes(patient.patientId)
+            return that.props.patientsAndStagesInfo.stagesInfo.map(el => el.patients.map(el2 => el2.patientId)).flat().includes(patient.patientId)
         }
 
         const patientFirstEncounterInAgeRange = (patient) => {
             console.log("1 " + patient.firstEncounterAge)
-            console.log("2 " + that.state.minAge)
-            console.log("3 " + that.state.maxAge)
+            console.log("2 " + that.props.minAge)
+            console.log("3 " + that.props.maxAge)
             if (!(patient.firstEncounterAge >= that.state.minAge) && (patient.firstEncounterAge <= that.state.maxAge)) {
                 console.log("wha")
             }
@@ -386,9 +381,9 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
                 // Update patientsByFirstEncounterAge by filtering allPatients
 
-                const newStagesInfo = JSON.parse(JSON.stringify(that.state.stagesInfo));
+                const newStagesInfo = JSON.parse(JSON.stringify(that.props.patientsAndStagesInfo.stagesInfo));
                 for (let i = newStagesInfo.length - 1; i >= 0; i--) {
-                    if ((that.state.selectedStage == null || newStagesInfo[i].stage === that.state.selectedStage)) {
+                    if ((that.props.patientsAndStagesInfo.selectedStage == null || newStagesInfo[i].stage === that.props.selectedStage)) {
                         const stage = newStagesInfo[i];
                         for (let j = stage.patients.length - 1; j >= 0; j--) {
                             // if (!selectedStages.includes(stage.stage) ||
@@ -403,26 +398,19 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
                     }
                 }
 
-
-                that.setState({
-                    stagesInfo: newStagesInfo
+                const newPatients = that.props.patientsAndStagesInfo.patients.slice().filter(p => {
+                    return patientInStagesInfo(p);
                 })
-                that.state.patients = that.state.patients.slice().filter(function (patient) {
-                    return patientInStagesInfo(patient);
+                that.props.patientsAndStagesInfoSetter(
+                    {
+                        stagesInfo: JSON.parse(JSON.stringify(newStagesInfo)),
+                        patients: JSON.parse(JSON.stringify(newPatients))
+                    }
+                );
 
-
-                })
-
-                const minMaxAge = that.props.getMinMaxAge(that.state.stagesInfo);
-                that.props.stateChanger({
-                    minAge: minMaxAge[0],
-                    maxAge: minMaxAge[1],
-                    stagesInfo: JSON.parse(JSON.stringify(that.state.stagesInfo)),
-                    patients: JSON.parse(JSON.stringify(that.state.patients))
-                });
 
                 // Update the final target patients array and resulting charts
-                let targetPatients = Cohort.getTargetPatients(that.state.patients, that.state.patients);
+              //  let targetPatients = Cohort.getTargetPatients(that.props.patients, that.props.patients);
 
                 // Update curre ntFirstEncounterAgeRange
                 //currentFirstEncounterAgeRange = [lowerAge, upperAge];
@@ -737,100 +725,22 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("PatientFirstEncounterAgePerStageChart Patients props: " + JSON.stringify(this.props.data.patients))
-        console.log("PatientFirstEncounterAgePerStageChart Stage props: " + JSON.stringify(this.props.data.stagesInfo))
-        console.log("PatientFirstEncounterAgePerStageChart Patients state: " + JSON.stringify(this.state.patients))
-        console.log("PatientFirstEncounterAgePerStageChart Stage state: " + JSON.stringify(this.state.stagesInfo))
-        const props = this.props.data;
 
-        const patientsChangedExternally = JSON.stringify(props.patients) != JSON.stringify(prevProps.data.patients)
-        const stagesChangedExternally = JSON.stringify(props.stagesInfo) != JSON.stringify(prevProps.data.stagesInfo)
-        const selectedStageChangedExternally = props.selectedStage != prevProps.data.selectedStage;
-        const maxAgeChangedExternally = props.maxAge != prevProps.data.maxAge;
-        const minAgeChangedExternally = props.minAge != prevProps.data.minAge;
-
-        const stateChangedExternally = patientsChangedExternally || stagesChangedExternally || selectedStageChangedExternally || maxAgeChangedExternally || minAgeChangedExternally;
-
-        const stagesChangedInternally = JSON.stringify(prevState.stagesInfo) != JSON.stringify(this.state.stagesInfo);
-        const patientsChangedInternally = JSON.stringify(prevState.patients) != JSON.stringify(this.state.patients);
-        const selectedStageChangedInternally = prevState.selectedStage != this.state.selectedStage;
-        const maxAgeChangedInternally = prevState.maxAge != this.state.maxAge;
-        const minAgeChangedInternally = prevState.minAge != this.state.minAge;
-
-        const stateChangedInternally = stagesChangedInternally || patientsChangedInternally || selectedStageChangedInternally || maxAgeChangedInternally || minAgeChangedInternally;
-
-        const patientPropIsDifferentFromState = JSON.stringify(props.patients) != JSON.stringify(this.state.patients);
-        const stagePropIsDifferentFromState = JSON.stringify(props.stagesInfo) != JSON.stringify(this.state.stagesInfo);
-        const selectedStagePropIsDifferentFromState = props.selectedStage != this.state.selectedStage;
-        const maxAgePropIsDifferentFromState = props.maxAge != this.state.maxAge;
-        const minAgePropIsDifferentFromState = props.minAge != this.state.minAge;
-
-        const propsAreDifferentFromState = patientPropIsDifferentFromState || stagePropIsDifferentFromState || selectedStagePropIsDifferentFromState || maxAgePropIsDifferentFromState || minAgePropIsDifferentFromState;
-
-       const sizeChange = prevState.width != this.state.width;
-        if (propsAreDifferentFromState) {
-            if (patientPropIsDifferentFromState) {
-                this.state.patients = JSON.parse(JSON.stringify(props.patients));
-            }
-            if (stagePropIsDifferentFromState) {
-                this.state.stagesInfo = JSON.parse(JSON.stringify(props.stagesInfo));
-            }
-            if (selectedStagePropIsDifferentFromState) {
-                this.state.selectedStage = props.selectedStage;
-            }
-            if (maxAgePropIsDifferentFromState) {
-                this.state.maxAge = props.maxAge;
-            }
-            if (minAgePropIsDifferentFromState) {
-                this.state.minAge = props.minAge;
-            }
+        if (JSON.stringify(prevProps.patientsAndStagesInfo) !==
+            JSON.stringify(this.props.patientsAndStagesInfo) && !this.props.loading) {
+            const that = this;
+            this.showChart(that);
         }
 
-        if (stateChangedInternally) {
-            if (stagesChangedInternally) {
-                props.stagesInfo = JSON.parse(JSON.stringify(this.state.stagesInfo))
-            }
-            if (patientsChangedInternally) {
-                props.patients = JSON.parse(JSON.stringify(this.state.patients));
-            }
-            if (selectedStageChangedInternally) {
-                props.selectedStage = this.state.selectedStage;
-            }
-            if (maxAgeChangedInternally) {
-                props.maxAge = this.state.maxAge;
-            }
-            if (minAgeChangedInternally) {
-                props.minAge = this.state.minAge;
-            }
-        }
-       if (stateChangedExternally) {
-            if (patientsChangedExternally) {
-                this.state.patients = JSON.parse(JSON.stringify(props.patients));
-            }
-            if (stagesChangedExternally) {
-                this.state.stagesInfo = JSON.parse(JSON.stringify(props.stagesInfo));
-            }
-            if (selectedStageChangedExternally) {
-                this.state.selectedStage = props.selectedStage;
-            }
-            if (maxAgeChangedExternally) {
-                this.state.maxAge = props.maxAge;
-            }
-            if (minAgeChangedExternally) {
-                this.state.minAge = props.minAge;
-            }
-       }
-       if (stateChangedExternally || stateChangedInternally || propsAreDifferentFromState || sizeChange) {
-           const that = this;
-           this.showChart(that)
-       }
+
+
 
     }
 
 
     render() {
         return (
-            <div className="BarChart" id={this.state.docId}>
+            <div className="BarChart" id={this.props.docId}>
             </div>
         );
     }

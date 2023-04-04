@@ -5,10 +5,7 @@ import * as Cohort from '../../cohort.js'
 export default class PatientCountPerStageChart extends React.Component {
     state = {
         loaded: false,
-        docId: this.props.docId,
-        patients: this.props.data.patients,
-        stagesInfo: this.props.data.stagesInfo,
-        selectedStage: null,
+
         width: 0,
         height: 350
     };
@@ -36,7 +33,7 @@ export default class PatientCountPerStageChart extends React.Component {
         function showPatientCountPerStageChart(that) {
             const id = that.props.docId;
             let selectedStages = [];
-            that.state.patients.forEach((patient) => {
+            that.props.patientsAndStagesInfo.patients.forEach((patient) => {
                     if (patient.stages.length > 0) {
                         if (patient.stages[0] === "Stage_2A") {
                             selectedStages.push("Stage IIA")
@@ -62,7 +59,7 @@ export default class PatientCountPerStageChart extends React.Component {
                     }
                 }
             )
-            let data = JSON.parse(JSON.stringify(that.state.stagesInfo))
+            let data = JSON.parse(JSON.stringify(that.props.patientsAndStagesInfo.stagesInfo))
             for (let i = data.length - 1; i >= 0; i--) {
                 if (!selectedStages.includes(data[i].stage)) {
                     data.splice(i, 1);
@@ -195,7 +192,7 @@ export default class PatientCountPerStageChart extends React.Component {
                             return "stage_bar unknown_stage_bar " + d.stage.replace(" ", "_");
                         }
 
-                        if (d.state == that.state.selectedStage) {
+                        if (d.state == that.props.selectedStage) {
                             let css = "clicked_bar";
                             d.classed(css, true);
                         }
@@ -220,18 +217,13 @@ export default class PatientCountPerStageChart extends React.Component {
                             // Update patientsByStage
                             //Cohort.setPatientsByStage(d.patients);
 
-                            //that.state.patients = d.patients;
-                            that.state.selectedStage = clickedBar._groups[0][0].__data__.stage;
-                            const minMaxAge = that.props.getMinMaxAge(that.state.stagesInfo);
-                            that.props.stateChanger({
-                                minAge: minMaxAge[0],
-                                maxAge: minMaxAge[1],
-                                stagesInfo: JSON.parse(JSON.stringify(that.state.stagesInfo)),
-                                patients: JSON.parse(JSON.stringify(that.state.patients)),
-                                selectedStage: that.state.selectedStage
-                            });
 
-                            let targetPatients = Cohort.getTargetPatients(that.state.patients, that.state.patients);
+                            //that.state.patients = d.patients;
+                            that.props.selectedStageSetter(clickedBar._groups[0][0].__data__.stage);
+                            that.props.patientsAndStagesInfoSetter({patients: d.patients, stagesInfo: data});
+
+
+                            // let targetPatients = Cohort.getTargetPatients(that.state.patients, that.state.patients);
 
                             //showDerivedChart(targetPatients, d.stage, Cohort.currentFirstEncounterAgeRange);
 
@@ -242,11 +234,7 @@ export default class PatientCountPerStageChart extends React.Component {
                             // Updafte patientsByStage
                             // allPatients is the patient data saved in memory
                             //Cohort.setPatientsByStage(Cohort.allPatients);
-                            that.props.stateChanger({
-                                ...data,
-                                stagesInfo: that.state.stagesInfo,
-                                patients: that.state.patients
-                            });
+
                             //let targetPatients = Cohort.getTargetPatients(Cohort.patientsByStage, that.state.patients);
 
                             //showDerivedChart(targetPatients, Cohort.allStagesLabel, Cohort.currentFirstEncounterAgeRange);
@@ -406,39 +394,43 @@ export default class PatientCountPerStageChart extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("PatientCountPerStageChart componentDidUpdate...")
+        // console.log("PatientCountPerStageChart componentDidUpdate...")
+        //
+        // const patientsChangedExternally = JSON.stringify(prevprops.patients) !== JSON.stringify(this.props.patients);
+        // const stagesInfoChangedExternally = JSON.stringify(prevprops.stagesInfo) !== JSON.stringify(this.props.stagesInfo);
+        // const patientsChangedInternally = JSON.stringify(prevState.patients) !== JSON.stringify(this.state.patients);
+        // const stagesInfoChangedInternally = JSON.stringify(prevState.stagesInfo) !== JSON.stringify(this.state.stagesInfo);
+        //
+        // const stateChangedExternally = patientsChangedExternally || stagesInfoChangedExternally;
+        // const stateChangedInternally = patientsChangedInternally || stagesInfoChangedInternally;
+        // const sizeChange = prevState.width !== this.state.width;
+        //
+        // if (stateChangedExternally) {
+        //     if (patientsChangedExternally) {
+        //         this.state.patients = JSON.parse(JSON.stringify(this.props.patients));
+        //     }
+        //     if (stagesInfoChangedExternally) {
+        //         this.state.stagesInfo = JSON.parse(JSON.stringify(this.props.stagesInfo));
+        //     }
+        // }
+        //
+        // if (stateChangedInternally) {
+        //     if (patientsChangedInternally) {
+        //         this.props.patients = JSON.parse(JSON.stringify(this.state.patients));
+        //     }
+        //     if (stagesInfoChangedInternally) {
+        //         this.props.stagesInfo = JSON.parse(JSON.stringify(this.state.stagesInfo));
+        //     }
+        // }
+        // //if (internalChange || externalChange || sizeChange) {
+        // console.log("PatientCountPerStageChart updating...")
 
-        const patientsChangedExternally = JSON.stringify(prevProps.data.patients) !== JSON.stringify(this.props.data.patients);
-        const stagesInfoChangedExternally = JSON.stringify(prevProps.data.stagesInfo) !== JSON.stringify(this.props.data.stagesInfo);
-        const patientsChangedInternally = JSON.stringify(prevState.patients) !== JSON.stringify(this.state.patients);
-        const stagesInfoChangedInternally = JSON.stringify(prevState.stagesInfo) !== JSON.stringify(this.state.stagesInfo);
-
-        const stateChangedExternally = patientsChangedExternally || stagesInfoChangedExternally;
-        const stateChangedInternally = patientsChangedInternally || stagesInfoChangedInternally;
-        const sizeChange = prevState.width !== this.state.width;
-
-        if (stateChangedExternally) {
-            if (patientsChangedExternally) {
-                this.state.patients = JSON.parse(JSON.stringify(this.props.data.patients));
-            }
-            if (stagesInfoChangedExternally) {
-                this.state.stagesInfo = JSON.parse(JSON.stringify(this.props.data.stagesInfo));
-            }
-        }
-
-        if (stateChangedInternally) {
-            if (patientsChangedInternally) {
-                this.props.data.patients = JSON.parse(JSON.stringify(this.state.patients));
-            }
-            if (stagesInfoChangedInternally) {
-                this.props.data.stagesInfo = JSON.parse(JSON.stringify(this.state.stagesInfo));
-            }
-        }
-        //if (internalChange || externalChange || sizeChange) {
-            console.log("PatientCountPerStageChart updating...")
+        if (JSON.stringify(prevProps.patientsAndStagesInfo) !==
+            JSON.stringify(this.props.patientsAndStagesInfo)) {
             const that = this;
             this.showChart(that);
-       // }
+        }
+        // }
 
     }
 

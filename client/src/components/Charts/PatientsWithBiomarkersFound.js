@@ -6,9 +6,6 @@ export default class PatientsWithBiomarkersFound extends React.Component {
     state = {
         loading: true,
         biomarkerData: null,
-        patients: this.props.data.patients,
-        stagesInfo: this.props.data.stagesInfo,
-        selectedStage: null,
         width: 0,
         height: 0
     }
@@ -20,7 +17,7 @@ export default class PatientsWithBiomarkersFound extends React.Component {
     reset = async () => {
         const that = this;
         const fetchData = async () => {
-            const patientIds = that.state.patients.map(patient => patient.patientId)
+            const patientIds = that.props.patientsAndStagesInfo.patients.map(patient => patient.patientId)
             return new Promise(function (resolve, reject) {
                 fetch('http://localhost:3001/api/biomarkers/' + patientIds.join('+')).then(function (response) {
                     if (response) {
@@ -59,52 +56,17 @@ export default class PatientsWithBiomarkersFound extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("PatientsWithBiomarkersFound Patients props: " + JSON.stringify(this.props.data.patients))
-        console.log("PatientsWithBiomarkersFound Stage props: " + JSON.stringify(this.props.data.stagesInfo))
-        console.log("PatientsWithBiomarkersFound Patients state: " + JSON.stringify(this.state.patients))
-        console.log("PatientsWithBiomarkersFound Stage state: " + JSON.stringify(this.state.stagesInfo))
-
-        const biomarkerDataChangedInternally = JSON.stringify(prevState.biomarkerData) != JSON.stringify(this.state.biomarkerData)
-        const stagesChangedInternally = JSON.stringify(prevState.stagesInfo) != JSON.stringify(this.state.stagesInfo)
-        const patientsChangedInternally = JSON.stringify(prevState.patients) != JSON.stringify(this.state.patients)
-        const stateChangedInternally = biomarkerDataChangedInternally || stagesChangedInternally || patientsChangedInternally;
-
-        const biomarkerDataChangedExternally = JSON.stringify(prevProps.data.biomarkerData) != JSON.stringify(this.props.data.biomarkerData)
-        const stagesChangedExternally = JSON.stringify(prevProps.data.stagesInfo) != JSON.stringify(this.props.data.stagesInfo)
-        const patientsChangedExternally = JSON.stringify(prevProps.data.patients) != JSON.stringify(this.props.data.patients)
-        const stateChangedExternally = biomarkerDataChangedExternally || stagesChangedExternally || patientsChangedExternally;
-
+        const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
+            JSON.stringify(this.props.patientsAndStagesInfo))
+        const internalUpdate = JSON.stringify(prevState.biomarkerData) != JSON.stringify(this.state.biomarkerData)
         const sizeChange = prevState.width != this.state.width;
-
-        if (stateChangedInternally) {
-            if (biomarkerDataChangedInternally && !this.state.loading) {
-                this.props.data.biomarkerData = JSON.parse(JSON.stringify(this.state.biomarkerData));
-            }
-            if (stagesChangedInternally) {
-                this.props.data.stagesInfo = JSON.parse(JSON.stringify(this.state.stagesInfo));
-            }
-            if (patientsChangedInternally) {
-                this.props.data.patients = JSON.parse(JSON.stringify(this.state.patients));
-            }
-        }
-
-        if (stateChangedExternally) {
-            console.log("external state change")
-            if (biomarkerDataChangedExternally && !this.state.loading) {
-                this.state.biomarkerData = JSON.parse(JSON.stringify(this.props.data.biomarkerData));
-            }
-            if (stagesChangedExternally) {
-                this.state.stagesInfo = JSON.parse(JSON.stringify(this.props.data.stagesInfo));
-            }
-            if (patientsChangedExternally) {
-                this.state.patients = JSON.parse(JSON.stringify(this.props.data.patients));
-            }
-        }
+        if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
 
-        if ((stateChangedExternally || stagesChangedInternally || sizeChange) && !this.state.loading) {
             this.show("patients_with_biomarkers")
+
         }
+
     }
 
     show = (svgContainerId) => {
@@ -214,12 +176,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                 })
 
                 // console.log(that.state.patients)
-                const getMinMaxAge = (stagesInfo) => {
-                    const ages = stagesInfo.map(el => el.patients.map(el2 => el2.firstEncounterAge)).flat()
-                    return [ages.toSorted().at(), ages.toSorted().toReversed().at()]
-                }
 
-                let stagesInfoCopy = JSON.parse(JSON.stringify(that.state.stagesInfo))
+                let stagesInfoCopy = JSON.parse(JSON.stringify(that.props.patientsAndStagesInfo.stagesInfo))
                 for (let i = stagesInfoCopy.length - 1; i >= 0; i--) {
                     let stagesInfo = stagesInfoCopy[i];
                     for (let j = stagesInfo.patients.length - 1; j >= 0; j--) {
@@ -232,21 +190,15 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                     }
                 }
 
-                that.setState({
-                    patients: that.props.data.patients.filter((p) => {
+                that.props.patientsAndStagesInfoSetter({
+                    patients: that.props.patientsAndStagesInfo.patients.filter((p) => {
                         return selectedPatients.map(sp => sp.patientId).flat().includes(p.patientId)
                     }),
                     stagesInfo: stagesInfoCopy
                 })
 
-                const minMaxAge = getMinMaxAge(that.state.stagesInfo);
-                that.props.stateChanger({
-                    minAge: minMaxAge[0],
-                    maxAge: minMaxAge[1],
-                    stagesInfo: JSON.parse(JSON.stringify(that.state.stagesInfo)),
-                    patients: JSON.parse(JSON.stringify(that.state.patients)),
-                    selectedStage: JSON.parse(JSON.stringify(that.state.selectedStage))
-                })
+
+
 
                 console.log("Patients to show: ")
                 console.log(selectedPatients);

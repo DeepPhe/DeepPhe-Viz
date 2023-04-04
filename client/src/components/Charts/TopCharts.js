@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import Grid from "@material-ui/core/Grid";
 import Card from "../Card/Card";
 import CardHeader from "../Card/CardHeader";
@@ -9,15 +9,36 @@ import {styled} from "@material-ui/core";
 import DerivedChart from "./DerivedChart";
 
 const TopCharts = () => {
-    const initialState = {
-        stagesInfo: "",
-        patients: "",
-        maxAge: 1000,
-        minAge: 0
-    }
 
-    const [data, setData] = useState(initialState);
+
+    const [patientsAndStagesInfo, setPatientsAndStagesInfo] = useState({});
+    const [selectedStage, setSelectedStage] = useState("All Stages");
+
     const [isLoading, setIsLoading] = useState(true);
+
+    const maxAge = useMemo(
+        () => {
+            if (Object.keys(patientsAndStagesInfo).length !== 0) {
+                const ages = patientsAndStagesInfo.stagesInfo.map(el => el.patients.map(el2 => el2.firstEncounterAge)).flat()
+                return ages.toSorted().toReversed().at()
+            } else {
+                return 0
+            }
+        },
+        [patientsAndStagesInfo]
+    )
+    const minAge = useMemo(
+        () => {
+            if (Object.keys(patientsAndStagesInfo).length !== 0) {
+                const ages = patientsAndStagesInfo.stagesInfo.map(el => el.patients.map(el2 => el2.firstEncounterAge)).flat()
+                return ages.toSorted().at()
+            } else {
+                return 1000
+            }
+        },
+        [patientsAndStagesInfo]
+    )
+
 
     const Button = styled('button')({
 
@@ -27,11 +48,6 @@ const TopCharts = () => {
     useEffect(() => {
         reset();
     }, [])
-
-    const getMinMaxAge = (stagesInfo) => {
-        const ages = stagesInfo.map(el => el.patients.map(el2 => el2.firstEncounterAge)).flat()
-        return [ages.toSorted().at(), ages.toSorted().toReversed().at()]
-    }
 
     function reset() {
         const fetchData = async () => {
@@ -47,16 +63,8 @@ const TopCharts = () => {
         }
         fetchData().then(function (response) {
             response.json().then(function (json) {
-                const patientAges = getMinMaxAge(json.stagesInfo)
-                const minAge = patientAges[0];
-                const maxAge = patientAges[1];
-                setData({
-                    minAge: minAge,
-                    maxAge: maxAge,
-                    stagesInfo: json.stagesInfo,
-                    patients: json.patients,
-                    selectedStage: null
-                });
+                const newPatientsAndStagesInfo = {patients: json.patients, stagesInfo: json.stagesInfo}
+                setPatientsAndStagesInfo(newPatientsAndStagesInfo)
                 setIsLoading(false)
 
             })
@@ -84,9 +92,11 @@ const TopCharts = () => {
                                 Stage</CardHeader>
                             <CardBody className={'basicCard'}>
                                 <PatientFirstEncounterAgePerStageChart
-                                    data={data}
-                                    stateChanger={setData}
-                                    getMinMaxAge={getMinMaxAge}
+                                    loading={isLoading}
+                                    patientsAndStagesInfo={patientsAndStagesInfo}
+                                    patientsAndStagesInfoSetter={setPatientsAndStagesInfo}
+                                    minAge={minAge}
+                                    maxAge={maxAge}
                                     docId={"pfe-chart"}/>
                             </CardBody>
                         </Card>
@@ -96,9 +106,13 @@ const TopCharts = () => {
                             <CardHeader className={'basicCardHeader'}>Cases Matching Inclusion Criteria</CardHeader>
                             <CardBody className={'basicCard'}>
                                 <PatientCountPerStageChart
-                                    data={data}
-                                    stateChanger={setData}
-                                    getMinMaxAge={getMinMaxAge}
+                                    loading={isLoading}
+                                    patientsAndStagesInfo={patientsAndStagesInfo}
+                                    patientsAndStagesInfoSetter={setPatientsAndStagesInfo}
+                                    minAge={minAge}
+                                    maxAge={maxAge}
+                                    selectedStage={selectedStage}
+                                    selectedStageSetter={setSelectedStage}
                                     docId={"pcps-chart"}/>
                             </CardBody>
                         </Card>
@@ -110,9 +124,11 @@ const TopCharts = () => {
                             <CardHeader className={'basicCardHeader'}>Case Details Given Age and Inclusion Criteria</CardHeader>
                             <CardBody >
                                 <DerivedChart
-                                    data={data}
-                                    stateChanger={setData}
-                                    getMinMaxAge={getMinMaxAge}
+                                    loading={isLoading}
+                                    patientsAndStagesInfo={patientsAndStagesInfo}
+                                    patientsAndStagesInfoSetter={setPatientsAndStagesInfo}
+                                    minAge={minAge}
+                                    maxAge={maxAge}
 
                                     />
                             </CardBody>

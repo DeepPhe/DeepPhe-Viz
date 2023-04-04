@@ -12,17 +12,40 @@ a {
     text-decoration: none;
 }
 
+.selected_biomarker_bar {
+    stroke: #7399ff !important;
+    stroke-width: 4 !important;
+    fill-opacity: 1 !important;
+    font-color: white !important;
+    fill-opacity: 0.6 !important;
+}
+
+.selected_biomarker_text_color {
+    stroke: white !important;
+    fill: white !important;
+    stroke-width: 1 !important;
+    font-size: 12px !important;
+}
+.non_selected_biomarker_bar {
+    /*stroke: #7399ff !important;*/
+    /*stroke-width: 4 !important;*/
+    /*fill-opacity: 1 !important;*/
+    /*font-color: white !important;*/
+    fill-opacity: 0.1;
+
+}
+
 .content {
 
 }
 
 #zoom_controls {
-text-align: right;
+    text-align: right;
     margin-top: 10px;
 }
 
 #mention_search_input {
-   width: -webkit-fill-available;
+    width: -webkit-fill-available;
 }
 
 #sort_label,
@@ -46,9 +69,11 @@ text-align: right;
     padding: 0px !important;
     margin-top: -5px !important;
 }
+
 .sort_radio_item > label {
     text-align: center;
 }
+
 #mentions_container {
     border-style: solid;
     border-width: 2px;
@@ -57,15 +82,15 @@ text-align: right;
 }
 
 #mentions_container label {
-    color:black;
+    color: black;
 }
 
 #report_instance .makeStyles-grid-1 {
     margin: 0px !important;
 }
 
-#mentions_container  div,
-#mentions_container  div  div {
+#mentions_container div,
+#mentions_container div div {
     padding: 0px !important;
 }
 
@@ -239,6 +264,24 @@ svg .tick text {
     fill-opacity: 0.3;
 }
 
+.MuiGrid-item {
+    padding: 0px 0px 20px 20px !important;
+}
+
+#reset_button {
+    color: #264653;
+    background-color: #dfe6e0 !important;
+    padding: 5px 5px;
+    border-radius: 5px;
+    width: 250px;
+    outline: 0;
+    text-transform: uppercase;
+    margin: 50px 0px;
+    cursor: pointer;
+    box-shadow: 0px 2px 2px lightgray;
+    transition: ease background-color 250ms;
+}
+
 #results_title {
     padding: 20px;
     font-weight: 700;
@@ -247,15 +290,22 @@ svg .tick text {
 
 .basicCard {
     font-size: 14px !important;
+    padding: 0px !important;
+    max-width: 511px !important;
 }
 
+
 .basicCardHeader {
-    font-size: 18px;
+    font-size: 14px;
     padding: 2px;
     text-align: center;
     background: #dfe6e0 !important;
     color: #264653;
     border-radius: 7px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
 }
 
 #docs {
@@ -347,9 +397,19 @@ svg .tick text {
     dominant-baseline: text-before-edge;
 }
 
+
+#patient_list {
+    list-style-type: none;
+}
+
 #target_patients_title {
     margin-bottom: 8px;
 }
+
+#patients .MuiGrid-item {
+    padding: 0px 0px 0px 0px !important;
+}
+
 
 .biomarker_status_bar,
 .biomarker_status_legend {
@@ -389,6 +449,7 @@ svg .tick text {
 #summary > .container {
     margin-left: 0px;
 }
+
 .cancer_and_tumor_summary {
     padding: 0px;
     margin: 0px 0;
@@ -687,8 +748,8 @@ th {
 
 #report_id {
     padding-left: 10px;
-    margin-top:15px !important;
-    margin-bottom:5px !important;
+    margin-top: 15px !important;
+    margin-bottom: 5px !important;
 }
 
 #report_text {
@@ -872,13 +933,11 @@ th {
 
 /* Breast cancer biomarkers, ER, PR, Her2 status */
 .positive {
-    font-weight: bold;
-    color: red;
+
 }
 
 .negative {
-    font-weight: bold;
-    color: green;
+
 }
 
 .unknown {

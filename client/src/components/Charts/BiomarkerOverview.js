@@ -3,7 +3,8 @@ import React from "react";
 
 export default class BiomarkerOverview extends React.Component {
     state = {
-        patients: this.props.patients,
+        loading: true,
+
         biomarkerData: null,
         width: 0,
         height: 0
@@ -16,7 +17,7 @@ export default class BiomarkerOverview extends React.Component {
     reset = () => {
         const that = this;
         const fetchData = async () => {
-            const patientIds = that.state.patients.map(patient => patient.patientId)
+            const patientIds = that.props.patientsAndStagesInfo.patients.map(patient => patient.patientId)
             return new Promise(function (resolve, reject) {
                 fetch('http://localhost:3001/api/biomarkers/' + patientIds.join('+')).then(function (response) {
                     if (response) {
@@ -30,8 +31,8 @@ export default class BiomarkerOverview extends React.Component {
 
         fetchData().then(function (response) {
             response.json().then(function (json) {
-                that.state.biomarkerData = json;
-                that.show("biomarkers")
+                that.setState({biomarkerData: json});
+                that.setState({loading: false})
                 that.updateDimensions()
             })
         })
@@ -54,12 +55,16 @@ export default class BiomarkerOverview extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
+            JSON.stringify(this.props.patientsAndStagesInfo))
         const internalUpdate = JSON.stringify(prevState.biomarkerData) != JSON.stringify(this.state.biomarkerData)
         const sizeChange = prevState.width != this.state.width;
-        if (internalUpdate || sizeChange) {
+        if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
             this.show("biomarkers")
         }
+
+
     }
 
     show = (svgContainerId) => {
