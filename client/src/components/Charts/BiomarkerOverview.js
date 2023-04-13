@@ -10,9 +10,6 @@ export default class BiomarkerOverview extends React.Component {
         height: 0
     }
 
-    constructor(props) {
-        super(props);
-    }
 
     reset = () => {
         const that = this;
@@ -57,8 +54,8 @@ export default class BiomarkerOverview extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
             JSON.stringify(this.props.patientsAndStagesInfo))
-        const internalUpdate = JSON.stringify(prevState.biomarkerData) != JSON.stringify(this.state.biomarkerData)
-        const sizeChange = prevState.width != this.state.width;
+        const internalUpdate = JSON.stringify(prevState.biomarkerData) !==JSON.stringify(this.state.biomarkerData)
+        const sizeChange = prevState.width !==this.state.width;
         if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
             this.show("biomarkers")
@@ -75,7 +72,7 @@ export default class BiomarkerOverview extends React.Component {
         const data = this.state.biomarkerData.biomarkersOverviewData;
 
         const svgWidth = Math.max(300, this.state.width);
-        console.log("width: " + this.state.width)
+        //console.log("width: " + this.state.width)
         const svgHeight = 120;
         const svgPadding = {top: 10, right: 15, bottom: 15, left: 180};
         const chartWidth = svgWidth - svgPadding.left - svgPadding.right;

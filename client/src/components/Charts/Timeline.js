@@ -354,7 +354,7 @@ export default class Timeline extends React.Component {
             // to have a consistent report type order
            //console.log("reportTypes: " + reportTypes);
             //console.log("reportData: " + JSON.stringify(reportData));
-            if (reportTypes != null) {
+            if (reportTypes !==null) {
             reportTypes.forEach(function(key) {
                 totalMaxVerticalCounts += maxVerticalCountsPerType[key];
                 if (typeof verticalPositions[key] === 'undefined') {
@@ -401,7 +401,7 @@ export default class Timeline extends React.Component {
             const parseTime = d3.timeParse("%Y-%m-%d");
 
             // Convert string to date
-            if (reportData != null) {
+            if (reportData !==null) {
                 reportData.forEach(function (d) {
                     // Format the date to a human-readable string first, formatTime() takes Date object instead of string
                     // d.origTime.slice(0, 19) returns the time string without the time zone part.

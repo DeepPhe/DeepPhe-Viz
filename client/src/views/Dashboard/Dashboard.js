@@ -1,16 +1,8 @@
 import React from "react";
-//mport {makeStyles} from "@material-ui/core/styles";
 
-import Card from "components/Card/Card.js";
-import CardHeader from "components/Card/CardHeader.js";
 
-import CardBody from "components/Card/CardBody.js";
 import {Col, Container, Nav, Navbar, Row} from "react-bootstrap";
-//import styles from "assets/jss/material-dashboard-react/views/dashboardStyle.js";
-import PatientCountPerStageChart from "../../components/Charts/PatientCountPerStageChart";
-import PatientFirstEncounterAgePerStageChart from "../../components/Charts/PatientFirstEncounterAgePerStageChart";
-import DerivedChart from "../../components/Charts/DerivedChart";
-import Grid from "@material-ui/core/Grid";
+
 import TopCharts from "../../components/Charts/TopCharts";
 
 //const useStyles = makeStyles(styles);

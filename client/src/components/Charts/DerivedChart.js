@@ -3,21 +3,18 @@ import Grid from "@material-ui/core/Grid";
 import DiagnosisChart from "./DiagnosisChart";
 import BiomarkerOverview from "./BiomarkerOverview";
 import PatientsWithBiomarkersFound from "./PatientsWithBiomarkersFound";
-import {TextField} from "@material-ui/core";
 
-const baseUri = "http://localhost:3001";
+
+// const baseUri = "http://localhost:3001";
 const baseGuiUri = "http://localhost:3000/deepphe";
-const transitionDuration = 800; // time in ms
+// const transitionDuration = 800; // time in ms
 
 export default class DerivedChart extends React.Component {
     state = {
 
         title: false,
     };
-
-    constructor(props) {
-        super(props);
-    }
+    
 
     // getCohortData = () => {
     //     const that = this;
@@ -50,11 +47,11 @@ export default class DerivedChart extends React.Component {
                     <Grid container direction="row" justifyContent="center" align="center" spacing={1}>
                         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                             <ul id="patient_list">
-                        {this.props.patientsAndStagesInfo.patients.map(patient => (
-                            <li >
-                                <a id={patient.patientId} className="target_patient"
+                        {this.props.patientsAndStagesInfo.patients.map((patient, index) => (
+                            <li key={index}>
+                                <a  id={patient.patientId} className="target_patient"
                                    href={baseGuiUri + "/./patient/" + patient.patientId}
-                                   target="_blank">{patient.patientId}</a>({patient.firstEncounterAge})
+                                   target="_blank" rel="noopener noreferrer">{patient.patientId}</a>({patient.firstEncounterAge})
                             </li>
 
                         ))}

@@ -1,6 +1,7 @@
 import * as d3 from "d3v4";
 import React from "react";
 
+
 export default class PatientsWithBiomarkersFound extends React.Component {
 
     state = {
@@ -10,9 +11,6 @@ export default class PatientsWithBiomarkersFound extends React.Component {
         height: 0
     }
 
-    constructor(props) {
-        super(props);
-    }
 
     reset = async () => {
         const that = this;
@@ -58,8 +56,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
             JSON.stringify(this.props.patientsAndStagesInfo))
-        const internalUpdate = JSON.stringify(prevState.biomarkerData) != JSON.stringify(this.state.biomarkerData)
-        const sizeChange = prevState.width != this.state.width;
+        const internalUpdate = JSON.stringify(prevState.biomarkerData) !==JSON.stringify(this.state.biomarkerData)
+        const sizeChange = prevState.width !==this.state.width;
         if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
 
@@ -75,7 +73,7 @@ export default class PatientsWithBiomarkersFound extends React.Component {
         }
         const transitionDuration = 800;
         const data = this.state.biomarkerData.patientsWithBiomarkersData;
-        const that = this;
+
         const svgWidth = Math.max(300, this.state.width);
         const svgHeight = 180;
         const svgPadding = {top: 10, right: 10, bottom: 15, left: 0};
@@ -163,8 +161,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                 d3.event.currentTarget.classList.add("selected_biomarker_bar")
 
 
-                console.log(d3.event.currentTarget)
-                console.log(d.data.biomarker + " " + d.status);
+                // console.log(d3.event.currentTarget)
+                // console.log(d.data.biomarker + " " + d.status);
 
                 let selectedPatients = that.state.biomarkerData.biomarkerStatsPerPatient.filter((f) => {
                     let result = false;
@@ -200,8 +198,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
 
 
 
-                console.log("Patients to show: ")
-                console.log(selectedPatients);
+                // console.log("Patients to show: ")
+                // console.log(selectedPatients);
             })
                 .attr("class", "biomarker_status_bar")
                 .attr("x", function (d) {
@@ -347,9 +345,14 @@ export default class PatientsWithBiomarkersFound extends React.Component {
         }
     }
 
+
+
     render() {
         return (
-            <div id="patients_with_biomarkers"></div>
+            <div id="patients_with_biomarkers">
+
+            </div>
+
 
         )
     }

@@ -1,5 +1,5 @@
-import * as $ from "jquery";
-import {showBiomarkersOverviewChart, showPatientsWithBiomarkersChart} from "./components/Charts/DerivedChart";
+//import * as $ from "jquery";
+//import {showBiomarkersOverviewChart, showPatientsWithBiomarkersChart} from "./components/Charts/DerivedChart";
 // import DerivedChart, {
 //     showBiomarkersOverviewChart,
 //     showPatientsWithBiomarkersChart
@@ -32,7 +32,7 @@ export const allStagesLabel = "All stages";
 // Array that contains the current min age and max age based on age chart selection
 export let currentFirstEncounterAgeRange = [];
 
-let baseUri = "http://localhost:3001/api";
+//let baseUri = "http://localhost:3001/api";
 
 // All stages in a sorted order
 export const orderedCancerStages = [

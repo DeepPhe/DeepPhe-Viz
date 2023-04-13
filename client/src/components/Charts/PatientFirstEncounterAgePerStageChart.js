@@ -12,9 +12,6 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
         maxAge: 0,
     };
 
-    constructor(props) {
-        super(props);
-    }
 
     updateDimensions = () => {
         this.setState({width: document.getElementById('chart1').clientWidth, height: 350});
@@ -68,9 +65,9 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
         }
 
         const patientFirstEncounterInAgeRange = (patient) => {
-            console.log("1 " + patient.firstEncounterAge)
-            console.log("2 " + that.props.minAge)
-            console.log("3 " + that.props.maxAge)
+            // console.log("1 " + patient.firstEncounterAge)
+            // console.log("2 " + that.props.minAge)
+            // console.log("3 " + that.props.maxAge)
             if (!(patient.firstEncounterAge >= that.state.minAge) && (patient.firstEncounterAge <= that.state.maxAge)) {
                 console.log("wha")
             }
@@ -329,15 +326,15 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             if (selection !== null) {
 
                 let extent = selection.map(x.invert, x);
-                console.log("Extent 0: " + extent[0]);
-                console.log("Extent 1: " + extent[1]);
+                // console.log("Extent 0: " + extent[0]);
+                // console.log("Extent 1: " + extent[1]);
 
 
                 let lowerAge = Math.round(extent[0]);
                 let upperAge = Math.round(extent[1]);
 
-                console.log("Lower Age: " + lowerAge);
-                console.log("Upper Age: " + upperAge);
+                // console.log("Lower Age: " + lowerAge);
+                // console.log("Upper Age: " + upperAge);
 
 
                 // Update lower and upper ages

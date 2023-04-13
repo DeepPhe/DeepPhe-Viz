@@ -1,8 +1,6 @@
 import * as d3 from "d3v4";
 import * as $ from "jquery";
 import React from "react";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
 
 export default class DiagnosisChart extends React.Component {
 
@@ -13,9 +11,6 @@ export default class DiagnosisChart extends React.Component {
         loading: true
     }
 
-    constructor(props) {
-        super(props);
-    }
 
     updateDiagnosisData = async () => {
         const that = this;
@@ -66,10 +61,10 @@ export default class DiagnosisChart extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const internalUpdate = JSON.stringify(prevProps.patientsAndStagesInfo) != JSON.stringify(this.props.patientsAndStagesInfo) ||
-            JSON.stringify(prevState.diagnosisData) != JSON.stringify(this.state.diagnosisData)
+        const internalUpdate = JSON.stringify(prevProps.patientsAndStagesInfo) !==JSON.stringify(this.props.patientsAndStagesInfo) ||
+            JSON.stringify(prevState.diagnosisData) !==JSON.stringify(this.state.diagnosisData)
 
-        const sizeChange = prevState.width != this.state.width;
+        const sizeChange = prevState.width !==this.state.width;
         if ((internalUpdate || sizeChange) && !this.state.loading) {
             this.showDiagnosisChart("diagnosis")
             this.updateDiagnosisData()

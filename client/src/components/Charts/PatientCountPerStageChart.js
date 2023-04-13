@@ -10,11 +10,6 @@ export default class PatientCountPerStageChart extends React.Component {
         height: 350
     };
 
-    constructor(props) {
-        super(props);
-
-
-    }
 
     // fetchData = async () => {
     //     return new Promise(function (resolve, reject) {
@@ -192,10 +187,10 @@ export default class PatientCountPerStageChart extends React.Component {
                             return "stage_bar unknown_stage_bar " + d.stage.replace(" ", "_");
                         }
 
-                        if (d.state == that.props.selectedStage) {
-                            let css = "clicked_bar";
-                            d.classed(css, true);
-                        }
+                        // if (d.state === that.props.selectedStage) {
+                        //     let css = "clicked_bar";
+                        //     d.classed(css, true);
+                        // }
 
                     })
                     .attr("transform", function (d) {
