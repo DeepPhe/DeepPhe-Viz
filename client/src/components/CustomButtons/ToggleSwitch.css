@@ -58,6 +58,7 @@
     user-select: none !important;
     position: relative !important;
     display: inline-block;
+    margin-left:65px;
 }
 
 .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
@@ -104,7 +105,13 @@
     font-size: 14px;
     font-weight: 400;
     color: #000000;
-    margin-left: 10px;
+
     vertical-align: middle;
-    text-align: left
+    text-align: right;
+    margin-right: 27px;
+}
+
+.switch-box {
+    display: initial;
+    justify-content: right;
 }

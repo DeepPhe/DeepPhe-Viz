@@ -50,7 +50,7 @@ class ToggleSwitch extends Component {
         const switchTheme = (theme && isString(theme)) ? theme : 'default';
 
         const switchClasses = classnames(
-            `switch switch--${switchTheme}`,
+            `switch switch-box switch--${switchTheme}`,
             className
         )
 
@@ -62,7 +62,7 @@ class ToggleSwitch extends Component {
         return (
             <span className={switchClasses} onClick={this.toggleSwitch} {...restProps}>
                 <div className={"switch_label"}> {this.props.label}</div>
-                <div className={togglerClasses}></div>
+              <div className={togglerClasses}></div>
             </span>
         )
     }

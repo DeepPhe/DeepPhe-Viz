@@ -18,13 +18,13 @@
 import React from "react";
 import {createBrowserHistory} from "history";
 import {BrowserRouter, Redirect, Route, Router, Switch} from "react-router-dom";
-
+import "assets/css/deepphe.css";
 // core components
 import Deepphe from "layouts/deepphe.js";
 // import RTL from "layouts/RTL.js";
 import "assets/css/font-awesome.min.css";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
-import "assets/css/deepphe.css";
+
 import "assets/css/normalize.css";
 
 import Patient from "./views/Patient/Patient";

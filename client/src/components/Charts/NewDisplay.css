@@ -1,0 +1,41 @@
+
+#NewControl {
+    padding-top:25px
+}
+.no_padding_grid {
+    padding: 0px !important;
+}
+
+.switch_list {
+    display: inline-grid;
+    justify-content: right;
+}
+
+.cohort-size-label-container {
+
+    padding: 0px 3px 0px 0px !important;
+    display: table;
+
+}
+.cohort-size-label {
+    font-size: 14px;
+    font-weight: 400;
+    color: #000000;
+    text-align: right;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#cohort-size-bar{
+    height:inherit;
+}
+
+.cohort-size-bar-container {
+   height:45px;
+    padding-bottom: 55px !important;
+
+}
+
+.cohort-size-bar-container .MuiGrid-item {
+    height:inherit;
+}

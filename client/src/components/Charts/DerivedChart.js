@@ -14,7 +14,7 @@ export default class DerivedChart extends React.Component {
 
         title: false,
     };
-    
+
 
     // getCohortData = () => {
     //     const that = this;
