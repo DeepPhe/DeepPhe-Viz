@@ -26,6 +26,7 @@ a {
     stroke-width: 1 !important;
     font-size: 12px !important;
 }
+
 .non_selected_biomarker_bar {
     /*stroke: #7399ff !important;*/
     /*stroke-width: 4 !important;*/
@@ -33,6 +34,14 @@ a {
     /*font-color: white !important;*/
     fill-opacity: 0.1;
 
+}
+
+#NewControl {
+    color: black;
+    margin-top: 50px !important;
+    padding-bottom: 20px !important;
+    border: solid 2px blue;
+    background: white;
 }
 
 
@@ -1140,3 +1149,110 @@ her2 {
     background: rgb(242, 242, 242);
 }
 
+.App {
+    font-family: sans-serif;
+    text-align: center;
+}
+
+* {
+    color: #393939;
+}
+
+svg#hsbarExample {
+    border: 2px solid #363636;
+    border-radius: 8px;
+}
+
+div.header {
+    font-size: 24pt;
+    background-color: #c6c6c6;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+div.footer {
+    background-color: #c6c6c6;
+    padding: 0px;
+    margin: 0px;
+}
+
+div.footer > h4 {
+    margin-bottom: 0px;
+    padding-top: 10px;
+}
+
+div.footer > div {
+    display: flex;
+    padding: 10px;
+    justify-content: center;
+}
+
+div.footer > div > a {
+    padding-left: 10px;
+}
+
+#hsbar {
+    padding-bottom: 3px;
+    padding-top: 3px;
+
+}
+
+.filter_center_rows {
+    height: 47.3px;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    padding: 0px;
+    align-items: center;
+    border: 1px solid #c6c6c6;
+}
+
+.multi-range-slider {
+    height: 38px !important;
+    padding-right: 5px !important;
+    padding-left: 5px !important;
+    border: none !important;
+    background: white !important;
+    width: 85% !important;
+    boxShadow: none !important;
+    padding: 0px 0px !important;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+}
+
+.multi-range-slider .thumb::before {
+    box-shadow: none !important;
+    width: 10px !important;
+    height: 10px !important;
+    margin: -2px -5px !important;
+}
+
+.multi-range-slider .labels {
+    margin-top: 2px !important;
+    font-size: 12px !important;
+}
+
+.filter-inner-container {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+    border: 3px solid blue;
+}
+
+#metastasis-row .switch_label, #metastasis-row .switch-toggle, #age-at-dx-row .switch_label, #age-at-dx-row .switch-toggle, #stage-row .switch_label, #stage-row .switch-toggle {
+    margin: 0px 3px 0px 0px !important;
+    margin-right: 2px;
+}
+#metastasis-row .switch {
+    width:35% !important;
+    align-items: center;
+    display: inline-flex;
+}
+
+#age-at-dx-row .switch, #stage-row .switch {
+    width:15% !important;
+    align-items: center;
+    display: inline-flex;
+}
