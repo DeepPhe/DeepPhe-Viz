@@ -1,19 +1,19 @@
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import isString from 'lodash/isString';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import isBoolean from 'lodash/isBoolean';
 import isFunction from 'lodash/isFunction';
 import './ToggleSwitch.css';
 
 class ToggleSwitch extends Component {
 
-    state = { enabled: this.enabledFromProps() }
+    state = {enabled: this.enabledFromProps()}
 
     isEnabled = () => this.state.enabled
 
     enabledFromProps() {
-        let { enabled } = this.props;
+        let {enabled} = this.props;
 
         // If enabled is a function, invoke the function
         enabled = isFunction(enabled) ? enabled() : enabled;
@@ -26,13 +26,13 @@ class ToggleSwitch extends Component {
         evt.persist();
         evt.preventDefault();
 
-        const { onClick, onStateChanged } = this.props;
+        const {onClick, onStateChanged} = this.props;
 
-        this.setState({ enabled: !this.state.enabled }, () => {
+        this.setState({enabled: !this.state.enabled}, () => {
             const state = this.state;
 
             // Augument the event object with SWITCH_STATE
-            const switchEvent = Object.assign(evt, { SWITCH_STATE: state });
+            const switchEvent = Object.assign(evt, {SWITCH_STATE: state});
 
             // Execute the callback functions
             isFunction(onClick) && onClick(switchEvent);
@@ -41,10 +41,11 @@ class ToggleSwitch extends Component {
     }
 
     render() {
-        const { enabled } = this.state;
+        const wantsDivs = this.props.wantsDivs;
+        const {enabled} = this.state;
 
         // Isolate special props and store the remaining as restProps
-        const { enabled: _enabled, theme, onClick, className, onStateChanged, ...restProps } = this.props;
+        const {enabled: _enabled, theme, onClick, className, onStateChanged, ...restProps} = this.props;
 
         // Use default as a fallback theme if valid theme is not passed
         const switchTheme = (theme && isString(theme)) ? theme : 'default';
@@ -58,11 +59,20 @@ class ToggleSwitch extends Component {
             'switch-toggle',
             `switch-toggle--${enabled ? 'on' : 'off'}`
         )
+        let label, switchControl;
+        if (wantsDivs) {
+            label = <div className={"switch_label"}> {this.props.label}</div>;
+            switchControl = <div className={togglerClasses}></div>;
 
+        } else {
+            label = <span className={"switch_label"}> {this.props.label}</span>;
+            switchControl = <span className={togglerClasses}></span>;
+        }
         return (
+
             <span className={switchClasses} onClick={this.toggleSwitch} {...restProps}>
-                <div className={"switch_label"}> {this.props.label}</div>
-              <div className={togglerClasses}></div>
+                 {label}
+                {switchControl}
             </span>
         )
     }
