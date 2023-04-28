@@ -5,8 +5,11 @@ import {snakeCase} from "lodash";
 import './NewDisplay.css';
 import Grid from "@material-ui/core/Grid";
 import HSBar from "react-horizontal-stacked-bar-chart";
-import MultiRangeSlider, { ChangeResult } from "multi-range-slider-react";
+import MultiRangeSlider, {ChangeResult} from "multi-range-slider-react";
 
+
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 
 const filterTopics = [
@@ -163,8 +166,9 @@ export default class NewDisplay extends React.Component {
                     <div id="NewControl">
                         <h3></h3>
                         <Grid className={"cohort-size-bar-container"} container direction="row"
-                              justifyContent="center"
-                              align="center" spacing={1}>
+                            // justifyContent="center"
+                            // align="center" spacing={1}>
+                        >
                             <Grid item md={2}>
                             </Grid>
                             <Grid className={"cohort-size-label-container"} item md={2}>
@@ -173,16 +177,17 @@ export default class NewDisplay extends React.Component {
                             <Grid item md={6} className={"no_padding_grid"}>
                                 <div id={"cohort-size-bar"}></div>
                             </Grid>
-                            <Grid item md={2}>
+                            <Grid item md={6}>
 
                             </Grid>
 
                         </Grid>
-                        <Grid container direction="row" justifyContent="center" align="center" >
+                        <Grid container direction="row" justifyContent="center" align="center">
 
                             <Grid className="switch_list no_padding_grid" item md={1}>
                                 {filterTopics.map((activity, index) => (
-                                    <ToggleSwitch wantsDivs={true} key={index} label={activity} theme="graphite-small" enabled={true}
+                                    <ToggleSwitch wantsDivs={true} key={index} label={activity} theme="graphite-small"
+                                                  enabled={true}
                                                   onStateChanged={this.toggleActivityEnabled({activity})}/>
 
                                 ))}
@@ -193,93 +198,80 @@ export default class NewDisplay extends React.Component {
                                 </div>
                                 {/*<svg className="new_control" height="100%" width="100%">*/}
                                 {/*    <g className="new_control_group"/>*/}
+
                                 <div id={"stage-row"} className={"row filter_center_rows"}>
-                                    <MultiRangeSlider
-
-                                        labels={["Stage 0", "Stage I", "Stage II", "Stage III", "Stage IV"]}
-                                        barLeftColor='red'
-                                        barInnerColor='limegreen'
-                                        barRightColor='red'
-                                        ruler={false}
-                                        min={1}
-                                        max={5}
-                                        minValue={1}
-                                        maxValue={5}
-                                        step={1}
-                                        onInput={this.handleDateChange}
-                                        // minCaption={minMonthCaption}
-                                        // maxCaption={maxMonthCaption}
-                                        // onInput={handleDateChange}
-                                        // onChange={(e: ChangeResult) => {
-                                        //     setMinValue2(e.minValue);
-                                        //     setMaxValue2(e.maxValue);
-                                        // }}
-                                    />
-                                    <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
-                                                  onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                                    <div className={"slider-container"}>
+                                    <Slider range min={0} max={5} defaultValue={[0, 4]} onChange={this.handleDateChange}
+                                            draggableTrack={true} pushable={true} marks={{
+                                        0: "0",
+                                        1: "I",
+                                        2: "II",
+                                        3: "III",
+                                        4: "VI"
+                                    }} dots={false} step={1}/>
                                 </div>
 
-                                <div id={"age-at-dx-row"} className={"row filter_center_rows"}>
-                                    <MultiRangeSlider
+                                <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
+                                              onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                    </div>
 
-                                        labels={["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"]}
-                                        barLeftColor='red'
-                                        barInnerColor='limegreen'
-                                        barRightColor='red'
-                                        ruler={false}
-                                        min={1}
-                                        max={11}
-                                        minValue={1}
-                                        maxValue={11}
-                                        step={1}
-                                        onInput={this.handleDateChange}
-                                        // minCaption={minMonthCaption}
-                                        // maxCaption={maxMonthCaption}
-                                        // onInput={handleDateChange}
-                                        // onChange={(e: ChangeResult) => {
-                                        //     setMinValue2(e.minValue);
-                                        //     setMaxValue2(e.maxValue);
-                                        // }}
-                                    />
-                                    <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
-                                                  onStateChanged={this.toggleActivityEnabled("Unknown")}/>
-                                </div>
+                    <div id={"age-at-dx-row"} className={"row filter_center_rows"}>
 
-                                <div id={"metastasis-row"} className={"row filter_center_rows"}>
-                                    <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
-                                                  onStateChanged={this.toggleActivityEnabled("Present")}/>
-                                    <ToggleSwitch wantsDivs={false} label={"Unknown"} theme="graphite-small" enabled={true}
-                                                  onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                            <div className={"slider-container"}>
+                                <Slider range min={0} max={11} defaultValue={[0, 11]} onChange={this.handleDateChange}
+                                        draggableTrack={true} pushable={true} marks={{
+                                    0: "0",
+                                    1: "10",
+                                      2: "20",
+                                        3: "30",
+                                        4: "40",
+                                        5: "50",
+                                        6: "60",
+                                        7: "70",
+                                        8: "80",
+                                        9: "90",
+                                        10: "100"
 
+                                }} dots={false} step={1}/>
+                            </div>
 
-                                </div>
+                        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
+                                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                    </div>
 
-                                <div id={"agents-row"} className={"row filter_center_rows"}>
+                    <div id={"metastasis-row"} className={"row filter_center_rows"}>
+                        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small" enabled={true}
+                                      onStateChanged={this.toggleActivityEnabled("Present")}/>
+                        <ToggleSwitch wantsDivs={false} label={"Unknown"} theme="graphite-small" enabled={true}
+                                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>
 
-                                </div>
-
-                                <div id={"comorbidity-row"} className={"row filter_center_rows"}>
-
-                                </div>
-
-
-                            </Grid>
-                            <Grid className={"no_padding_grid"} item md={2}>
-                                {filterTopics.map((activity, index) => (
-                                    <HSBar
-                                        height={47.3}
-                                        data={this.state.filterData[index]}
-                                    />
-                                ))}
-                            </Grid>
-
-
-
-
-                        </Grid>
 
                     </div>
-                </React.Fragment>
-            )
+
+                    <div id={"agents-row"} className={"row filter_center_rows"}>
+
+                    </div>
+
+                    <div id={"comorbidity-row"} className={"row filter_center_rows"}>
+
+                    </div>
+
+
+                </Grid>
+        <Grid className={"no_padding_grid"} item md={2}>
+            {filterTopics.map((activity, index) => (
+                <HSBar
+                    height={47.3}
+                    data={this.state.filterData[index]}
+                />
+            ))}
+        </Grid>
+
+
+    </Grid>
+
+    </div>
+    </React.Fragment>
+    )
     }
 }

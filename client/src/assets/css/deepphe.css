@@ -40,7 +40,7 @@ a {
     color: black;
     margin-top: 50px !important;
     padding-bottom: 20px !important;
-    border: solid 2px blue;
+
     background: white;
 }
 
@@ -1207,7 +1207,7 @@ div.footer > div > a {
     --bs-gutter-y: 0;
     padding: 0px;
     align-items: center;
-    border: 1px solid #c6c6c6;
+    border: 1px solid #f6f6f6;
 }
 
 .multi-range-slider {
@@ -1223,6 +1223,17 @@ div.footer > div > a {
     box-shadow: none !important;
 }
 
+.range-slider::before{
+    left: 0;
+    content: "Coming Soon";
+    background: rgba(255, 255, 255, 0.59);
+    color: #000;
+    width: 100%;
+    height: 100%;
+    line-height: 2.5;
+    font-weight: 600;
+    position: absolute;
+}
 .multi-range-slider .thumb::before {
     box-shadow: none !important;
     width: 10px !important;
@@ -1238,7 +1249,10 @@ div.footer > div > a {
 .filter-inner-container {
     margin-right: 5px !important;
     margin-left: 5px !important;
-    border: 3px solid blue;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 }
 
 #metastasis-row .switch_label, #metastasis-row .switch-toggle, #age-at-dx-row .switch_label, #age-at-dx-row .switch-toggle, #stage-row .switch_label, #stage-row .switch-toggle {
@@ -1256,3 +1270,68 @@ div.footer > div > a {
     align-items: center;
     display: inline-flex;
 }
+
+.slider-container {
+    width:80% !important;
+    height: 100% !important;
+    margin-top: 3px !important;
+}
+.rc-slider {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    width: 99% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px !important;
+}
+
+.rc-slider-track {
+    z-index: 100;
+    background-color:#1cff002b !important;
+}
+
+.rc-slider-step {
+    visibility: hidden;
+}
+
+.rc-slider-rail, .rc-slider-track {
+    height: 30px !important;
+    border-radius: 0px !important;
+    margin-top: 5px;
+}
+.rc-slider-mark {
+    top:8px !important;
+    z-index: 99 !important;
+}
+#age-at-dx-row .rc-slider-mark-text {
+    padding-left: calc(1%) !important;
+}
+.rc-slider-mark-text {
+    padding-left: calc(5%) !important;
+    font-size: 12px !important;
+    margin-top: 5px !important;
+    z-index:99;
+    transform: translateX(+60%) !important;
+
+}
+.rc-slider-dot {
+    bottom: -8px;
+}
+
+.rc-slider-handle {
+    width:10px !important;
+    height: 40px !important;
+    border: none !important;
+    border-radius: 0px !important;
+    background-color: #fbdfab !important;
+    margin-top: 0px !important;
+    z-index: 100 !important;
+}
+
+.rc-slider-handle-1 {
+    transform: translate(-100%) !important;
+}
+
+.rc-slider-handle-2 {
+     transform: translate(0%) !important;
+ }
