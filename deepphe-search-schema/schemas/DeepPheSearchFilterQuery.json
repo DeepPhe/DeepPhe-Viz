@@ -1,0 +1,48 @@
+{
+  "$id": "https://deepphe.github.io/deepphe-search-schema/schemas/DeepPheFilterQuery.json",
+  "title": "DeepPhe Filter Query",
+  "description": "A definition of a DeepPhe Filter Query",
+  "type": "object",
+  "properties": {
+    "fieldName": {
+      "type": "string"
+    },
+    "class": {
+      "type": "string",
+      "enum": [
+        "discreteList",
+        "categoricalRangeSelector",
+        "numericRangeSelector",
+        "booleanList"
+      ]
+    },
+    "categoryValues": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "numericRange": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        }
+      }
+    },
+    "switches": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -62,6 +62,9 @@ const getSynonymsForTerm = (term) => {
     return "return deepphe.getSynonymsForTerm('" + term + "')";
 }
 
+const getFilterDefinition = (filterId) => {
+    return "return deepphe.getFilterDefinition('" + filterId + "') AS filterDefinition";
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                            API ONLY
@@ -87,5 +90,6 @@ module.exports.getReport = getReport
 module.exports.getFact = getFact
 module.exports.getAllPatients = getAllPatients
 module.exports.getSynonymsForTerm = getSynonymsForTerm
+module.exports.getFilterDefinition = getFilterDefinition
 
 

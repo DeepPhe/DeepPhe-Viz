@@ -1,0 +1,15 @@
+{
+  "$id": "https://deepphe.github.io/deepphe-search-schema/schemas/DeepPheSearchFilterDefinition.json",
+  "$ref" : "https://deepphe.github.io/deepphe-search-schema/schemas/DeepPheSearchFilterItem.json",
+  "title": "DeepPhe Search Filter Definition",
+  "description": "A definition of a DeepPhe Search Filter Definition",
+  "type": "object",
+  "properties": {
+    "filters" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "https://deepphe.github.io/deepphe-search-schema/schemas/DeepPheSearchFilterItem.json"
+      }
+    }
+  }
+}

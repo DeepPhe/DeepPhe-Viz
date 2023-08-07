@@ -1,0 +1,211 @@
+{
+  "fields": [
+    {
+      "fieldName": "Diagnosis",
+      "class": "discreteList",
+      "categories": [
+        "DCIS",
+        "LBC"
+      ],
+      "globalPatientCountsForCategories": [
+        250,
+        300
+      ],
+      "patientsMeetingThisFilterOnly": 100,
+      "patientsMeetingEntireSetOfFilters": 58,
+      "numberOfPossiblePatientsForThisFilter": 700
+    },
+    {
+      "fieldName": "Stage",
+      "class": "categoricalRangeSelector",
+      "categories": [
+        "Stage I",
+        "Stage II",
+        "Stage III",
+        "Stage IV"
+      ],
+      "globalPatientCountsForCategories": [
+        400,
+        100,
+        100,
+        100
+      ],
+      "selectedCategoricalRange": [
+        "Stage I",
+        "Stage II",
+        "Stage III",
+        "Stage IV"
+      ],
+      "patientsMeetingThisFilterOnly": 700,
+      "patientsMeetingEntireSetOfFilters": 58,
+      "numberOfPossiblePatientsForThisFilter": 700,
+      "switches": [
+        {
+          "name": "Unknown",
+          "value": false
+        }
+      ]
+    },
+    {
+      "fieldName": "Age at Dx",
+      "class": "numericRangeSelector",
+      "numericRangeSelectorDefinition": {
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "unit": "years"
+      },
+      "globalPatientCountsForCategories": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        150,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        50,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "selectedNumericRange": {
+        "min": 0,
+        "max": 100
+      },
+      "patientsMeetingThisFilterOnly": 700,
+      "patientsMeetingEntireSetOfFilters": 58,
+      "numberOfPossiblePatientsForThisFilter": 700,
+      "switches": [
+        {
+          "name": "Unknown",
+          "value": false
+        }
+      ]
+    },
+    {
+      "fieldName": "Metastasis",
+      "class": "booleanList",
+      "globalPatientCountsForCategories": [
+        400,
+        300
+      ],
+      "patientsMeetingThisFilterOnly": 600,
+      "patientsMeetingEntireSetOfFilters": 58,
+      "numberOfPossiblePatientsForThisFilter": 700,
+      "switches": [
+        {
+          "name": "Present",
+          "value": true
+        },
+        {
+          "name": "Unknown",
+          "value": false
+        }
+      ]
+    },
+    {
+      "fieldName": "Agents",
+      "class": "discreteList",
+      "categories": [
+        "Bortezomib/Paclitaxel",
+        "CALGLUC/VIT-D/ZOLE"
+      ],
+      "globalPatientCountsForCategories": [
+        150,
+        400
+      ],
+      "patientsMeetingThisFilterOnly": 100,
+      "patientsMeetingEntireSetOfFilters": 58,
+      "numberOfPossiblePatientsForThisFilter": 700
+    }
+  ]
+}

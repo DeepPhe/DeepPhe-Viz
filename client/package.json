@@ -59,6 +59,9 @@
     "build-package-css": "cp src/assets/css/material-dashboard-react.css dist/material-dashboard-react.css",
     "build-package": "npm run build-package-css && babel src --out-dir dist"
   },
+  "resolutions": {
+    "react-error-overlay": "6.0.9"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/creativetimofficial/material-dashboard-react.git"

@@ -204,4 +204,23 @@ router.get('/fact/:patientId/:factId', function(req, res) {
         });
 });
 
+router.get('/filter/definitions', function(req, res) {
+    const session = neo4jDriver.session(neo4j.session.READ);
+    let promise = session.run(neo4jFunctions.getFilterDefinition("DEFAULT"))
+        .then(function(neo4jResult) {
+            session.close();
+
+            let neo4jRawJson = neo4jResult.records[0].get('filterDefinition');
+            neo4jRawJson = JSON.parse(neo4jRawJson);
+            //let filterDefinitions = dataProcessor.getFilterDefinitions(neo4jRawJson);
+
+            res.send(neo4jRawJson);
+        })
+        .catch(function(error) {
+            console.log('Failed to call the neo4j function: getFilterDefinitions()');
+            console.error(error);
+            res.send(error);
+        });
+});
+
 module.exports = router;

@@ -7,7 +7,7 @@ import PatientFirstEncounterAgePerStageChart from "./PatientFirstEncounterAgePer
 import PatientCountPerStageChart from "./PatientCountPerStageChart";
 import {styled} from "@material-ui/core";
 import DerivedChart from "./DerivedChart";
-import NewDisplay from "./NewDisplay";
+import CohortFilter from "./CohortFilter";
 
 const TopCharts = () => {
 
@@ -83,7 +83,7 @@ const TopCharts = () => {
             <>
                 <Grid container direction="row" justifyContent="center" align="center" spacing={10}>
                     <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                        <NewDisplay></NewDisplay>
+                        <CohortFilter></CohortFilter>
                     </Grid>
                 </Grid>
                 <Grid container direction="row" justifyContent="center" align="center" spacing={10}>

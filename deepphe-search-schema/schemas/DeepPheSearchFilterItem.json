@@ -1,0 +1,109 @@
+{
+  "$id": "https://deepphe.github.io/deepphe-search-schema/schemas/DeepPheSearchFilterItem.json",
+  "title": "DeepPhe Search Filter Item",
+  "description": "A definition of a DeepPhe Search Filter Item",
+  "type": "object",
+  "properties": {
+    "fieldName": {
+      "type": "string"
+    },
+    "class": {
+      "type": "string",
+      "enum": [
+        "discreteList",
+        "categoricalRangeSelector",
+        "numericRangeSelector",
+        "booleanList"
+      ]
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "numericRangeSelectorDefinition": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "integer"
+        },
+        "max": {
+          "type": "integer"
+        },
+        "step": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "min",
+        "max",
+        "step"
+      ]
+    },
+    "globalPatientCountsForCategories" : {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "category",
+          "count"
+        ]
+      }
+    },
+    "switches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "selectedNumericRange": {
+      "min": {
+        "type": "integer"
+      },
+      "max": {
+        "type": "integer"
+      }
+    },
+    "selectedCategoricalRange": {
+      "minCategory": {
+        "type": "string"
+      },
+      "maxCategory": {
+        "type": "string"
+      }
+    },
+    "patientsMeetingThisFilterOnly": {
+      "type": "integer"
+    },
+    "patientsMeetingEntireSetOfFilters": {
+      "type": "integer"
+    },
+    "numberOfPossiblePatientsForThisFilter": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "fieldName",
+    "class",
+    "patientsMeetingThisFilterOnly",
+    "patientsMeetingEntireSetOfFilters",
+    "numberOfPossiblePatientsForThisFilter"
+  ]
+}
