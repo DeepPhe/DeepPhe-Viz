@@ -13,10 +13,8 @@ import DiscreteList from "./subcomponents/DiscreteList";
 import CategoricalRangeSelector from "./subcomponents/CategoricalRangeSelector";
 import NumericRangeSelector from "./subcomponents/NumericRangeSelector";
 import BooleanList from "./subcomponents/BooleanList";
+import * as dfd from "danfojs";
 
-const filterTopics = [
-    'Diagnosis', 'Stage', 'Age at Dx', 'Metastasis', 'Agents', 'Comorbidity',
-];
 
 const ageRangeLookup = new Object;
 ageRangeLookup[0] = "0-10";
@@ -42,18 +40,12 @@ stageRangeLookup[5] = "V";
 stageRangeLookup[6] = "VI";
 stageRangeLookup[7] = "VII";
 
-// const Root = props => (
-//     <Legend.Root {...props} sx={{ display: 'flex', margin: 'auto', flexDirection: 'row' }} />
-// );
-// const Label = props => (
-//     <Legend.Label {...props} sx={{ whiteSpace: 'nowrap' }} />
-// );
 export default class CohortFilter extends React.Component {
     state = {
-        loading: true,
+        filterDefinitionLoading: true,
+        patientArraysLoading: true,
         biomarkerData: null,
-        filterDefinitions: null,
-        only: filterTopics.map(snakeCase),
+        filterDefinition: null,
         filterData: null,
         cohortSize: null,
         isLoading: true,
@@ -63,15 +55,78 @@ export default class CohortFilter extends React.Component {
         ageAtDx: null,
         metastisis_present: null,
         metastisis_unknown: null,
+        fieldNames: null,
         agents: [],
         comorbidity: [],
-        diagnosis: []
+        diagnosis: [],
+        patientArrays: null
     }
 
+    flattenObject = (obj, parent) => {
+        const flattened = {}
+        Object.keys(obj).forEach((key) => {
+            const value = obj[key]
+            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                Object.assign(flattened, this.flattenObject(value, key))
+            } else {
+                flattened[parent + "." + key] = value
+            }
+        })
+
+        return flattened
+    }
+
+    fastIntersection = (...arrays) => {
+        // if we process the arrays from shortest to longest
+        // then we will identify failure points faster, i.e. when
+        // one item is not in all arrays
+        const ordered = (arrays.length === 1
+                ? arrays :
+                arrays.sort((a1, a2) => a1.length - a2.length)),
+            shortest = ordered[0],
+            set = new Set(), // used for bookeeping, Sets are faster
+            result = [] // the intersection, conversion from Set is slow
+        // for each item in the shortest array
+        for (let i = 0; i < shortest.length; i++) {
+            const item = shortest[i];
+            // see if item is in every subsequent array
+            let every = true; // don't use ordered.every ... it is slow
+            for (let j = 1; j < ordered.length; j++) {
+                if (ordered[j].includes(item)) continue;
+                every = false;
+                break;
+            }
+            // ignore if not in every other array, or if already captured
+            if (!every || set.has(item)) continue;
+            // otherwise, add to bookeeping set and the result
+            set.add(item);
+            result[result.length] = item;
+        }
+        return result;
+    }
 
     reset = () => {
         const that = this;
-        const fetchData = async () => {
+        const fetchPatientArrays = async () => {
+            return new Promise(function (resolve, reject) {
+                fetch('https://gist.githubusercontent.com/JohnLevander/d11ca4e6f43c6ec0d956567cb204c363/raw/53ffde5db9ddefbd1a07a3553a3224f17da610a9/query-results.js').then(function (response) {
+                    if (response) {
+                        resolve(response);
+                    } else {
+                        reject('User not logged in');
+                    }
+                });
+            });
+        }
+        fetchPatientArrays().then(function (response) {
+            response.json().then(function (json) {
+                that.setState({patientArrays: that.flattenObject(json, "")})
+                that.setState({patientArraysLoading: false})
+                //let intersection = that.fastIntersection(arrays["location.Breast"], arrays["laterality.Left"], arrays["histologic_type.Invasive_Ductal_Breast_Carcinoma"])
+            })
+        })
+
+        const fetchFilterDefinition = async () => {
             return new Promise(function (resolve, reject) {
                 fetch('http://localhost:3001/api/filter/definitions').then(function (response) {
                     if (response) {
@@ -83,28 +138,60 @@ export default class CohortFilter extends React.Component {
             });
         }
 
-        fetchData().then(function (response) {
+        fetchFilterDefinition().then(function (response) {
             response.json().then(function (json) {
                 that.setState({filterDefinitions: json});
-                that.setState({loading: false})
+                let fieldNames = []
+                json.searchFilterDefinition.map(definition => {
+                    fieldNames.push(definition.fieldName)
+                })
+                that.setState({fieldNames: fieldNames})
+                let cohortSize = [{
+                    value: 5,
+                    description: "5",
+                    color: "blue"
+                }, {
+                    value: 95,
+                    description: "",
+                    color: "lightgray"
+                }]
+
+                let filterDatas = new Array(fieldNames.length)
+
+                fieldNames.forEach((topic, i) => {
+                    filterDatas[i] = [{
+                        value: Math.random(20),
+                        description: "",
+                        color: "blue"
+                    },
+                        {
+                            value: Math.random(20),
+                            description: "",
+                            color: "lightblue"
+                        },
+                        {
+                            value: Math.random(20),
+                            description: "",
+                            color: "lightgray"
+                        }]
+                })
+
+                that.setState({filterData: filterDatas, cohortSize: cohortSize, isLoading: false}, () => {
+
+                })
+                that.setState({filterDefinitionLoading: false})
                 that.updateDimensions()
             })
         })
     }
 
     updateDimensions = () => {
-        const newWidth = document.getElementById('biomarkers').clientWidth;
-        //  this.setState({width: newWidth, height: 350});
-        let it = d3.select(".biomarkers_overview_chart")
-        // it._groups[0][0].setAttribute("width", newWidth)
 
     };
 
     handleDateChange = (e: ChangeResult) => {
-
         console.log("date change:" + e);
     };
-
 
     buildQuery = () => {
         const getStageValuesForRange = (min, max) => {
@@ -129,61 +216,15 @@ export default class CohortFilter extends React.Component {
         if (this.state.selectedAges) {
             query.ages = getAgeValuesForRange(this.state.selectedAges[0], this.state.selectedAges[1] - 2)
         }
-        console.log("Stages: " + query.stages)
-        console.log("Stages: " + query.ages)
-        // this.props.onQueryChange(query)
     }
 
-
     componentDidMount() {
-        let cohortSize = [{
-            value: 5,
-            description: "5",
-            color: "blue"
-        }, {
-            value: 95,
-            description: "",
-            color: "lightgray"
-        }]
-
-        let filterDatas = new Array(filterTopics.length)
-
-        filterTopics.forEach((topic, i) => {
-            filterDatas[i] = [{
-                value: Math.random(20),
-                description: "",
-                color: "blue"
-            },
-                {
-                    value: Math.random(20),
-                    description: "",
-                    color: "lightblue"
-                },
-                {
-                    value: Math.random(20),
-                    description: "",
-                    color: "lightgray"
-                }]
-        })
-
-        this.setState({filterData: filterDatas, cohortSize: cohortSize, isLoading: false}, () => {
-            this.show("new_control_svg");
-        })
+        this.show("new_control_svg");
         window.addEventListener('resize', this.updateDimensions);
     }
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.updateDimensions);
-    }
-
-    //given a filter word, return the index of the filter word in the filterTopics array
-    getFilterIndex = (filterWord) => {
-        for (let i = 0; i < filterTopics.length; i++) {
-            if (filterTopics[i] === filterWord) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -205,14 +246,7 @@ export default class CohortFilter extends React.Component {
         if (!d3.select("#" + svgContainerId).empty()) {
             d3.select("#" + svgContainerId)._groups[0][0].remove();
         }
-        const svgWidth = "100%"; //Math.max(300, this.state.width);
-        const svgHeight = "100%";
-        const chart = d3.select(".new_control_group").append("svg").attr("id", svgContainerId).attr("width", svgWidth).attr("height", svgHeight);
-        let innerChart = chart.append("g")
-
     };
-
-
 
     handleAgeChange = (e: ChangeResult) => {
         this.setState({selectedAges: e})
@@ -237,30 +271,8 @@ export default class CohortFilter extends React.Component {
         } else {
             $(selector).addClass("overlay-row")
         }
-
-
-        // let {only} = this.state;
-        //
-        // if (enabled && !only.includes(activity)) {
-        //     only.push(activity);
-        //     return this.setState({only});
-        // }
-        //
-        // if (!enabled && only.includes(activity)) {
-        //     only = only.filter(item => item !== activity);
-        //     return this.setState({only});
-        // }
     }
 
-
-    buildComponent = (props) => {
-        return (<HSBar
-            //showTextIn
-            max={100}
-            height={47.3}
-            data={this.state.cohortSize}
-        />);
-    }
     CohortPercentHSBar = (props) => {
         return (<HSBar
             //showTextIn
@@ -270,50 +282,8 @@ export default class CohortFilter extends React.Component {
         />);
     }
 
-
-
-
-    CategoryRangeSelector = (filterdefinition) => {
-        return (
-            <div className={"category-range-selector"}>
-                <div className={"category-range-selector-title"}>{props.title}</div>
-                <div className={"category-range-selector-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"category-range-selector-item"} key={index}>{item}</div>
-                    ))}
-                </div>
-            </div>
-        )
-    }
-
-    NumericRangeSelector = (filterdefinition) => {
-        return (
-            <div className={"numeric-range-selector"}>
-                <div className={"numeric-range-selector-title"}>{props.title}</div>
-                <div className={"numeric-range-selector-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"numeric-range-selector-item"} key={index}>{item}</div>
-                    ))}
-                </div>
-            </div>
-        )
-    }
-
-    BooleanList = (filterdefinition) => {
-        return (
-            <div className={"boolean-list"}>
-                <div className={"boolean-list-title"}>{props.title}</div>
-                <div className={"boolean-list-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"boolean-list-item"} key={index}>{item}</div>
-                    ))}
-                </div>
-            </div>
-        )
-    }
-
     render() {
-        if (this.state.loading)
+        if (this.state.isLoading || this.state.filterDefinitionLoading || this.state.patientArraysLoading)
             return <div>Data is coming soon...</div>
         else
             return (
@@ -331,9 +301,7 @@ export default class CohortFilter extends React.Component {
                             <Grid className={"cohort-size-label-container"} item md={1}/>
                         </Grid>
                         <Grid container direction="row" justifyContent="center" align="center">
-
                             <Grid className="switch_list no_padding_grid" item md={1}>
-                                {/*{filterTopics.map((activity, index) => (*/}
                                 {this.state.filterDefinitions.searchFilterDefinition.map((filterDefinition, index) => (
                                     <ToggleSwitch wantsDivs={true} key={index} label={filterDefinition.fieldName}
                                                   theme="graphite-small"
@@ -361,92 +329,12 @@ export default class CohortFilter extends React.Component {
                                         }
                                     })()
                                 ))}
-                                {/*<div id={"diagnosis-overlay-row"}>*/}
-                                {/*    <div id={"diagnosis-row"} className={"row no-gutter"}>*/}
-                                {/*        <span className={"box-for-word-filter blue-border-for-word-filter"}>DCIS</span>*/}
-                                {/*        <span className={"box-for-word-filter blue-border-for-word-filter"}>LBC</span>*/}
-                                {/*        <span className={"box-for-word-filter add-word-filter-plus blue-plus"}>+</span>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-                                {/*<this.DiscreteList title={"Diagnosis"} items={["DCIS", "LBC"]}/>*/}
-                                {/*<div id={"stage-overlay-row"}>*/}
-                                {/*    <div id={"stage-row"} className={"row filter_center_rows"}>*/}
-                                {/*        <div className={"slider-container"}>*/}
-                                {/*            <Slider range min={0} max={5} defaultValue={[0, 4]}*/}
-                                {/*                    onChange={this.handleStageChange}*/}
-                                {/*                    draggableTrack={true} pushable={true} marks={{*/}
-                                {/*                0: "0",*/}
-                                {/*                1: "I",*/}
-                                {/*                2: "II",*/}
-                                {/*                3: "III",*/}
-                                {/*                4: "VI"*/}
-                                {/*            }} dots={false} step={1}/>*/}
-                                {/*        </div>*/}
-
-                                {/*        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"*/}
-                                {/*                      enabled={true}*/}
-                                {/*                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-                                {/*<div id={"age-at-dx-overlay-row"}>*/}
-                                {/*    <div id={"age-at-dx-row"} className={"row filter_center_rows"}>*/}
-                                {/*        <div className={"slider-container"}>*/}
-                                {/*            <Slider range min={0} max={11} defaultValue={[0, 11]}*/}
-                                {/*                    onChange={(e) => this.handleRangeChange("selectedAges", e)}*/}
-                                {/*                    draggableTrack={true} pushable={true} marks={{*/}
-                                {/*                0: "0",*/}
-                                {/*                1: "10",*/}
-                                {/*                2: "20",*/}
-                                {/*                3: "30",*/}
-                                {/*                4: "40",*/}
-                                {/*                5: "50",*/}
-                                {/*                6: "60",*/}
-                                {/*                7: "70",*/}
-                                {/*                8: "80",*/}
-                                {/*                9: "90",*/}
-                                {/*                10: "100"*/}
-                                {/*            }} dots={false} step={1}/>*/}
-                                {/*        </div>*/}
-
-                                {/*        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"*/}
-                                {/*                      enabled={true}*/}
-                                {/*                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-                                {/*<div id={"metastasis-overlay-row"}>*/}
-                                {/*    <div id={"metastasis-row"} className={"row filter_center_rows"}>*/}
-                                {/*        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"*/}
-                                {/*                      enabled={true}*/}
-                                {/*                      onStateChanged={this.handleToggleSwitch("metastasis present")}/>*/}
-                                {/*        <ToggleSwitch wantsDivs={false} label={"Unknown"} theme="graphite-small"*/}
-                                {/*                      enabled={true}*/}
-                                {/*                      onStateChanged={this.handleToggleSwitch("metastasis unknown")}/>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-                                {/*<div id={"agents-overlay-row"}>*/}
-                                {/*    <div id={"agents-row"} className={"row no-gutter"}>*/}
-                                {/*    <span*/}
-                                {/*        className={"box-for-word-filter red-border-for-word-filter"}>Bortezomib/Paclitaxel</span>*/}
-                                {/*        <span*/}
-                                {/*            className={"box-for-word-filter red-border-for-word-filter"}>CALGLUC/VIT-D/ZOLE</span>*/}
-                                {/*        <span className={"box-for-word-filter add-word-filter-plus red-plus"}>+</span>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
-                                {/*<div id={"comorbidity-overlay-row"}>*/}
-                                {/*    <div id={"comorbidity-row"} className={"row no-gutter"}>*/}
-                                {/*        <span*/}
-                                {/*            className={"box-for-word-filter gray-border-for-word-filter"}>Diabetes</span>*/}
-                                {/*        <span*/}
-                                {/*            className={"box-for-word-filter gray-border-for-word-filter"}>Hypertension</span>*/}
-                                {/*        <span className={"box-for-word-filter add-word-filter-plus gray-plus"}>+</span>*/}
-                                {/*    </div>*/}
-                                {/*</div>*/}
                             </Grid>
                             <Grid className={"no_padding_grid"} item md={1}>
-                                {filterTopics.map((activity, index) => (
+                                {this.state.fieldNames.map((label) => (
                                     <HSBar
                                         height={47.3}
-                                        data={this.state.filterData[index]}
+                                        data={this.state.filterData[this.state.fieldNames.indexOf(label)]}
                                     />
                                 ))}
                             </Grid>
