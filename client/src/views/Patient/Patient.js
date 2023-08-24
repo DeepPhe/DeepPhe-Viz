@@ -11,9 +11,13 @@ import Timeline from "../../components/Charts/Timeline";
 import $ from 'jquery'
 import CardHeader from "../../components/Card/CardHeader";
 import {Col, Container, Nav, Navbar, Row} from "react-bootstrap";
-
+import { mentionedTerms } from '../../components/Charts/Timeline.js'
+import { reportTextRight } from '../../components/Charts/Timeline.js'
 
 const baseUri = "http://localhost:3001/api";
+let initialHighlightedDoc = '';
+
+
 
 function Patient() {
     const {patientId} = useParams();
@@ -25,7 +29,7 @@ function Patient() {
 
     let factBasedReports = {};
 
-    function scrollToHighlightedTextMention(obj, reportText) {
+    function scrollToHighlightedTextMention(obj, reportText, term = "NONE") {
         // Highlight the selected term in the term list
         const cssClass = 'current_mentioned_term';
         // First remove the previously added highlighting
@@ -42,10 +46,16 @@ function Patient() {
         textMentionObj.beginOffset = obj.begin;
         textMentionObj.endOffset = obj.end;
 
+        //console.log(textMentionObj);
         textMentions.push(textMentionObj);
+        //console.log(term);
 
         // Highlight this term in the report text
-        let highlightedReportText = highlightTextMentions(textMentions, reportText);
+        //console.log(mentionedTerms);
+        textMentions = highlightAllMentions(mentionedTerms);
+        // console.log(textMentions);
+        let highlightedReportText = highlightTextMentions(textMentions, reportText, term);
+        //console.log(highlightedReportText);
 
         // Use html() for html rendering
         reportTextDiv.html(highlightedReportText);
@@ -53,7 +63,7 @@ function Patient() {
         // Scroll to that position inside the report text div
         // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
         // 5 is position tweak
-        reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
+        //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
     }
 
     function highlightSelectedTimelineReport(reportId) {
@@ -74,32 +84,127 @@ function Patient() {
         element.dispatchEvent(e);
     }
 
-    function highlightTextMentions(textMentions, reportText) {
-        const cssClass = "highlighted_term";
 
+    // function highlightTextMentions(textMentions, reportText, term = "NONE") {
+    //     const cssClass = "highlighted_term";
+    //     const cssClassAll = "highlight_terms";
+    //     const length = textMentions.length;
+    //
+    //
+    //     // Sort the textMentions array first based on beginOffset
+    //     // textMentions.sort(function (a, b) {
+    //     //     let comp = a.beginOffset - b.beginOffset;
+    //     //     if (comp === 0) {
+    //     //         return b.endOffset - a.endOffset;
+    //     //     } else {
+    //     //         return comp;
+    //     //     }
+    //     // });
+    //
+    //     let textFragments = [];
+    //
+    //     // if (term !== "NONE") {
+    //     let lastValidTMIndex = 0;
+    //     //console.log("length: ", length);
+    //     // console.log("What is going on");
+    //     // console.log(reportText);
+    //
+    //     for (let i = 0; i < length; i++) {
+    //         let textMention = textMentions[i];
+    //         let lastValidTM = textMentions[lastValidTMIndex];
+    //         // console.log(i);
+    //
+    //         // If this is the first textmention, paste the start of the document before the first TM.
+    //         if (i === 0) {
+    //             if (textMention.beginOffset === 0) {
+    //                 textFragments.push('');
+    //                 // console.log('first:', textFragments);
+    //             } else {
+    //                 textFragments.push(reportText.substring(0, textMention.beginOffset));
+    //                 // console.log('second:', textFragments);
+    //             }
+    //         } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
+    //             if (textMention.beginOffset <= lastValidTM.endOffset) {
+    //                 // Push end of the document
+    //                 lastValidTMIndex = i;
+    //                 // continue; // Skipping this TM.
+    //             } else {
+    //                 textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+    //                 // console.log('third:', textFragments);
+    //             }
+    //         }
+    //         // console.log("textMentions:", textMention);
+    //         // console.log("term: " , textMention.text);
+    //         if(term === textMention.text){
+    //             textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+    //             // console.log('fourth:', textFragments);
+    //         }
+    //         else{
+    //             textFragments.push('<span class="' + cssClassAll + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+    //             // console.log('fifth:', textFragments);
+    //         }
+    //
+    //         lastValidTMIndex = i;
+    //     }
+    //     // Push end of the document
+    //     textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
+    //
+    //     // Assemble the final report content with highlighted texts
+    //     let highlightedReportText = '';
+    //
+    //     for (let j = 0; j < textFragments.length; j++) {
+    //         highlightedReportText += textFragments[j];
+    //     }
+    //
+    //
+    //
+    //     const e = new Event("change");
+    //     const element = document.querySelector('input[type=radio][name="sort_order"]');
+    //     element.dispatchEvent(e);
+    //
+    //     return highlightedReportText;
+    // }
+
+    function highlightTextMentions(textMentions, reportText, term = "NONE") {
         // Sort the textMentions array first based on beginOffset
-        textMentions.sort(function (a, b) {
-            let comp = a.beginOffset - b.beginOffset;
-            if (comp === 0) {
-                return b.endOffset - a.endOffset;
-            } else {
-                return comp;
-            }
-        });
+        // textMentions.sort(function(a, b) {
+        //     let comp = a.begin - b.begin;
+        //     if (comp === 0) {
+        //         return b.end - a.end;
+        //     } else {
+        //         return comp;
+        //     }
+        // });
+        const cssClass = "highlighted_term";
+        const cssClassAll = "highlight_terms";
+
+        console.log("======sorted textMentions======");
+        console.log(textMentions);
+
+        // Flatten the ranges, this is the key to solve overlapping
+        textMentions = flattenRanges(textMentions);
+        console.log(textMentions);
 
         let textFragments = [];
 
         if (textMentions.length === 1) {
             let textMention = textMentions[0];
 
-            if (textMention.beginOffset === 0) {
+            if (textMention.begin === 0) {
                 textFragments.push('');
             } else {
-                textFragments.push(reportText.substring(0, textMention.beginOffset));
+                textFragments.push(reportText.substring(0, textMention.begin));
             }
 
-            textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-            textFragments.push(reportText.substring(textMention.endOffset));
+            // Don't use JSX expression here because we wanted to return HTML
+            if (textMention.count === 1) {
+                let str = '<span style="background: ' + textMention.bgcolor[0] + '">' + reportText.substring(textMention.begin, textMention.end) + '</span>';
+                textFragments.push(str);
+            } else {
+                console.log("Incorrect data, should be only 1 text mention with 1 bgcolor");
+            }
+
+            textFragments.push(reportText.substring(textMention.end));
         } else {
             let lastValidTMIndex = 0;
 
@@ -109,25 +214,47 @@ function Patient() {
 
                 // If this is the first textmention, paste the start of the document before the first TM.
                 if (i === 0) {
-                    if (textMention.beginOffset === 0) {
+                    if (textMention.begin === 0) {
                         textFragments.push('');
                     } else {
-                        textFragments.push(reportText.substring(0, textMention.beginOffset));
+                        textFragments.push(reportText.substring(0, textMention.begin));
                     }
                 } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-                    if (textMention.beginOffset < lastValidTM.endOffset) {
+                    if (textMention.begin < lastValidTM.end) {
                         // Push end of the document
                         continue; // Skipping this TM.
-                    } else {
-                        textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                    } else{
+                        textFragments.push(reportText.substring(lastValidTM.end, textMention.begin));
                     }
                 }
 
-                textFragments.push('<span "' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+                // Don't use JSX expression here because we wanted to return HTML
+                if (textMention.count === 1) {
+                    if(term === textMention.text){
+                        textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+                    }
+                    else{
+                        textFragments.push('<span class="' + cssClassAll + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+                    }
+                    // let str = '<span style="background: ' + textMention.bgcolor[0] + '">' + reportText.substring(textMention.begin, textMention.end) + '</span>';
+                    // textFragments.push(str);
+                }else if (textMention.count >= 2 && textMention.count <= Object.keys(variablesObj).length) {
+                    // 2 color example: background: linear-gradient(to bottom, #f8d7da 0%, #f8d7da 50%, #a3cfbb 50%, #a3cfbb 100%);
+                    // 3 color example: style="background: linear-gradient(to bottom, #f8d7da 0%, #f8d7da 33.33%, #a3cfbb 33.33%, #a3cfbb 66.66%, #cfe2ff 66.66%, #cfe2ff 99.99%);"
+                    let colorDistribution = buildColorDistribution(textMention);
+                    // let str = '<span style="background: linear-gradient(to bottom, ' + colorDistribution.join(", ") + ');">' + reportText.substring(textMention.begin, textMention.end) + '</span>';
+                    let str1 = '<span style="background: linear-gradient(to bottom, ';
+                    let str2 = colorDistribution.join(", ") + ');">' + reportText.substring(textMention.begin, textMention.end) + '</span>';
+                    // let str = '<span style="background: linear-gradient(to bottom, ' + colorDistribution.join(", ") + ');">' + reportText.substring(textMention.begin, textMention.end) + '</span>';
+                    textFragments.push(str1 + str2);
+                } else {
+                    console.log("Incorrect data, should not have more than " + Object.keys(variablesObj).length + " variables/colors");
+                }
+
                 lastValidTMIndex = i;
             }
             // Push end of the document
-            textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
+            textFragments.push(reportText.substring(textMentions[lastValidTMIndex].end));
         }
 
         // Assemble the final report content with highlighted texts
@@ -137,11 +264,136 @@ function Patient() {
             highlightedReportText += textFragments[j];
         }
 
-        const e = new Event("change");
-        const element = document.querySelector('input[type=radio][name="sort_order"]');
-        element.dispatchEvent(e);
+        console.log("======highlightedReportText======");
+        console.log(highlightedReportText);
 
         return highlightedReportText;
+    }
+
+    const variablesObj = {
+        'topography_major': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'topography_minor': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'topography': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'histology': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'behavior': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'morphology': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'laterality': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#ffe69c',
+            'mentions': []
+        },
+        'grade': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#a3cfbb',
+            'mentions': []
+        }
+    };
+
+    function buildColorDistribution(textMention) {
+        let colorDistribution = [];
+        let increment = (100/textMention.count).toFixed(2);
+
+        for (let i = 0; i < textMention.count; i++) {
+            let bgcolor = "highlight_terms";
+            let start = (i > 0) ? i*increment + "%" : 0;
+            let finish = (i < textMention.count - 1) ? (i + 1)*increment + "%" : "100%";
+            colorDistribution.push(bgcolor + " " + start);
+            colorDistribution.push(bgcolor + " " + finish);
+        }
+
+        return colorDistribution;
+    }
+
+    function flattenRanges(ranges) {
+        console.log("======input ranges======");
+        console.log(ranges);
+
+        let points = [];
+        let flattened = [];
+        for (let i in ranges) {
+            if (ranges[i].endOffset < ranges[i].beginOffset) { //RE-ORDER THIS ITEM (BEGIN/END)
+                let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
+                ranges[i].endOffset = ranges[i].beginOffset;
+                ranges[i].beginOffset = tmp;
+            }
+
+            points.push(ranges[i].beginOffset);
+            points.push(ranges[i].endOffset);
+        }
+
+        //MAKE SURE OUR LIST OF POINTS IS IN ORDER
+        points.sort(function(a, b) {
+            return a - b;
+        });
+
+        // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
+        // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
+        for (let i in points) {
+            if (i === 0 || points[i] === points[i-1]) continue;
+            let includedRanges = ranges.filter(function(x) {
+                return (Math.max(x.beginOffset,points[i-1]) < Math.min(x.endOffset,points[i]));
+            });
+
+            if (includedRanges.length > 0) {
+                let flattenedRange = {
+                    beginOffset:points[i-1],
+                    endOffset:points[i],
+                    count:0
+                }
+
+                for (let j in includedRanges) {
+                    let includedRange = includedRanges[j];
+
+                    for (let prop in includedRange) {
+                        if (prop !== 'beginOffset' && prop !== 'endOffset') {
+                            if (!flattenedRange[prop]) flattenedRange[prop] = [];
+                            flattenedRange[prop].push(includedRange[prop]);
+                        }
+                    }
+
+                    flattenedRange.count++;
+                }
+
+                flattened.push(flattenedRange);
+            }
+        }
+
+        console.log("======flattened ranges======");
+        console.log(flattened);
+
+        return flattened;
     }
 
     function getReport(reportId, factId) {
@@ -156,7 +408,7 @@ function Patient() {
             .done(function (response) {
 
                 let reportText = response.reportText;
-                let mentionedTerms = response.mentionedTerms;
+                mentionedTerms = response.mentionedTerms;
 
                 // If there are fact based reports, highlight the displaying one
                 const currentReportCssClass = 'current_displaying_report';
@@ -182,15 +434,17 @@ function Patient() {
                 // mentionedTerms doesn't have position info, so we need to keep the posiiton info
                 // for highlighting and scroll to
                 let factBasedTermsWithPosition = [];
-
                 let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
-
-                mentionedTerms.forEach(function (obj) {
+                mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+                let textMentions = [];
+                mentionedTerms.forEach(function(obj) {
+                    //console.log(JSON.stringify(obj))
                     let fact_based_term_class = '';
                     if (factBasedTerms.indexOf(obj.term) !== -1) {
                         factBasedTermsWithPosition.push(obj);
                         fact_based_term_class = ' fact_based_term';
                     }
+                    // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
                     renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
                 });
                 renderedMentionedTerms += "</ol>";
@@ -203,8 +457,20 @@ function Patient() {
                     scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
                 } else {
                     let reportTextDiv = $("#report_text");
-                    // Show report content, either highlighted or not
-                    reportTextDiv.html(reportText);
+                    //highlight all mentions
+                    //console.log(mentionedTerms);
+                    textMentions = highlightAllMentions(mentionedTerms);
+                    let highlightedReportText = highlightTextMentions(textMentions, reportText);
+                    // console.log(highlightedReportText);
+
+                    // Use html() for html rendering
+                    //show the highlightedreport instead of just reportText
+                    initialHighlightedDoc = highlightedReportText;
+                    reportTextDiv.html(highlightedReportText);
+                    // highlightTextMentions(textMentions, reportText);
+                    // let reportTextDiv = $("#report_text");
+                    // // Show report content, either highlighted or not
+                    // reportTextDiv.html(reportText);
                     // Scroll back to top of the report content div
                     reportTextDiv.animate({scrollTop: 0}, "fast");
                 }
@@ -212,6 +478,23 @@ function Patient() {
             .fail(function () {
                 console.log("Ajax error - can't get report");
             });
+    }
+
+    function highlightAllMentions(mentionedTerms) {
+        let textMentions = [];
+        mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+
+        mentionedTerms.forEach(function(obj) {
+            //grabbing mention begin and end so that I can highlight each mention at the start
+            let textMentionObj = {};
+            textMentionObj.text = obj.term;
+            textMentionObj.beginOffset = obj.begin;
+            textMentionObj.endOffset = obj.end;
+            //console.log(textMentionObj);
+            textMentions.push(textMentionObj);
+        });
+
+        return textMentions;
     }
 
     function getFact(patientId, factId) {
@@ -429,9 +712,13 @@ function Patient() {
         obj.begin = $(this).data('begin');
         obj.end = $(this).data('end');
 
-        let reportText = $("#report_text").text();
 
-        scrollToHighlightedTextMention(obj, reportText);
+        // let reportText = $("#report_text").text();
+        // console.log(reportText);
+        //console.log(obj.term);
+        console.log(reportTextRight);
+
+        scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
     });
 
     // Reset button event
@@ -464,7 +751,6 @@ function Patient() {
 
     function sortMentions(method) {
         // Declaring Variables
-        debugger;
         let geek_list, i, run, li, stop;
         // Taking content of list as input
         geek_list = document.getElementById("mentions");
