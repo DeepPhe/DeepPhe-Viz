@@ -18,20 +18,27 @@ class BooleanList extends Component {
         console.log("Switch id: " + switchId + " enabled: " + enabled)
         this.setState({[switchId]: enabled})
     };
+
     render() {
         return (
             <React.Fragment>
                 <div id={"metastasis-overlay-row"}>
-                <div id={"metastasis-row"} className={"row filter_center_rows"}>
-                    <div className={"slider-container"}>
-                        {this.state.definition.globalPatientCountsForCategories.map((item, index) => {
-
-                            return <ToggleSwitch wantsDivs={false} label={item.category} theme="graphite-small"
-                                             enabled={true}
-                                        onStateChanged={this.handleToggleSwitch("metastasis present")}/>
-                        })}
+                    <div id={"metastasis-row"} className={"row filter_center_rows"}>
+                        <div className={"slider-container"}>
+                            {this.state.definition.switches.map((item, index) => {
+                                const fieldName = this.props.definition.fieldName
+                                const switchName = item.name
+                                const name = fieldName + "_" + switchName
+                                const enabled = item.value //true/false
+                                //const categoryIdx =
+                                  //  this.props.definition.globalPatientCountsForCategories.findIndex(x => x.category === switchName)
+                                //const categoryCount = enabled ? this.props.definition.globalPatientCountsForCategories[categoryIdx].count : 0
+                                return <ToggleSwitch key={index} wantsdivs={0} label={name} theme="graphite-small"
+                                                     enabled={enabled}
+                                                     onStateChanged={this.handleToggleSwitch(name)}/>
+                            })}
+                        </div>
                     </div>
-                </div>
                 </div>
             </React.Fragment>
         );
@@ -40,7 +47,7 @@ class BooleanList extends Component {
     handleChange(index, event) {
         let value = this.state.value;
         value[index] = event.target.checked;
-        this.setState({ value: value });
+        this.setState({value: value});
         this.props.onChange(value);
     }
 }

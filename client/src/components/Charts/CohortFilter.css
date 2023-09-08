@@ -99,14 +99,15 @@
     z-index: 99 !important;
 }
 #age-at-dx-row .rc-slider-mark-text {
-    padding-left: calc(1%) !important;
+    padding-left: 0px !important;
 }
 .rc-slider-mark-text {
-    padding-left: calc(5%) !important;
+    /*padding-left: calc(5%) !important;*/
     font-size: 12px !important;
     margin-top: 5px !important;
+    text-wrap: nowrap;
     z-index:99;
-    transform: translateX(+60%) !important;
+    /*transform: translateX(+0%) !important;*/
 
 }
 .rc-slider-dot {

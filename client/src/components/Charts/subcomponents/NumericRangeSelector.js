@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
 import ToggleSwitch from "../../CustomButtons/ToggleSwitch";
-import $ from "jquery";
+
 
 class NumericRangeSelector extends Component {
     constructor(props) {
@@ -16,6 +16,12 @@ class NumericRangeSelector extends Component {
 
     handleRangeChange = (e: ChangeResult) => {
         this.setState({selectedRanges: e})
+        console.log(this.state.definition.fieldName + ":")
+        console.log("    Range " + e)
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
+
         // this.buildQuery()
     };
 
@@ -45,7 +51,8 @@ class NumericRangeSelector extends Component {
 
     render() {
 
-        const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
+
+        //const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
         const selectedNumericRange = this.state.definition.selectedNumericRange
         const numericRangeSelectorDefinition = this.state.definition.numericRangeSelectorDefinition
         let marks = {}
@@ -66,14 +73,14 @@ class NumericRangeSelector extends Component {
                     <div id={"age-at-dx-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
                             <Slider range min={numericRangeSelectorDefinition.min}
-                                    max={numericRangeSelectorDefinition.max+10}
+                                    max={numericRangeSelectorDefinition.max+1}
                                     defaultValue={[minSelectedInRange, maxSelectedInRange]}
-                                    onChange={(e) => this.handleRangeChange("selectedAges", e)}
+                                    onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} dots={false} included={true} marks={marks}
                                     step={numericRangeSelectorDefinition.step}/>
                         </div>
 
-                        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"
+                        <ToggleSwitch wantsdivs={0} label={"Present"} theme="graphite-small"
                                       enabled={true}
                                       onStateChanged={this.toggleActivityEnabled("Unknown")}/>
                     </div>

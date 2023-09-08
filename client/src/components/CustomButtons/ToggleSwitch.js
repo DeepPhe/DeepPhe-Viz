@@ -8,7 +8,9 @@ import './ToggleSwitch.css';
 
 class ToggleSwitch extends Component {
 
-    state = {enabled: this.enabledFromProps()}
+    state = {enabled: this.enabledFromProps(), wantsdivs: this.props.wantsdivs}
+
+
 
     isEnabled = () => this.state.enabled
 
@@ -41,7 +43,7 @@ class ToggleSwitch extends Component {
     }
 
     render() {
-        const wantsDivs = this.props.wantsDivs;
+        const wantsDivs = this.props.wantsdivs;
         const {enabled} = this.state;
 
         // Isolate special props and store the remaining as restProps

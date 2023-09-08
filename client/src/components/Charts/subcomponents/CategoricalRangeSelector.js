@@ -13,9 +13,16 @@ class CategoricalRangeSelector extends Component {
         }
     }
 
-    handleStageChange = (e: ChangeResult) => {
+    handleRangeChange = (e: ChangeResult) => {
         this.setState({selectedStages: e})
-        // this.buildQuery()
+        console.log(this.state.definition.fieldName + ":")
+        console.log("    Beginning Category: " + this.state.definition.selectedCategoricalRange[e[0]])
+        console.log("    Ending Category: " + this.state.definition.selectedCategoricalRange[e[1]])
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
+
+
     };
 
     toggleActivityEnabled = activity => ({enabled}) => {
@@ -24,7 +31,7 @@ class CategoricalRangeSelector extends Component {
 
         const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
         const selectedCategorialRange = this.state.definition.selectedCategoricalRange
-        const marks = new Object
+        const marks = {}
         let minSelectedInRange = 10000000000;
         let maxSelectedInRange = 0;
         globalPatientCountsForCategories.map((item, index) => {
@@ -33,9 +40,9 @@ class CategoricalRangeSelector extends Component {
                 minSelectedInRange = Math.min(minSelectedInRange, index)
                 maxSelectedInRange = Math.max(maxSelectedInRange, index)
             }
+            return true;
 
         })
-
 
         return (
             <React.Fragment>
@@ -43,12 +50,13 @@ class CategoricalRangeSelector extends Component {
                     <div id={"stage-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
 
-                            <Slider range min={0} max={globalPatientCountsForCategories.length} defaultValue={[minSelectedInRange, maxSelectedInRange]}
-                                    onChange={this.handleStageChange}
+                            <Slider range min={0} max={globalPatientCountsForCategories.length-1}
+                                    defaultValue={[minSelectedInRange, maxSelectedInRange]}
+                                    onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} marks={marks} dots={false} step={1}/>
                         </div>
 
-                        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"
+                        <ToggleSwitch wantsdivs={0} label={"Present"} theme="graphite-small"
                                       enabled={true}
                                       onStateChanged={this.toggleActivityEnabled("Unknown")}/>
                     </div>

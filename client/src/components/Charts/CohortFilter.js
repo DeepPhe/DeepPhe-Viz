@@ -1,22 +1,22 @@
 import * as d3 from "d3v4";
 import React from "react";
 import ToggleSwitch from "../CustomButtons/ToggleSwitch";
-import {snakeCase} from "lodash";
+
 import './CohortFilter.css';
 import Grid from "@material-ui/core/Grid";
 import HSBar from "react-horizontal-stacked-bar-chart";
 import {ChangeResult} from "multi-range-slider-react";
-import Slider from 'rc-slider';
+
 import 'rc-slider/assets/index.css';
 import $ from 'jquery';
 import DiscreteList from "./subcomponents/DiscreteList";
 import CategoricalRangeSelector from "./subcomponents/CategoricalRangeSelector";
 import NumericRangeSelector from "./subcomponents/NumericRangeSelector";
 import BooleanList from "./subcomponents/BooleanList";
-import * as dfd from "danfojs";
 
 
-const ageRangeLookup = new Object;
+
+const ageRangeLookup = {}
 ageRangeLookup[0] = "0-10";
 ageRangeLookup[1] = "10-20";
 ageRangeLookup[2] = "20-30";
@@ -30,7 +30,7 @@ ageRangeLookup[9] = "90-100";
 ageRangeLookup[10] = "100-110";
 ageRangeLookup[11] = "110-120";
 
-const stageRangeLookup = new Object;
+const stageRangeLookup = {}
 stageRangeLookup[0] = "0";
 stageRangeLookup[1] = "I";
 stageRangeLookup[2] = "II";
@@ -144,6 +144,7 @@ export default class CohortFilter extends React.Component {
                 let fieldNames = []
                 json.searchFilterDefinition.map(definition => {
                     fieldNames.push(definition.fieldName)
+                    return true;
                 })
                 that.setState({fieldNames: fieldNames})
                 let cohortSize = [{
@@ -158,19 +159,26 @@ export default class CohortFilter extends React.Component {
 
                 let filterDatas = new Array(fieldNames.length)
 
-                fieldNames.forEach((topic, i) => {
+                fieldNames.forEach((fieldName, i) => {
+                    const fieldIdx =
+                        that.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === fieldName)
+                    const numberOfPossiblePatientsForThisFilter =
+                        that.state.filterDefinitions.searchFilterDefinition[fieldIdx].numberOfPossiblePatientsForThisFilter
+                    const patientsMeetingEntireSetOfFilters =
+                        that.state.filterDefinitions.searchFilterDefinition[fieldIdx].patientsMeetingEntireSetOfFilters
+                    const patientsMeetingThisFilterOnly = that.state.filterDefinitions.searchFilterDefinition[fieldIdx].patientsMeetingThisFilterOnly
                     filterDatas[i] = [{
-                        value: Math.random(20),
+                        value: patientsMeetingThisFilterOnly,
                         description: "",
                         color: "blue"
                     },
                         {
-                            value: Math.random(20),
+                            value: patientsMeetingEntireSetOfFilters,
                             description: "",
                             color: "lightblue"
                         },
                         {
-                            value: Math.random(20),
+                            value: numberOfPossiblePatientsForThisFilter,
                             description: "",
                             color: "lightgray"
                         }]
@@ -209,7 +217,7 @@ export default class CohortFilter extends React.Component {
             }
             return ageValues
         }
-        let query = new Object()
+        let query = {}
         if (this.state.selectedStages) {
             query.stages = getStageValuesForRange(this.state.selectedStages[0], this.state.selectedStages[1] - 1)
         }
@@ -289,7 +297,7 @@ export default class CohortFilter extends React.Component {
             return (
                 <React.Fragment>
                     <div id="NewControl">
-                        <h3></h3>
+
                         <Grid className={"cohort-size-bar-container"} container direction="row"
                               justifyContent="center" align="center">
                             <Grid className={"no_padding_grid cohort-size-label-container"} item md={1}>
@@ -303,7 +311,7 @@ export default class CohortFilter extends React.Component {
                         <Grid container direction="row" justifyContent="center" align="center">
                             <Grid className="switch_list no_padding_grid" item md={1}>
                                 {this.state.filterDefinitions.searchFilterDefinition.map((filterDefinition, index) => (
-                                    <ToggleSwitch wantsDivs={true} key={index} label={filterDefinition.fieldName}
+                                    <ToggleSwitch wantsdivs={1} key={index} label={filterDefinition.fieldName}
                                                   theme="graphite-small"
                                                   enabled={true}
                                                   onStateChanged={this.toggleActivityEnabled({filterDefinition})}/>
@@ -315,24 +323,27 @@ export default class CohortFilter extends React.Component {
                                     (() => {
                                         switch (filterDefinition.class) {
                                             case "discreteList":
-                                                return <DiscreteList definition={filterDefinition}/>;
+                                                return <DiscreteList key={index} definition={filterDefinition}/>;
 
                                             case "categoricalRangeSelector":
-                                                return <CategoricalRangeSelector
-                                                    definition={filterDefinition}/>;
+                                                return <CategoricalRangeSelector key={index}
+                                                                                 definition={filterDefinition}/>;
 
                                             case "numericRangeSelector":
-                                                return <NumericRangeSelector definition={filterDefinition}/>;
+                                                return <NumericRangeSelector key={index}  definition={filterDefinition}/>;
 
                                             case "booleanList":
-                                                return <BooleanList definition={filterDefinition}/>;
+                                                return <BooleanList  key={index} definition={filterDefinition}/>;
+                                            default:
+                                                return <div>Unknown filter type</div>
                                         }
                                     })()
                                 ))}
                             </Grid>
                             <Grid className={"no_padding_grid"} item md={1}>
-                                {this.state.fieldNames.map((label) => (
+                                {this.state.fieldNames.map((label, index) => (
                                     <HSBar
+                                        key={index}
                                         height={47.3}
                                         data={this.state.filterData[this.state.fieldNames.indexOf(label)]}
                                     />
