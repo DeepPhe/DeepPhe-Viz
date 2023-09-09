@@ -58,7 +58,7 @@
     user-select: none !important;
     position: relative !important;
     display: inline-block;
-    margin-left:65px;
+    margin-left: 65px;
 }
 
 .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--on::after, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::before, .switch.switch--graphite-small > .switch-toggle.switch-toggle--off::after {
@@ -114,5 +114,5 @@
 .switch-box {
     display: initial;
     justify-content: right;
-    height:47px !important;
+    height: 47px !important;
 }

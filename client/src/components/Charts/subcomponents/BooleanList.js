@@ -5,19 +5,20 @@ class BooleanList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            definition: props.definition,
-            selected: props.selected,
-            onSelect: props.onSelect
+            definition: props.definition
         };
     }
 
-    toggleActivityEnabled = activity => ({enabled}) => {
-
-    }
-    handleToggleSwitch = (switchId) => ({enabled}) => {
-        console.log("Switch id: " + switchId + " enabled: " + enabled)
-        this.setState({[switchId]: enabled})
+    handleToggleSwitch = (switchId, switchIndex) => ({enabled}) => {
+        this.setState({...this.state.definition.switches[switchIndex].value = enabled});
     };
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log(this.state.definition.fieldName + ":")
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
+    }
 
     render() {
         return (
@@ -31,24 +32,17 @@ class BooleanList extends Component {
                                 const name = fieldName + "_" + switchName
                                 const enabled = item.value //true/false
                                 //const categoryIdx =
-                                  //  this.props.definition.globalPatientCountsForCategories.findIndex(x => x.category === switchName)
+                                //  this.props.definition.globalPatientCountsForCategories.findIndex(x => x.category === switchName)
                                 //const categoryCount = enabled ? this.props.definition.globalPatientCountsForCategories[categoryIdx].count : 0
                                 return <ToggleSwitch key={index} wantsdivs={0} label={name} theme="graphite-small"
                                                      enabled={enabled}
-                                                     onStateChanged={this.handleToggleSwitch(name)}/>
+                                                     onStateChanged={this.handleToggleSwitch(name, index)}/>
                             })}
                         </div>
                     </div>
                 </div>
             </React.Fragment>
         );
-    }
-
-    handleChange(index, event) {
-        let value = this.state.value;
-        value[index] = event.target.checked;
-        this.setState({value: value});
-        this.props.onChange(value);
     }
 }
 

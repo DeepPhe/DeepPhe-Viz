@@ -340,13 +340,13 @@ function Patient() {
     //     $("#table_view_" + factId).addClass(cssClass);
     // });
 
-    $(document).on("click", ".fact", function(event) {
-        function hasParentClass(child, classname){
-            if(child.className.split(' ').indexOf(classname) >= 0) return true;
-            try{
+    $(document).on("click", ".fact", function (event) {
+        function hasParentClass(child, classname) {
+            if (child.className.split(' ').indexOf(classname) >= 0) return true;
+            try {
                 //Throws TypeError if child doesn't have parent any more
                 return child.parentNode && hasParentClass(child.parentNode, classname);
-            }catch(TypeError){
+            } catch (TypeError) {
                 return false;
             }
         }
@@ -355,16 +355,16 @@ function Patient() {
         $('.fact').removeClass(cssClass);
         let factId = event.target.id
         let fact_id_prefix = ''
-        if (hasParentClass(event.target,"cancer_and_tnm")) {
+        if (hasParentClass(event.target, "cancer_and_tnm")) {
 
         }
 
-        if (hasParentClass(event.target,"table_view")) {
+        if (hasParentClass(event.target, "table_view")) {
             factId = factId.replace("table_view_", "");
             fact_id_prefix = "#table_view_";
         }
 
-        if (hasParentClass(event.target,"list_view")) {
+        if (hasParentClass(event.target, "list_view")) {
             factId = factId.replace("list_view_", "");
             fact_id_prefix = "#list_view_";
         }
@@ -671,7 +671,8 @@ function Patient() {
                 <div className={"mainFooter"}>
                     <Row>
                         <Col md={1}></Col>
-                        <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer" href="https://itcr.cancer.gov/">National Cancer
+                        <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer"
+                                                        href="https://itcr.cancer.gov/">National Cancer
                             Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
                         <Col md={1}></Col>
                         <Col md={5}>©2021 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical

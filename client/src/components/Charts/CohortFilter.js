@@ -15,7 +15,6 @@ import NumericRangeSelector from "./subcomponents/NumericRangeSelector";
 import BooleanList from "./subcomponents/BooleanList";
 
 
-
 const ageRangeLookup = {}
 ageRangeLookup[0] = "0-10";
 ageRangeLookup[1] = "10-20";
@@ -330,10 +329,11 @@ export default class CohortFilter extends React.Component {
                                                                                  definition={filterDefinition}/>;
 
                                             case "numericRangeSelector":
-                                                return <NumericRangeSelector key={index}  definition={filterDefinition}/>;
+                                                return <NumericRangeSelector key={index}
+                                                                             definition={filterDefinition}/>;
 
                                             case "booleanList":
-                                                return <BooleanList  key={index} definition={filterDefinition}/>;
+                                                return <BooleanList key={index} definition={filterDefinition}/>;
                                             default:
                                                 return <div>Unknown filter type</div>
                                         }

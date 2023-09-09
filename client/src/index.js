@@ -40,7 +40,7 @@ const themeDark = createTheme({
     palette: {
         background: {
             default: "#f5f5f5",
-            secondary:"#333"
+            secondary: "#333"
         },
         text: {
             primary: "#ffffff"
@@ -56,18 +56,18 @@ const themeDark = createTheme({
     }
 });
 
-class DebugRouter extends BrowserRouter {
-    constructor(props){
-        super(props);
-        console.log('initial history is: ', JSON.stringify(this.history, null,2))
-        this.history.listen((location, action)=>{
-            console.log(
-                `The current URL is ${location.pathname}${location.search}${location.hash}`
-            )
-            console.log(`The last navigation action was ${action}`, JSON.stringify(this.history, null,2));
-        });
-    }
-}
+// class DebugRouter extends BrowserRouter {
+//     constructor(props) {
+//         super(props);
+//         console.log('initial history is: ', JSON.stringify(this.history, null, 2))
+//         this.history.listen((location, action) => {
+//             console.log(
+//                 `The current URL is ${location.pathname}${location.search}${location.hash}`
+//             )
+//             console.log(`The last navigation action was ${action}`, JSON.stringify(this.history, null, 2));
+//         });
+//     }
+// }
 
 ReactDOM.render(
     <Router history={hist}>
@@ -75,11 +75,12 @@ ReactDOM.render(
             <CssBaseline/>
             <Switch>
                 <Route exact path="/deepphe/dashboard" component={Deepphe}/>
-                <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
+                <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary"
+                       component={CancerAndTumorSummaryView}/>
                 {/*<Route path="/patient/:patientId/timeline" component={TimelineView}/>*/}
                 <Route exact path="/deepphe/patient/:patientId" component={Patient}/>
 
-                <Redirect from="/" to="/deepphe/dashboard" />
+                <Redirect from="/" to="/deepphe/dashboard"/>
             </Switch>
         </ThemeProvider>
     </Router>

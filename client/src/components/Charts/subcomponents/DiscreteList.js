@@ -17,7 +17,8 @@ class DiscreteList extends Component {
                 <div id={"diagnosis-overlay-row"}>
                     <div id={"diagnosis-row"} className={"row no-gutter"}>
                         {this.state.definition.globalPatientCountsForCategories.map((item, index) => {
-                           return <span key={index} className={"box-for-word-filter blue-border-for-word-filter"}>{item.category}</span>
+                            return <span key={index}
+                                         className={"box-for-word-filter blue-border-for-word-filter"}>{item.category}</span>
                         })}
                     </div>
                 </div>

@@ -11,7 +11,6 @@ class ToggleSwitch extends Component {
     state = {enabled: this.enabledFromProps(), wantsdivs: this.props.wantsdivs}
 
 
-
     isEnabled = () => this.state.enabled
 
     enabledFromProps() {

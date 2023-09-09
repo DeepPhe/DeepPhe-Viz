@@ -7,28 +7,30 @@ class CategoricalRangeSelector extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            definition: props.definition,
-            selected: props.selected,
-            onSelect: props.onSelect
+            definition: props.definition
         }
     }
 
     handleRangeChange = (e: ChangeResult) => {
-        this.setState({selectedStages: e})
+        let selectedCategoricalRange = []
+        for (let i = e[0]; i <= e[1]; i++)
+            selectedCategoricalRange.push(this.state.definition.globalPatientCountsForCategories[i].category)
+        this.setState({...this.state.definition.selectedCategoricalRange = selectedCategoricalRange})
+    };
+
+    handleToggleSwitch = (switchId, switchIndex) => ({enabled}) => {
+        this.setState({...this.state.definition.switches[switchIndex].value = enabled});
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
         console.log(this.state.definition.fieldName + ":")
-        console.log("    Beginning Category: " + this.state.definition.selectedCategoricalRange[e[0]])
-        console.log("    Ending Category: " + this.state.definition.selectedCategoricalRange[e[1]])
+        console.log("    Range: " + this.state.definition.selectedCategoricalRange[0] + " - " + this.state.definition.selectedCategoricalRange[this.state.definition.selectedCategoricalRange.length - 1])
         this.state.definition.switches.forEach(switchInfo => {
             console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
         })
-
-
-    };
-
-    toggleActivityEnabled = activity => ({enabled}) => {
     }
-    render() {
 
+    render() {
         const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
         const selectedCategorialRange = this.state.definition.selectedCategoricalRange
         const marks = {}
@@ -41,7 +43,6 @@ class CategoricalRangeSelector extends Component {
                 maxSelectedInRange = Math.max(maxSelectedInRange, index)
             }
             return true;
-
         })
 
         return (
@@ -49,16 +50,22 @@ class CategoricalRangeSelector extends Component {
                 <div id={"stage-overlay-row"}>
                     <div id={"stage-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
-
-                            <Slider range min={0} max={globalPatientCountsForCategories.length-1}
+                            <Slider range min={0} max={globalPatientCountsForCategories.length - 1}
                                     defaultValue={[minSelectedInRange, maxSelectedInRange]}
                                     onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} marks={marks} dots={false} step={1}/>
                         </div>
 
-                        <ToggleSwitch wantsdivs={0} label={"Present"} theme="graphite-small"
-                                      enabled={true}
-                                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                        {this.state.definition.switches.map((item, index) => {
+                            const fieldName = this.props.definition.fieldName
+                            const switchName = item.name
+                            const name = fieldName + "_" + switchName
+                            const enabled = item.value //true/false
+
+                            return <ToggleSwitch key={index} wantsdivs={0} label={name} theme="graphite-small"
+                                                 enabled={enabled}
+                                                 onStateChanged={this.handleToggleSwitch(name, index)}/>
+                        })}
                     </div>
                 </div>
             </React.Fragment>

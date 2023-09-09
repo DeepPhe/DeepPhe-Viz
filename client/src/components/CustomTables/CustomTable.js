@@ -14,15 +14,20 @@ class CustomTable extends React.Component {
     };
 
     processResponse = (response) => {
-         let arr = response.patients;
-         for (let i = 0; i < arr.length; i++) {
-             if (arr[i]["patientId"] === this.props.match.params.patientId) {
-                 let item = arr[i];
-                 this.setState({ptId: item["patientId"], ptName: item["patientName"], ptAgeB: item["firstEncounterAge"], ptAgeE: item["lastEncounterAge"]});
-                 break;
-             }
-         }
-     }
+        let arr = response.patients;
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i]["patientId"] === this.props.match.params.patientId) {
+                let item = arr[i];
+                this.setState({
+                    ptId: item["patientId"],
+                    ptName: item["patientName"],
+                    ptAgeB: item["firstEncounterAge"],
+                    ptAgeE: item["lastEncounterAge"]
+                });
+                break;
+            }
+        }
+    }
 
     componentDidMount() {
         const fetchData = async () => {

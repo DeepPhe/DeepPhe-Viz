@@ -3,55 +3,31 @@ import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
 import ToggleSwitch from "../../CustomButtons/ToggleSwitch";
 
-
 class NumericRangeSelector extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            definition: props.definition,
-            selected: props.selected,
-            onSelect: props.onSelect
+            definition: props.definition
         }
     }
 
-    handleRangeChange = (e: ChangeResult) => {
-        this.setState({selectedRanges: e})
+    handleRangeChange = (range: ChangeResult) => {
+        this.setState({...this.state.definition.selectedNumericRange.min = range[0]});
+        this.setState({...this.state.definition.selectedNumericRange.max = range[1]});
+    };
+
+    handleToggleSwitch = (switchId, switchIndex) => ({enabled}) => {
+        this.setState({...this.state.definition.switches[switchIndex].value = enabled});
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
         console.log(this.state.definition.fieldName + ":")
-        console.log("    Range " + e)
+        console.log("    Range " + this.state.definition.selectedNumericRange.min + " - " + this.state.definition.selectedNumericRange.max)
         this.state.definition.switches.forEach(switchInfo => {
             console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
         })
-
-        // this.buildQuery()
-    };
-
-    toggleActivityEnabled = activity => ({enabled}) => {
-
-        // const selector = "#" + activity.filterDefinition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"
-        // if (enabled) {
-        //     $(selector).removeClass("overlay-row")
-        // } else {
-        //     $(selector).addClass("overlay-row")
-        // }
-
-
-        // let {only} = this.state;
-        //
-        // if (enabled && !only.includes(activity)) {
-        //     only.push(activity);
-        //     return this.setState({only});
-        // }
-        //
-        // if (!enabled && only.includes(activity)) {
-        //     only = only.filter(item => item !== activity);
-        //     return this.setState({only});
-        // }
     }
-
-
     render() {
-
-
         //const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
         const selectedNumericRange = this.state.definition.selectedNumericRange
         const numericRangeSelectorDefinition = this.state.definition.numericRangeSelectorDefinition
@@ -60,12 +36,11 @@ class NumericRangeSelector extends Component {
         const maxSelectedInRange = selectedNumericRange.max;
         const markStep = (numericRangeSelectorDefinition.max - numericRangeSelectorDefinition.min) / 10;
 
-       let markIndex = 0;
-       while (markIndex < 11) {
+        let markIndex = 0;
+        while (markIndex < 11) {
             marks[markIndex * markStep] = "" + markIndex * markStep
             markIndex++
         }
-
 
         return (
             <React.Fragment>
@@ -73,16 +48,22 @@ class NumericRangeSelector extends Component {
                     <div id={"age-at-dx-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
                             <Slider range min={numericRangeSelectorDefinition.min}
-                                    max={numericRangeSelectorDefinition.max+1}
+                                    max={numericRangeSelectorDefinition.max + 1}
                                     defaultValue={[minSelectedInRange, maxSelectedInRange]}
                                     onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} dots={false} included={true} marks={marks}
                                     step={numericRangeSelectorDefinition.step}/>
                         </div>
+                        {this.state.definition.switches.map((item, index) => {
+                            const fieldName = this.props.definition.fieldName
+                            const switchName = item.name
+                            const name = fieldName + "_" + switchName
+                            const enabled = item.value //true/false
 
-                        <ToggleSwitch wantsdivs={0} label={"Present"} theme="graphite-small"
-                                      enabled={true}
-                                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                            return <ToggleSwitch key={index} wantsdivs={0} label={name} theme="graphite-small"
+                                                 enabled={enabled}
+                                                 onStateChanged={this.handleToggleSwitch(name, index)}/>
+                        })}
                     </div>
                 </div>
             </React.Fragment>

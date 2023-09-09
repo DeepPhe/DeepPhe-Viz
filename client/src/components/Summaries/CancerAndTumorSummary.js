@@ -2,9 +2,9 @@ import React from "react";
 
 import Handlebars from "handlebars";
 import ReactDOM from "react-dom";
-import { withRouter } from "react-router-dom";
+import {withRouter} from "react-router-dom";
 
-const { Component, createElement } = React;
+const {Component, createElement} = React;
 
 const source = `
     {{#if cancers.length}}
@@ -222,7 +222,7 @@ class CancerAndTumorSummary extends Component {
         return (
             <div
                 className="container"
-                dangerouslySetInnerHTML={{ __html: template(this.props) }}
+                dangerouslySetInnerHTML={{__html: template(this.props)}}
             />
         );
     }

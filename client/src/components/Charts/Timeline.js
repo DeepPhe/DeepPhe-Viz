@@ -10,8 +10,8 @@ export default class Timeline extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-           json : null,
-            patientId : this.props.patientId
+            json: null,
+            patientId: this.props.patientId
         };
         this.getUrl.bind(this);
         this.fetchData.bind(this);
@@ -42,7 +42,7 @@ export default class Timeline extends React.Component {
             renderTimeline("timeline", response.patientInfo, response.reportTypes, response.typeCounts, response.maxVerticalCountsPerType, response.episodes, response.episodeCounts, response.episodeDates, response.reportData, response.reportsGroupedByDateAndTypeObj)
         }
         const renderTimeline = (svgContainerId, patientInfo, reportTypes, typeCounts, maxVerticalCountsPerType, episodes, episodeCounts, episodeDates, reportData, reportsGroupedByDateAndTypeObj) => {
-           // console.log(reportTypes)
+            // console.log(reportTypes)
 
             //next line might not belong
             let factBasedReports = {};
@@ -181,7 +181,7 @@ export default class Timeline extends React.Component {
                 const cssClass = "highlighted_term";
 
                 // Sort the textMentions array first based on beginOffset
-                textMentions.sort(function(a, b) {
+                textMentions.sort(function (a, b) {
                     let comp = a.beginOffset - b.beginOffset;
                     if (comp === 0) {
                         return b.endOffset - a.endOffset;
@@ -221,7 +221,7 @@ export default class Timeline extends React.Component {
                             if (textMention.beginOffset < lastValidTM.endOffset) {
                                 // Push end of the document
                                 continue; // Skipping this TM.
-                            } else{
+                            } else {
                                 textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                             }
                         }
@@ -244,18 +244,15 @@ export default class Timeline extends React.Component {
             }
 
 
-
-
-
             function getReport(reportId, factId) {
                 // Must use encodeURIComponent() otherwise may have URI parsing issue
                 $.ajax({
-                    url: baseUri + '/reports/' + reportId ,
+                    url: baseUri + '/reports/' + reportId,
                     method: 'GET',
-                    async : true,
-                    dataType : 'json'
+                    async: true,
+                    dataType: 'json'
                 })
-                    .done(function(response) {
+                    .done(function (response) {
 
                         let reportText = response.reportText;
                         let mentionedTerms = response.mentionedTerms;
@@ -288,7 +285,7 @@ export default class Timeline extends React.Component {
                         let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
                         mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
 
-                        mentionedTerms.forEach(function(obj) {
+                        mentionedTerms.forEach(function (obj) {
                             console.log(JSON.stringify(obj))
                             let fact_based_term_class = '';
                             if (factBasedTerms.indexOf(obj.term) !== -1) {
@@ -352,15 +349,16 @@ export default class Timeline extends React.Component {
 
             // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
             // to have a consistent report type order
-           //console.log("reportTypes: " + reportTypes);
+            //console.log("reportTypes: " + reportTypes);
             //console.log("reportData: " + JSON.stringify(reportData));
-            if (reportTypes !==null) {
-            reportTypes.forEach(function(key) {
-                totalMaxVerticalCounts += maxVerticalCountsPerType[key];
-                if (typeof verticalPositions[key] === 'undefined') {
-                    verticalPositions[key] = totalMaxVerticalCounts;
-                }
-            })};
+            if (reportTypes !== null) {
+                reportTypes.forEach(function (key) {
+                    totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+                    if (typeof verticalPositions[key] === 'undefined') {
+                        verticalPositions[key] = totalMaxVerticalCounts;
+                    }
+                })
+            }
 
             const margin = {top: 20, right: 20, bottom: 10, left: 250};
             const mainReportTypeRowHeightPerCount = 16;
@@ -401,7 +399,7 @@ export default class Timeline extends React.Component {
             const parseTime = d3.timeParse("%Y-%m-%d");
 
             // Convert string to date
-            if (reportData !==null) {
+            if (reportData !== null) {
                 reportData.forEach(function (d) {
                     // Format the date to a human-readable string first, formatTime() takes Date object instead of string
                     // d.origTime.slice(0, 19) returns the time string without the time zone part.
@@ -664,7 +662,7 @@ export default class Timeline extends React.Component {
                     if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
                         return;
                     }
-                    ;
+
 
                     let transform = d3.event.transform;
 
@@ -1060,10 +1058,10 @@ export default class Timeline extends React.Component {
         this.fetchData(url).then(
             function (response) {
                 response.json().then(
-                    function(jsonResponse) {
-                        processTimelineResponse(jsonResponse) })
+                    function (jsonResponse) {
+                        processTimelineResponse(jsonResponse)
+                    })
             });
-
 
 
     }
