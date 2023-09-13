@@ -795,7 +795,7 @@ th {
 }
 
 .report_mentioned_term {
-    float: left;
+    /*float: left;*/
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
     cursor: pointer;
@@ -809,6 +809,10 @@ th {
 
 .mentioned_terms_list:last-child {
     margin-right: 0;
+}
+
+.highlight_terms {
+    background: #a8d1ff;
 }
 
 .current_mentioned_term {

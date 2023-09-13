@@ -38,7 +38,7 @@ export default class BiomarkerOverview extends React.Component {
         const newWidth = document.getElementById('biomarkers').clientWidth;
         this.setState({width: newWidth, height: 350});
         let it = d3.select(".biomarkers_overview_chart")
-        it._groups[0][0].setAttribute("width", newWidth)
+        // it._groups[0][0].setAttribute("width", newWidth)
 
     };
 

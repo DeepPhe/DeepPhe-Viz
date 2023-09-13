@@ -4,6 +4,11 @@ import * as $ from "jquery";
 
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
+let initialHighlightedDoc = '';
+let mentionedTerms = '';
+let reportTextRight = '';
+export { mentionedTerms };
+export { reportTextRight };
 
 export default class Timeline extends React.Component {
 
@@ -76,189 +81,224 @@ export default class Timeline extends React.Component {
                 // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
                 // 5 is position tweak
                 reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
+
             }
 
-            // Get fact details by ID
-// We need patientId because sometimes a fact may have matching TextMention nodes from different paitents
-//             function getFact(patientId, factId) {
-//                 $.ajax({
-//                     url: baseUri + '/fact/' + patientId + '/' + factId,
-//                     method: 'GET',
-//                     async : true,
-//                     dataType : 'json'
-//                 })
-//                     .done(function(response) {
-//                         let docIds = Object.keys(response.groupedTextProvenances);
-//
-//                         // Render the html fact info
-//                         let factHtml = '<ul class="fact_detail_list">'
-//                             + '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
-//
-//                         if (docIds.length > 0) {
-//                             factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
-//
-//                             docIds.forEach(function(id) {
-//                                 let group = response.groupedTextProvenances[id];
-//                                 // Use a combination of reportId and factId to identify this element
-//                                 factHtml += '<li class="grouped_text_provenance"><span class="fact_detail_report_id"><i class="fa fa-file-o"></i> <span id="' + id + "_" + factId + '" data-report="' + id + '" data-fact="' + factId + '" class="fact_based_report_id">' + id + '</span> --></span><ul id="terms_list_' + id + "_" + factId + '">';
-//
-//                                 let innerHtml = "";
-//                                 group.textCounts.forEach(function(textCount) {
-//                                     innerHtml += '<li><span class="fact_based_term_span">' + textCount.text + '</span> <span class="count">(' + textCount.count + ')</span></li>';
-//                                 });
-//
-//                                 factHtml += innerHtml + '</ul></li>';
-//                             });
-//                         }
-//
-//                         factHtml += '</ul>';
-//
-//                         // Fade in the fact detail. Need to hide the div in order to fade in.
-//                         $('#fact_detail').hide().html(factHtml).fadeIn('slow');
-//
-//                         // Also highlight the report and corresponding text mentions if this fact has text provanences in the report
-//                         // Highlight report circles in timeline
-//                         if (docIds.length > 0) {
-//                             // Remove the previouly fact-based highlighting
-//                             $('.main_report').removeClass("fact_highlighted_report");
-//
-//                             docIds.forEach(function(id) {
-//                                 // Set fill-opacity to 1
-//                                 highlightReportBasedOnFact(id);
-//
-//                                 // Add to the global factBasedReports object for highlighting
-//                                 // the fact-based terms among all extracted terms of a given report
-//                                 if (typeof factBasedReports[id] === "undefined") {
-//                                     factBasedReports[id] = {};
-//                                 }
-//
-//                                 if (typeof factBasedReports[id][factId] === "undefined") {
-//                                     // Define an array for each factId
-//                                     factBasedReports[id][factId] = [];
-//                                 }
-//
-//                                 // If not already added, add terms
-//                                 // Otherwise reuse what we have in the memory
-//                                 if (factBasedReports[id][factId].length === 0) {
-//                                     // Only store the unique text
-//                                     response.groupedTextProvenances[id].terms.forEach(function(obj) {
-//                                         if (factBasedReports[id][factId].indexOf(obj.term) === -1) {
-//                                             factBasedReports[id][factId].push(obj.term);
-//                                         }
-//                                     });
-//                                 }
-//                             });
-//
-//                             // Also show the content of the first report
-//                             // The docIds is sorted
-//                             getReport(docIds[0], factId);
-//
-//                             // And highlight the current displaying report circle with a thicker stroke
-//                             highlightSelectedTimelineReport(docIds[0])
-//                         } else {
-//                             // Dehighlight the previously selected report dot
-//                             const css = "selected_report";
-//                             $('.main_report').removeClass(css);
-//                             $('.overview_report').removeClass(css);
-//                             // Also remove the "fact_highlighted_report" class
-//                             $('.main_report').removeClass("fact_highlighted_report");
-//
-//                             // And empty the report area
-//                             $('#report_id').empty();
-//                             $('#report_mentioned_terms').empty();
-//                             $('#report_text').empty();
-//                         }
-//                     })
-//                     .fail(function () {
-//                         console.log("Ajax error - can't get fact");
-//                     });
-//             }
-//             function highlightReportBasedOnFact(reportId) {
-//                 d3.select('#main_' + reportId).classed("fact_highlighted_report", true);
-//             }
 
-            function highlightTextMentions(textMentions, reportText) {
+
+
+
+            // Highlight one or multiple text mentions
+            function highlightTextMentions(textMentions, reportText, term = "NONE") {
                 const cssClass = "highlighted_term";
+                const cssClassAll = "highlight_terms";
 
-                // Sort the textMentions array first based on beginOffset
-                textMentions.sort(function(a, b) {
-                    let comp = a.beginOffset - b.beginOffset;
-                    if (comp === 0) {
-                        return b.endOffset - a.endOffset;
-                    } else {
-                        return comp;
-                    }
-                });
+                console.log("======sorted textMentions======");
+                // console.log(textMentions);
+
+                // Flatten the ranges, this is the key to solve overlapping
+                textMentions = flattenRanges(textMentions);
 
                 let textFragments = [];
+                let lastValidTMIndex = 0;
 
-                if (textMentions.length === 1) {
-                    let textMention = textMentions[0];
+                for (let i = 0; i < textMentions.length; i++) {
+                    let textMention = textMentions[i];
+                    let lastValidTM = textMentions[lastValidTMIndex];
 
-                    if (textMention.beginOffset === 0) {
-                        textFragments.push('');
-                    } else {
-                        textFragments.push(reportText.substring(0, textMention.beginOffset));
-                    }
-
-                    textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-                    textFragments.push(reportText.substring(textMention.endOffset));
-                } else {
-                    let lastValidTMIndex = 0;
-
-                    for (let i = 0; i < textMentions.length; i++) {
-                        let textMention = textMentions[i];
-                        let lastValidTM = textMentions[lastValidTMIndex];
-
-                        // If this is the first textmention, paste the start of the document before the first TM.
-                        if (i === 0) {
-                            if (textMention.beginOffset === 0) {
-                                textFragments.push('');
-                            } else {
-                                textFragments.push(reportText.substring(0, textMention.beginOffset));
-                            }
-                        } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-                            if (textMention.beginOffset < lastValidTM.endOffset) {
-                                // Push end of the document
-                                continue; // Skipping this TM.
-                            } else{
-                                textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
-                            }
+                    // If this is the first textmention, paste the start of the document before the first TM.
+                    if (i === 0) {
+                        if (textMention.beginOffset === 0) {
+                            textFragments.push('');
+                        } else {
+                            // console.log("Upper:", reportText.substring(0, textMention.beginOffset));
+                            textFragments.push(reportText.substring(0, textMention.beginOffset));
                         }
+                    } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
+                        // console.log(textMention.text);
+                        // console.log("start of new mention: ",textMention.beginOffset);
+                        // console.log("end of last valid mention: ", lastValidTM.endOffset);
+                        if (parseInt(textMention.beginOffset) <= parseInt(lastValidTM.endOffset)) {
+                            lastValidTMIndex = i;
+                            // console.log("text:", textMention.text);
 
-                        textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-                        lastValidTMIndex = i;
+                            // continue; // Skipping this TM.
+                        } else {
+
+                            // console.log("Lower:", reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                            textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                        }
                     }
-                    // Push end of the document
-                    textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
+                    // console.log("textMentions:", textMention);
+                    // console.log("term: " , textMention.text);
+                    if(term === textMention.text){
+                        textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+                    }
+                    else{
+                        textFragments.push('<span class="' + cssClassAll + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+                    }
+
+                    lastValidTMIndex = i;
                 }
+                // Push end of the document
+
+                textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
 
                 // Assemble the final report content with highlighted texts
                 let highlightedReportText = '';
 
                 for (let j = 0; j < textFragments.length; j++) {
+                    // console.log(textFragments[j]);
                     highlightedReportText += textFragments[j];
                 }
+                const e = new Event("change");
+                    const element = document.querySelector('input[type=radio][name="sort_order"]');
+                    element.dispatchEvent(e);
 
-                return highlightedReportText;
+                    return highlightedReportText;
+                }
+
+            const variablesObj = {
+                'topography_major': {
+                    'visible': false,
+                    'value': '',
+                    'bgcolor': '#cfe2ff',
+                    'mentions': []
+                },
+                'topography_minor': {
+                    'visible': false,
+                    'value': '',
+                    'bgcolor': '#cfe2ff',
+                    'mentions': []
+                },
+                'topography': {
+                    'visible': true,
+                    'value': '',
+                    'bgcolor': '#cfe2ff',
+                    'mentions': []
+                },
+                'histology': {
+                    'visible': false,
+                    'value': '',
+                    'bgcolor': '#f8d7da',
+                    'mentions': []
+                },
+                'behavior': {
+                    'visible': false,
+                    'value': '',
+                    'bgcolor': '#f8d7da',
+                    'mentions': []
+                },
+                'morphology': {
+                    'visible': true,
+                    'value': '',
+                    'bgcolor': '#f8d7da',
+                    'mentions': []
+                },
+                'laterality': {
+                    'visible': true,
+                    'value': '',
+                    'bgcolor': '#ffe69c',
+                    'mentions': []
+                },
+                'grade': {
+                    'visible': true,
+                    'value': '',
+                    'bgcolor': '#a3cfbb',
+                    'mentions': []
+                }
+            };
+
+            function buildColorDistribution(textMention) {
+                let colorDistribution = [];
+                let increment = (100/textMention.count).toFixed(2);
+
+                for (let i = 0; i < textMention.count; i++) {
+                    let bgcolor = "highlight_terms";
+                    let start = (i > 0) ? i*increment + "%" : 0;
+                    let finish = (i < textMention.count - 1) ? (i + 1)*increment + "%" : "100%";
+                    colorDistribution.push(bgcolor + " " + start);
+                    colorDistribution.push(bgcolor + " " + finish);
+                }
+
+                return colorDistribution;
+            }
+
+            function flattenRanges(ranges) {
+                console.log("======input ranges======");
+                console.log(ranges);
+
+                let points = [];
+                let flattened = [];
+                for (let i in ranges) {
+                    if (ranges[i].endOffset < ranges[i].beginOffset) { //RE-ORDER THIS ITEM (BEGIN/END)
+                        let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
+                        ranges[i].endOffset = ranges[i].beginOffset;
+                        ranges[i].beginOffset = tmp;
+                    }
+
+                    points.push(ranges[i].beginOffset);
+                    points.push(ranges[i].endOffset);
+                }
+
+                //MAKE SURE OUR LIST OF POINTS IS IN ORDER
+                points.sort(function(a, b) {
+                    return a - b;
+                });
+
+                // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
+                // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
+                for (let i in points) {
+                    if (i === 0 || points[i] === points[i-1]) continue;
+                    let includedRanges = ranges.filter(function(x) {
+                        return (Math.max(x.beginOffset,points[i-1]) < Math.min(x.endOffset,points[i]));
+                    });
+
+                    if (includedRanges.length > 0) {
+                        let flattenedRange = {
+                            beginOffset:points[i-1],
+                            endOffset:points[i],
+                            count:0
+                        }
+
+                        for (let j in includedRanges) {
+                            let includedRange = includedRanges[j];
+
+                            for (let prop in includedRange) {
+                                if (prop !== 'beginOffset' && prop !== 'endOffset') {
+                                    if (!flattenedRange[prop]) flattenedRange[prop] = [];
+                                    flattenedRange[prop].push(includedRange[prop]);
+                                }
+                            }
+
+                            flattenedRange.count++;
+                        }
+
+                        flattened.push(flattenedRange);
+                    }
+                }
+
+                console.log("======flattened ranges======");
+                console.log(flattened);
+
+                return flattened;
             }
 
 
-
-
-
             function getReport(reportId, factId) {
+                $("#docs").show();
                 // Must use encodeURIComponent() otherwise may have URI parsing issue
                 $.ajax({
-                    url: baseUri + '/reports/' + reportId ,
+                    url: baseUri + '/reports/' + reportId,
                     method: 'GET',
-                    async : true,
-                    dataType : 'json'
+                    async: true,
+                    dataType: 'json'
                 })
-                    .done(function(response) {
+                    .done(function (response) {
 
                         let reportText = response.reportText;
-                        let mentionedTerms = response.mentionedTerms;
+                        // console.log(reportText);
+                        mentionedTerms = response.mentionedTerms;
 
                         // If there are fact based reports, highlight the displaying one
                         const currentReportCssClass = 'current_displaying_report';
@@ -284,18 +324,22 @@ export default class Timeline extends React.Component {
                         // mentionedTerms doesn't have position info, so we need to keep the posiiton info
                         // for highlighting and scroll to
                         let factBasedTermsWithPosition = [];
-
                         let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
                         mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
-
+                        let textMentions = [];
+                        const uniqueArr = [];
                         mentionedTerms.forEach(function(obj) {
-                            console.log(JSON.stringify(obj))
+                            //console.log(JSON.stringify(obj))
                             let fact_based_term_class = '';
                             if (factBasedTerms.indexOf(obj.term) !== -1) {
                                 factBasedTermsWithPosition.push(obj);
                                 fact_based_term_class = ' fact_based_term';
                             }
-                            renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
+                            // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
+                            if(!uniqueArr.includes(obj.term)) {
+                                uniqueArr.push(obj.term);
+                                renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
+                            }
                         });
                         renderedMentionedTerms += "</ol>";
 
@@ -306,15 +350,46 @@ export default class Timeline extends React.Component {
                             scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
                         } else {
                             let reportTextDiv = $("#report_text");
-                            // Show report content, either highlighted or not
-                            reportTextDiv.html(reportText);
+                            //highlight all mentions
+                            //console.log(mentionedTerms);
+                            textMentions = highlightAllMentions(mentionedTerms);
+                            let highlightedReportText = highlightTextMentions(textMentions, reportText);
+
+                            // Use html() for html rendering
+                            //show the highlightedreport instead of just reportText
+                            initialHighlightedDoc = highlightedReportText;
+                            reportTextDiv.html(highlightedReportText);
+                            // highlightTextMentions(textMentions, reportText);
+                            // let reportTextDiv = $("#report_text");
+                            // // Show report content, either highlighted or not
+                            // reportTextDiv.html(reportText);
                             // Scroll back to top of the report content div
                             reportTextDiv.animate({scrollTop: 0}, "fast");
+                            reportTextRight = $("#report_text").text();
                         }
                     })
                     .fail(function () {
                         console.log("Ajax error - can't get report");
                     });
+            }
+
+            function highlightAllMentions(mentionedTerms) {
+                let textMentions = [];
+                mentionedTerms = mentionedTerms.sort(function (a, b) {
+                    return parseInt(a.begin) - parseInt(b.begin) || parseInt(a.end) - parseInt(b.end);
+                });
+
+                mentionedTerms.forEach(function(obj) {
+                    //grabbing mention begin and end so that I can highlight each mention at the start
+                    let textMentionObj = {};
+                    textMentionObj.text = obj.term;
+                    textMentionObj.beginOffset = obj.begin;
+                    textMentionObj.endOffset = obj.end;
+                    //console.log(textMentionObj);
+                    textMentions.push(textMentionObj);
+                });
+
+                return textMentions;
             }
 
             function highlightSelectedTimelineReport(reportId) {
