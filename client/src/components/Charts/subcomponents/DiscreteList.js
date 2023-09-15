@@ -3,9 +3,7 @@ import React, {Component} from "react";
 class DiscreteList extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition
-        }
+
     }
 
     render() {

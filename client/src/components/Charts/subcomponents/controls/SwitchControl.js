@@ -2,23 +2,31 @@ import React, {Component} from "react";
 import ToggleSwitch from "../../../CustomButtons/ToggleSwitch";
 
 class SwitchControl extends Component {
+    state = {
+        definition: this.props.definition
+    }
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition
-        }
     }
 
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
+    }
     handleToggleSwitch = (switchId, switchIndex) => ({enabled}) => {
-        this.setState({...this.state.definition.switches[switchIndex].value = enabled});
+        this.setState({...this.state.definition.switches[switchIndex].value = enabled, updated: false});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {definition} = this.state
-        console.log(definition.fieldName + ":")
-        definition.switches.forEach(switchInfo => {
-            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
-        })
+        if (this.state.updated === false) {
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
+
+        // const {definition} = this.props
+        // console.log(definition.fieldName + ":")
+        // definition.switches.forEach(switchInfo => {
+        //     console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        // })
     }
 
     render() {

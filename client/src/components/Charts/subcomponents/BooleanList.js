@@ -2,16 +2,34 @@ import React, {Component} from "react";
 import SwitchControl from "./controls/SwitchControl";
 
 class BooleanList extends Component {
+    //why does this update twice?  Not a huge deal...but it's annoying
+ state = {
+        definition: this.props.definition,
+        updated: false
+    };
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition
-        };
     }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //
-    // }
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
+    }
+
+    handleSwitchUpdate = (definition) => {
+        this.setState({definition: definition, updated: false})
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.updated === false) {
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
+
+        console.log(this.state.definition.fieldName + ":")
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
+    }
 
     render() {
         const {definition} = this.props
@@ -20,7 +38,7 @@ class BooleanList extends Component {
                 <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
                     <div id={"boolean-list-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
-                            <SwitchControl definition = {definition}/>
+                            <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition = {definition}/>
                         </div>
                     </div>
                 </div>

@@ -4,25 +4,43 @@ import {ChangeResult} from "multi-range-slider-react";
 import SwitchControl from "./controls/SwitchControl";
 
 class CategoricalRangeSelector extends Component {
+    state: any = {
+        definition: this.props.definition,
+        updated: false
+    }
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition
-        }
+    }
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
     }
 
     handleRangeChange = (e: ChangeResult) => {
-        const {definition} = this.props
+        const {definition} = this.state
         let selectedCategoricalRange = []
         for (let i = e[0]; i <= e[1]; i++)
             selectedCategoricalRange.push(definition.globalPatientCountsForCategories[i].category)
         this.setState({...definition.selectedCategoricalRange = selectedCategoricalRange})
+        this.setState({updated: false})
     };
 
+    handleSwitchUpdate = (definition) => {
+        this.setState({definition: definition, updated: false})
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.updated === false) {
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
+
         const {definition} = this.props
         console.log(definition.fieldName + ":")
         console.log("    Range: " + definition.selectedCategoricalRange[0] + " - " + definition.selectedCategoricalRange[definition.selectedCategoricalRange.length - 1])
+
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
     }
 
     render() {
@@ -51,7 +69,7 @@ class CategoricalRangeSelector extends Component {
                                     onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} marks={marks} dots={false} step={1}/>
                         </div>
-                        <SwitchControl definition = {definition}/>
+                        <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition = {definition}/>
                     </div>
                 </div>
             </React.Fragment>

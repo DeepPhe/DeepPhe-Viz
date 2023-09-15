@@ -4,27 +4,47 @@ import {ChangeResult} from "multi-range-slider-react";
 import SwitchControl from "./controls/SwitchControl";
 
 class NumericRangeSelector extends Component {
+    state: any = {
+        definition: this.props.definition,
+        updated: false
+    }
+
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition
-        }
+    }
+
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
     }
 
     handleRangeChange = (range: ChangeResult) => {
-       const {definition} = this.props;
-        this.setState({...definition.selectedNumericRange.min = range[0]});
-        this.setState({...definition.selectedNumericRange.max = range[1]});
+        const {definition} = this.state;
+        this.setState({...definition.patientsMeetingThisFilterOnly = range[1], ...definition.selectedNumericRange.min = range[0], ...definition.selectedNumericRange.max = range[1]});
+        this.setState({updated: false})
+
     };
 
-
+    handleSwitchUpdate = (definition) => {
+        this.setState({definition: definition, updated: false})
+    }
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.updated === false) {
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
+
         const {definition} = this.props;
         console.log(definition.fieldName + ":")
         console.log("    Range " + definition.selectedNumericRange.min + " - " + definition.selectedNumericRange.max)
+
+        this.state.definition.switches.forEach(switchInfo => {
+            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        })
+
     }
+
     render() {
-        const {definition} = this.props;
+        const {definition} = this.state;
         //const globalPatientCountsForCategories = definition.globalPatientCountsForCategories
         const selectedNumericRange = definition.selectedNumericRange
         const numericRangeSelectorDefinition = definition.numericRangeSelectorDefinition
@@ -51,7 +71,7 @@ class NumericRangeSelector extends Component {
                                     draggableTrack={true} pushable={true} dots={false} included={true} marks={marks}
                                     step={numericRangeSelectorDefinition.step}/>
                         </div>
-                        <SwitchControl definition = {definition}/>
+                        <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition={definition}/>
                     </div>
                 </div>
             </React.Fragment>
