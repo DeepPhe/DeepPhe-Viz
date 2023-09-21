@@ -109,7 +109,6 @@ a {
     border-color: rgb(232, 232, 232);
     padding: 10px !important;
     overflow-y: auto;
-    height: 500px;
 }
 
 #mentions_container label {
@@ -803,6 +802,11 @@ th {
     white-space: pre-wrap;
 }
 
+.colored_white_space {
+    background: #a8d1ff;
+}
+
+
 .display_report_id {
     margin-left: 3px;
     font-weight: bold;
@@ -822,11 +826,10 @@ th {
     padding: 3px 2px 0;
     cursor: pointer;
     background: #a8d1ff;
-}
-
-.add_float {
+    border-radius: 5px;
     float: left;
 }
+
 
 /* Highlight the fact-based terms among all extracted terms */
 .fact_based_term {
@@ -844,6 +847,7 @@ th {
 
 .current_mentioned_term {
     background: #FFDC00;
+    border-radius: 5px;
 }
 
 .count {
@@ -853,6 +857,7 @@ th {
 .highlighted_term {
     /*display: inline-block;*/
     background: #FFDC00;
+    border-radius: 5px;
 }
 
 

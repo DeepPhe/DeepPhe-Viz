@@ -1083,6 +1083,7 @@ const getCategoryClass = (categoryClass) => {
     // ];
 
     const categoryClassesArr = [
+        'behavior',
         'topography_major',
         'er_',
         'pr_',
@@ -1093,7 +1094,6 @@ const getCategoryClass = (categoryClass) => {
         'histology',
         'stage',
         'grade',
-        'behavior',
         't',
         'n',
         'm',

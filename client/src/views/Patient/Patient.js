@@ -79,7 +79,7 @@ function Patient() {
         $('#main_' + reportId).addClass(css);
         $('#overview_' + reportId).addClass(css);
         $("#occ_radio").prop('checked', true);
-        $("#stack_radio").prop('checked', true);
+        // $("#stack_radio").prop('checked', true);
         const e = new Event("change");
         const element = document.querySelector('input[type=radio][name="sort_order"]');
         element.dispatchEvent(e);
@@ -142,9 +142,9 @@ function Patient() {
         for (let j = 0; j < textFragments.length; j++) {
             highlightedReportText += textFragments[j];
         }
-        const e = new Event("change");
-        const element = document.querySelector('input[type=radio][name="sort_order"]');
-        element.dispatchEvent(e);
+        // const e = new Event("change");
+        // const element = document.querySelector('input[type=radio][name="sort_order"]');
+        // element.dispatchEvent(e);
 
         return highlightedReportText;
     }
@@ -333,8 +333,8 @@ function Patient() {
                 renderedMentionedTerms += "</ol>";
 
                 $('#report_mentioned_terms').html(renderedMentionedTerms);
-                sortMentions("occurrence");
-                viewMentions("stack");
+                // sortMentions("occurrence");
+                // viewMentions("stack");
 
                 // Also scroll to the first fact based term if any in the report text
                 if (factBasedTermsWithPosition.length > 0) {
@@ -659,6 +659,7 @@ function Patient() {
     }
 
     function sortMentions(method) {
+        console.log("Sorting mentions");
         // Declaring Variables
         let geek_list, i, run, li, stop;
         // Taking content of list as input
@@ -712,23 +713,24 @@ function Patient() {
 
     $('input[type=radio][name="sort_order"]').change(function () {
         const value = $(this).val();
+        console.log(value);
         if (value === "alphabetically") {
             sortMentions(value);
-        } else {
-            //only other option
-            sortMentions("occurrence")
+        }
+        else if (value === "occurrence"){
+            sortMentions(value);
         }
     })
 
-    $('input[type=radio][name="view_order"]').change(function (){
-        const value = $(this).val();
-        console.log(value);
-        if (value === "brick") {
-            viewMentions(value)
-        } else {
-            viewMentions("stack")
-        }
-    })
+    // $('input[type=radio][name="view_order"]').change(function (){
+    //     const value = $(this).val();
+    //     console.log(value);
+    //     if (value === "brick") {
+    //         viewMentions(value)
+    //     } else {
+    //         viewMentions("stack")
+    //     }
+    // })
 
     $(document).on("input", "#mention_search_input", function () {
 
@@ -863,18 +865,18 @@ function Patient() {
                                                                <label
                                                                    htmlFor="alpha_radio">&nbsp; Alphabetically</label>
                                                             </GridItem>
-                                                            <GridItem xs={12} id="view_label">View mentions:</GridItem>
-                                                            <GridItem md={12} lg={6} className="sort_view_item">
-                                                                <input id="stack_radio" type="radio" name="view_order"
-                                                                       value="stack"></input>
-                                                                <label htmlFor="stack_radio">&nbsp; By Stack</label>
-                                                            </GridItem>
-                                                            <GridItem md={12} lg={6} className="sort_radio_item">
-                                                               <input id="brick_radio" type="radio" name="view_order"
-                                                                      value="brick"></input>
-                                                               <label
-                                                                   htmlFor="brick_radio">&nbsp; By Brick Wall</label>
-                                                            </GridItem>
+                                                            {/*<GridItem xs={12} id="view_label">View mentions:</GridItem>*/}
+                                                            {/*<GridItem md={12} lg={6} className="sort_view_item">*/}
+                                                            {/*    <input id="stack_radio" type="radio" name="view_order"*/}
+                                                            {/*           value="stack"></input>*/}
+                                                            {/*    <label htmlFor="stack_radio">&nbsp; By Stack</label>*/}
+                                                            {/*</GridItem>*/}
+                                                            {/*<GridItem md={12} lg={6} className="sort_radio_item">*/}
+                                                            {/*   <input id="brick_radio" type="radio" name="view_order"*/}
+                                                            {/*          value="brick"></input>*/}
+                                                            {/*   <label*/}
+                                                            {/*       htmlFor="brick_radio">&nbsp; By Brick Wall</label>*/}
+                                                            {/*</GridItem>*/}
 
                                                             <div id="report_mentioned_terms"></div>
                                                         </GridContainer>
