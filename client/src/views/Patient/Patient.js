@@ -79,6 +79,7 @@ function Patient() {
         $('#main_' + reportId).addClass(css);
         $('#overview_' + reportId).addClass(css);
         $("#occ_radio").prop('checked', true);
+        $("#stack_radio").prop('checked', true);
         const e = new Event("change");
         const element = document.querySelector('input[type=radio][name="sort_order"]');
         element.dispatchEvent(e);
@@ -332,7 +333,8 @@ function Patient() {
                 renderedMentionedTerms += "</ol>";
 
                 $('#report_mentioned_terms').html(renderedMentionedTerms);
-                sortMentions("occurrence")
+                sortMentions("occurrence");
+                viewMentions("stack");
 
                 // Also scroll to the first fact based term if any in the report text
                 if (factBasedTermsWithPosition.length > 0) {
@@ -638,6 +640,23 @@ function Patient() {
     });
 
     $("#occ_radio").prop('checked', true);
+    $("#stack_radio").prop('checked', true);
+
+
+    function viewMentions(method) {
+        if(method === "stack"){
+            //change css to exclude float in report_mentioned_term
+            const css = "add_float";
+            $('.report_mentioned_term').removeClass(css);
+        }
+        else if (method === "brick"){
+            //change css to include float in report_mentioned_term
+            console.log("did this button work?");
+            const css = "add_float";
+            $('.report_mentioned_term').addClass(css);
+        }
+
+    }
 
     function sortMentions(method) {
         // Declaring Variables
@@ -698,6 +717,16 @@ function Patient() {
         } else {
             //only other option
             sortMentions("occurrence")
+        }
+    })
+
+    $('input[type=radio][name="view_order"]').change(function (){
+        const value = $(this).val();
+        console.log(value);
+        if (value === "brick") {
+            viewMentions(value)
+        } else {
+            viewMentions("stack")
         }
     })
 
@@ -833,6 +862,18 @@ function Patient() {
                                                                       value="alphabetically"></input>
                                                                <label
                                                                    htmlFor="alpha_radio">&nbsp; Alphabetically</label>
+                                                            </GridItem>
+                                                            <GridItem xs={12} id="view_label">View mentions:</GridItem>
+                                                            <GridItem md={12} lg={6} className="sort_view_item">
+                                                                <input id="stack_radio" type="radio" name="view_order"
+                                                                       value="stack"></input>
+                                                                <label htmlFor="stack_radio">&nbsp; By Stack</label>
+                                                            </GridItem>
+                                                            <GridItem md={12} lg={6} className="sort_radio_item">
+                                                               <input id="brick_radio" type="radio" name="view_order"
+                                                                      value="brick"></input>
+                                                               <label
+                                                                   htmlFor="brick_radio">&nbsp; By Brick Wall</label>
                                                             </GridItem>
 
                                                             <div id="report_mentioned_terms"></div>

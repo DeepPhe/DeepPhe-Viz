@@ -54,6 +54,8 @@ a {
 #zoom_controls {
     text-align: right;
     margin-top: 10px;
+    /*flex-basis: 75% !important;  view on the left*/
+    /*max-width: 75% !important;*/
 }
 
 #mention_search_input {
@@ -67,19 +69,34 @@ a {
 
 #report_mentioned_terms {
     margin-top: 5px;
+    height: 500px; /*change it so it's dynamic with main view*/
+    overflow-y: auto;
 }
 
 
 #mentions_container,
-#report_id,
 #report_instance {
     margin: 0px !important;
     padding: 0px !important;
+
 }
+/*delete to revert*/
+/*#report_id {*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    right: 0;*/
+/*    float: right;*/
+/*    padding: 5px;*/
+/*}*/
+/*delete to revert*/
 
 #mentions_container2 {
     padding: 0px !important;
     margin-top: -5px !important;
+    /*delete to revert*/
+    /*position: absolute;*/
+    /*right: 0;*/
+    /*delete to revert*/
 }
 
 .sort_radio_item > label {
@@ -91,6 +108,8 @@ a {
     border-width: 2px;
     border-color: rgb(232, 232, 232);
     padding: 10px !important;
+    overflow-y: auto;
+    height: 500px;
 }
 
 #mentions_container label {
@@ -99,6 +118,7 @@ a {
 
 #report_instance .makeStyles-grid-1 {
     margin: 0px !important;
+
 }
 
 #mentions_container div,
@@ -769,6 +789,9 @@ th {
     position: relative; /* Must explicitly specify the position of this dive for dynamic scrolling */
     float: left;
     width: 600px;
+    /*delete to revert*/
+    /*width: auto;*/
+    /*delete to revert*/
     height: 100%;
     padding: 10px 10px 10px 5px;
     overflow-y: scroll;
@@ -795,11 +818,14 @@ th {
 }
 
 .report_mentioned_term {
-    /*float: left;*/
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
     cursor: pointer;
     background: #a8d1ff;
+}
+
+.add_float {
+    float: left;
 }
 
 /* Highlight the fact-based terms among all extracted terms */
@@ -813,6 +839,7 @@ th {
 
 .highlight_terms {
     background: #a8d1ff;
+    border-radius: 5px;
 }
 
 .current_mentioned_term {
