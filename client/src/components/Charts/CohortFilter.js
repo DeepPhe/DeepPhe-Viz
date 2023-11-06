@@ -57,6 +57,7 @@ export default class CohortFilter extends React.Component {
         // if we process the arrays from shortest to longest
         // then we will identify failure points faster, i.e. when
         // one item is not in all arrays
+
         const ordered = (arrays.length === 1
                 ? arrays :
                 arrays.sort((a1, a2) => a1.length - a2.length)),
@@ -87,6 +88,7 @@ export default class CohortFilter extends React.Component {
         let filterDatas = new Array(that.state.fieldNames.length)
 
         that.state.fieldNames.forEach((fieldName, i) => {
+
             const fieldIdx =
                 that.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === fieldName)
             const numberOfPossiblePatientsForThisFilter =
@@ -196,44 +198,67 @@ export default class CohortFilter extends React.Component {
         window.removeEventListener('resize', this.updateDimensions);
     }
 
+    getCategoricalRangeSelectorValues(filterDefinition) {
+        const that = this
+        let matches = {}
+        let filterMatches = []
+        filterDefinition.selectedCategoricalRange.forEach((range) => {
+            const aryName = filterDefinition.fieldName.toLowerCase() + "." + range
+            const ary = that.state.patientArrays[aryName]
+            filterMatches = [...new Set([...filterMatches, ...ary])]
+        })
+
+        filterDefinition.numberOfPossiblePatientsForThisFilter = filterMatches.length
+        matches[filterDefinition.fieldName.toLowerCase()] = filterMatches
+        return matches
+    }
+
+    getBooleanListValues(filterDefinition) {
+        const that = this
+        let matches = {}
+        filterDefinition.switches.forEach((switchDefinition) => {
+            //console.log(switchDefinition)
+            if (switchDefinition.value) {
+                const aryName = filterDefinition.fieldName.toLowerCase() + "." + switchDefinition.name
+                matches[aryName] = that.state.patientArrays[aryName]
+            }
+        })
+        return matches
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log("component updated!")
+
         //need code to iterate of patientArrays, find the patientArrays that being with the fieldnames in the filterDefinitions,
         //then find the intersection of those arrays, and then update the cohort size bar
 
         //iterate over filterDefinitions
         //for each filterDefinition, find the patientArray that matches the fieldName
         const that = this;
+        let processed = []
+        let matches = {}
         if (!this.state.isLoading && !this.state.filterDefinitionLoading && !this.state.patientArraysLoading) {
             this.state.filterDefinitions.searchFilterDefinition.forEach((filterDefinition) => {
                 //console.log(filterDefinition.fieldName)
 
-                for (const [key,value] of Object.entries(that.state.patientArrays)) {
+                for (const [key, value] of Object.entries(that.state.patientArrays)) {
 
-                    if (key.toLowerCase().startsWith(filterDefinition.fieldName.toLowerCase())) {
+                    if (!processed.includes(key) && key.toLowerCase().startsWith(filterDefinition.fieldName.toLowerCase())) {
+                        processed.push(key)
                         switch (filterDefinition.class) {
                             case "discreteList":
                                 //console.log("discreteList")
                                 break;
                             case "categoricalRangeSelector":
-                                //console.log("categoricalRangeSelector")
+                                matches = {...matches, ...that.getCategoricalRangeSelectorValues(filterDefinition)}
+
                                 break;
                             case "numericRangeSelector":
-                                //console.log("numericRangeSelector")
+
+                                console.log("numericRangeSelector")
                                 break;
                             case "booleanList":
-                                //console.log("booleanList")
-                                filterDefinition.switches.forEach((switchDefinition) => {
-                                    //console.log(switchDefinition)
-                                    if (switchDefinition.value) {
-                                        //console.log(switchDefinition.name)
-                                        const aryName = filterDefinition.fieldName.toLowerCase() + "." + switchDefinition.name
-                                        const ary = that.state.patientArrays[aryName]
-                                        console.log("Found Patient Array Match - " + " " + aryName + ": " + ary)
-                                        //console.log(this.state.patientArrays[filterDefinition.fieldName + "." + switchDefinition.label])
-
-                                    }
-                                })
+                                matches = {...matches, ...that.getBooleanListValues(filterDefinition)}
 
                                 break;
                             default:
@@ -242,6 +267,19 @@ export default class CohortFilter extends React.Component {
                     }
                 }
             })
+        }
+        if (Object.keys(matches).length) {
+            let arr2 = []
+
+            for (const key in matches) {
+                if (matches.hasOwnProperty(key)) {
+                    console.log(`${key}: ${matches[key]}`);
+                    arr2.push(matches[key])
+
+                }
+            }
+
+            console.log(this.fastIntersection(...arr2))
         }
         if (prevState.filterDefinitions !== this.state.filterDefinitions) {
             this.state.filterDefinitions.searchFilterDefinition.forEach((e) => {

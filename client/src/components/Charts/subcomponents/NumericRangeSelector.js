@@ -19,6 +19,7 @@ class NumericRangeSelector extends Component {
 
     handleRangeChange = (range: ChangeResult) => {
         const {definition} = this.state;
+        debugger;
         this.setState({...definition.patientsMeetingThisFilterOnly = range[1], ...definition.selectedNumericRange.min = range[0], ...definition.selectedNumericRange.max = range[1]});
         this.setState({updated: false})
 

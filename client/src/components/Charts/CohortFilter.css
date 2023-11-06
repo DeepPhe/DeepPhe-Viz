@@ -57,8 +57,10 @@
     margin-right: 2px;
 }
 
+
 #boolean-list-row .switch {
-    width: 20% !important;
+    margin-right:5px;
+
     align-items: center;
     display: inline-flex;
 }
@@ -73,6 +75,7 @@
     width: 80% !important;
     height: 100% !important;
     margin-top: 3px !important;
+    display: flex;
 }
 
 .rc-slider {

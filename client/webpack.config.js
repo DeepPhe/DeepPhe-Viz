@@ -1,5 +1,5 @@
-resolve: {
-  fallback: {
-    fs: false
-  }
+{
+    {
+        false
+    }
 }
