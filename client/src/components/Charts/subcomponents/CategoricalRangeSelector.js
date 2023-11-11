@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
 import SwitchControl from "./controls/SwitchControl";
+import * as d3 from "d3v4";
+import $ from 'jquery';
 
 class CategoricalRangeSelector extends Component {
     state: any = {
@@ -17,6 +19,7 @@ class CategoricalRangeSelector extends Component {
 
     handleRangeChange = (e: ChangeResult) => {
         const {definition} = this.state
+
         let selectedCategoricalRange = []
         for (let i = e[0]; i <= e[1]; i++)
             selectedCategoricalRange.push(definition.globalPatientCountsForCategories[i].category)
@@ -41,6 +44,30 @@ class CategoricalRangeSelector extends Component {
         this.state.definition.switches.forEach(switchInfo => {
             console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
         })
+
+        var text = "IIA";
+
+        var search = $( "#stage-overlay-row span" ).filter( function ()
+        {
+            return $( this ).text().toLowerCase().indexOf( text.toLowerCase() ) >= 0;
+        }).first();
+        var x = $(search).offset().left;
+        var y = $(search).offset().top;
+        $("#IIA").remove();
+        search.append("<svg id='IIA' height=50 width=50 />")
+        let svg = d3.select("#IIA")
+        svg.style('position', 'absolute').style("top", "-20px")
+
+        debugger;
+        svg.append('rect')
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', 50)
+            .attr('height', 40)
+            .attr('stroke', 'black')
+            .attr('fill', '#69a3b2');
+
+
     }
 
     render() {
