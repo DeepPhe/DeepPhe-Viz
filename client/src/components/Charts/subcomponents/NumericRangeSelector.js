@@ -2,16 +2,9 @@ import React, {Component} from "react";
 import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
 import SwitchControl from "./controls/SwitchControl";
+import RangeSelector from "./RangeSelector";
 
-class NumericRangeSelector extends Component {
-    state: any = {
-        definition: this.props.definition,
-        updated: false
-    }
-
-    constructor(props) {
-        super(props);
-    }
+class NumericRangeSelector extends RangeSelector {
 
     broadcastUpdate = (definition) => {
         this.props.broadcastUpdate(definition)
@@ -42,6 +35,10 @@ class NumericRangeSelector extends Component {
             console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
         })
 
+    }
+
+    componentDidMount() {
+        this.addCountsToCategory()
     }
 
     render() {

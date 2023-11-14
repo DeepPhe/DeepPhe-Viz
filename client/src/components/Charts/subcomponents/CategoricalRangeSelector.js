@@ -1,18 +1,11 @@
-import React, {Component} from "react";
+import React from "react";
 import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
 import SwitchControl from "./controls/SwitchControl";
-import * as d3 from "d3v4";
-import $ from 'jquery';
+import RangeSelector from "./RangeSelector";
 
-class CategoricalRangeSelector extends Component {
-    state: any = {
-        definition: this.props.definition,
-        updated: false
-    }
-    constructor(props) {
-        super(props);
-    }
+class CategoricalRangeSelector extends RangeSelector {
+
     broadcastUpdate = (definition) => {
         this.props.broadcastUpdate(definition)
     }
@@ -21,8 +14,7 @@ class CategoricalRangeSelector extends Component {
         const {definition} = this.state
 
         let selectedCategoricalRange = []
-        for (let i = e[0]; i <= e[1]; i++)
-            selectedCategoricalRange.push(definition.globalPatientCountsForCategories[i].category)
+        for (let i = e[0]; i <= e[1]; i++) selectedCategoricalRange.push(definition.globalPatientCountsForCategories[i].category)
         this.setState({...definition.selectedCategoricalRange = selectedCategoricalRange})
         this.setState({updated: false})
     };
@@ -31,44 +23,52 @@ class CategoricalRangeSelector extends Component {
         this.setState({definition: definition, updated: false})
     }
 
+    componentDidMount() {
+        this.addCountsToCategory()
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.updated === false) {
             this.setState({updated: true})
             this.broadcastUpdate(this.state.definition)
         }
 
+        const that = this
         const {definition} = this.props
-        console.log(definition.fieldName + ":")
-        console.log("    Range: " + definition.selectedCategoricalRange[0] + " - " + definition.selectedCategoricalRange[definition.selectedCategoricalRange.length - 1])
 
-        this.state.definition.switches.forEach(switchInfo => {
-            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        let countMeetingThisFilter = 0
+        let numberOfPossiblePatientsForThisFilter = 0
+        definition.globalPatientCountsForCategories.forEach((item, index) => {
+            let idx = definition.selectedCategoricalRange.indexOf(item.category)
+            if (idx !== -1) {
+                countMeetingThisFilter += item.count
+            }
+            numberOfPossiblePatientsForThisFilter += item.count
         })
 
-        var text = "IIA";
+        ///might have to update the globl thing here
+        definition.numberOfPossiblePatientsForThisFilter = numberOfPossiblePatientsForThisFilter
+        definition.patientsMeetingThisFilterOnly = countMeetingThisFilter
 
-        var search = $( "#stage-overlay-row span" ).filter( function ()
-        {
-            return $( this ).text().toLowerCase().indexOf( text.toLowerCase() ) >= 0;
-        }).first();
-        var x = $(search).offset().left;
-        var y = $(search).offset().top;
-        $("#IIA").remove();
-        search.append("<svg id='IIA' height=50 width=50 />")
-        let svg = d3.select("#IIA")
-        svg.style('position', 'absolute').style("top", "-20px")
+        console
+            .log(definition
 
-        debugger;
-        svg.append('rect')
-            .attr('x', 0)
-            .attr('y', 0)
-            .attr('width', 50)
-            .attr('height', 40)
-            .attr('stroke', 'black')
-            .attr('fill', '#69a3b2');
+                .fieldName + ":")
+        console
+            .log("    Range: " + definition.selectedCategoricalRange
+                [0] + " - " + definition.selectedCategoricalRange
+                [definition.selectedCategoricalRange.length - 1])
 
-
+        this
+            .state
+            .definition
+            .switches
+            .forEach(switchInfo => {
+                console
+                    .log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+            })
     }
+
 
     render() {
         const {definition} = this.props
@@ -86,8 +86,7 @@ class CategoricalRangeSelector extends Component {
             return true;
         })
 
-        return (
-            <React.Fragment>
+        return (<React.Fragment>
                 <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
                     <div id={"categorical-range-selector-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
@@ -96,7 +95,7 @@ class CategoricalRangeSelector extends Component {
                                     onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} marks={marks} dots={false} step={1}/>
                         </div>
-                        <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition = {definition}/>
+                        <SwitchControl broadcastUpdate={this.handleSwitchUpdate} definition={definition}/>
                     </div>
                 </div>
             </React.Fragment>
