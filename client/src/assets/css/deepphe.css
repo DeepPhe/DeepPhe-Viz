@@ -825,10 +825,114 @@ th {
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
     cursor: pointer;
-    background: #a8d1ff;
+    background-image: linear-gradient(
+            -100deg,
+            #a8d1ff,
+            rgba(109, 116, 199, 0.7) 95%,
+            rgba(112, 121, 222, 0.1)
+    );
     border-radius: 5px;
     float: left;
 }
+
+.popUp {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.popUp .popUpText {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 9999;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.popUp:hover .popUpText {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+.report_mentioned_term_1 {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    background: linear-gradient(
+            90deg,
+            rgba(168, 209, 255, 0.6) 5%,
+            rgba(109, 116, 199, 0.6) 45%,
+            rgba(109, 116, 199, 0.6) 55%,
+            rgba(168, 209, 255, 0.6) 95%);
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_2 {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    background: linear-gradient(
+            90deg,
+            rgba(168, 209, 255, 0.6) 5%,
+            rgba(109, 116, 199, 0.75) 45%,
+            rgba(109, 116, 199, 0.75) 55%,
+            rgba(168, 209, 255, 0.6) 95%);
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_3 {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    background: linear-gradient(
+            90deg,
+            rgba(168, 209, 255, 0.6) 5%,
+            rgba(109, 116, 199, 0.9) 45%,
+            rgba(109, 116, 199, 0.9) 55%,
+            rgba(168, 209, 255, 0.6) 95%);
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_4 {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    background: linear-gradient(
+            90deg,
+            rgba(168, 209, 255, 0.6) 5%,
+            rgba(109, 116, 199, 1) 45%,
+            rgba(109, 116, 199, 1) 55%,
+            rgba(168, 209, 255, 0.6) 95%);
+    border-radius: 5px;
+    float: left;
+}
+
+
+/*.firstWordHighlight {*/
+/*    border-radius: 1em 0 1em 0;*/
+/*    background-image: linear-gradient(*/
+/*            -100deg,*/
+/*            rgba(255, 224, 0, 0.2),*/
+/*            rgba(255, 224, 0, 0.7),*/
+/*            rgba(255, 224, 0, 0.1),*/
+/*            #a8d1ff,*/
+/*            rgba(109, 116, 199, 0.7),*/
+/*            rgba(112, 121, 222, 0.1)*/
+/*    );*/
+/*}*/
 
 
 /* Highlight the fact-based terms among all extracted terms */
@@ -841,8 +945,15 @@ th {
 }
 
 .highlight_terms {
-    background: #a8d1ff;
-    border-radius: 5px;
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #a8d1ff,
+            rgba(109, 116, 199, 0.7) 95%,
+            rgba(112, 121, 222, 0.1)
+    );
 }
 
 .current_mentioned_term {
@@ -856,8 +967,15 @@ th {
 
 .highlighted_term {
     /*display: inline-block;*/
-    background: #FFDC00;
-    border-radius: 5px;
+    /*background: #FFDC00;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            rgba(255, 224, 0, 0.2),
+            rgba(255, 224, 0, 0.7) 95%,
+            rgba(255, 224, 0, 0.1)
+    );
 }
 
 

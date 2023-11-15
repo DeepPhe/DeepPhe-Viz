@@ -56,7 +56,11 @@ export default class Timeline extends React.Component {
                 // Highlight the selected term in the term list
                 const cssClass = 'current_mentioned_term';
                 // First remove the previously added highlighting
-                $('.report_mentioned_term').removeClass(cssClass);
+                // $('.report_mentioned_term').removeClass(cssClass);
+                $('.report_mentioned_term_1').removeClass(cssClass);
+                $('.report_mentioned_term_2').removeClass(cssClass);
+                $('.report_mentioned_term_3').removeClass(cssClass);
+                $('.report_mentioned_term_4').removeClass(cssClass);
                 // Then add to this current one by selecting the attributes
                 $('li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]').addClass(cssClass);
 
@@ -93,8 +97,7 @@ export default class Timeline extends React.Component {
                 const cssClass = "highlighted_term";
                 const cssClassAll = "highlight_terms";
 
-                console.log("======sorted textMentions======");
-                // console.log(textMentions);
+                // console.log("======sorted textMentions======");
 
                 // Flatten the ranges, this is the key to solve overlapping
                 textMentions = flattenRanges(textMentions);
@@ -115,23 +118,15 @@ export default class Timeline extends React.Component {
                             textFragments.push(reportText.substring(0, textMention.beginOffset));
                         }
                     } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-                        // console.log(textMention.text);
-                        // console.log("start of new mention: ",textMention.beginOffset);
-                        // console.log("end of last valid mention: ", lastValidTM.endOffset);
+
                         if (parseInt(textMention.beginOffset) <= parseInt(lastValidTM.endOffset)) {
                             lastValidTMIndex = i;
-                            // console.log("text:", textMention.text);
 
-                            // continue; // Skipping this TM.
                         } else {
-
-                            // console.log("Lower:", reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                             textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                         }
                     }
-                    // console.log("textMentions:", textMention);
-                    // console.log("term: " , textMention.text);
-                    if(term === textMention.text){
+                    if (textMention.text.indexOf(term) > -1){
                         textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
                     }
                     else{
@@ -225,8 +220,8 @@ export default class Timeline extends React.Component {
             }
 
             function flattenRanges(ranges) {
-                console.log("======input ranges======");
-                console.log(ranges);
+                // console.log("======input ranges======");
+                // console.log(ranges);
 
                 let points = [];
                 let flattened = [];
@@ -278,8 +273,8 @@ export default class Timeline extends React.Component {
                     }
                 }
 
-                console.log("======flattened ranges======");
-                console.log(flattened);
+                // console.log("======flattened ranges======");
+                // console.log(flattened);
 
                 return flattened;
             }
@@ -328,22 +323,6 @@ export default class Timeline extends React.Component {
                         mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
                         let textMentions = [];
                         const uniqueArr = [];
-                        mentionedTerms.forEach(function(obj) {
-                            //console.log(JSON.stringify(obj))
-                            let fact_based_term_class = '';
-                            if (factBasedTerms.indexOf(obj.term) !== -1) {
-                                factBasedTermsWithPosition.push(obj);
-                                fact_based_term_class = ' fact_based_term';
-                            }
-                            // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
-                            if(!uniqueArr.includes(obj.term)) {
-                                uniqueArr.push(obj.term);
-                                renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
-                            }
-                        });
-                        renderedMentionedTerms += "</ol>";
-
-                        $('#report_mentioned_terms').html(renderedMentionedTerms);
 
                         // Also scroll to the first fact based term if any in the report text
                         if (factBasedTermsWithPosition.length > 0) {
@@ -353,6 +332,22 @@ export default class Timeline extends React.Component {
                             //highlight all mentions
                             //console.log(mentionedTerms);
                             textMentions = highlightAllMentions(mentionedTerms);
+
+                            const mentionCounter = {};
+
+                            textMentions.forEach(obj => {
+                                if (mentionCounter[obj.text.toString()]) {
+                                    mentionCounter[obj.text.toString()] += 1;
+                                } else {
+                                    mentionCounter[obj.text.toString()] = 1;
+                                }
+                                // obj.mentionFrequency = mentionCounter[obj.text.toString()];
+                            });
+
+                            textMentions.forEach(obj => {
+                                obj.mentionFrequency = mentionCounter[obj.text.toString()]
+                            })
+
                             let highlightedReportText = highlightTextMentions(textMentions, reportText);
 
                             // Use html() for html rendering
@@ -367,6 +362,37 @@ export default class Timeline extends React.Component {
                             reportTextDiv.animate({scrollTop: 0}, "fast");
                             reportTextRight = $("#report_text").text();
                         }
+
+                        textMentions.forEach(function(obj) {
+                            //console.log(JSON.stringify(obj))
+                            let fact_based_term_class = '';
+                            let popUp = 'popUp'
+                            if (factBasedTerms.indexOf(obj.text) !== -1) {
+                                factBasedTermsWithPosition.push(obj);
+                                fact_based_term_class = ' fact_based_term';
+                            }
+                            // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
+                            if(!uniqueArr.includes(obj.text)) {
+                                uniqueArr.push(obj.text);
+                                // renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '</li>';
+
+                                if(obj.mentionFrequency === 1){
+                                    renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + popUp + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                }
+                                else if(obj.mentionFrequency === 2){
+                                    renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                }
+                                else if(obj.mentionFrequency === 3){
+                                    renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                }
+                                else{
+                                    renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                }
+                            }
+                        });
+                        renderedMentionedTerms += "</ol>";
+
+                        $('#report_mentioned_terms').html(renderedMentionedTerms);
                     })
                     .fail(function () {
                         console.log("Ajax error - can't get report");
@@ -385,6 +411,7 @@ export default class Timeline extends React.Component {
                     textMentionObj.text = obj.term;
                     textMentionObj.beginOffset = obj.begin;
                     textMentionObj.endOffset = obj.end;
+                    textMentionObj.mentionFrequency = obj.frequency;
                     //console.log(textMentionObj);
                     textMentions.push(textMentionObj);
                 });

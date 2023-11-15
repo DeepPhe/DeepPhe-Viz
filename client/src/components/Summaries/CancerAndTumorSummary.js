@@ -83,18 +83,14 @@ const source = `
             <div id="list_view_{{cancerId}}" class="list_view">
             {{#each tumors.listViewData}}
                 <div class="list_view_tumor clearfix">
-                <div class="list_view_tumor_type" title="Click to expand/collapse">
-                  <span class="arrow">
-                    <i class="fa fa-dot-circle-o"></i>
-                    <i class="fa fa-caret-down"></i>
-                  </span> 
+                <div class="list_view_tumor_type">
                 {{type}}
                 
                     <ul class="list_view_tumor_list clearfix">
                     {{#each data}}
                         {{#if facts}}
                             {{! Don't show empty facts for now, use categoryClass as CSS selectors }}
-                            <li class="list_view_tumor_list_item {{categoryClass}}">
+                          <li class="list_view_tumor_list_item"> <!-- {{categoryClass}} for background color -->
 <!--                                    {{! Show full info of Body Site and Diagnosis, others just bars until expanded }}-->
 <!--                                    {{#ifEquals category "Body Site"}} -->
 <!--                                        <ul class="list_view_tumor_fact_list">-->

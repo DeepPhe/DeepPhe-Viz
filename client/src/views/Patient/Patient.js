@@ -33,7 +33,11 @@ function Patient() {
         // Highlight the selected term in the term list
         const cssClass = 'current_mentioned_term';
         // First remove the previously added highlighting
-        $('.report_mentioned_term').removeClass(cssClass);
+        // $('.report_mentioned_term').removeClass(cssClass);
+        $('.report_mentioned_term_1').removeClass(cssClass);
+        $('.report_mentioned_term_2').removeClass(cssClass);
+        $('.report_mentioned_term_3').removeClass(cssClass);
+        $('.report_mentioned_term_4').removeClass(cssClass);
         // Then add to this current one by selecting the attributes
         $('li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]').addClass(cssClass);
 
@@ -66,38 +70,36 @@ function Patient() {
         //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
     }
 
-    function highlightSelectedTimelineReport(reportId) {
-        // Remove previous added highlighting classes
-        const css = "selected_report";
-        $('.main_report').removeClass(css);
-        $('.overview_report').removeClass(css);
-
-        // Remove previous added font awesome icon
-        $('.selected_report_icon').remove();
-
-        // Highlight the selected circle in both overview and main areas
-        $('#main_' + reportId).addClass(css);
-        $('#overview_' + reportId).addClass(css);
-        $("#occ_radio").prop('checked', true);
-        // $("#stack_radio").prop('checked', true);
-        const e = new Event("change");
-        const element = document.querySelector('input[type=radio][name="sort_order"]');
-        element.dispatchEvent(e);
-    }
-
-
-
+    // function highlightSelectedTimelineReport(reportId) {
+    //     // Remove previous added highlighting classes
+    //     const css = "selected_report";
+    //     $('.main_report').removeClass(css);
+    //     $('.overview_report').removeClass(css);
+    //
+    //     // Remove previous added font awesome icon
+    //     $('.selected_report_icon').remove();
+    //
+    //     // Highlight the selected circle in both overview and main areas
+    //     $('#main_' + reportId).addClass(css);
+    //     $('#overview_' + reportId).addClass(css);
+    //     $("#occ_radio").prop('checked', true);
+    //     // $("#stack_radio").prop('checked', true);
+    //     const e = new Event("change");
+    //     const element = document.querySelector('input[type=radio][name="sort_order"]');
+    //     element.dispatchEvent(e);
+    // }
 
     function highlightTextMentions(textMentions, reportText, term = "NONE") {
 
         const cssClass = "highlighted_term";
         const cssClassAll = "highlight_terms";
 
-        // console.log("======sorted textMentions======");
-
         // Flatten the ranges, this is the key to solve overlapping
         textMentions = flattenRanges(textMentions);
         // console.log(textMentions);
+        console.log("is this being reached?");
+
+
 
         let textFragments = [];
         let lastValidTMIndex = 0;
@@ -120,11 +122,7 @@ function Patient() {
                     textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                 }
             }
-            // console.log("textMentions:", textMention);
-            // console.log("term: " , textMention.text);
-            // console.log(term);
             if (textMention.text.indexOf(term) > -1){
-            //if(term === textMention.text[0]){
                 textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
             }
             else{
@@ -218,8 +216,8 @@ function Patient() {
 
     //Function by Zhoe, helps with overlapping highlight mentions
     function flattenRanges(ranges) {
-        console.log("======input ranges======");
-        console.log(ranges);
+        // console.log("======input ranges======");
+        // console.log(ranges);
 
         let points = [];
         let flattened = [];
@@ -229,15 +227,19 @@ function Patient() {
                 ranges[i].endOffset = ranges[i].beginOffset;
                 ranges[i].beginOffset = tmp;
             }
-
             points.push(ranges[i].beginOffset);
             points.push(ranges[i].endOffset);
         }
+        // console.log("points: ", points);
+
 
         //MAKE SURE OUR LIST OF POINTS IS IN ORDER
+        //COMMENT THIS OUT LATER
         points.sort(function(a, b) {
             return a - b;
         });
+
+        // console.log("sorted points: ", points);
 
         // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
         // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
@@ -273,115 +275,98 @@ function Patient() {
             }
         }
 
-        console.log("======flattened ranges======");
-        console.log(flattened);
+        // console.log("======flattened ranges======");
+        // console.log(flattened);
 
         return flattened;
     }
 
-    function getReport(reportId, factId) {
-        $("#docs").show();
-        // Must use encodeURIComponent() otherwise may have URI parsing issue
-        $.ajax({
-            url: baseUri + '/reports/' + reportId,
-            method: 'GET',
-            async: true,
-            dataType: 'json'
-        })
-            .done(function (response) {
-
-                let reportText = response.reportText;
-                mentionedTerms = response.mentionedTerms;
-
-                // If there are fact based reports, highlight the displaying one
-                const currentReportCssClass = 'current_displaying_report';
-                const currentFactTermsCssClass = 'fact_based_term';
-                $('.fact_based_report_id').removeClass(currentReportCssClass);
-                $('.fact_based_term_span').removeClass(currentFactTermsCssClass);
-
-                // Highlight the curent displaying report name
-                $('#' + reportId + "_" + factId).addClass(currentReportCssClass);
-                // Also highlight all the fact-based text mentions in the fact info area
-                $('#terms_list_' + reportId + "_" + factId).children().find(">:first-child").addClass(currentFactTermsCssClass);
-
-                // Show report ID
-                $('#report_id').html('<i class="fa fa-file-o"></i><span class="display_report_id ' + currentReportCssClass + '">' + reportId + '</span>');
-
-                // Show rendered mentioned terms
-                // First check if this report is a fact-based report so we cna highlight the fact-related terms
-                let factBasedTerms = [];
-                if (Object.keys(factBasedReports).indexOf(reportId) !== -1 && Object.keys(factBasedReports[reportId]).indexOf(factId) !== -1) {
-                    factBasedTerms = factBasedReports[reportId][factId];
-                }
-
-                // mentionedTerms doesn't have position info, so we need to keep the posiiton info
-                // for highlighting and scroll to
-                let factBasedTermsWithPosition = [];
-                let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
-                mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
-                let textMentions = [];
-                mentionedTerms.forEach(function(obj) {
-                    //console.log(JSON.stringify(obj))
-                    let fact_based_term_class = '';
-                    if (factBasedTerms.indexOf(obj.term) !== -1) {
-                        factBasedTermsWithPosition.push(obj);
-                        fact_based_term_class = ' fact_based_term';
-                    }
-                    // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
-                    renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
-                });
-                renderedMentionedTerms += "</ol>";
-
-                $('#report_mentioned_terms').html(renderedMentionedTerms);
-                // sortMentions("occurrence");
-                // viewMentions("stack");
-
-                // Also scroll to the first fact based term if any in the report text
-                if (factBasedTermsWithPosition.length > 0) {
-                    scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
-                } else {
-                    let reportTextDiv = $("#report_text");
-                    //highlight all mentions
-                    //console.log(mentionedTerms);
-                    textMentions = highlightAllMentions(mentionedTerms);
-                    let highlightedReportText = highlightTextMentions(textMentions, reportText);
-                    // console.log(highlightedReportText);
-
-                    // Use html() for html rendering
-                    //show the highlightedreport instead of just reportText
-                    initialHighlightedDoc = highlightedReportText;
-                    reportTextDiv.html(highlightedReportText);
-                    // highlightTextMentions(textMentions, reportText);
-                    // let reportTextDiv = $("#report_text");
-                    // // Show report content, either highlighted or not
-                    // reportTextDiv.html(reportText);
-                    // Scroll back to top of the report content div
-                    reportTextDiv.animate({scrollTop: 0}, "fast");
-                }
-            })
-            .fail(function () {
-                console.log("Ajax error - can't get report");
-            });
-    }
-
-
+    // function getReport(reportId, factId) {
+    //     $("#docs").show();
+    //     // Must use encodeURIComponent() otherwise may have URI parsing issue
+    //     $.ajax({
+    //         url: baseUri + '/reports/' + reportId,
+    //         method: 'GET',
+    //         async: true,
+    //         dataType: 'json'
+    //     })
+    //         .done(function (response) {
+    //
+    //             let reportText = response.reportText;
+    //             mentionedTerms = response.mentionedTerms;
+    //
+    //             // If there are fact based reports, highlight the displaying one
+    //             const currentReportCssClass = 'current_displaying_report';
+    //             const currentFactTermsCssClass = 'fact_based_term';
+    //             $('.fact_based_report_id').removeClass(currentReportCssClass);
+    //             $('.fact_based_term_span').removeClass(currentFactTermsCssClass);
+    //
+    //             // Highlight the curent displaying report name
+    //             $('#' + reportId + "_" + factId).addClass(currentReportCssClass);
+    //             // Also highlight all the fact-based text mentions in the fact info area
+    //             $('#terms_list_' + reportId + "_" + factId).children().find(">:first-child").addClass(currentFactTermsCssClass);
+    //
+    //             // Show report ID
+    //             $('#report_id').html('<i class="fa fa-file-o"></i><span class="display_report_id ' + currentReportCssClass + '">' + reportId + '</span>');
+    //
+    //             // Show rendered mentioned terms
+    //             // First check if this report is a fact-based report so we cna highlight the fact-related terms
+    //             let factBasedTerms = [];
+    //             if (Object.keys(factBasedReports).indexOf(reportId) !== -1 && Object.keys(factBasedReports[reportId]).indexOf(factId) !== -1) {
+    //                 factBasedTerms = factBasedReports[reportId][factId];
+    //             }
+    //
+    //             // mentionedTerms doesn't have position info, so we need to keep the posiiton info
+    //             // for highlighting and scroll to
+    //             let factBasedTermsWithPosition = [];
+    //             let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
+    //             mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+    //             let textMentions = [];
+    //             mentionedTerms.forEach(function(obj) {
+    //                 //console.log(JSON.stringify(obj))
+    //                 let fact_based_term_class = '';
+    //                 if (factBasedTerms.indexOf(obj.term) !== -1) {
+    //                     factBasedTermsWithPosition.push(obj);
+    //                     fact_based_term_class = ' fact_based_term';
+    //                 }
+    //                 // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
+    //                 renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
+    //             });
+    //             renderedMentionedTerms += "</ol>";
+    //
+    //             $('#report_mentioned_terms').html(renderedMentionedTerms);
+    //             // sortMentions("occurrence");
+    //             // viewMentions("stack");
+    //
+    //             // Also scroll to the first fact based term if any in the report text
+    //             if (factBasedTermsWithPosition.length > 0) {
+    //                 scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
+    //             } else {
+    //                 let reportTextDiv = $("#report_text");
+    //
+    //                 let highlightedReportText = highlightTextMentions(textMentions, reportText);
+    //
+    //                 console.log("YO");
+    //                 initialHighlightedDoc = highlightedReportText;
+    //                 reportTextDiv.html(highlightedReportText);
+    //
+    //                 reportTextDiv.animate({scrollTop: 0}, "fast");
+    //             }
+    //         })
+    //         .fail(function () {
+    //             console.log("Ajax error - can't get report");
+    //         });
+    // }
 
     function highlightAllMentions(mentionedTerms) {
         let textMentions = [];
-        // (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
-
-        mentionedTerms = mentionedTerms.sort(function (a, b) {
-            return parseInt(a.begin) - parseInt(b.begin) || parseInt(a.end) - parseInt(b.end);
-        });
-        // beginDiff = a.begin -b.begin
-        // endDiff = a.end - b.end
-        // sort
         mentionedTerms.forEach(function(obj) {
             //grabbing mention begin and end so that I can highlight each mention at the start
             let textMentionObj = {};
             textMentionObj.text = obj.term;
             textMentionObj.beginOffset = obj.begin;
             textMentionObj.endOffset = obj.end;
+            textMentionObj.mentionFrequency = obj.frequency;
             //console.log(textMentionObj);
             textMentions.push(textMentionObj);
         });
@@ -389,109 +374,109 @@ function Patient() {
         return textMentions;
     }
 
-    function getFact(patientId, factId) {
-        $.ajax({
-            url: baseUri + '/fact/' + patientId + '/' + factId,
-            method: 'GET',
-            async: true,
-            dataType: 'json'
-        })
-            .done(function (response) {
-                let docIds = Object.keys(response.groupedTextProvenances);
-                // Render the html fact info
-                let factHtml = '<ul class="fact_detail_list">';
-
-                if (response.hasOwnProperty("prettyName")) {
-                    factHtml += '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
-                }
-
-                if (docIds.length > 0) {
-                    factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
-
-                    docIds.forEach(function (id) {
-                        let group = response.groupedTextProvenances[id];
-                        // Use a combination of reportId and factId to identify this element
-                        factHtml += '<li class="grouped_text_provenance"><span class="fact_detail_report_id"><i class="fa fa-file-o"></i> <span id="' + id + "_" + factId + '" data-report="' + id + '" data-fact="' + factId + '" class="fact_based_report_id">' + id + '</span> --></span><ul id="terms_list_' + id + "_" + factId + '">';
-
-                        let innerHtml = "";
-                        group.textCounts.forEach(function (textCount) {
-                            innerHtml += '<li><span class="fact_based_term_span">' + textCount.text + '</span> <span class="count">(' + textCount.count + ')</span></li>';
-                        });
-
-                        factHtml += innerHtml + '</ul></li>';
-                    });
-                } else {
-                    factHtml = '<span class="fact_detail_label">There are no direct mentions for this finding.</span>';
-                }
-
-                factHtml += '</ul>';
-
-                // Fade in the fact detail. Need to hide the div in order to fade in.
-                $('#fact_detail').html(factHtml);
-
-                // Also highlight the report and corresponding text mentions if this fact has text provanences in the report
-                // Highlight report circles in timeline
-                if (docIds.length > 0) {
-                    // Remove the previouly fact-based highlighting
-                    $('.main_report').removeClass("fact_highlighted_report");
-
-                    docIds.forEach(function (id) {
-                        // Set fill-opacity to 1
-                        highlightReportBasedOnFact(id);
-
-                        // Add to the global factBasedReports object for highlighting
-                        // the fact-based terms among all extracted terms of a given report
-                        if (typeof factBasedReports[id] === "undefined") {
-                            factBasedReports[id] = {};
-                        }
-
-                        if (typeof factBasedReports[id][factId] === "undefined") {
-                            // Define an array for each factId
-                            factBasedReports[id][factId] = [];
-                        }
-
-                        // If not already added, add terms
-                        // Otherwise reuse what we have in the memory
-                        if (factBasedReports[id][factId].length === 0) {
-                            // Only store the unique text
-                            response.groupedTextProvenances[id].terms.forEach(function (obj) {
-                                if (factBasedReports[id][factId].indexOf(obj.term) === -1) {
-                                    factBasedReports[id][factId].push(obj.term);
-                                }
-                            });
-                        }
-                    });
-
-                    // Also show the content of the first report
-                    // The docIds is sorted
-                    getReport(docIds[0], factId);
-
-                    // And highlight the current displaying report circle with a thicker stroke
-                    highlightSelectedTimelineReport(docIds[0])
-
-                    $("#report_instance").show();
-
-                } else {
-                    // Dehighlight the previously selected report dot
-                    const css = "selected_report";
-                    $('.main_report').removeClass(css);
-                    $('.overview_report').removeClass(css);
-                    // Also remove the "fact_highlighted_report" class
-                    $('.main_report').removeClass("fact_highlighted_report");
-
-                    // And empty the report area
-                    $('#report_id').empty();
-                    $('#report_mentioned_terms').empty();
-                    $('#report_text').empty();
-                    $("#docs").show();
-                    $("#report_instance").show();
-
-                }
-            })
-            .fail(function () {
-                console.log("Ajax error - can't get fact");
-            });
-    }
+    // function getFact(patientId, factId) {
+    //     $.ajax({
+    //         url: baseUri + '/fact/' + patientId + '/' + factId,
+    //         method: 'GET',
+    //         async: true,
+    //         dataType: 'json'
+    //     })
+    //         .done(function (response) {
+    //             let docIds = Object.keys(response.groupedTextProvenances);
+    //             // Render the html fact info
+    //             let factHtml = '<ul class="fact_detail_list">';
+    //
+    //             if (response.hasOwnProperty("prettyName")) {
+    //                 factHtml += '<li><span class="fact_detail_label">Selected Fact:</span> ' + response.sourceFact.prettyName + '</li>';
+    //             }
+    //
+    //             if (docIds.length > 0) {
+    //                 factHtml += '<li class="clearfix"><span class="fact_detail_label">Related Text Provenances in Source Reports:</span><ul>';
+    //
+    //                 docIds.forEach(function (id) {
+    //                     let group = response.groupedTextProvenances[id];
+    //                     // Use a combination of reportId and factId to identify this element
+    //                     factHtml += '<li class="grouped_text_provenance"><span class="fact_detail_report_id"><i class="fa fa-file-o"></i> <span id="' + id + "_" + factId + '" data-report="' + id + '" data-fact="' + factId + '" class="fact_based_report_id">' + id + '</span> --></span><ul id="terms_list_' + id + "_" + factId + '">';
+    //
+    //                     let innerHtml = "";
+    //                     group.textCounts.forEach(function (textCount) {
+    //                         innerHtml += '<li><span class="fact_based_term_span">' + textCount.text + '</span> <span class="count">(' + textCount.count + ')</span></li>';
+    //                     });
+    //
+    //                     factHtml += innerHtml + '</ul></li>';
+    //                 });
+    //             } else {
+    //                 factHtml = '<span class="fact_detail_label">There are no direct mentions for this finding.</span>';
+    //             }
+    //
+    //             factHtml += '</ul>';
+    //
+    //             // Fade in the fact detail. Need to hide the div in order to fade in.
+    //             $('#fact_detail').html(factHtml);
+    //
+    //             // Also highlight the report and corresponding text mentions if this fact has text provanences in the report
+    //             // Highlight report circles in timeline
+    //             if (docIds.length > 0) {
+    //                 // Remove the previouly fact-based highlighting
+    //                 $('.main_report').removeClass("fact_highlighted_report");
+    //
+    //                 docIds.forEach(function (id) {
+    //                     // Set fill-opacity to 1
+    //                     highlightReportBasedOnFact(id);
+    //
+    //                     // Add to the global factBasedReports object for highlighting
+    //                     // the fact-based terms among all extracted terms of a given report
+    //                     if (typeof factBasedReports[id] === "undefined") {
+    //                         factBasedReports[id] = {};
+    //                     }
+    //
+    //                     if (typeof factBasedReports[id][factId] === "undefined") {
+    //                         // Define an array for each factId
+    //                         factBasedReports[id][factId] = [];
+    //                     }
+    //
+    //                     // If not already added, add terms
+    //                     // Otherwise reuse what we have in the memory
+    //                     if (factBasedReports[id][factId].length === 0) {
+    //                         // Only store the unique text
+    //                         response.groupedTextProvenances[id].terms.forEach(function (obj) {
+    //                             if (factBasedReports[id][factId].indexOf(obj.term) === -1) {
+    //                                 factBasedReports[id][factId].push(obj.term);
+    //                             }
+    //                         });
+    //                     }
+    //                 });
+    //
+    //                 // Also show the content of the first report
+    //                 // The docIds is sorted
+    //                 getReport(docIds[0], factId);
+    //
+    //                 // And highlight the current displaying report circle with a thicker stroke
+    //                 highlightSelectedTimelineReport(docIds[0])
+    //
+    //                 $("#report_instance").show();
+    //
+    //             } else {
+    //                 // Dehighlight the previously selected report dot
+    //                 const css = "selected_report";
+    //                 $('.main_report').removeClass(css);
+    //                 $('.overview_report').removeClass(css);
+    //                 // Also remove the "fact_highlighted_report" class
+    //                 $('.main_report').removeClass("fact_highlighted_report");
+    //
+    //                 // And empty the report area
+    //                 $('#report_id').empty();
+    //                 $('#report_mentioned_terms').empty();
+    //                 $('#report_text').empty();
+    //                 $("#docs").show();
+    //                 $("#report_instance").show();
+    //
+    //             }
+    //         })
+    //         .fail(function () {
+    //             console.log("Ajax error - can't get fact");
+    //         });
+    // }
 
     // // Tumor fact click - List View
     // $(document).on("click", ".list_view .fact", function () {
@@ -577,38 +562,44 @@ function Patient() {
     });
 
     // Click the fact based report id to display report content
-    $(document).on("click", ".fact_based_report_id", function () {
-
-        const cssClass = 'current_displaying_report';
-        // First remove the previously added highlighting
-        $('.fact_based_report_id').removeClass(cssClass);
-        // Then add to this one
-        $(this).addClass(cssClass);
-
-        let reportId = $(this).attr('data-report');
-        let factId = $(this).attr('data-fact');
-
-
-        getReport(reportId, factId);
-
-        // Also highlight the selected report circle in timeline
-        highlightSelectedTimelineReport(reportId)
-
-    });
+    // $(document).on("click", ".fact_based_report_id", function () {
+    //
+    //     const cssClass = 'current_displaying_report';
+    //     // First remove the previously added highlighting
+    //     $('.fact_based_report_id').removeClass(cssClass);
+    //     // Then add to this one
+    //     $(this).addClass(cssClass);
+    //
+    //     let reportId = $(this).attr('data-report');
+    //     let factId = $(this).attr('data-fact');
+    //
+    //
+    //     getReport(reportId, factId);
+    //
+    //     // Also highlight the selected report circle in timeline
+    //     highlightSelectedTimelineReport(reportId)
+    //
+    // });
 
     // Click the report mentioned term to show it in the report text
-    $(document).on("click", ".report_mentioned_term", function () {
+    // $(document).on("click", ".report_mentioned_term", function () {
+    //
+    //     let obj = {};
+    //     obj.term = $(this).text();
+    //     obj.begin = $(this).data('begin');
+    //     obj.end = $(this).data('end');
+    //
+    //     scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
+    // });
+
+    $(document).on("click",
+        ".report_mentioned_term_1, .report_mentioned_term_2, .report_mentioned_term_3, .report_mentioned_term_4",
+        function () {
 
         let obj = {};
         obj.term = $(this).text();
         obj.begin = $(this).data('begin');
         obj.end = $(this).data('end');
-
-
-        // let reportText = $("#report_text").text();
-        // console.log(reportText);
-        //console.log(obj.term);
-        console.log(reportTextRight);
 
         scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
     });
@@ -643,23 +634,22 @@ function Patient() {
     $("#stack_radio").prop('checked', true);
 
 
-    function viewMentions(method) {
-        if(method === "stack"){
-            //change css to exclude float in report_mentioned_term
-            const css = "add_float";
-            $('.report_mentioned_term').removeClass(css);
-        }
-        else if (method === "brick"){
-            //change css to include float in report_mentioned_term
-            console.log("did this button work?");
-            const css = "add_float";
-            $('.report_mentioned_term').addClass(css);
-        }
-
-    }
+    // function viewMentions(method) {
+    //     if(method === "stack"){
+    //         //change css to exclude float in report_mentioned_term
+    //         const css = "add_float";
+    //         $('.report_mentioned_term').removeClass(css);
+    //     }
+    //     else if (method === "brick"){
+    //         //change css to include float in report_mentioned_term
+    //         console.log("did this button work?");
+    //         const css = "add_float";
+    //         $('.report_mentioned_term').addClass(css);
+    //     }
+    //
+    // }
 
     function sortMentions(method) {
-        console.log("Sorting mentions");
         // Declaring Variables
         let geek_list, i, run, li, stop;
         // Taking content of list as input
@@ -706,14 +696,13 @@ function Patient() {
                     run = true;
                 }
             }
-            console.log(uniqueArr);
+            // console.log(uniqueArr);
         }
 
     }
 
     $('input[type=radio][name="sort_order"]').change(function () {
         const value = $(this).val();
-        console.log(value);
         if (value === "alphabetically") {
             sortMentions(value);
         }
@@ -810,7 +799,7 @@ function Patient() {
                        </Card>
 
                        <Card>
-                           <CardHeader className={"basicCardHeader"}>Click on a Cancer or Tumor Detail</CardHeader>
+                           <CardHeader className={"basicCardHeader"}>Cancer and Tumor Detail</CardHeader>
                            <CardBody>
                                <div id="summary">
                                    <CancerAndTumorSummary cancers={cancers}></CancerAndTumorSummary>

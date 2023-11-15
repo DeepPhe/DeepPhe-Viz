@@ -17,6 +17,12 @@ const _ = require('lodash');
 //     //                            COHORT
 //     //
 //     ////////////////////////////////////////////////////////////////////////////////////////
+//    Location, Laterality, [Quadrant, Clockface], Histologic Type, Behavior, Stage, Grade, Extent, T, N, M, Tumor Type, [ER, PR, HER2]
+
+const factDisplayOrder = ["Location", "Laterality", "Quadrant", "Clockface", "Histologic Type", "Behavior",
+    "Stage", "Grade", "Extent", "T", "N", "M", "Tumor Type", "ER", "PR", "HER2"]
+
+
 
 const getCohortData = (neo4jRawArr) => {
     neo4jRawArr = JSON.parse(neo4jRawArr)
@@ -411,10 +417,12 @@ const getCancerAndTumorSummary = (neo4jRawArr) => {
             }
         }
         allCollatedCancerFacts = allCollatedCancerFacts.sort(function (a, b) {
-            const nameA = a.category;
-            const nameB = b.category;
-            if (nameA > nameB) return 1;
-            if (nameA < nameB) return -1;
+            // const nameA = a.category;
+            // const nameB = b.category;
+            const indexA = factDisplayOrder.indexOf(a.categoryName);
+            const indexB = factDisplayOrder.indexOf(b.categoryName);
+            if (indexA > indexB) return 1;
+            if (indexA < indexB) return -1;
             return 0;
         });
 
@@ -577,14 +585,12 @@ const getTumorSummary = (tumorsArr) => {
         targetTumor.data.sort((a, b) => {
             let sa = a.category;
             let sb = b.category;
+            const indexA = factDisplayOrder.indexOf(sa);
+            const indexB = factDisplayOrder.indexOf(sb);
 
-            if (sa < sb) {
-                return -1;
-            }
+            if (indexA < indexB) return -1;
+            if (indexA > indexB) return 1;
 
-            if (sa > sb) {
-                return 1;
-            }
             return 0;
         });
     });
@@ -1083,7 +1089,6 @@ const getCategoryClass = (categoryClass) => {
     // ];
 
     const categoryClassesArr = [
-        'behavior',
         'topography_major',
         'er_',
         'pr_',
@@ -1094,6 +1099,7 @@ const getCategoryClass = (categoryClass) => {
         'histology',
         'stage',
         'grade',
+        'behavior',
         't',
         'n',
         'm',
