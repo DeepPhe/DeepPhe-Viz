@@ -29,44 +29,50 @@ class CategoricalRangeSelector extends RangeSelector {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.updated === false) {
+            const that = this
+            const {definition} = this.props
+            let countMeetingThisFilter = 0
+            let numberOfPossiblePatientsForThisFilter = 0
+            definition.globalPatientCountsForCategories.forEach((item, index) => {
+                let idx = definition.selectedCategoricalRange.indexOf(item.category)
+                if (idx !== -1) {
+                    countMeetingThisFilter += item.count
+                }
+
+                numberOfPossiblePatientsForThisFilter += item.count
+            })
+
+            ///might have to update the globl thing here
+            definition.numberOfPossiblePatientsForThisFilter = numberOfPossiblePatientsForThisFilter
+            definition.patientsMeetingThisFilterOnly = countMeetingThisFilter
+           //patientsMeetingEntireSetOfFilters
+
+            // console
+            //     .log(definition
+            //
+            //         .fieldName + ":")
+            // console
+            //     .log("    Range: " + definition.selectedCategoricalRange
+            //         [0] + " - " + definition.selectedCategoricalRange
+            //         [definition.selectedCategoricalRange.length - 1])
+
+
             this.setState({updated: true})
             this.broadcastUpdate(this.state.definition)
+
+
         }
 
-        const that = this
-        const {definition} = this.props
 
-        let countMeetingThisFilter = 0
-        let numberOfPossiblePatientsForThisFilter = 0
-        definition.globalPatientCountsForCategories.forEach((item, index) => {
-            let idx = definition.selectedCategoricalRange.indexOf(item.category)
-            if (idx !== -1) {
-                countMeetingThisFilter += item.count
-            }
-            numberOfPossiblePatientsForThisFilter += item.count
-        })
 
-        ///might have to update the globl thing here
-        definition.numberOfPossiblePatientsForThisFilter = numberOfPossiblePatientsForThisFilter
-        definition.patientsMeetingThisFilterOnly = countMeetingThisFilter
-
-        console
-            .log(definition
-
-                .fieldName + ":")
-        console
-            .log("    Range: " + definition.selectedCategoricalRange
-                [0] + " - " + definition.selectedCategoricalRange
-                [definition.selectedCategoricalRange.length - 1])
-
-        this
-            .state
-            .definition
-            .switches
-            .forEach(switchInfo => {
-                console
-                    .log("    Switch " + switchInfo.name + ": " + switchInfo.value)
-            })
+        // this
+        //     .state
+        //     .definition
+        //     .switches
+        //     .forEach(switchInfo => {
+        //         console
+        //             .log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        //     })
     }
 
 

@@ -25,10 +25,10 @@ class BooleanList extends Component {
             this.broadcastUpdate(this.state.definition)
         }
 
-        console.log(this.state.definition.fieldName + ":")
-        this.state.definition.switches.forEach(switchInfo => {
-            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
-        })
+       // console.log(this.state.definition.fieldName + ":")
+      //  this.state.definition.switches.forEach(switchInfo => {
+        //    console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+      //  })
     }
 
     render() {

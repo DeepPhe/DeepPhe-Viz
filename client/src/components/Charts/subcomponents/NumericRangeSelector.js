@@ -28,12 +28,12 @@ class NumericRangeSelector extends RangeSelector {
         }
 
         const {definition} = this.props;
-        console.log(definition.fieldName + ":")
-        console.log("    Range " + definition.selectedNumericRange.min + " - " + definition.selectedNumericRange.max)
-
-        this.state.definition.switches.forEach(switchInfo => {
-            console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
-        })
+        // console.log(definition.fieldName + ":")
+        // console.log("    Range " + definition.selectedNumericRange.min + " - " + definition.selectedNumericRange.max)
+        //
+        // this.state.definition.switches.forEach(switchInfo => {
+        //     console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        // })
 
     }
 

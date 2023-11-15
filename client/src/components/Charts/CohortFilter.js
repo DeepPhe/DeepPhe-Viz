@@ -32,6 +32,7 @@ export default class CohortFilter extends React.Component {
         agents: [],
         comorbidity: [],
         diagnosis: [],
+        patientsMeetingAllFilters: [],
         patientArrays: null
     }
 
@@ -91,26 +92,48 @@ export default class CohortFilter extends React.Component {
 
             const fieldIdx =
                 that.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === fieldName)
+            const definition = that.state.filterDefinitions.searchFilterDefinition[fieldIdx]
+
             const numberOfPossiblePatientsForThisFilter =
-                that.state.filterDefinitions.searchFilterDefinition[fieldIdx].numberOfPossiblePatientsForThisFilter
-            const patientsMeetingEntireSetOfFilters =
-                that.state.filterDefinitions.searchFilterDefinition[fieldIdx].patientsMeetingEntireSetOfFilters
-            const patientsMeetingThisFilterOnly = that.state.filterDefinitions.searchFilterDefinition[fieldIdx].patientsMeetingThisFilterOnly
-            filterDatas[i] = [{
-                value: patientsMeetingThisFilterOnly,
-                description: "",
+                definition.numberOfPossiblePatientsForThisFilter
+            let patientsMeetingEntireSetOfFilters = 0.00001
+
+            let matchingPatients = []
+
+            if (definition["selectedCategoricalRange"]) {
+                debugger;
+                definition.selectedCategoricalRange.forEach((range) => {
+                    const aryName = definition.fieldName.toLowerCase() + "." + range
+                    const ary = that.state.patientArrays[aryName]
+                    matchingPatients = matchingPatients.concat(ary)
+                })
+                patientsMeetingEntireSetOfFilters = that.fastIntersection(matchingPatients, that.state.patientsMeetingAllFilters).length
+
+
+            }
+
+
+            definition.patientsMeetingThisFilterOnly = matchingPatients.length
+
+            const patientsMeetingThisFilterOnly = definition.patientsMeetingThisFilterOnly
+
+            console.log(fieldName + ": " + "patientsMeetingEntireSetOfFilters: " + patientsMeetingEntireSetOfFilters + " patientsMeetingThisFilterOnly: " + patientsMeetingThisFilterOnly + " numberOfPossiblePatientsForThisFilter: " + numberOfPossiblePatientsForThisFilter);
+            filterDatas[fieldIdx] = [{
+                value: patientsMeetingEntireSetOfFilters,
+                description: "patientsMeetingEntireSetOfFilters",
                 color: "blue"
             },
                 {
-                    value: patientsMeetingEntireSetOfFilters,
-                    description: "",
+                    value: patientsMeetingThisFilterOnly,
+                    description: "patientsMeetingThisFilterOnly",
                     color: "lightblue"
                 },
                 {
                     value: numberOfPossiblePatientsForThisFilter,
-                    description: "",
+                    description: "numberOfPossiblePatientsForThisFilter",
                     color: "lightgray"
-                }]
+                }
+            ]
         })
         that.setState({filterData: filterDatas})
     }
@@ -273,13 +296,20 @@ export default class CohortFilter extends React.Component {
 
             for (const key in matches) {
                 if (matches.hasOwnProperty(key)) {
-                    console.log(`${key}: ${matches[key]}`);
+                    //console.log(`${key}: ${matches[key]}`);
                     arr2.push(matches[key])
 
                 }
             }
 
-            console.log(this.fastIntersection(...arr2))
+            console.log("Matches across all filters: " + this.fastIntersection(...arr2))
+
+            if (JSON.stringify(this.state.patientsMeetingAllFilters) !== JSON.stringify(this.fastIntersection(...arr2))) {
+
+
+                this.setState({patientsMeetingAllFilters: this.fastIntersection(...arr2)})
+              this.updateFilterData()
+            }
         }
         if (prevState.filterDefinitions !== this.state.filterDefinitions) {
             this.state.filterDefinitions.searchFilterDefinition.forEach((e) => {

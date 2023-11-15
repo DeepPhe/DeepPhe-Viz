@@ -24,8 +24,11 @@ class RangeSelector extends Component {
         })
     }
     addCountToCategory = (fieldName, category, catCount, totalCount) => {
-        var search = $("#stage-overlay-row span").filter(function () {
-            return $(this).text().toLowerCase().indexOf(category.toLowerCase()) >= 0;
+        let search = $("#" + fieldName + "-overlay-row span").filter(function () {
+            const that = $(this)
+
+            return ($(this).text().toLowerCase().indexOf(category.toLowerCase()) >= 0) &&
+                (that.text().length === category.length);
         }).first();
 
         const cssId = fieldName.replaceAll(" ", "-").toLowerCase() + category.replaceAll(" ", "-").toLowerCase();
