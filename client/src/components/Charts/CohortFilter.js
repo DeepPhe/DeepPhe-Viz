@@ -12,6 +12,8 @@ import DiscreteList from "./subcomponents/DiscreteList";
 import CategoricalRangeSelector from "./subcomponents/CategoricalRangeSelector";
 import NumericRangeSelector from "./subcomponents/NumericRangeSelector";
 import BooleanList from "./subcomponents/BooleanList";
+import {fastIntersection, flattenObject} from "../../utils/arrayHelpers";
+
 
 export default class CohortFilter extends React.Component {
     state = {
@@ -33,109 +35,13 @@ export default class CohortFilter extends React.Component {
         comorbidity: [],
         diagnosis: [],
         patientsMeetingAllFilters: [],
+        patientsMeetingAllFiltersUpToDate: false,
         patientArrays: null
     }
 
     constructor(props) {
         super(props);
-        this.changeState.bind(this);
-    }
-
-    flattenObject = (obj, parent) => {
-        const flattened = {}
-        Object.keys(obj).forEach((key) => {
-            const value = obj[key]
-            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                Object.assign(flattened, this.flattenObject(value, key))
-            } else {
-                flattened[parent + "." + key] = value
-            }
-        })
-        return flattened
-    }
-
-    fastIntersection = (...arrays) => {
-        // if we process the arrays from shortest to longest
-        // then we will identify failure points faster, i.e. when
-        // one item is not in all arrays
-
-        const ordered = (arrays.length === 1
-                ? arrays :
-                arrays.sort((a1, a2) => a1.length - a2.length)),
-            shortest = ordered[0],
-            set = new Set(), // used for bookeeping, Sets are faster
-            result = [] // the intersection, conversion from Set is slow
-        // for each item in the shortest array
-        for (let i = 0; i < shortest.length; i++) {
-            const item = shortest[i];
-            // see if item is in every subsequent array
-            let every = true; // don't use ordered.every ... it is slow
-            for (let j = 1; j < ordered.length; j++) {
-                if (ordered[j].includes(item)) continue;
-                every = false;
-                break;
-            }
-            // ignore if not in every other array, or if already captured
-            if (!every || set.has(item)) continue;
-            // otherwise, add to bookeeping set and the result
-            set.add(item);
-            result[result.length] = item;
-        }
-        return result;
-    }
-
-    updateFilterData = () => {
-        const that = this
-        let filterDatas = new Array(that.state.fieldNames.length)
-
-        that.state.fieldNames.forEach((fieldName, i) => {
-
-            const fieldIdx =
-                that.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === fieldName)
-            const definition = that.state.filterDefinitions.searchFilterDefinition[fieldIdx]
-
-            const numberOfPossiblePatientsForThisFilter =
-                definition.numberOfPossiblePatientsForThisFilter
-            let patientsMeetingEntireSetOfFilters = 0.00001
-
-            let matchingPatients = []
-
-            if (definition["selectedCategoricalRange"]) {
-                debugger;
-                definition.selectedCategoricalRange.forEach((range) => {
-                    const aryName = definition.fieldName.toLowerCase() + "." + range
-                    const ary = that.state.patientArrays[aryName]
-                    matchingPatients = matchingPatients.concat(ary)
-                })
-                patientsMeetingEntireSetOfFilters = that.fastIntersection(matchingPatients, that.state.patientsMeetingAllFilters).length
-
-
-            }
-
-
-            definition.patientsMeetingThisFilterOnly = matchingPatients.length
-
-            const patientsMeetingThisFilterOnly = definition.patientsMeetingThisFilterOnly
-
-            console.log(fieldName + ": " + "patientsMeetingEntireSetOfFilters: " + patientsMeetingEntireSetOfFilters + " patientsMeetingThisFilterOnly: " + patientsMeetingThisFilterOnly + " numberOfPossiblePatientsForThisFilter: " + numberOfPossiblePatientsForThisFilter);
-            filterDatas[fieldIdx] = [{
-                value: patientsMeetingEntireSetOfFilters,
-                description: "patientsMeetingEntireSetOfFilters",
-                color: "blue"
-            },
-                {
-                    value: patientsMeetingThisFilterOnly,
-                    description: "patientsMeetingThisFilterOnly",
-                    color: "lightblue"
-                },
-                {
-                    value: numberOfPossiblePatientsForThisFilter,
-                    description: "numberOfPossiblePatientsForThisFilter",
-                    color: "lightgray"
-                }
-            ]
-        })
-        that.setState({filterData: filterDatas})
+        this.filterChangedState.bind(this);
     }
 
     reset = () => {
@@ -153,10 +59,7 @@ export default class CohortFilter extends React.Component {
         }
         fetchPatientArrays().then(function (response) {
             response.json().then(function (json) {
-
-                that.setState({patientArrays: that.flattenObject(json, "")})
-                that.setState({patientArraysLoading: false})
-                //let intersection = that.fastIntersection(arrays["location.Breast"], arrays["laterality.Left"], arrays["histologic_type.Invasive_Ductal_Breast_Carcinoma"])
+                that.setState({patientArrays: flattenObject(json, ""), patientArraysLoading: false})
             })
         })
 
@@ -175,13 +78,11 @@ export default class CohortFilter extends React.Component {
 
         fetchFilterDefinition().then(function (response) {
             response.json().then(function (json) {
-                that.setState({filterDefinitions: json});
                 let fieldNames = []
                 json.searchFilterDefinition.map(definition => {
                     fieldNames.push(definition.fieldName)
                     return true;
                 })
-                that.setState({fieldNames: fieldNames})
                 let cohortSize = [{
                     value: 5,
                     description: "5",
@@ -192,33 +93,117 @@ export default class CohortFilter extends React.Component {
                     color: "lightgray"
                 }]
 
-                that.updateFilterData()
-
-                that.setState({cohortSize: cohortSize, isLoading: false}, () => {
+                that.setState({
+                    filterDefinitions: json,
+                    fieldNames: fieldNames,
+                    cohortSize: cohortSize,
+                    isLoading: false
+                }, () => {
+                    that.updatePatientsMatchingAllFilters().then(() => {
+                        that.updateFilterData()
+                    })
 
                 })
-                that.setState({filterDefinitionLoading: false})
-                that.updateDimensions()
             })
         })
     }
-
-
-    updateDimensions = () => {
-
-    };
-
-    buildQuery = () => {
-
+    updateFilterData = () => {
+        const that = this
+        let filterDatas = new Array(that.state.fieldNames.length)
+        that.state.fieldNames.forEach((fieldName, i) => {
+            const fieldIdx =
+                that.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === fieldName)
+            const definition = that.state.filterDefinitions.searchFilterDefinition[fieldIdx]
+            const numberOfPossiblePatientsForThisFilter = definition.numberOfPossiblePatientsForThisFilter
+            let patientsMeetingEntireSetOfFilters = that.state.patientsMeetingAllFilters.length
+            let matchingPatients = []
+            if (definition["selectedCategoricalRange"]) {
+                definition.selectedCategoricalRange.forEach((range) => {
+                    const aryName = definition.fieldName.toLowerCase() + "." + range
+                    const ary = that.state.patientArrays[aryName]
+                    matchingPatients = matchingPatients.concat(ary)
+                })
+            }
+            definition.patientsMeetingThisFilterOnly = matchingPatients.length
+            const patientsMeetingThisFilterOnly = definition.patientsMeetingThisFilterOnly
+            //console.log(that.state.patientsMeetingAllFilters)
+            //console.log(fieldName + ": \n\t" + "patientsMeetingEntireSetOfFilters: " + patientsMeetingEntireSetOfFilters + " \n\tpatientsMeetingThisFilterOnly: " + patientsMeetingThisFilterOnly + " \n\tnumberOfPossiblePatientsForThisFilter: " + numberOfPossiblePatientsForThisFilter);
+            filterDatas[i] = [
+                {
+                    value: that.state.patientsMeetingAllFilters.length,
+                    description: that.state.patientsMeetingAllFilters.length,
+                    color: "blue"
+                },
+                {
+                    value: patientsMeetingThisFilterOnly,
+                    description: patientsMeetingThisFilterOnly,
+                    color: "lightblue"
+                },
+                {
+                    value: numberOfPossiblePatientsForThisFilter - patientsMeetingThisFilterOnly - patientsMeetingEntireSetOfFilters,
+                    description: numberOfPossiblePatientsForThisFilter - patientsMeetingThisFilterOnly - patientsMeetingEntireSetOfFilters,
+                    color: "lightgray"
+                }
+            ]
+        })
+        let cohortSize = [{
+            value: this.state.patientsMeetingAllFilters.length,
+            description: "",
+            color: "blue"
+        }, {
+            value: 7,
+            description: "",
+            color: "lightgray"
+        }]
+        that.setState({filterDefinitionLoading: false, filterData: filterDatas, cohortSize: cohortSize})
     }
 
-    componentDidMount() {
-        this.show("new_control_svg");
-        window.addEventListener('resize', this.updateDimensions);
-    }
+    updatePatientsMatchingAllFilters = async () => {
+        let matches = {}
+        this.state.filterDefinitions.searchFilterDefinition.forEach((filterDefinition) => {
+            const that = this;
+            let processed = []
+            for (const [key, value] of Object.entries(that.state.patientArrays)) {
+                if (!processed.includes(key) && key.toLowerCase().startsWith(filterDefinition.fieldName.toLowerCase())) {
+                    processed.push(key)
+                    switch (filterDefinition.class) {
+                        case "discreteList":
+                            //console.log("discreteList")
+                            break;
+                        case "categoricalRangeSelector":
+                            matches = {...matches, ...that.getCategoricalRangeSelectorValues(filterDefinition)}
 
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.updateDimensions);
+                            break;
+                        case "numericRangeSelector":
+
+                            console.log("numericRangeSelector")
+                            break;
+                        case "booleanList":
+                            matches = {...matches, ...that.getBooleanListValues(filterDefinition)}
+
+                            break;
+                        default:
+                            console.log("Unknown filter type")
+                    }
+                }
+            }
+        })
+
+        if (Object.keys(matches).length) {
+            let arrayOfArraysOfPatientsMatchingEachFilter = []
+            for (const key in matches) {
+                if (matches.hasOwnProperty(key)) {
+                    //console.log(`${key}: ${matches[key]}`);
+                    arrayOfArraysOfPatientsMatchingEachFilter.push(matches[key])
+                }
+            }
+            console.log("Matches across all filters: " + fastIntersection(...arrayOfArraysOfPatientsMatchingEachFilter))
+            this.setState({
+                patientsMeetingAllFilters: fastIntersection(...arrayOfArraysOfPatientsMatchingEachFilter),
+                patientsMeetingAllFiltersUpToDate: true
+            })
+        }
+        return true
     }
 
     getCategoricalRangeSelectorValues(filterDefinition) {
@@ -230,8 +215,6 @@ export default class CohortFilter extends React.Component {
             const ary = that.state.patientArrays[aryName]
             filterMatches = [...new Set([...filterMatches, ...ary])]
         })
-
-        filterDefinition.numberOfPossiblePatientsForThisFilter = filterMatches.length
         matches[filterDefinition.fieldName.toLowerCase()] = filterMatches
         return matches
     }
@@ -240,7 +223,6 @@ export default class CohortFilter extends React.Component {
         const that = this
         let matches = {}
         filterDefinition.switches.forEach((switchDefinition) => {
-            //console.log(switchDefinition)
             if (switchDefinition.value) {
                 const aryName = filterDefinition.fieldName.toLowerCase() + "." + switchDefinition.name
                 matches[aryName] = that.state.patientArrays[aryName]
@@ -249,89 +231,7 @@ export default class CohortFilter extends React.Component {
         return matches
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log("component updated!")
-
-        //need code to iterate of patientArrays, find the patientArrays that being with the fieldnames in the filterDefinitions,
-        //then find the intersection of those arrays, and then update the cohort size bar
-
-        //iterate over filterDefinitions
-        //for each filterDefinition, find the patientArray that matches the fieldName
-        const that = this;
-        let processed = []
-        let matches = {}
-        if (!this.state.isLoading && !this.state.filterDefinitionLoading && !this.state.patientArraysLoading) {
-            this.state.filterDefinitions.searchFilterDefinition.forEach((filterDefinition) => {
-                //console.log(filterDefinition.fieldName)
-
-                for (const [key, value] of Object.entries(that.state.patientArrays)) {
-
-                    if (!processed.includes(key) && key.toLowerCase().startsWith(filterDefinition.fieldName.toLowerCase())) {
-                        processed.push(key)
-                        switch (filterDefinition.class) {
-                            case "discreteList":
-                                //console.log("discreteList")
-                                break;
-                            case "categoricalRangeSelector":
-                                matches = {...matches, ...that.getCategoricalRangeSelectorValues(filterDefinition)}
-
-                                break;
-                            case "numericRangeSelector":
-
-                                console.log("numericRangeSelector")
-                                break;
-                            case "booleanList":
-                                matches = {...matches, ...that.getBooleanListValues(filterDefinition)}
-
-                                break;
-                            default:
-                                console.log("Unknown filter type")
-                        }
-                    }
-                }
-            })
-        }
-        if (Object.keys(matches).length) {
-            let arr2 = []
-
-            for (const key in matches) {
-                if (matches.hasOwnProperty(key)) {
-                    //console.log(`${key}: ${matches[key]}`);
-                    arr2.push(matches[key])
-
-                }
-            }
-
-            console.log("Matches across all filters: " + this.fastIntersection(...arr2))
-
-            if (JSON.stringify(this.state.patientsMeetingAllFilters) !== JSON.stringify(this.fastIntersection(...arr2))) {
-
-
-                this.setState({patientsMeetingAllFilters: this.fastIntersection(...arr2)})
-              this.updateFilterData()
-            }
-        }
-        if (prevState.filterDefinitions !== this.state.filterDefinitions) {
-            this.state.filterDefinitions.searchFilterDefinition.forEach((e) => {
-                //console.log(e.fieldName)
-            })
-
-        }
-    }
-
-    onUpdate(vals) {
-
-    }
-
-    show = (svgContainerId) => {
-        this.reset()
-        if (!d3.select("#" + svgContainerId).empty()) {
-            d3.select("#" + svgContainerId)._groups[0][0].remove();
-        }
-    };
-
-    toggleActivityEnabled = activity => ({enabled}) => {
-
+    toggleFilterEnabled = activity => ({enabled}) => {
         const selector = "#" + activity.filterDefinition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"
         if (enabled) {
             $(selector).removeClass("overlay-row")
@@ -342,7 +242,7 @@ export default class CohortFilter extends React.Component {
 
     CohortPercentHSBar = (props) => {
         return (<HSBar
-            //showTextIn
+            showTextIn
             max={100}
             height={47.3}
             data={this.state.cohortSize}
@@ -350,15 +250,58 @@ export default class CohortFilter extends React.Component {
     }
 
     updateFilterDefinition
-    changeState = (definition) => {
-
+    filterChangedState = (definition) => {
         const defIdx = this.state.filterDefinitions.searchFilterDefinition.findIndex(x => x.fieldName === definition.fieldName)
-        const searchFilterDefinition = this.state.filterDefinitions.searchFilterDefinition
+        let searchFilterDefinition = this.state.filterDefinitions.searchFilterDefinition
         searchFilterDefinition[defIdx] = definition
-        this.setState({filterDefinitions: {searchFilterDefinition: searchFilterDefinition}})
-        this.updateFilterData()
-
+        this.setState({
+            filterDefinitions: {searchFilterDefinition: searchFilterDefinition},
+            patientsMeetingAllFiltersUpToDate: false
+        }, () => {
+            this.updatePatientsMatchingAllFilters().then(() => {
+                this.updateFilterData()
+            })
+        })
     };
+
+    componentDidMount() {
+        this.reset()
+        if (!d3.select("#" + "new_control_svg").empty()) {
+            d3.select("#" + "new_control_svg")._groups[0][0].remove();
+        }
+        window.addEventListener('resize', this.updateDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateDimensions);
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log("component updated!")
+
+        //need code to iterate of patientArrays, find the patientArrays that being with the fieldnames in the filterDefinitions,
+        //then find the intersection of those arrays, and then update the cohort size bar
+
+        //iterate over filterDefinitions
+        //for each filterDefinition, find the patientArray that matches the fieldName
+
+
+        // if (!this.state.isLoading && !this.state.filterDefinitionLoading && !this.state.patientArraysLoading) {
+        //     if (!this.state.patientsMeetingAllFiltersUpToDate) {
+        //         // this.updatePatientsMatchingAllFilters();
+        //         // this.updateFilterData();
+        //
+        //     }
+        // }
+
+
+        // if (prevState.filterDefinitions !== this.state.filterDefinitions) {
+        //     this.state.filterDefinitions.searchFilterDefinition.forEach((e) => {
+        //         //console.log(e.fieldName)
+        //     })
+        //
+        // }
+    }
 
     render() {
         if (this.state.isLoading || this.state.filterDefinitionLoading || this.state.patientArraysLoading)
@@ -384,7 +327,7 @@ export default class CohortFilter extends React.Component {
                                     <ToggleSwitch wantsdivs={1} key={index} label={filterDefinition.fieldName}
                                                   theme="graphite-small"
                                                   enabled={true}
-                                                  onStateChanged={this.toggleActivityEnabled({filterDefinition})}/>
+                                                  onStateChanged={this.toggleFilterEnabled({filterDefinition})}/>
 
                                 ))}
                             </Grid>
@@ -398,17 +341,17 @@ export default class CohortFilter extends React.Component {
                                             case "categoricalRangeSelector":
                                                 return <CategoricalRangeSelector key={index}
                                                                                  definition={filterDefinition}
-                                                                                 broadcastUpdate={this.changeState}/>;
+                                                                                 broadcastUpdate={this.filterChangedState}/>;
 
                                             case "numericRangeSelector":
 
                                                 return <NumericRangeSelector key={index}
                                                                              definition={filterDefinition}
-                                                                             broadcastUpdate={this.changeState}/>;
+                                                                             broadcastUpdate={this.filterChangedState}/>;
 
                                             case "booleanList":
                                                 return <BooleanList key={index} definition={filterDefinition}
-                                                                    broadcastUpdate={this.changeState}/>;
+                                                                    broadcastUpdate={this.filterChangedState}/>;
                                             default:
                                                 return <div>Unknown filter type</div>
                                         }
@@ -418,6 +361,7 @@ export default class CohortFilter extends React.Component {
                             <Grid className={"no_padding_grid"} item md={1}>
                                 {this.state.fieldNames.map((label, index) => (
                                     <HSBar
+                                        showTextIn
                                         key={index}
                                         height={47.3}
                                         data={this.state.filterData[this.state.fieldNames.indexOf(label)]}

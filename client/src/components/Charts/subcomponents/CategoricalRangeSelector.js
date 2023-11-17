@@ -12,11 +12,10 @@ class CategoricalRangeSelector extends RangeSelector {
 
     handleRangeChange = (e: ChangeResult) => {
         const {definition} = this.state
-
         let selectedCategoricalRange = []
         for (let i = e[0]; i <= e[1]; i++) selectedCategoricalRange.push(definition.globalPatientCountsForCategories[i].category)
-        this.setState({...definition.selectedCategoricalRange = selectedCategoricalRange})
-        this.setState({updated: false})
+        // this.props.definition.selectedCategoricalRange = selectedCategoricalRange
+        this.setState({...definition.selectedCategoricalRange = selectedCategoricalRange, updated: false})
     };
 
     handleSwitchUpdate = (definition) => {
@@ -29,23 +28,23 @@ class CategoricalRangeSelector extends RangeSelector {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.updated === false) {
-            const that = this
-            const {definition} = this.props
+            const {definition} = this.state
             let countMeetingThisFilter = 0
-            let numberOfPossiblePatientsForThisFilter = 0
+            let numOfPossiblePatientsForThisFilter = 0
             definition.globalPatientCountsForCategories.forEach((item, index) => {
                 let idx = definition.selectedCategoricalRange.indexOf(item.category)
                 if (idx !== -1) {
                     countMeetingThisFilter += item.count
                 }
 
-                numberOfPossiblePatientsForThisFilter += item.count
+                numOfPossiblePatientsForThisFilter += item.count
             })
 
             ///might have to update the globl thing here
-            definition.numberOfPossiblePatientsForThisFilter = numberOfPossiblePatientsForThisFilter
+            definition.numberOfPossiblePatientsForThisFilter = numOfPossiblePatientsForThisFilter
+            console.log(definition.fieldName + " numberOfPossiblePatientsForThisFilter: " + numOfPossiblePatientsForThisFilter)
             definition.patientsMeetingThisFilterOnly = countMeetingThisFilter
-           //patientsMeetingEntireSetOfFilters
+            //patientsMeetingEntireSetOfFilters
 
             // console
             //     .log(definition
@@ -55,14 +54,10 @@ class CategoricalRangeSelector extends RangeSelector {
             //     .log("    Range: " + definition.selectedCategoricalRange
             //         [0] + " - " + definition.selectedCategoricalRange
             //         [definition.selectedCategoricalRange.length - 1])
-
-
-            this.setState({updated: true})
-            this.broadcastUpdate(this.state.definition)
-
-
+            this.setState({definition: definition, updated: true},  () => {
+                this.broadcastUpdate(this.state.definition)
+            })
         }
-
 
 
         // this

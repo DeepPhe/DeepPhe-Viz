@@ -11,7 +11,7 @@ class NumericRangeSelector extends RangeSelector {
     }
 
     handleRangeChange = (range: ChangeResult) => {
-        const {definition} = this.state;
+        const {definition} = this.props;
         //debugger;
         this.setState({...definition.patientsMeetingThisFilterOnly = range[1], ...definition.selectedNumericRange.min = range[0], ...definition.selectedNumericRange.max = range[1]});
         this.setState({updated: false})
@@ -23,6 +23,7 @@ class NumericRangeSelector extends RangeSelector {
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.state.updated === false) {
+            this.props.definition = this.state.definition
             this.setState({updated: true})
             this.broadcastUpdate(this.state.definition)
         }
@@ -42,7 +43,7 @@ class NumericRangeSelector extends RangeSelector {
     }
 
     render() {
-        const {definition} = this.state;
+        const {definition} = this.props;
         //const globalPatientCountsForCategories = definition.globalPatientCountsForCategories
         const selectedNumericRange = definition.selectedNumericRange
         const numericRangeSelectorDefinition = definition.numericRangeSelectorDefinition
