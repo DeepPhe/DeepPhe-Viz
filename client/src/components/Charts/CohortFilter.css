@@ -57,6 +57,11 @@
     padding-bottom: 5px !important;
 }
 
+.switch-disabled {
+    height: 35px !important;
+    transform: scale(0.75);
+}
+
 #boolean-list-row .switch_label, #boolean-list-row .switch-toggle, #numeric-range-selector-row .switch_label, #numeric-range-selector-row .switch-toggle, #categorical-range-selector-row .switch_label, #categorical-range-selector-row .switch-toggle {
     margin: 0px 3px 0px 0px !important;
     margin-right: 2px;
@@ -218,9 +223,11 @@
 }
 
 .overlay-row {
-    background: gray;
+    height: 35px !important;
+    transform: scale(0.75);
+    backgrounda: gray;
     margin-left: 5px;
     margin-right: 5px;
-    opacity: 0.4;
-    pointer-events: none;
+    opacitya: 0.4;
+    pointera-events: none;
 }

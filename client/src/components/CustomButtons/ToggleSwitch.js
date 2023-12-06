@@ -50,9 +50,9 @@ class ToggleSwitch extends Component {
 
         // Use default as a fallback theme if valid theme is not passed
         const switchTheme = (theme && isString(theme)) ? theme : 'default';
-
+        const switchEnabled = enabled ? "switch-enabled" : "switch-disabled"
         const switchClasses = classnames(
-            `switch switch-box switch--${switchTheme}`,
+            `switch switch-box switch--${switchTheme} ${switchEnabled}`,
             className
         )
 
@@ -60,6 +60,7 @@ class ToggleSwitch extends Component {
             'switch-toggle',
             `switch-toggle--${enabled ? 'on' : 'off'}`
         )
+
         let label, switchControl;
         if (wantsDivs) {
             label = <div className={"switch_label"}> {this.props.label}</div>;
