@@ -33,11 +33,11 @@ function Patient() {
         // Highlight the selected term in the term list
         const cssClass = 'current_mentioned_term';
         // First remove the previously added highlighting
-        // $('.report_mentioned_term').removeClass(cssClass);
-        $('.report_mentioned_term_1').removeClass(cssClass);
-        $('.report_mentioned_term_2').removeClass(cssClass);
-        $('.report_mentioned_term_3').removeClass(cssClass);
-        $('.report_mentioned_term_4').removeClass(cssClass);
+        $('.report_mentioned_term').removeClass(cssClass);
+        // $('.report_mentioned_term_1').removeClass(cssClass);
+        // $('.report_mentioned_term_2').removeClass(cssClass);
+        // $('.report_mentioned_term_3').removeClass(cssClass);
+        // $('.report_mentioned_term_4').removeClass(cssClass);
         // Then add to this current one by selecting the attributes
         $('li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]').addClass(cssClass);
 
@@ -97,9 +97,6 @@ function Patient() {
         // Flatten the ranges, this is the key to solve overlapping
         textMentions = flattenRanges(textMentions);
         // console.log(textMentions);
-        console.log("is this being reached?");
-
-
 
         let textFragments = [];
         let lastValidTMIndex = 0;
@@ -122,7 +119,11 @@ function Patient() {
                     textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                 }
             }
-            if (textMention.text.indexOf(term) > -1){
+            console.log(term.slice(0, -3));
+            //TODO: FIX this later, Need to get text without the mentionFrequency on it
+            let correctTerm = term.slice(0, -3);
+            if (textMention.text.indexOf(correctTerm) > -1){
+                console.log("reached?");
                 textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
             }
             else{
@@ -582,19 +583,7 @@ function Patient() {
     // });
 
     // Click the report mentioned term to show it in the report text
-    // $(document).on("click", ".report_mentioned_term", function () {
-    //
-    //     let obj = {};
-    //     obj.term = $(this).text();
-    //     obj.begin = $(this).data('begin');
-    //     obj.end = $(this).data('end');
-    //
-    //     scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
-    // });
-
-    $(document).on("click",
-        ".report_mentioned_term_1, .report_mentioned_term_2, .report_mentioned_term_3, .report_mentioned_term_4",
-        function () {
+    $(document).on("click", ".report_mentioned_term", function () {
 
         let obj = {};
         obj.term = $(this).text();
@@ -603,6 +592,18 @@ function Patient() {
 
         scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
     });
+
+    // $(document).on("click",
+    //     ".report_mentioned_term_1, .report_mentioned_term_2, .report_mentioned_term_3, .report_mentioned_term_4",
+    //     function () {
+    //
+    //     let obj = {};
+    //     obj.term = $(this).text();
+    //     obj.begin = $(this).data('begin');
+    //     obj.end = $(this).data('end');
+    //
+    //     scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
+    // });
 
     // Reset button event
     $(document).on("click", "#reset", function () {
@@ -835,6 +836,16 @@ function Patient() {
                                                     <CardHeader id="mentions_label" className={"basicCardHeader"}>Mentioned Terms</CardHeader>
                                                     <GridItem xs={12} id="mentions_container">
                                                         <GridContainer>
+                                                            <ul>
+                                                                <li id="pink_bullet">Sign/Symptom</li>
+                                                                <li id="black_bullet">Test/Procedure</li>
+                                                                <li id="gray_bullet">Anatomical Site</li>
+                                                            </ul>
+                                                            <ul>
+                                                                <li id="green_bullet">Disease/Disorder</li>
+                                                                <li id="red_bullet">Medication</li>
+                                                            </ul>
+
                                                             <GridItem xs={12}
                                                                       id="search_label">Filter Mentions:</GridItem>
                                                             <GridItem xs={12}>

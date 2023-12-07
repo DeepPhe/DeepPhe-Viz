@@ -123,6 +123,7 @@ a {
 #mentions_container div,
 #mentions_container div div {
     padding: 0px !important;
+
 }
 
 .header {
@@ -784,17 +785,42 @@ th {
     margin-bottom: 5px !important;
 }
 
+ul {
+    list-style: none; /* Remove default bullets */
+    margin-bottom: -8px !important;
+}
+
+ul::marker{
+    font-size: 1.8em !important;
+    line-height: 0.1 !important;
+}
+
+ul li::before {
+    content: "•";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    color: green;
+    font-weight: bold; /* If you want it to be bold */
+    display: inline-block; /* Needed to add space between the bullet and the text */
+    width: 1em; /* Also needed for space (tweak if needed) */
+    margin-left: -2em; /* Also needed for space (tweak if needed) */
+}
+
+#red_bullet {
+    content: "•";
+    color:red !important;
+}
+
 #report_text {
     position: relative; /* Must explicitly specify the position of this dive for dynamic scrolling */
     float: left;
     width: 600px;
+    font-size: large;
     /*delete to revert*/
     /*width: auto;*/
     /*delete to revert*/
     height: 100%;
     padding: 10px 10px 10px 5px;
     overflow-y: scroll;
-    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-family: Monaco, monospace;
     font-weight: normal;
     text-align: left;
     /* Whitespace is preserved by the browser. Text will wrap when necessary, and on line breaks */
@@ -821,18 +847,111 @@ th {
     margin-top: 10px;
 }
 
+/*.report_mentioned_term {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    font-family: Monaco, monospace;*/
+/*    background-image: linear-gradient(*/
+/*            -100deg,*/
+/*            #a8d1ff,*/
+/*            rgba(109, 116, 199, 0.7) 95%,*/
+/*            rgba(112, 121, 222, 0.1)*/
+/*    );*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
+
+/*
+look towards magenta/purple
+ */
 .report_mentioned_term {
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
     cursor: pointer;
+    font-family: Monaco, monospace;
     background-image: linear-gradient(
             -100deg,
-            #a8d1ff,
-            rgba(109, 116, 199, 0.7) 95%,
-            rgba(112, 121, 222, 0.1)
+            #edb1f1,
+            #d59bf6,
+            #9896f1
     );
     border-radius: 5px;
     float: left;
+}
+
+.report_mentioned_term_black {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    color: white;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #021a34,
+            rgba(15, 16, 51, 0.7) 95%,
+            rgba(47, 49, 61, 0.1)
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+/*
+Emphasize shading more
+ */
+.report_mentioned_term_green {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #93e4c1,
+            #3baea0,
+            #118a7e
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_red {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #fecea8,
+            #ff847c,
+            #e84a5f
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+/*
+white text with more shading
+ */
+.report_mentioned_term_grey {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    /*color: white;*/
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #e7e6e1,
+            #f7f6e7,
+            #c1c0b9
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.frequency {
+    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-weight: 400;
+    color: inherit;
 }
 
 .popUp {
@@ -863,62 +982,63 @@ th {
     opacity: 1;
 }
 
+/* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/
 
-.report_mentioned_term_1 {
-    margin: 0 5px 5px 0;
-    padding: 3px 2px 0;
-    cursor: pointer;
-    background: linear-gradient(
-            90deg,
-            rgba(168, 209, 255, 0.6) 5%,
-            rgba(109, 116, 199, 0.6) 45%,
-            rgba(109, 116, 199, 0.6) 55%,
-            rgba(168, 209, 255, 0.6) 95%);
-    border-radius: 5px;
-    float: left;
-}
+/*.report_mentioned_term_1 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.6) 45%,*/
+/*            rgba(109, 116, 199, 0.6) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
 
-.report_mentioned_term_2 {
-    margin: 0 5px 5px 0;
-    padding: 3px 2px 0;
-    cursor: pointer;
-    background: linear-gradient(
-            90deg,
-            rgba(168, 209, 255, 0.6) 5%,
-            rgba(109, 116, 199, 0.75) 45%,
-            rgba(109, 116, 199, 0.75) 55%,
-            rgba(168, 209, 255, 0.6) 95%);
-    border-radius: 5px;
-    float: left;
-}
+/*.report_mentioned_term_2 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.75) 45%,*/
+/*            rgba(109, 116, 199, 0.75) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
 
-.report_mentioned_term_3 {
-    margin: 0 5px 5px 0;
-    padding: 3px 2px 0;
-    cursor: pointer;
-    background: linear-gradient(
-            90deg,
-            rgba(168, 209, 255, 0.6) 5%,
-            rgba(109, 116, 199, 0.9) 45%,
-            rgba(109, 116, 199, 0.9) 55%,
-            rgba(168, 209, 255, 0.6) 95%);
-    border-radius: 5px;
-    float: left;
-}
+/*.report_mentioned_term_3 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.9) 45%,*/
+/*            rgba(109, 116, 199, 0.9) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
 
-.report_mentioned_term_4 {
-    margin: 0 5px 5px 0;
-    padding: 3px 2px 0;
-    cursor: pointer;
-    background: linear-gradient(
-            90deg,
-            rgba(168, 209, 255, 0.6) 5%,
-            rgba(109, 116, 199, 1) 45%,
-            rgba(109, 116, 199, 1) 55%,
-            rgba(168, 209, 255, 0.6) 95%);
-    border-radius: 5px;
-    float: left;
-}
+/*.report_mentioned_term_4 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 1) 45%,*/
+/*            rgba(109, 116, 199, 1) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
 
 
 /*.firstWordHighlight {*/
@@ -944,20 +1064,87 @@ th {
     margin-right: 0;
 }
 
-.highlight_terms {
+/*.highlight_terms {*/
+/*    !*background: #a8d1ff;*!*/
+/*    !*border-radius: 5px;*!*/
+/*    border-radius: 1em 0 1em 0;*/
+/*    background-image: linear-gradient(*/
+/*            -100deg,*/
+/*            #a8d1ff,*/
+/*            rgba(109, 116, 199, 0.7) 95%,*/
+/*            rgba(112, 121, 222, 0.1)*/
+/*    );*/
+/*}*/
+
+.highlight_terms_grey {
     /*background: #a8d1ff;*/
     /*border-radius: 5px;*/
     border-radius: 1em 0 1em 0;
     background-image: linear-gradient(
             -100deg,
-            #a8d1ff,
-            rgba(109, 116, 199, 0.7) 95%,
-            rgba(112, 121, 222, 0.1)
+            #e7e6e1,
+            #f7f6e7,
+            #c1c0b9
+    );
+}
+
+.highlight_terms_red {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #fecea8,
+            #ff847c,
+            #e84a5f
+    );
+}
+
+.highlight_terms_green {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #93e4c1,
+            #3baea0,
+            #118a7e
+    );
+}
+
+.highlight_terms_black {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    color: white;
+    background-image: linear-gradient(
+            -100deg,
+            #021a34,
+            rgba(15, 16, 51, 0.7) 95%,
+            rgba(47, 49, 61, 0.1)
+    );
+}
+
+.highlight_terms {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    font-weight: bold;
+    background-image: linear-gradient(
+            -100deg,
+            #edb1f1,
+            #d59bf6,
+            #9896f1
     );
 }
 
 .current_mentioned_term {
-    background: #FFDC00;
+    background-image: linear-gradient(
+            -100deg,
+            rgba(255, 224, 0, 0.2),
+            rgba(255, 224, 0, 0.7) 95%,
+            rgba(255, 224, 0, 0.1)
+    );
     border-radius: 5px;
 }
 

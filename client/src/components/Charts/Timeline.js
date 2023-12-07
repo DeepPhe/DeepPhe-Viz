@@ -126,6 +126,7 @@ export default class Timeline extends React.Component {
                             textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                         }
                     }
+                    console.log(term);
                     if (textMention.text.indexOf(term) > -1){
                         textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
                     }
@@ -374,20 +375,29 @@ export default class Timeline extends React.Component {
                             // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
                             if(!uniqueArr.includes(obj.text)) {
                                 uniqueArr.push(obj.text);
-                                // renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '</li>';
+                                renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="frequency">' + '(' + obj.mentionFrequency + ')' + '</span></li>';
 
-                                if(obj.mentionFrequency === 1){
-                                    renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + popUp + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-                                }
-                                else if(obj.mentionFrequency === 2){
-                                    renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-                                }
-                                else if(obj.mentionFrequency === 3){
-                                    renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-                                }
-                                else{
-                                    renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-                                }
+                                // if(obj.mentionFrequency === 1){
+                                //     //pop-up
+                                //     // renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + popUp + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                //     renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
+                                //
+                                // }
+                                // else if(obj.mentionFrequency === 2){
+                                //     // renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                //     renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
+                                //
+                                // }
+                                // else if(obj.mentionFrequency === 3){
+                                //     // renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                //     renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
+                                //
+                                // }
+                                // else{
+                                //     // renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
+                                //     renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
+                                //
+                                // }
                             }
                         });
                         renderedMentionedTerms += "</ol>";
