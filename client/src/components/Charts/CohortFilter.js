@@ -171,6 +171,7 @@ export default class CohortFilter extends React.Component {
                             //console.log("discreteList")
                             break;
                         case "categoricalRangeSelector":
+                            if (filterDefinition.fieldName !== "clockface")
                             matches = {...matches, ...that.getCategoricalRangeSelectorValues(filterDefinition)}
 
                             break;
@@ -211,6 +212,7 @@ export default class CohortFilter extends React.Component {
         let matches = {}
         let filterMatches = []
         filterDefinition.selectedCategoricalRange.forEach((range) => {
+            console.log(filterDefinition.fieldName.toLowerCase() + "." + range )
             const aryName = filterDefinition.fieldName.toLowerCase() + "." + range
             const ary = that.state.patientArrays[aryName]
             filterMatches = [...new Set([...filterMatches, ...ary])]
@@ -231,14 +233,7 @@ export default class CohortFilter extends React.Component {
         return matches
     }
 
-    toggleFilterEnabled = activity => ({enabled}) => {
-        const selector = "#" + activity.filterDefinition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"
-        if (enabled) {
-            $(selector).removeClass("overlay-row")
-        } else {
-            $(selector).addClass("overlay-row")
-        }
-    }
+
 
     CohortPercentHSBar = (props) => {
         return (<HSBar
@@ -302,6 +297,16 @@ export default class CohortFilter extends React.Component {
         //
         // }
     }
+    toggleFilterEnabled = activity => ({enabled}) => {
+        const selector = "#" + activity.filterDefinition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"
+        if (enabled) {
+            $(selector).removeClass("overlay-row")
+        } else {
+            $(selector).addClass("overlay-row")
+        }
+    }
+
+
 
     render() {
         if (this.state.isLoading || this.state.filterDefinitionLoading || this.state.patientArraysLoading)
@@ -322,18 +327,12 @@ export default class CohortFilter extends React.Component {
                             <Grid className={"cohort-size-label-container"} item md={1}/>
                         </Grid>
                         <Grid container direction="row" justifyContent="center" align="center">
-                            <Grid className="switch_list no_padding_grid" item md={1}>
-                                {this.state.filterDefinitions.searchFilterDefinition.map((filterDefinition, index) => (
-                                    <ToggleSwitch wantsdivs={1} key={index} label={filterDefinition.fieldName}
-                                                  theme="graphite-small"
-                                                  enabled={true}
-                                                  onStateChanged={this.toggleFilterEnabled({filterDefinition})}/>
 
-                                ))}
-                            </Grid>
                             <Grid item md={6} className="filter-inner-container no_padding_grid">
                                 {this.state.filterDefinitions.searchFilterDefinition.map((filterDefinition, index) => (
+
                                     (() => {
+
                                         switch (filterDefinition.class) {
                                             case "discreteList":
                                                 return <DiscreteList key={index} definition={filterDefinition}/>;
@@ -350,7 +349,7 @@ export default class CohortFilter extends React.Component {
                                                                              broadcastUpdate={this.filterChangedState}/>;
 
                                             case "booleanList":
-                                                return <BooleanList key={index} definition={filterDefinition}
+                                                return   <BooleanList key={index} definition={filterDefinition}
                                                                     broadcastUpdate={this.filterChangedState}/>;
                                             default:
                                                 return <div>Unknown filter type</div>

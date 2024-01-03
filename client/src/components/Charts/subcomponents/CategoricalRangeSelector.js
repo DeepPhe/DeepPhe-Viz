@@ -6,6 +6,9 @@ import RangeSelector from "./RangeSelector";
 
 class CategoricalRangeSelector extends RangeSelector {
 
+    constructor(props) {
+        super(props);
+    }
     broadcastUpdate = (definition) => {
         this.props.broadcastUpdate(definition)
     }
@@ -88,9 +91,13 @@ class CategoricalRangeSelector extends RangeSelector {
         })
 
         return (<React.Fragment>
+
                 <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
-                    <div id={"categorical-range-selector-row"} className={"row filter_center_rows"}>
+                    <div id={"categorical-range-selector-row"} className={"filter-center-rows row"}>
+                        {this.getToggleSwitch(definition, this.state.index)}
                         <div className={"slider-container"}>
+
+
                             <Slider range min={0} max={globalPatientCountsForCategories.length - 1}
                                     defaultValue={[minSelectedInRange, maxSelectedInRange]}
                                     onChange={(e) => this.handleRangeChange(e)}

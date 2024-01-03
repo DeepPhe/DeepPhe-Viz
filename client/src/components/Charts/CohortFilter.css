@@ -42,6 +42,11 @@
     height: inherit;
 }
 
+.filter-center-rows {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center;
+}
 
 .filter-inner-container {
     margin-right: 5px !important;
@@ -57,7 +62,10 @@
     margin-right: 2px;
 }
 
-
+.switch-box {
+    flex-grow: 1 !important;
+    width: auto !important;
+}
 #boolean-list-row .switch {
     margin-right:5px;
 
@@ -66,7 +74,7 @@
 }
 
 #numeric-range-selector-row .switch, #categorical-range-selector-row .switch {
-    width: 15% !important;
+
     align-items: center;
     display: inline-flex;
 }
@@ -76,12 +84,13 @@
     height: 100% !important;
     margin-top: 3px !important;
     display: flex;
+    flex-shrink: 1 !important;
 }
 
 .rc-slider {
     padding-left: 0px !important;
     padding-right: 0px !important;
-    width: 99% !important;
+
     margin-left: auto;
     margin-right: auto;
     padding: 0px !important;

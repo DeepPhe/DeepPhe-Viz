@@ -1,8 +1,9 @@
 import {Component} from "react";
 import $ from "jquery";
 import * as d3 from "d3v4";
+import FilterComponent from "./FilterComponent";
 
-class RangeSelector extends Component {
+class RangeSelector extends FilterComponent {
     state: any = {
         definition: this.props.definition,
         updated: false
