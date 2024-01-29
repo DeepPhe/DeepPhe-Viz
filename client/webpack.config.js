@@ -1,5 +1,3 @@
-{
-    {
-        false
-    }
+node: {
+    fs: 'empty'
 }
