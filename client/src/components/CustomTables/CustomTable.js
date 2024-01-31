@@ -1,5 +1,5 @@
 import React from "react";
-import {withRouter} from 'react-router-dom'
+import {withRouter} from '../../utils/withRouter.js';
 
 class CustomTable extends React.Component {
 

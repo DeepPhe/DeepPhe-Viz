@@ -16,7 +16,7 @@
 
 */
 // @material-ui/icons
-import Dashboard from "@material-ui/icons/Dashboard";
+import Dashboard from "@mui/icons-material/Dashboard";
 // import Person from "@material-ui/icons/Person";
 // import LibraryBooks from "@material-ui/icons/LibraryBooks";
 // import BubbleChart from "@material-ui/icons/BubbleChart";

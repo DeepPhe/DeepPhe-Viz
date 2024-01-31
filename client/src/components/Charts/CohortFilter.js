@@ -3,7 +3,7 @@ import React from "react";
 import ToggleSwitch from "../CustomButtons/ToggleSwitch";
 
 import './CohortFilter.css';
-import Grid from "@material-ui/core/Grid";
+
 import HSBar from "react-horizontal-stacked-bar-chart";
 
 import 'rc-slider/assets/index.css';

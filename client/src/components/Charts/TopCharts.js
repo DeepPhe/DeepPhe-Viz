@@ -1,11 +1,11 @@
 import React, {useEffect, useMemo, useState} from "react";
-import Grid from "@material-ui/core/Grid";
+import Grid from '@mui/material/Grid';
 import Card from "../Card/Card";
 import CardHeader from "../Card/CardHeader";
 import CardBody from "../Card/CardBody";
 import PatientFirstEncounterAgePerStageChart from "./PatientFirstEncounterAgePerStageChart";
 import PatientCountPerStageChart from "./PatientCountPerStageChart";
-import {styled} from "@material-ui/core";
+import {styled} from "@mui/system";
 import DerivedChart from "./DerivedChart";
 import CohortFilter from "./CohortFilter";
 

@@ -1,7 +1,7 @@
 /*eslint-disable*/
 import React from "react";
 // @material-ui/core components
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles} from "@mui/material";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/footerStyle.js";
 

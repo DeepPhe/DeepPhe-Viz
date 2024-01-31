@@ -1,10 +1,10 @@
 import React from "react";
-import {Redirect, Route, Switch} from "react-router-dom";
+import {Navigate, Route, Routes} from "react-router-dom";
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 // @material-ui/core components
-import {makeStyles} from "@material-ui/core/styles";
+import {makeStyles} from "@mui/material";
 // core components
 //import Navbar from "components/Navbars/Navbar.js";
 import Footer from "components/Footer/Footer.js";
@@ -19,7 +19,7 @@ import bgImage from "assets/img/sidebar-5.jpg";
 let ps;
 
 const switchRoutes = (
-    <Switch>
+    <Routes>
         {routes.map((prop, key) => {
             if (prop.layout === "/deepphe") {
                 return (
@@ -32,8 +32,8 @@ const switchRoutes = (
             }
             return null;
         })}
-        <Redirect from="/deepphe" to="/deepphe/dashboard"/>
-    </Switch>
+        <Navigate from="/deepphe" to="/deepphe/dashboard"/>
+    </Routes>
 );
 
 const useStyles = makeStyles(styles);

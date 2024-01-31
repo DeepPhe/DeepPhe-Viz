@@ -1,5 +1,5 @@
 import React from "react";
-import Grid from "@material-ui/core/Grid";
+import Grid from '@mui/material/Grid';
 import DiagnosisChart from "./DiagnosisChart";
 import BiomarkerOverview from "./BiomarkerOverview";
 import PatientsWithBiomarkersFound from "./PatientsWithBiomarkersFound";

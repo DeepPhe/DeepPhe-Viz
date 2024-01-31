@@ -15,13 +15,16 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+
 import React from "react";
+
+
 import {createBrowserHistory} from "history";
-import {BrowserRouter, Redirect, Route, Router, Switch} from "react-router-dom";
+import {BrowserRouter as Router, Navigate, Route, Routes} from "react-router-dom";
 import "assets/css/deepphe.css";
 // core components
 import Deepphe from "layouts/deepphe.js";
-// import RTL from "layouts/RTL.js";
+
 import "assets/css/font-awesome.min.css";
 import "assets/css/material-dashboard-react.css?v=1.9.0";
 
@@ -31,7 +34,7 @@ import Patient from "./views/Patient/Patient";
 import CancerAndTumorSummaryView from "./views/Summaries/CancerAndTumorSummaryView";
 import ReactDOM from "react-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {createTheme, CssBaseline, ThemeProvider} from "@material-ui/core";
+import {createTheme, CssBaseline, ThemeProvider} from "@mui/material"
 
 const hist = createBrowserHistory();
 
@@ -71,18 +74,18 @@ const themeDark = createTheme({
 
 ReactDOM.render(
     <Router history={hist}>
-        <ThemeProvider theme={themeDark}>
+
             <CssBaseline/>
-            <Switch>
+            <Routes>
                 <Route exact path="/deepphe/dashboard" component={Deepphe}/>
                 <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary"
                        component={CancerAndTumorSummaryView}/>
                 {/*<Route path="/patient/:patientId/timeline" component={TimelineView}/>*/}
                 <Route exact path="/deepphe/patient/:patientId" component={Patient}/>
 
-                <Redirect from="/" to="/deepphe/dashboard"/>
-            </Switch>
-        </ThemeProvider>
+                <Navigate from="/" to="/deepphe/dashboard"/>
+            </Routes>
+
     </Router>
     ,
     document.getElementById("root")

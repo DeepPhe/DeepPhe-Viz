@@ -2,7 +2,7 @@ import React from "react";
 
 import Handlebars from "handlebars";
 import ReactDOM from "react-dom";
-import {withRouter} from "react-router-dom";
+import {withRouter} from "../../utils/withRouter.js";
 
 const {Component, createElement} = React;
 
@@ -211,6 +211,7 @@ Handlebars.registerHelper("inArray", function (item, arr, opts) {
         return false;
     }
 });
+
 
 class CancerAndTumorSummary extends Component {
     // constructor(props) {
