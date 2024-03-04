@@ -11,18 +11,19 @@ import Timeline from "../../components/Charts/Timeline";
 import $ from "jquery";
 import CardHeader from "../../components/Card/CardHeader";
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
-import { mentionedTerms } from "../../components/Charts/Timeline.js";
-import { reportTextRight } from "../../components/Charts/Timeline.js";
+import {
+  mentionedTerms,
+  reportTextRight,
+} from "../../components/Charts/Timeline.js";
 
 const baseUri = "http://localhost:3001/api";
 let initialHighlightedDoc = "";
 
 function Patient() {
   const { patientId } = useParams();
-
   const [patientJson, setPatientJson] = useState({});
 
-  function getNewPatientJsonFromFile(patientId) {
+  function getNewPatientJsonFromFile() {
     return new Promise((resolve, reject) => {
       fetch("../../../docs/fake_patient1.json").then((v) => {
         v.json().then((json) => {
@@ -411,6 +412,8 @@ function Patient() {
       textMentionObj.beginOffset = obj.begin;
       textMentionObj.endOffset = obj.end;
       textMentionObj.mentionFrequency = obj.frequency;
+      textMentionObj.dpheGroup = obj.dpheGroup;
+      textMentionObj.confidence = obj.confidence;
       //console.log(textMentionObj);
       textMentions.push(textMentionObj);
     });
@@ -777,6 +780,161 @@ function Patient() {
     }
   });
 
+  const getReport = (reportId, factId, patientJson) => {
+    const index = patientJson["documents"].findIndex(
+      (doc) => doc.id === reportId
+    );
+    const document = patientJson["documents"][3];
+    let reportText =
+      "===================================================================\n" +
+      "Report ID.....................2,doc2\n" +
+      "Patient ID....................pt123123123\n" +
+      "Patient Name..................Fake Patient1\n" +
+      "Principal Date................20100123 1315\n" +
+      "Record Type...................SP\n" +
+      "Patient DOB...................04/01/1960\n" +
+      "\n" +
+      "\n" +
+      "\n" +
+      "CLINICAL HISTORY:\n" +
+      "This 50 year old peri-menopausal female is S/P ultrasound guided core biopsy of a suspicious lump in the right breast and an abnormal axillary lymph node.  \n" +
+      "\n" +
+      "\n" +
+      "\n" +
+      "\n" +
+      "FINAL DIAGNOSIS:\n" +
+      "PART 1:  RIGHT BREAST ULTRASOUND GUIDED CORE BIOPSY\n" +
+      "A.\tINFILTRATING DUCTAL CARCINOMA, NUCLEAR GRADE 3\n" +
+      "B.    FOCAL DUCTAL CARCINOMA IN SITU, NUCLEAR GRADE 2\n" +
+      "\n" +
+      "PART 2: RIGHT AXILLARY LYMPH NODE ULTRASOUND GUIDED CORE BIOPSY\n" +
+      "A. METASTATIC CARCINOMA INVLOVING LYMPH NODE CORES\n" +
+      "\n" +
+      "\n" +
+      "IMMUNOHISTOCHEMISTRY:\n" +
+      "\n" +
+      "RESULT\t\t\t\t\t\tH-SCORE\n" +
+      "\n" +
+      "ESTROGEN RECEPTOR - NEGATIVE\t\t0\n" +
+      "\n" +
+      "PROGESTERONE RECEPTOR - NEGATIVE\t\t0\n" +
+      "\n" +
+      "HER2/NEU - NEGATIVE\t\t\t\t"; //document.reportText;
+    // console.log(reportText);
+    let mentionedTerms = document.mentions;
+
+    // If there are fact based reports, highlight the displaying one
+    const currentReportCssClass = "current_displaying_report";
+    const currentFactTermsCssClass = "fact_based_term";
+    $(".fact_based_report_id").removeClass(currentReportCssClass);
+    $(".fact_based_term_span").removeClass(currentFactTermsCssClass);
+
+    // Highlight the curent displaying report name
+    $("#" + reportId + "_" + factId).addClass(currentReportCssClass);
+    // Also highlight all the fact-based text mentions in the fact info area
+    $("#terms_list_" + reportId + "_" + factId)
+      .children()
+      .find(">:first-child")
+      .addClass(currentFactTermsCssClass);
+
+    // Show report ID
+    $("#report_id").html(
+      '<i class="fa fa-file-o"></i><span class="display_report_id ' +
+        currentReportCssClass +
+        '">' +
+        reportId +
+        "</span>"
+    );
+
+    // Show rendered mentioned terms
+    // First check if this report is a fact-based report so we cna highlight the fact-related terms
+    let factBasedTerms = [];
+    if (
+      Object.keys(factBasedReports).indexOf(reportId) !== -1 &&
+      Object.keys(factBasedReports[reportId]).indexOf(factId) !== -1
+    ) {
+      factBasedTerms = factBasedReports[reportId][factId];
+    }
+
+    // mentionedTerms doesn't have position info, so we need to keep the posiiton info
+    // for highlighting and scroll to
+    let factBasedTermsWithPosition = [];
+    let renderedMentionedTerms =
+      '<ol id="mentions" class="mentioned_terms_list">';
+    mentionedTerms = mentionedTerms.sort((a, b) =>
+      parseInt(a.begin) > parseInt(b.begin) ? 1 : -1
+    );
+    let textMentions = [];
+    const uniqueArr = [];
+
+    // Also scroll to the first fact based term if any in the report text
+    if (factBasedTermsWithPosition.length > 0) {
+      scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
+    } else {
+      let reportTextDiv = $("#report_text");
+      //highlight all mentions
+      //console.log(mentionedTerms);
+      textMentions = highlightAllMentions(mentionedTerms);
+
+      const mentionCounter = {};
+
+      textMentions.forEach((obj) => {
+        if (mentionCounter[obj.text.toString()]) {
+          mentionCounter[obj.text.toString()] += 1;
+        } else {
+          mentionCounter[obj.text.toString()] = 1;
+        }
+        // obj.mentionFrequency = mentionCounter[obj.text.toString()];
+      });
+
+      textMentions.forEach((obj) => {
+        obj.mentionFrequency = mentionCounter[obj.text.toString()];
+      });
+
+      let highlightedReportText = highlightTextMentions(
+        textMentions,
+        reportText
+      );
+
+      initialHighlightedDoc = highlightedReportText;
+      reportTextDiv.html(highlightedReportText);
+
+      reportTextDiv.animate({ scrollTop: 0 }, "fast");
+      reportTextRight = $("#report_text").text();
+    }
+
+    textMentions.forEach(function (obj) {
+      //console.log(JSON.stringify(obj))
+      let fact_based_term_class = "";
+      let popUp = "popUp";
+      if (factBasedTerms.indexOf(obj.text) !== -1) {
+        factBasedTermsWithPosition.push(obj);
+        fact_based_term_class = " fact_based_term";
+      }
+      // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
+      if (!uniqueArr.includes(obj.text)) {
+        uniqueArr.push(obj.text);
+        renderedMentionedTerms +=
+          '<li class="report_mentioned_term' +
+          fact_based_term_class +
+          '" data-begin="' +
+          obj.beginOffset +
+          '" data-end="' +
+          obj.endOffset +
+          '">' +
+          obj.text +
+          '<span class="frequency">' +
+          "(" +
+          obj.mentionFrequency +
+          ")" +
+          "</span></li>";
+      }
+    });
+    renderedMentionedTerms += "</ol>";
+
+    $("#report_mentioned_terms").html(renderedMentionedTerms);
+  };
+
   // removed, not used const classes = useStyles();
   const [summary, setSummary] = useState(null);
 
@@ -793,9 +951,9 @@ function Patient() {
           .then((data) => {
             if (isMounted) setSummary(data);
           });
+        resolve(true);
         return () => {
           isMounted = false;
-          resolve(true);
         };
       });
     }
@@ -876,7 +1034,11 @@ function Patient() {
                 Patient Episode Timeline
               </CardHeader>
               <CardBody>
-                <Timeline patientId={patientId}></Timeline>
+                <Timeline
+                  patientJson={patientJson}
+                  patientId={patientId}
+                  getReport={getReport}
+                ></Timeline>
               </CardBody>
             </Card>
             <Card id={"docs"}>
