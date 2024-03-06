@@ -502,28 +502,7 @@ export default class Timeline extends React.Component {
       //     });
       // }
 
-      function highlightAllMentions(mentionedTerms) {
-        let textMentions = [];
-        mentionedTerms = mentionedTerms.sort(function (a, b) {
-          return (
-            parseInt(a.begin) - parseInt(b.begin) ||
-            parseInt(a.end) - parseInt(b.end)
-          );
-        });
 
-        mentionedTerms.forEach(function (obj) {
-          //grabbing mention begin and end so that I can highlight each mention at the start
-          let textMentionObj = {};
-          textMentionObj.text = obj.term;
-          textMentionObj.beginOffset = obj.begin;
-          textMentionObj.endOffset = obj.end;
-          textMentionObj.mentionFrequency = obj.frequency;
-          //console.log(textMentionObj);
-          textMentions.push(textMentionObj);
-        });
-
-        return textMentions;
-      }
 
       function highlightSelectedTimelineReport(reportId) {
         // Remove previous added highlighting classes

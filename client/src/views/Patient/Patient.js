@@ -7,21 +7,20 @@ import CardBody from "components/Card/CardBody.js";
 import * as d3 from "d3v4";
 import CustomTable from "../../components/CustomTables/CustomTable";
 import CancerAndTumorSummary from "../../components/Summaries/CancerAndTumorSummary";
-import Timeline from "../../components/Charts/Timeline";
+import Timeline, { mentionedTerms } from "../../components/Charts/Timeline";
 import $ from "jquery";
 import CardHeader from "../../components/Card/CardHeader";
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
-import {
-  mentionedTerms,
-  reportTextRight,
-} from "../../components/Charts/Timeline.js";
+
 
 const baseUri = "http://localhost:3001/api";
 let initialHighlightedDoc = "";
+let reportTextRight = "";
 
 function Patient() {
   const { patientId } = useParams();
   const [patientJson, setPatientJson] = useState({});
+  const [patientDocument, setPatientDocument] = useState({});
 
   function getNewPatientJsonFromFile() {
     return new Promise((resolve, reject) => {
@@ -40,7 +39,7 @@ function Patient() {
 
   let factBasedReports = {};
 
-  function scrollToHighlightedTextMention(obj, reportText, term = "NONE") {
+  function scrollToHighlightedTextMention(mention, reportText, doc, term = "NONE") {
     // Highlight the selected term in the term list
     const cssClass = "current_mentioned_term";
     // First remove the previously added highlighting
@@ -51,7 +50,7 @@ function Patient() {
     // $('.report_mentioned_term_4').removeClass(cssClass);
     // Then add to this current one by selecting the attributes
     $(
-      'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
+      'li[data-begin="' + mention.begin + '"][data-end="' + mention.end + '"]'
     ).addClass(cssClass);
 
     let reportTextDiv = $("#report_text");
@@ -59,9 +58,9 @@ function Patient() {
     let textMentions = [];
 
     let textMentionObj = {};
-    textMentionObj.text = obj.term;
-    textMentionObj.beginOffset = obj.begin;
-    textMentionObj.endOffset = obj.end;
+    textMentionObj.text = mention.preferredText;
+    textMentionObj.beginOffset = mention.begin;
+    textMentionObj.endOffset = mention.end;
 
     //console.log(textMentionObj);
     textMentions.push(textMentionObj);
@@ -69,12 +68,12 @@ function Patient() {
 
     // Highlight this term in the report text
     //console.log(mentionedTerms);
-    textMentions = highlightAllMentions(mentionedTerms);
+    //textMentions = highlightAllMentions(mentionedTerms);
     // console.log(textMentions);
     let highlightedReportText = highlightTextMentions(
-      textMentions,
-      reportText,
-      term
+      doc.mentions,
+      doc.text,
+      mention.term
     );
     //console.log(highlightedReportText);
 
@@ -123,35 +122,35 @@ function Patient() {
 
       // If this is the first textmention, paste the start of the document before the first TM.
       if (i === 0) {
-        if (textMention.beginOffset === 0) {
+        if (textMention.begin === 0) {
           textFragments.push("");
         } else {
-          textFragments.push(reportText.substring(0, textMention.beginOffset));
+          textFragments.push(reportText.substring(0, textMention.begin));
         }
       } else {
         // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
         if (
-          parseInt(textMention.beginOffset) <= parseInt(lastValidTM.endOffset)
+          parseInt(textMention.begin) <= parseInt(lastValidTM.end)
         ) {
           lastValidTMIndex = i;
         } else {
           textFragments.push(
-            reportText.substring(lastValidTM.endOffset, textMention.beginOffset)
+            reportText.substring(lastValidTM.end, textMention.begin)
           );
         }
       }
-      console.log(term.slice(0, -3));
+      //console.log(term.slice(0, -3));
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
-      if (textMention.text.indexOf(correctTerm) > -1) {
+      if (textMention.preferredText.indexOf(correctTerm) > -1) {
         console.log("reached?");
         textFragments.push(
           '<span class="' +
             cssClass +
             '">' +
             reportText.substring(
-              textMention.beginOffset,
-              textMention.endOffset
+              textMention.begin,
+              textMention.end
             ) +
             "</span>"
         );
@@ -161,8 +160,8 @@ function Patient() {
             cssClassAll +
             '">' +
             reportText.substring(
-              textMention.beginOffset,
-              textMention.endOffset
+              textMention.begin,
+              textMention.end
             ) +
             "</span>"
         );
@@ -172,7 +171,7 @@ function Patient() {
     }
     // Push end of the document
     textFragments.push(
-      reportText.substring(textMentions[lastValidTMIndex].endOffset)
+      reportText.substring(textMentions[lastValidTMIndex].end)
     );
 
     // Assemble the final report content with highlighted texts
@@ -264,14 +263,14 @@ function Patient() {
     let points = [];
     let flattened = [];
     for (let i in ranges) {
-      if (ranges[i].endOffset < ranges[i].beginOffset) {
+      if (ranges[i].end < ranges[i].begin) {
         //RE-ORDER THIS ITEM (BEGIN/END)
-        let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
-        ranges[i].endOffset = ranges[i].beginOffset;
-        ranges[i].beginOffset = tmp;
+        let tmp = ranges[i].end; //RE-ORDER BY SWAPPING
+        ranges[i].end= ranges[i].begin;
+        ranges[i].begin = tmp;
       }
-      points.push(ranges[i].beginOffset);
-      points.push(ranges[i].endOffset);
+      points.push(ranges[i].begin);
+      points.push(ranges[i].end);
     }
     // console.log("points: ", points);
 
@@ -289,16 +288,16 @@ function Patient() {
       if (i === 0 || points[i] === points[i - 1]) continue;
       let includedRanges = ranges.filter(function (x) {
         return (
-          Math.max(x.beginOffset, points[i - 1]) <
-          Math.min(x.endOffset, points[i])
+          Math.max(x.begin, points[i - 1]) <
+          Math.min(x.end, points[i])
         );
       });
       //console.log(includedRanges);
 
       if (includedRanges.length > 0) {
         let flattenedRange = {
-          beginOffset: points[i - 1],
-          endOffset: points[i],
+          begin: points[i - 1],
+          end: points[i],
           count: 0,
         };
 
@@ -307,7 +306,7 @@ function Patient() {
           let includedRange = includedRanges[j];
 
           for (let prop in includedRange) {
-            if (prop !== "beginOffset" && prop !== "endOffset") {
+            if (prop !== "begin" && prop !== "end") {
               if (!flattenedRange[prop]) flattenedRange[prop] = [];
               flattenedRange[prop].push(includedRange[prop]);
             }
@@ -403,23 +402,22 @@ function Patient() {
   //         });
   // }
 
-  function highlightAllMentions(mentionedTerms) {
-    let textMentions = [];
-    mentionedTerms.forEach(function (obj) {
-      //grabbing mention begin and end so that I can highlight each mention at the start
-      let textMentionObj = {};
-      textMentionObj.text = obj.term;
-      textMentionObj.beginOffset = obj.begin;
-      textMentionObj.endOffset = obj.end;
-      textMentionObj.mentionFrequency = obj.frequency;
-      textMentionObj.dpheGroup = obj.dpheGroup;
-      textMentionObj.confidence = obj.confidence;
-      //console.log(textMentionObj);
-      textMentions.push(textMentionObj);
-    });
-
-    return textMentions;
-  }
+  // function highlightAllMentions(mentionedTerms) {
+  //   let textMentions = [];
+  //   mentionedTerms.forEach(function (obj) {
+  //     //grabbing mention begin and end so that I can highlight each mention at the start
+  //     let textMentionObj = {};
+  //     textMentionObj.text = obj.perferredText;
+  //     textMentionObj.beginOffset = obj.begin;
+  //     textMentionObj.endOffset = obj.end;
+  //     textMentionObj.dpheGroup = obj.dpheGroup;
+  //     textMentionObj.confidence = obj.confidence;
+  //     //console.log(textMentionObj);
+  //     textMentions.push(textMentionObj);
+  //   });
+  //
+  //   return textMentions;
+  // }
 
   // function getFact(patientId, factId) {
   //     $.ajax({
@@ -622,15 +620,22 @@ function Patient() {
   //
   // });
 
-  // Click the report mentioned term to show it in the report text
-  $(document).on("click", ".report_mentioned_term", function () {
-    let obj = {};
-    obj.term = $(this).text();
-    obj.begin = $(this).data("begin");
-    obj.end = $(this).data("end");
 
-    scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
-  });
+
+  // Click the report mentioned term to show it in the report text
+
+
+
+
+
+  //   function (e) {
+  //   let obj = {};
+  //   obj.term = $(this).text();
+  //   obj.begin = $(this).data("begin");
+  //   obj.end = $(this).data("end");
+  //
+  //   scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
+  // }).bind(this);
 
   // $(document).on("click",
   //     ".report_mentioned_term_1, .report_mentioned_term_2, .report_mentioned_term_3, .report_mentioned_term_4",
@@ -784,44 +789,24 @@ function Patient() {
     const index = patientJson["documents"].findIndex(
       (doc) => doc.id === reportId
     );
-    const document = patientJson["documents"][3];
-    let reportText =
-      "===================================================================\n" +
-      "Report ID.....................2,doc2\n" +
-      "Patient ID....................pt123123123\n" +
-      "Patient Name..................Fake Patient1\n" +
-      "Principal Date................20100123 1315\n" +
-      "Record Type...................SP\n" +
-      "Patient DOB...................04/01/1960\n" +
-      "\n" +
-      "\n" +
-      "\n" +
-      "CLINICAL HISTORY:\n" +
-      "This 50 year old peri-menopausal female is S/P ultrasound guided core biopsy of a suspicious lump in the right breast and an abnormal axillary lymph node.  \n" +
-      "\n" +
-      "\n" +
-      "\n" +
-      "\n" +
-      "FINAL DIAGNOSIS:\n" +
-      "PART 1:  RIGHT BREAST ULTRASOUND GUIDED CORE BIOPSY\n" +
-      "A.\tINFILTRATING DUCTAL CARCINOMA, NUCLEAR GRADE 3\n" +
-      "B.    FOCAL DUCTAL CARCINOMA IN SITU, NUCLEAR GRADE 2\n" +
-      "\n" +
-      "PART 2: RIGHT AXILLARY LYMPH NODE ULTRASOUND GUIDED CORE BIOPSY\n" +
-      "A. METASTATIC CARCINOMA INVLOVING LYMPH NODE CORES\n" +
-      "\n" +
-      "\n" +
-      "IMMUNOHISTOCHEMISTRY:\n" +
-      "\n" +
-      "RESULT\t\t\t\t\t\tH-SCORE\n" +
-      "\n" +
-      "ESTROGEN RECEPTOR - NEGATIVE\t\t0\n" +
-      "\n" +
-      "PROGESTERONE RECEPTOR - NEGATIVE\t\t0\n" +
-      "\n" +
-      "HER2/NEU - NEGATIVE\t\t\t\t"; //document.reportText;
+    const doc = patientJson["documents"][3];
+    setPatientDocument(doc);
+    let handleTermClick = (e) => {
+      let obj = {};
+      obj.term = e.target.textContent;
+      obj.begin = e.target.getAttribute("data-begin");
+      obj.end = e.target.getAttribute("data-end");
+
+      scrollToHighlightedTextMention(obj, reportTextRight, doc);
+    };
+
+    $(document).on("click", ".report_mentioned_term",
+      handleTermClick
+    );
+    let reportText = doc.text;
+
     // console.log(reportText);
-    let mentionedTerms = document.mentions;
+    let mentionedTerms = doc.mentions;
 
     // If there are fact based reports, highlight the displaying one
     const currentReportCssClass = "current_displaying_report";
@@ -869,30 +854,33 @@ function Patient() {
 
     // Also scroll to the first fact based term if any in the report text
     if (factBasedTermsWithPosition.length > 0) {
-      scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
+      scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText, doc);
     } else {
       let reportTextDiv = $("#report_text");
       //highlight all mentions
       //console.log(mentionedTerms);
-      textMentions = highlightAllMentions(mentionedTerms);
+      //textMentions = highlightAllMentions(mentionedTerms);
 
       const mentionCounter = {};
 
-      textMentions.forEach((obj) => {
-        if (mentionCounter[obj.text.toString()]) {
-          mentionCounter[obj.text.toString()] += 1;
+      const dpheGroups = new Set(mentionedTerms.map((obj) => obj.dpheGroup));
+      console.log(dpheGroups)
+      mentionedTerms.forEach((obj) => {
+        const text = obj.preferredText;
+        if (mentionCounter[text]) {
+          mentionCounter[text] += 1;
         } else {
-          mentionCounter[obj.text.toString()] = 1;
+          mentionCounter[text] = 1;
         }
         // obj.mentionFrequency = mentionCounter[obj.text.toString()];
       });
 
-      textMentions.forEach((obj) => {
-        obj.mentionFrequency = mentionCounter[obj.text.toString()];
+      mentionedTerms.forEach((obj) => {
+        obj.mentionFrequency = mentionCounter[obj.preferredText];
       });
 
       let highlightedReportText = highlightTextMentions(
-        textMentions,
+        mentionedTerms,
         reportText
       );
 
@@ -900,29 +888,29 @@ function Patient() {
       reportTextDiv.html(highlightedReportText);
 
       reportTextDiv.animate({ scrollTop: 0 }, "fast");
-      reportTextRight = $("#report_text").text();
+      reportTextRight = $("#report_text").innerText;
     }
 
-    textMentions.forEach(function (obj) {
+    mentionedTerms.forEach(function (obj) {
       //console.log(JSON.stringify(obj))
       let fact_based_term_class = "";
       let popUp = "popUp";
-      if (factBasedTerms.indexOf(obj.text) !== -1) {
+      if (factBasedTerms.indexOf(obj.preferredText) !== -1) {
         factBasedTermsWithPosition.push(obj);
         fact_based_term_class = " fact_based_term";
       }
       // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
-      if (!uniqueArr.includes(obj.text)) {
-        uniqueArr.push(obj.text);
+      if (!uniqueArr.includes(obj.preferredText)) {
+        uniqueArr.push(obj.preferredText);
         renderedMentionedTerms +=
           '<li class="report_mentioned_term' +
           fact_based_term_class +
           '" data-begin="' +
-          obj.beginOffset +
+          obj.begin +
           '" data-end="' +
-          obj.endOffset +
+          obj.end +
           '">' +
-          obj.text +
+          obj.preferredText +
           '<span class="frequency">' +
           "(" +
           obj.mentionFrequency +
@@ -934,6 +922,29 @@ function Patient() {
 
     $("#report_mentioned_terms").html(renderedMentionedTerms);
   };
+
+  function highlightAllMentions(mentionedTerms) {
+    let textMentions = [];
+    mentionedTerms = mentionedTerms.sort(function (a, b) {
+      return (
+        parseInt(a.begin) - parseInt(b.begin) ||
+        parseInt(a.end) - parseInt(b.end)
+      );
+    });
+
+    mentionedTerms.forEach(function (obj) {
+      //grabbing mention begin and end so that I can highlight each mention at the start
+      let textMentionObj = {};
+      textMentionObj.text = obj.term;
+      textMentionObj.beginOffset = obj.begin;
+      textMentionObj.endOffset = obj.end;
+      textMentionObj.mentionFrequency = obj.frequency;
+      //console.log(textMentionObj);
+      textMentions.push(textMentionObj);
+    });
+
+    return textMentions;
+  }
 
   // removed, not used const classes = useStyles();
   const [summary, setSummary] = useState(null);
