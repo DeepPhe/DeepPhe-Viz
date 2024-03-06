@@ -11,12 +11,40 @@ import Timeline from "../../components/Charts/Timeline";
 import $ from 'jquery'
 import CardHeader from "../../components/Card/CardHeader";
 import {Col, Container, Nav, Navbar, Row} from "react-bootstrap";
-
+import {mentionedTerms} from '../../components/Charts/Timeline.js'
+import {reportTextRight} from '../../components/Charts/Timeline.js'
 
 const baseUri = "http://localhost:3001/api";
+let initialHighlightedDoc = '';
+
 
 function Patient() {
     const {patientId} = useParams();
+    const [checkboxGridVisible, setCheckboxGridVisible] = useState(true);
+
+    const handleDropdownClick = () => {
+        setCheckboxGridVisible(prevState => {
+            return !prevState;
+        });
+
+    };
+
+    const [checkboxes, setCheckboxes] = useState({
+        checkbox1: true,  // Set to true if you want it initially checked
+        checkbox2: true,  // Set to true if you want it initially checked
+        checkbox3: true,
+        checkbox4: true,
+        checkbox5: true,
+        checkbox6: true,
+        checkbox7: true
+    });
+
+    const handleCheckboxChange = (checkboxId) => {
+        setCheckboxes(prevState => ({
+            ...prevState,
+            [checkboxId]: !prevState[checkboxId],
+        }));
+    };
 
     // Highlight the selected report circle
     function highlightReportBasedOnFact(reportId) {
@@ -25,11 +53,15 @@ function Patient() {
 
     let factBasedReports = {};
 
-    function scrollToHighlightedTextMention(obj, reportText) {
+    function scrollToHighlightedTextMention(obj, reportText, term = "NONE") {
         // Highlight the selected term in the term list
         const cssClass = 'current_mentioned_term';
         // First remove the previously added highlighting
         $('.report_mentioned_term').removeClass(cssClass);
+        // $('.report_mentioned_term_1').removeClass(cssClass);
+        // $('.report_mentioned_term_2').removeClass(cssClass);
+        // $('.report_mentioned_term_3').removeClass(cssClass);
+        // $('.report_mentioned_term_4').removeClass(cssClass);
         // Then add to this current one by selecting the attributes
         $('li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]').addClass(cssClass);
 
@@ -42,10 +74,16 @@ function Patient() {
         textMentionObj.beginOffset = obj.begin;
         textMentionObj.endOffset = obj.end;
 
+        //console.log(textMentionObj);
         textMentions.push(textMentionObj);
+        //console.log(term);
 
         // Highlight this term in the report text
-        let highlightedReportText = highlightTextMentions(textMentions, reportText);
+        //console.log(mentionedTerms);
+        textMentions = highlightAllMentions(mentionedTerms);
+        // console.log(textMentions);
+        let highlightedReportText = highlightTextMentions(textMentions, reportText, term);
+        //console.log(highlightedReportText);
 
         // Use html() for html rendering
         reportTextDiv.html(highlightedReportText);
@@ -53,82 +91,72 @@ function Patient() {
         // Scroll to that position inside the report text div
         // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
         // 5 is position tweak
-        reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
+        //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
     }
 
-    function highlightSelectedTimelineReport(reportId) {
-        // Remove previous added highlighting classes
-        const css = "selected_report";
-        $('.main_report').removeClass(css);
-        $('.overview_report').removeClass(css);
+    // function highlightSelectedTimelineReport(reportId) {
+    //     // Remove previous added highlighting classes
+    //     const css = "selected_report";
+    //     $('.main_report').removeClass(css);
+    //     $('.overview_report').removeClass(css);
+    //
+    //     // Remove previous added font awesome icon
+    //     $('.selected_report_icon').remove();
+    //
+    //     // Highlight the selected circle in both overview and main areas
+    //     $('#main_' + reportId).addClass(css);
+    //     $('#overview_' + reportId).addClass(css);
+    //     $("#occ_radio").prop('checked', true);
+    //     // $("#stack_radio").prop('checked', true);
+    //     const e = new Event("change");
+    //     const element = document.querySelector('input[type=radio][name="sort_order"]');
+    //     element.dispatchEvent(e);
+    // }
 
-        // Remove previous added font awesome icon
-        $('.selected_report_icon').remove();
+    function highlightTextMentions(textMentions, reportText, term = "NONE") {
 
-        // Highlight the selected circle in both overview and main areas
-        $('#main_' + reportId).addClass(css);
-        $('#overview_' + reportId).addClass(css);
-        $("#occ_radio").prop('checked', true);
-        const e = new Event("change");
-        const element = document.querySelector('input[type=radio][name="sort_order"]');
-        element.dispatchEvent(e);
-    }
-
-    function highlightTextMentions(textMentions, reportText) {
         const cssClass = "highlighted_term";
+        const cssClassAll = "highlight_terms";
 
-        // Sort the textMentions array first based on beginOffset
-        textMentions.sort(function (a, b) {
-            let comp = a.beginOffset - b.beginOffset;
-            if (comp === 0) {
-                return b.endOffset - a.endOffset;
-            } else {
-                return comp;
-            }
-        });
+        // Flatten the ranges, this is the key to solve overlapping
+        textMentions = flattenRanges(textMentions);
+        // console.log(textMentions);
 
         let textFragments = [];
+        let lastValidTMIndex = 0;
 
-        if (textMentions.length === 1) {
-            let textMention = textMentions[0];
+        for (let i = 0; i < textMentions.length; i++) {
+            let textMention = textMentions[i];
+            let lastValidTM = textMentions[lastValidTMIndex];
 
-            if (textMention.beginOffset === 0) {
-                textFragments.push('');
-            } else {
-                textFragments.push(reportText.substring(0, textMention.beginOffset));
-            }
-
-            textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-            textFragments.push(reportText.substring(textMention.endOffset));
-        } else {
-            let lastValidTMIndex = 0;
-
-            for (let i = 0; i < textMentions.length; i++) {
-                let textMention = textMentions[i];
-                let lastValidTM = textMentions[lastValidTMIndex];
-
-                // If this is the first textmention, paste the start of the document before the first TM.
-                if (i === 0) {
-                    if (textMention.beginOffset === 0) {
-                        textFragments.push('');
-                    } else {
-                        textFragments.push(reportText.substring(0, textMention.beginOffset));
-                    }
-                } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-                    if (textMention.beginOffset < lastValidTM.endOffset) {
-                        // Push end of the document
-                        continue; // Skipping this TM.
-                    } else {
-                        textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
-                    }
+            // If this is the first textmention, paste the start of the document before the first TM.
+            if (i === 0) {
+                if (textMention.beginOffset === 0) {
+                    textFragments.push('');
+                } else {
+                    textFragments.push(reportText.substring(0, textMention.beginOffset));
                 }
-
-                textFragments.push('<span "' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-                lastValidTMIndex = i;
+            } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
+                if (parseInt(textMention.beginOffset) <= parseInt(lastValidTM.endOffset)) {
+                    lastValidTMIndex = i;
+                } else {
+                    textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                }
             }
-            // Push end of the document
-            textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
+            console.log(term.slice(0, -3));
+            //TODO: FIX this later, Need to get text without the mentionFrequency on it
+            let correctTerm = term.slice(0, -3);
+            if (textMention.text.indexOf(correctTerm) > -1) {
+                console.log("reached?");
+                textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+            } else {
+                textFragments.push('<span class="' + cssClassAll + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
+            }
+
+            lastValidTMIndex = i;
         }
+        // Push end of the document
+        textFragments.push(reportText.substring(textMentions[lastValidTMIndex].endOffset));
 
         // Assemble the final report content with highlighted texts
         let highlightedReportText = '';
@@ -136,12 +164,145 @@ function Patient() {
         for (let j = 0; j < textFragments.length; j++) {
             highlightedReportText += textFragments[j];
         }
-
-        const e = new Event("change");
-        const element = document.querySelector('input[type=radio][name="sort_order"]');
-        element.dispatchEvent(e);
+        // const e = new Event("change");
+        // const element = document.querySelector('input[type=radio][name="sort_order"]');
+        // element.dispatchEvent(e);
 
         return highlightedReportText;
+    }
+
+    const variablesObj = {
+        'topography_major': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'topography_minor': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'topography': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#cfe2ff',
+            'mentions': []
+        },
+        'histology': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'behavior': {
+            'visible': false,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'morphology': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#f8d7da',
+            'mentions': []
+        },
+        'laterality': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#ffe69c',
+            'mentions': []
+        },
+        'grade': {
+            'visible': true,
+            'value': '',
+            'bgcolor': '#a3cfbb',
+            'mentions': []
+        }
+    };
+
+    //WILL USE THIS LATER
+    function buildColorDistribution(textMention) {
+        let colorDistribution = [];
+        let increment = (100 / textMention.count).toFixed(2);
+
+        for (let i = 0; i < textMention.count; i++) {
+            let bgcolor = "highlight_terms";
+            let start = (i > 0) ? i * increment + "%" : 0;
+            let finish = (i < textMention.count - 1) ? (i + 1) * increment + "%" : "100%";
+            colorDistribution.push(bgcolor + " " + start);
+            colorDistribution.push(bgcolor + " " + finish);
+        }
+
+        return colorDistribution;
+    }
+
+    //Function by Zhoe, helps with overlapping highlight mentions
+    function flattenRanges(ranges) {
+        // console.log("======input ranges======");
+        // console.log(ranges);
+
+        let points = [];
+        let flattened = [];
+        for (let i in ranges) {
+            if (ranges[i].endOffset < ranges[i].beginOffset) { //RE-ORDER THIS ITEM (BEGIN/END)
+                let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
+                ranges[i].endOffset = ranges[i].beginOffset;
+                ranges[i].beginOffset = tmp;
+            }
+            points.push(ranges[i].beginOffset);
+            points.push(ranges[i].endOffset);
+        }
+        // console.log("points: ", points);
+
+
+        //MAKE SURE OUR LIST OF POINTS IS IN ORDER
+        //COMMENT THIS OUT LATER
+        points.sort(function (a, b) {
+            return a - b;
+        });
+
+        // console.log("sorted points: ", points);
+
+        // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
+        // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
+        for (let i in points) {
+            if (i === 0 || points[i] === points[i - 1]) continue;
+            let includedRanges = ranges.filter(function (x) {
+                return (Math.max(x.beginOffset, points[i - 1]) < Math.min(x.endOffset, points[i]));
+            });
+            //console.log(includedRanges);
+
+            if (includedRanges.length > 0) {
+                let flattenedRange = {
+                    beginOffset: points[i - 1],
+                    endOffset: points[i],
+                    count: 0
+                }
+
+                for (let j in includedRanges) {
+                    //console.log(includedRanges[j]);
+                    let includedRange = includedRanges[j];
+
+                    for (let prop in includedRange) {
+                        if (prop !== 'beginOffset' && prop !== 'endOffset') {
+                            if (!flattenedRange[prop]) flattenedRange[prop] = [];
+                            flattenedRange[prop].push(includedRange[prop]);
+                        }
+                    }
+
+                    flattenedRange.count++;
+                }
+
+                flattened.push(flattenedRange);
+            }
+        }
+
+        // console.log("======flattened ranges======");
+        // console.log(flattened);
+
+        return flattened;
     }
 
     function getReport(reportId, factId) {
@@ -156,7 +317,7 @@ function Patient() {
             .done(function (response) {
 
                 let reportText = response.reportText;
-                let mentionedTerms = response.mentionedTerms;
+                mentionedTerms = response.mentionedTerms;
 
                 // If there are fact based reports, highlight the displaying one
                 const currentReportCssClass = 'current_displaying_report';
@@ -182,36 +343,59 @@ function Patient() {
                 // mentionedTerms doesn't have position info, so we need to keep the posiiton info
                 // for highlighting and scroll to
                 let factBasedTermsWithPosition = [];
-
                 let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
-
+                mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+                let textMentions = [];
                 mentionedTerms.forEach(function (obj) {
+                    //console.log(JSON.stringify(obj))
                     let fact_based_term_class = '';
                     if (factBasedTerms.indexOf(obj.term) !== -1) {
                         factBasedTermsWithPosition.push(obj);
                         fact_based_term_class = ' fact_based_term';
                     }
+                    // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
                     renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
                 });
                 renderedMentionedTerms += "</ol>";
 
                 $('#report_mentioned_terms').html(renderedMentionedTerms);
-                sortMentions("occurrence")
+                // sortMentions("occurrence");
+                // viewMentions("stack");
 
                 // Also scroll to the first fact based term if any in the report text
                 if (factBasedTermsWithPosition.length > 0) {
                     scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
                 } else {
                     let reportTextDiv = $("#report_text");
-                    // Show report content, either highlighted or not
-                    reportTextDiv.html(reportText);
-                    // Scroll back to top of the report content div
+
+                    let highlightedReportText = highlightTextMentions(textMentions, reportText);
+
+                    console.log("YO");
+                    initialHighlightedDoc = highlightedReportText;
+                    reportTextDiv.html(highlightedReportText);
+
                     reportTextDiv.animate({scrollTop: 0}, "fast");
                 }
             })
             .fail(function () {
                 console.log("Ajax error - can't get report");
             });
+    }
+
+    function highlightAllMentions(mentionedTerms) {
+        let textMentions = [];
+        mentionedTerms.forEach(function (obj) {
+            //grabbing mention begin and end so that I can highlight each mention at the start
+            let textMentionObj = {};
+            textMentionObj.text = obj.term;
+            textMentionObj.beginOffset = obj.begin;
+            textMentionObj.endOffset = obj.end;
+            textMentionObj.mentionFrequency = obj.frequency;
+            //console.log(textMentionObj);
+            textMentions.push(textMentionObj);
+        });
+
+        return textMentions;
     }
 
     function getFact(patientId, factId) {
@@ -319,26 +503,28 @@ function Patient() {
     }
 
     // // Tumor fact click - List View
-    // $(document).on("click", ".list_view .fact", function () {
-    //
-    //     //JDL when someone clicks on a cancer fact, it goes here....probably need to make a map from old/new property names now to explain my thinking
-    //     const cssClass = 'highlighted_fact';
-    //
-    //     // Remove the previous highlighting
-    //     $('.fact').removeClass(cssClass);
-    //
-    //     // "list_view_{{id}}"
-    //     let id = $(this).attr('id');
-    //     let factId = id.replace("list_view_", "");
-    //
-    //     getFact(patientId, factId);
-    //
-    //     // Highlight the clicked fact
-    //     $(this).addClass(cssClass);
-    //
-    //     // Also highlight the same fact in table view
-    //     $("#table_view_" + factId).addClass(cssClass);
-    // });
+    $(document).on("click", ".list_view .fact", function () {
+
+
+        //JDL when someone clicks on a cancer fact, it goes here....probably need to make a map from old/new property names now to explain my thinking
+        const cssClass = 'highlighted_fact';
+
+        // Remove the previous highlighting
+        $('.fact').removeClass(cssClass);
+
+        // "list_view_{{id}}"
+        let id = $(this).attr('id');
+        let factId = id.replace("list_view_", "");
+
+        getFact(patientId, factId);
+
+        // Highlight the clicked fact
+        $(this).addClass(cssClass);
+
+        // Also highlight the same fact in table view
+        $("#table_view_" + factId).addClass(cssClass);
+    });
+
 
     $(document).on("click", ".fact", function (event) {
         function hasParentClass(child, classname) {
@@ -429,10 +615,20 @@ function Patient() {
         obj.begin = $(this).data('begin');
         obj.end = $(this).data('end');
 
-        let reportText = $("#report_text").text();
-
-        scrollToHighlightedTextMention(obj, reportText);
+        scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
     });
+
+    // $(document).on("click",
+    //     ".report_mentioned_term_1, .report_mentioned_term_2, .report_mentioned_term_3, .report_mentioned_term_4",
+    //     function () {
+    //
+    //     let obj = {};
+    //     obj.term = $(this).text();
+    //     obj.begin = $(this).data('begin');
+    //     obj.end = $(this).data('end');
+    //
+    //     scrollToHighlightedTextMention(obj, reportTextRight, obj.term);
+    // });
 
     // Reset button event
     $(document).on("click", "#reset", function () {
@@ -441,7 +637,7 @@ function Patient() {
 
         // Reload timeline
         $('#timeline').html('');
-        //getTimeline(patientId, "timeline");
+        // getTimeline(patientId, "timeline");
 
         // Reset the fact detail and displaying document content
         $('#fact_detail').html('');
@@ -461,10 +657,11 @@ function Patient() {
     });
 
     $("#occ_radio").prop('checked', true);
+    $("#stack_radio").prop('checked', true);
+
 
     function sortMentions(method) {
         // Declaring Variables
-        debugger;
         let geek_list, i, run, li, stop;
         // Taking content of list as input
         geek_list = document.getElementById("mentions");
@@ -472,6 +669,7 @@ function Patient() {
         if (geek_list !== null && geek_list !== undefined) {
 
             run = true;
+            const uniqueArr = [];
 
             while (run) {
                 run = false;
@@ -489,6 +687,9 @@ function Patient() {
                     } else if (method === "occurrence") {
                         if (parseInt(li[i].getAttribute("data-begin")) >
                             (parseInt(li[i + 1].getAttribute("data-begin")))) {
+                            if (!uniqueArr.includes(li[i].textContent)) {
+                                uniqueArr.push(li[i].textContent);
+                            }
                             stop = true;
                             break;
                         }
@@ -506,23 +707,21 @@ function Patient() {
                 }
             }
         }
-
     }
 
     $('input[type=radio][name="sort_order"]').change(function () {
         const value = $(this).val();
         if (value === "alphabetically") {
             sortMentions(value);
-        } else {
-            //only other option
-            sortMentions("occurrence")
+        } else if (value === "occurrence") {
+            sortMentions(value);
         }
     })
 
     $(document).on("input", "#mention_search_input", function () {
 
         // Declare variables
-        var input, filter, ul, li, a, i, txtValue;
+        let input, filter, ul, li, a, i, txtValue;
         input = document.getElementById('mention_search_input');
         filter = input.value.toUpperCase();
         ul = document.getElementById("mentions");
@@ -540,6 +739,51 @@ function Patient() {
             }
         }
     });
+
+    $(document).on("input", "#confidenceRange", function () {
+
+        // Declare variables
+        let slider = document.getElementById("confidenceRange");
+        let output = document.getElementById("confidenceValue");
+
+        output.innerHTML = slider.value;
+
+        slider.oninput = function () {
+            output.innerHTML = this.value;
+        }
+    });
+
+    // Add markers dynamically
+    document.addEventListener('DOMContentLoaded', function() {
+        const scrollLine = document.getElementById('scroll-line');
+        const content = document.getElementById('report_text');
+        console.log(scrollLine);
+        console.log("HERE");
+        console.log(content.innerHTML);
+
+        // Update the line position when the content is scrolled
+        content.addEventListener('scroll', function() {
+            const scrollTop = content.scrollTop;
+            const scrollHeight = content.scrollHeight;
+            const clientHeight = content.clientHeight;
+
+            const scrollFraction = scrollTop / (scrollHeight - clientHeight);
+
+            const scrollLineTop = scrollFraction * (clientHeight - 40); // Adjust based on line size
+            scrollLine.style.top = scrollLineTop + 'px';
+            scrollLine.style.display = 'block';
+        });
+
+        // Hide the line when the user stops scrolling
+        let scrollTimer;
+        content.addEventListener('scroll', function() {
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function() {
+                scrollLine.style.display = 'none';
+            }, 1000); // Adjust delay as needed
+        });
+    });
+
 
 
     // removed, not used const classes = useStyles();
@@ -597,7 +841,7 @@ function Patient() {
                        </Card>
 
                        <Card>
-                           <CardHeader className={"basicCardHeader"}>Click on a Cancer or Tumor Detail</CardHeader>
+                           <CardHeader className={"basicCardHeader"}>Cancer and Tumor Detail</CardHeader>
                            <CardBody>
                                <div id="summary">
                                    <CancerAndTumorSummary cancers={cancers}></CancerAndTumorSummary>
@@ -617,9 +861,9 @@ function Patient() {
                                 <div id="report_instance">
                                    <GridItem className="report_section clearfix">
                                        <GridContainer>
-                                            <div id="timeline" className="clearfix"></div>
-                                            <div className="divider clearfix"></div>
-                                            <div id="fact_detail"></div>
+                                            {/*<div id="timeline" className="clearfix"></div>*/}
+                                            {/*<div className="divider clearfix"></div>*/}
+                                            {/*<div id="fact_detail"></div>*/}
                                             <GridItem xs={6} id="report_id"></GridItem>
                                             <GridItem xs={6} id="zoom_controls">
                                                 <button id="zoom_in_btn" type="button"><i
@@ -627,20 +871,111 @@ function Patient() {
                                                 <button id="zoom_out_btn" type="button"><i
                                                     className="fa  fa-search-minus"></i></button>
                                             </GridItem>
-
+                                            <GridContainer id="term_and_report_container">
                                             <GridContainer id="term_container2">
-                                                <GridItem xs={4} sm={4} md={3} id="mentions_container2">
-                                                    <CardHeader id="mentions_label" className={"basicCardHeader"}>Mentioned Terms</CardHeader>
+                                                <GridItem xs={4} sm={4} md={3} id="mentions_container2"
+                                                          className="mentions_container2">
+                                                    <CardHeader id="mentions_label" className={"basicCardHeader"}
+                                                                onClick={handleDropdownClick}>Concept Filter
+                                                        {checkboxGridVisible ? <span><i
+                                                                className="caret-custom fa fa-caret-down fa-2x"></i></span> :
+                                                            <span><i className="caret-custom fa fa-caret-up fa-2x"></i></span>}
+                                                    </CardHeader>
                                                     <GridItem xs={12} id="mentions_container">
                                                         <GridContainer>
-                                                            <GridItem xs={12}
-                                                                      id="search_label">Filter Mentions:</GridItem>
-                                                            <GridItem xs={12}>
-                                                                <input type="search" id="mention_search_input"
-                                                                       placeholder="Search for mentions.."></input>
+                                                             <GridItem xs={12}>
+                                                                <div id="search_label"
+                                                                     className={`${checkboxGridVisible ? 'visible' : 'hidden'}`}> Filter Concepts
+                                                                    <hr className="line"/>
+                                                                    <input type="search" id="mention_search_input"
+                                                                           placeholder="Search for mentions.."></input>
+                                                                </div>
+                                                            </GridItem>
+                                                            <GridItem xs={12} md={12} lg={6}>
+                                                                <div className="dropdown">
+                                                                    <div
+                                                                        className={`dropdown-container ${checkboxGridVisible ? 'visible' : 'hidden'}`}>
+                                                                        <div className="caret-options-container">
+                                                                            <div className="options-container">
+                                                                                <span>Semantic Groups</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <hr className="line"/>
+                                                                    </div>
+
+                                                                    <div
+                                                                        className={`checkbox-grid ${checkboxGridVisible ? 'visible' : 'hidden'}`}>
+
+                                                                        <div className="report_mentioned_term_magenta">
+
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox1"
+                                                                                   checked={checkboxes.checkbox1}
+                                                                                   onChange={() => handleCheckboxChange('checkbox1')}/>
+                                                                            <label
+                                                                                htmlFor="checkbox1">Sign/Symptom</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term_black">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox2"
+                                                                                   checked={checkboxes.checkbox2}
+                                                                                   onChange={() => handleCheckboxChange('checkbox2')}/>
+                                                                            <label className="black"
+                                                                                   htmlFor="checkbox2">Test/Procedure</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term_grey">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox3"
+                                                                                   checked={checkboxes.checkbox3}
+                                                                                   onChange={() => handleCheckboxChange('checkbox3')}/>
+                                                                            <label
+                                                                                htmlFor="checkbox3">Anatomical Site</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term_green">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox4"
+                                                                                   checked={checkboxes.checkbox4}
+                                                                                   onChange={() => handleCheckboxChange('checkbox4')}/>
+                                                                            <label
+                                                                                htmlFor="checkbox4">Disease/Disorder</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term_red">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox5"
+                                                                                   checked={checkboxes.checkbox5}
+                                                                                   onChange={() => handleCheckboxChange('checkbox5')}/><label
+                                                                            htmlFor="checkbox5">Medication</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox6"
+                                                                                   checked={checkboxes.checkbox6}
+                                                                                   onChange={() => handleCheckboxChange('checkbox6')}/>
+                                                                            <label htmlFor="checkbox6">BLUE</label>
+                                                                        </div>
+                                                                        <div className="report_mentioned_term">
+                                                                            <input type="checkbox"
+                                                                                   id="checkbox7"
+                                                                                   checked={checkboxes.checkbox7}
+                                                                                   onChange={() => handleCheckboxChange('checkbox7')}/>
+                                                                            <label htmlFor="checkbox7">Negated</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </GridItem>
 
-                                                            <GridItem xs={12} id="sort_label">Sort mentions:</GridItem>
+                                                            <GridItem xs={12}>
+                                                                <div id="confidence_label"
+                                                                     className={`${checkboxGridVisible ? 'visible' : 'hidden'}`}> Confidence Range
+                                                                    <hr className="line"/>
+                                                                    <input type="range" min="1" max="100"
+                                                                           className="slider" id="confidenceRange"/>
+                                                                    <p>Confidence: <span id="confidenceValue"></span> %</p>
+                                                                </div>
+                                                            </GridItem>
+
+                                                            <GridItem xs={12} id="sort_label">Sort Concepts</GridItem>
+                                                            <hr className="line"/>
                                                             <GridItem md={12} lg={6} className="sort_radio_item">
                                                                 <input id="occ_radio" type="radio" name="sort_order"
                                                                        value="occurrence"></input>
@@ -651,12 +986,23 @@ function Patient() {
                                                                       value="alphabetically"></input>
                                                                <label
                                                                    htmlFor="alpha_radio">&nbsp; Alphabetically</label>
-                                                            </GridItem>
 
-                                                            <div id="report_mentioned_terms"></div>
+                                                            </GridItem>
                                                         </GridContainer>
                                                     </GridItem>
                                                 </GridItem>
+                                                <GridItem xs={4} sm={4} md={3} id="mentions_container3"
+                                                          className="ment_container">
+                                                    <CardHeader id="mentions_label"
+                                                                className={"basicCardHeader"}>Concepts</CardHeader>
+                                                    <GridContainer>
+                                                        <GridItem xs={12} id="mentions_container">
+                                                            <div id="report_mentioned_terms"></div>
+                                                        </GridItem>
+                                                    </GridContainer>
+                                                </GridItem>
+                                            </GridContainer>
+                                                <div id="scroll-line"></div>
                                                 <GridItem xs={8} sm={8} md={9} id="report_text"/>
                                             </GridContainer>
                                        </GridContainer>
@@ -686,3 +1032,5 @@ function Patient() {
 }
 
 export default Patient
+
+

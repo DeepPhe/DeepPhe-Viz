@@ -20,8 +20,7 @@ a {
 .selected_biomarker_bar {
     stroke: #7399ff !important;
     stroke-width: 4 !important;
-    fill-opacity: 1 !important;
-    font-color: white !important;
+    /*font-color: white !important;*/
     fill-opacity: 0.6 !important;
 }
 
@@ -53,32 +52,96 @@ a {
 #zoom_controls {
     text-align: right;
     margin-top: 10px;
+    /*flex-basis: 75% !important;  view on the left*/
+    /*max-width: 75% !important;*/
 }
 
 #mention_search_input {
-    width: -webkit-fill-available;
+    width: 100%;
+    margin-bottom: 15px;
 }
 
-#sort_label,
 #search_label {
-    margin-top: 10px;
+    margin-top: 5px;
+}
+
+#sort_label{
+
+}
+
+.search_lab {
+
 }
 
 #report_mentioned_terms {
     margin-top: 5px;
+    height: 500px; /*change it so it's dynamic with main view*/
+    overflow-y: auto;
+}
+
+#confidenceValue {
+    margin-bottom: 0;
 }
 
 
 #mentions_container,
-#report_id,
 #report_instance {
-    margin: 0px !important;
-    padding: 0px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+}
+/*delete to revert*/
+/*#report_id {*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    right: 0;*/
+/*    float: right;*/
+/*    padding: 5px;*/
+/*}*/
+/*delete to revert*/
+
+
+.scroll-lines {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 2px; /* Width of the lines */
+    background-color: red; /* Color of the lines */
 }
 
+
+
+
 #mentions_container2 {
-    padding: 0px !important;
+    padding: 0 !important;
     margin-top: -5px !important;
+    max-width: 100%;
+    flex-basis: 14% !important;
+}
+
+#term_container2 {
+    flex-direction: column;
+    flex: 0 0;
+}
+
+#mentions_container3 {
+    padding: 0 !important;
+    margin-top: -5px !important;
+    max-width: 100%;
+    flex-basis: 14% !important;
+}
+
+.mentioned_terms_list_border {
+    border-style: solid;
+}
+
+.mentions_container2 {
+    max-width: 100% !important;
+}
+
+#term_and_report_container {
+    flex-direction: row;
 }
 
 .sort_radio_item > label {
@@ -90,19 +153,27 @@ a {
     border-width: 2px;
     border-color: rgb(232, 232, 232);
     padding: 10px !important;
+    /*overflow-y: auto;*/
+    width: 280px;
 }
 
 #mentions_container label {
     color: black;
 }
 
+.report_mentioned_term_black label{
+    color: white !important;
+}
+
 #report_instance .makeStyles-grid-1 {
-    margin: 0px !important;
+    margin: 0 !important;
+
 }
 
 #mentions_container div,
 #mentions_container div div {
-    padding: 0px !important;
+    padding: 0 !important;
+
 }
 
 .header {
@@ -277,7 +348,7 @@ svg .tick text {
 }
 
 .MuiGrid-item {
-    padding: 0px 0px 20px 20px !important;
+    padding: 0 0 20px 20px !important;
 }
 
 #reset_button {
@@ -288,9 +359,9 @@ svg .tick text {
     width: 250px;
     outline: 0;
     text-transform: uppercase;
-    margin: 50px 0px;
+    margin: 50px 0;
     cursor: pointer;
-    box-shadow: 0px 2px 2px lightgray;
+    box-shadow: 0 2px 2px lightgray;
     transition: ease background-color 250ms;
 }
 
@@ -302,7 +373,7 @@ svg .tick text {
 
 .basicCard {
     font-size: 14px !important;
-    padding: 0px !important;
+    padding: 0 !important;
     max-width: 511px !important;
 }
 
@@ -319,6 +390,7 @@ svg .tick text {
     text-overflow: ellipsis;
 
 }
+
 
 #docs {
     display: none;
@@ -419,7 +491,7 @@ svg .tick text {
 }
 
 #patients .MuiGrid-item {
-    padding: 0px 0px 0px 0px !important;
+    padding: 0 0 0 0 !important;
 }
 
 
@@ -459,13 +531,13 @@ svg .tick text {
 }
 
 #summary > .container {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .cancer_and_tumor_summary {
-    padding: 0px;
-    margin: 0px 0;
-    border: 0px solid #ddd;
+    padding: 0;
+    margin: 0 0;
+    border: 0 solid #ddd;
 }
 
 .cancer_facts {
@@ -767,17 +839,37 @@ th {
 #report_text {
     position: relative; /* Must explicitly specify the position of this dive for dynamic scrolling */
     float: left;
-    width: 600px;
-    height: 100%;
+    scrollbar-color: grey lightgrey;
+    /*width: 600px;*/
+    font-size: large;
+    /*delete to revert*/
+    width: auto;
+    /*delete to revert*/
+    height: 75%;
     padding: 10px 10px 10px 5px;
     overflow-y: scroll;
-    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-family: Monaco, monospace;
     font-weight: normal;
     text-align: left;
     /* Whitespace is preserved by the browser. Text will wrap when necessary, and on line breaks */
     /* Using <pre> will cause horizontal scroll bar. We use CSS instead for a better rendering. */
     white-space: pre-wrap;
 }
+
+#scroll-line {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 2px; /* Width of the line */
+    background-color: red; /* Color of the line */
+    z-index: 9999; /* Ensure it's above other content */
+    /*display: none; !* Initially hide it *!*/
+}
+
+.colored_white_space {
+    background: #a8d1ff;
+}
+
 
 .display_report_id {
     margin-left: 3px;
@@ -794,12 +886,313 @@ th {
 }
 
 .report_mentioned_term {
-    float: left;
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
     cursor: pointer;
-    background: #a8d1ff;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #a8d1ff,
+            rgba(109, 116, 199, 0.7) 95%,
+            rgba(112, 121, 222, 0.1)
+    );
+    border-radius: 5px;
+    float: left;
 }
+
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin-bottom: 15px;
+
+}
+
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.caret-options-container {
+    display: flex;
+    align-items: center;
+    width: 300px;
+}
+
+.caret-container {
+    margin-left: 5px; /* Adjust the margin as needed */
+}
+
+.caret-custom {
+    position: relative;
+    top: -4px;
+    float: right;
+
+}
+
+.line {
+    height: 1px;
+    background-color: #000; /* Adjust the color as needed */
+    margin: 5px 0; /* Adjust the vertical margin as needed */
+    flex-grow: 1;
+    width: 257px;
+}
+
+.options-container {
+    display: flex;
+    align-items: center;
+    width: 180px;
+}
+
+
+.dropdown-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dropdown-btn i {
+    margin-right: 5px;
+}
+
+/* Add a line to the right of the caret */
+.dropdown-btn:after {
+    content: "";
+    display: inline-block;
+    width: 1px;
+    height: 10px; /* Adjust the height as needed */
+    background-color: #000; /* Adjust the color as needed */
+    margin-left: 5px;
+}
+
+.visible {
+    display: grid;
+}
+
+.hidden {
+    display: none;
+}
+
+.checkbox2 label{
+    color: inherit;
+
+}
+
+.checkbox-grid div {
+    display: flex;
+    align-items: center;
+
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/*
+look towards magenta/purple
+ */
+.report_mentioned_term_magenta {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #edb1f1,
+            #d59bf6,
+            #9896f1
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_black {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    color: white !important;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #021a34,
+            rgba(15, 16, 51, 0.7) 95%,
+            rgba(47, 49, 61, 0.1)
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+/*
+Emphasize shading more
+ */
+.report_mentioned_term_green {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #93e4c1,
+            #3baea0,
+            #118a7e
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.report_mentioned_term_red {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #fecea8,
+            #ff847c,
+            #e84a5f
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.slide_container {
+    width: 100%; /* Width of the outside container */
+}
+
+
+
+.slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+}
+
+/*
+white text with more shading
+ */
+.report_mentioned_term_grey {
+    margin: 0 5px 5px 0;
+    padding: 3px 2px 0;
+    cursor: pointer;
+    /*color: white;*/
+    font-family: Monaco, monospace;
+    background-image: linear-gradient(
+            -100deg,
+            #e7e6e1,
+            #f7f6e7,
+            #c1c0b9
+    );
+    border-radius: 5px;
+    float: left;
+}
+
+.frequency {
+    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-weight: 400;
+    color: inherit;
+}
+
+.popUp {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.popUp .popUpText {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 9999;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.popUp:hover .popUpText {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/
+
+/*.report_mentioned_term_1 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.6) 45%,*/
+/*            rgba(109, 116, 199, 0.6) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
+
+/*.report_mentioned_term_2 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.75) 45%,*/
+/*            rgba(109, 116, 199, 0.75) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
+
+/*.report_mentioned_term_3 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 0.9) 45%,*/
+/*            rgba(109, 116, 199, 0.9) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
+
+/*.report_mentioned_term_4 {*/
+/*    margin: 0 5px 5px 0;*/
+/*    padding: 3px 2px 0;*/
+/*    cursor: pointer;*/
+/*    background: linear-gradient(*/
+/*            90deg,*/
+/*            rgba(168, 209, 255, 0.6) 5%,*/
+/*            rgba(109, 116, 199, 1) 45%,*/
+/*            rgba(109, 116, 199, 1) 55%,*/
+/*            rgba(168, 209, 255, 0.6) 95%);*/
+/*    border-radius: 5px;*/
+/*    float: left;*/
+/*}*/
+
+
+/*.firstWordHighlight {*/
+/*    border-radius: 1em 0 1em 0;*/
+/*    background-image: linear-gradient(*/
+/*            -100deg,*/
+/*            rgba(255, 224, 0, 0.2),*/
+/*            rgba(255, 224, 0, 0.7),*/
+/*            rgba(255, 224, 0, 0.1),*/
+/*            #a8d1ff,*/
+/*            rgba(109, 116, 199, 0.7),*/
+/*            rgba(112, 121, 222, 0.1)*/
+/*    );*/
+/*}*/
+
 
 /* Highlight the fact-based terms among all extracted terms */
 .fact_based_term {
@@ -810,8 +1203,88 @@ th {
     margin-right: 0;
 }
 
+/*.highlight_terms {*/
+/*    !*background: #a8d1ff;*!*/
+/*    !*border-radius: 5px;*!*/
+/*    border-radius: 1em 0 1em 0;*/
+/*    background-image: linear-gradient(*/
+/*            -100deg,*/
+/*            #a8d1ff,*/
+/*            rgba(109, 116, 199, 0.7) 95%,*/
+/*            rgba(112, 121, 222, 0.1)*/
+/*    );*/
+/*}*/
+
+.highlight_terms_grey {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #e7e6e1,
+            #f7f6e7,
+            #c1c0b9
+    );
+}
+
+.highlight_terms_red {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #fecea8,
+            #ff847c,
+            #e84a5f
+    );
+}
+
+.highlight_terms_green {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    background-image: linear-gradient(
+            -100deg,
+            #93e4c1,
+            #3baea0,
+            #118a7e
+    );
+}
+
+.highlight_terms_black {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 1em 0 1em 0;
+    color: white;
+    background-image: linear-gradient(
+            -100deg,
+            #021a34,
+            rgba(15, 16, 51, 0.7) 95%,
+            rgba(47, 49, 61, 0.1)
+    );
+}
+
+.highlight_terms {
+    /*background: #a8d1ff;*/
+    /*border-radius: 5px;*/
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    font-weight: bold;
+    background-image: linear-gradient(
+            -100deg,
+            #edb1f1,
+            #d59bf6,
+            #9896f1
+    );
+}
+
 .current_mentioned_term {
-    background: #FFDC00;
+    background-image: linear-gradient(
+            -100deg,
+            rgba(255, 224, 0, 0.2),
+            rgba(255, 224, 0, 0.7) 95%,
+            rgba(255, 224, 0, 0.1)
+    );
+    border-radius: 5px;
 }
 
 .count {
@@ -820,7 +1293,16 @@ th {
 
 .highlighted_term {
     /*display: inline-block;*/
-    background: #FFDC00;
+    /*background: #FFDC00;*/
+    /*border-radius: 5px;*/
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    font-weight: bold;
+    background-image: linear-gradient(
+            -100deg,
+            rgba(255, 224, 0, 0.2),
+            rgba(255, 224, 0, 0.7) 95%,
+            rgba(255, 224, 0, 0.1)
+    );
 }
 
 
@@ -960,7 +1442,7 @@ th {
 
 /* Tumor Summary */
 .tumor_summary_title,
-.view_options { /* Align the title and siwtch vertically */
+.view_options { /* Align the title and switch vertically */
     display: inline-block;
     vertical-align: middle;
     font-weight: bold;
@@ -1028,11 +1510,11 @@ th {
 }
 
 .fa-caret-right {
-    color: #1f77b4;
+
 }
 
 .fa-caret-down {
-    color: #e6550d;
+
 }
 
 .list_view_tumor_type {
@@ -1059,7 +1541,7 @@ th {
     float: left;
     height: 33px;
     margin-right: 3px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     padding: 3px 2px 1px;
 }
 
@@ -1180,12 +1662,12 @@ div.header {
 
 div.footer {
     background-color: #c6c6c6;
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 div.footer > h4 {
-    margin-bottom: 0px;
+    margin-bottom: 0;
     padding-top: 10px;
 }
 
@@ -1211,21 +1693,19 @@ div.footer > div > a {
     margin-right: 10px !important;
     --bs-gutter-x: 0;
     --bs-gutter-y: 0;
-    padding: 0px;
+    padding: 0;
     align-items: center;
     border: 1px solid #f6f6f6;
 }
 
 .multi-range-slider {
     height: 38px !important;
-    padding-right: 5px !important;
-    padding-left: 5px !important;
     border: none !important;
     background: white !important;
     width: 85% !important;
-    boxShadow: none !important;
-    padding: 0px 0px !important;
-    border-radius: 0px !important;
+    /*boxShadow: none !important;*/
+    padding: 0 0 !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
 }
 
