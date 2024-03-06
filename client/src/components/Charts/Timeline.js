@@ -94,10 +94,22 @@ export default class Timeline extends React.Component {
                 const cssClass = "highlighted_term";
                 const cssClassAll = "highlight_terms";
 
+
                 // console.log("======sorted textMentions======");
 
                 // Flatten the ranges, this is the key to solve overlapping
                 textMentions = flattenRanges(textMentions);
+
+                // Sort the textMentions array first based on beginOffset
+                textMentions.sort(function (a, b) {
+                    let comp = a.beginOffset - b.beginOffset;
+                    if (comp === 0) {
+                        return b.endOffset - a.endOffset;
+                    } else {
+                        return comp;
+                    }
+                });
+
 
                 let textFragments = [];
                 let lastValidTMIndex = 0;
@@ -119,8 +131,21 @@ export default class Timeline extends React.Component {
                         if (parseInt(textMention.beginOffset) <= parseInt(lastValidTM.endOffset)) {
                             lastValidTMIndex = i;
 
-                        } else {
-                            textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                        // If this is the first textmention, paste the start of the document before the first TM.
+                        if (i === 0) {
+                            if (textMention.beginOffset === 0) {
+                                textFragments.push('');
+                            } else {
+                                textFragments.push(reportText.substring(0, textMention.beginOffset));
+                            }
+                        } else { // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
+                            if (textMention.beginOffset < lastValidTM.endOffset) {
+                                // Push end of the document
+                                continue; // Skipping this TM.
+                            } else {
+                                textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
+                            }
+
                         }
                     }
                     if (textMention.text.indexOf(term) > -1) {
@@ -255,6 +280,7 @@ export default class Timeline extends React.Component {
                         for (let j in includedRanges) {
                             let includedRange = includedRanges[j];
 
+
                             for (let prop in includedRange) {
                                 if (prop !== 'beginOffset' && prop !== 'endOffset') {
                                     if (!flattenedRange[prop]) flattenedRange[prop] = [];
@@ -274,6 +300,7 @@ export default class Timeline extends React.Component {
 
                 return flattened;
             }
+
 
 
             function getReport(reportId, factId) {
@@ -342,8 +369,24 @@ export default class Timeline extends React.Component {
                         let factBasedTermsWithPosition = [];
                         let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
                         mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
+
                         let textMentions = [];
                         const uniqueArr = [];
+
+
+                        mentionedTerms.forEach(function (obj) {
+                            console.log(JSON.stringify(obj))
+                            let fact_based_term_class = '';
+                            if (factBasedTerms.indexOf(obj.term) !== -1) {
+                                factBasedTermsWithPosition.push(obj);
+                                fact_based_term_class = ' fact_based_term';
+                            }
+                            renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.begin + '" data-end="' + obj.end + '">' + obj.term + '</li>';
+                        });
+                        renderedMentionedTerms += "</ol>";
+
+                        $('#report_mentioned_terms').html(renderedMentionedTerms);
+
 
                         // Also scroll to the first fact based term if any in the report text
                         if (factBasedTermsWithPosition.length > 0) {
@@ -795,7 +838,7 @@ export default class Timeline extends React.Component {
                     if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
                         return;
                     }
-                    ;
+
 
                     let transform = d3.event.transform;
 

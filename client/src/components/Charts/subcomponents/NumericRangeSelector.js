@@ -1,81 +1,76 @@
 import React, {Component} from "react";
 import Slider from "rc-slider";
 import {ChangeResult} from "multi-range-slider-react";
-import ToggleSwitch from "../../CustomButtons/ToggleSwitch";
-import $ from "jquery";
+import SwitchControl from "./controls/SwitchControl";
+import RangeSelector from "./RangeSelector";
 
-class NumericRangeSelector extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            definition: props.definition,
-            selected: props.selected,
-            onSelect: props.onSelect
-        }
+class NumericRangeSelector extends RangeSelector {
+
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
     }
 
-    handleRangeChange = (e: ChangeResult) => {
-        this.setState({selectedRanges: e})
-        // this.buildQuery()
+    handleRangeChange = (range: ChangeResult) => {
+        const {definition} = this.props;
+        //debugger;
+        this.setState({...definition.patientsMeetingThisFilterOnly = range[1], ...definition.selectedNumericRange.min = range[0], ...definition.selectedNumericRange.max = range[1]});
+        this.setState({updated: false})
+
     };
 
-    toggleActivityEnabled = activity => ({enabled}) => {
+    handleSwitchUpdate = (definition) => {
+        this.setState({definition: definition, updated: false})
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.updated === false) {
+            this.props.definition = this.state.definition
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
 
-        // const selector = "#" + activity.filterDefinition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"
-        // if (enabled) {
-        //     $(selector).removeClass("overlay-row")
-        // } else {
-        //     $(selector).addClass("overlay-row")
-        // }
-
-
-        // let {only} = this.state;
+        const {definition} = this.props;
+        // console.log(definition.fieldName + ":")
+        // console.log("    Range " + definition.selectedNumericRange.min + " - " + definition.selectedNumericRange.max)
         //
-        // if (enabled && !only.includes(activity)) {
-        //     only.push(activity);
-        //     return this.setState({only});
-        // }
-        //
-        // if (!enabled && only.includes(activity)) {
-        //     only = only.filter(item => item !== activity);
-        //     return this.setState({only});
-        // }
+        // this.state.definition.switches.forEach(switchInfo => {
+        //     console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+        // })
+
     }
 
+    componentDidMount() {
+        this.addCountsToCategory()
+    }
 
     render() {
-
-        const globalPatientCountsForCategories = this.state.definition.globalPatientCountsForCategories
-        const selectedNumericRange = this.state.definition.selectedNumericRange
-        const numericRangeSelectorDefinition = this.state.definition.numericRangeSelectorDefinition
+        const {definition} = this.props;
+        //const globalPatientCountsForCategories = definition.globalPatientCountsForCategories
+        const selectedNumericRange = definition.selectedNumericRange
+        const numericRangeSelectorDefinition = definition.numericRangeSelectorDefinition
         let marks = {}
         const minSelectedInRange = selectedNumericRange.min;
         const maxSelectedInRange = selectedNumericRange.max;
         const markStep = (numericRangeSelectorDefinition.max - numericRangeSelectorDefinition.min) / 10;
 
-       let markIndex = 0;
-       while (markIndex < 11) {
+        let markIndex = 0;
+        while (markIndex < 11) {
             marks[markIndex * markStep] = "" + markIndex * markStep
             markIndex++
         }
 
-
         return (
             <React.Fragment>
-                <div id={"age-at-dx-overlay-row"}>
-                    <div id={"age-at-dx-row"} className={"row filter_center_rows"}>
+                <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
+                    <div id={"numeric-range-selector-row"} className={"row filter_center_rows"}>
                         <div className={"slider-container"}>
                             <Slider range min={numericRangeSelectorDefinition.min}
-                                    max={numericRangeSelectorDefinition.max+10}
+                                    max={numericRangeSelectorDefinition.max + 1}
                                     defaultValue={[minSelectedInRange, maxSelectedInRange]}
-                                    onChange={(e) => this.handleRangeChange("selectedAges", e)}
+                                    onChange={(e) => this.handleRangeChange(e)}
                                     draggableTrack={true} pushable={true} dots={false} included={true} marks={marks}
                                     step={numericRangeSelectorDefinition.step}/>
                         </div>
-
-                        <ToggleSwitch wantsDivs={false} label={"Present"} theme="graphite-small"
-                                      enabled={true}
-                                      onStateChanged={this.toggleActivityEnabled("Unknown")}/>
+                        <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition={definition}/>
                     </div>
                 </div>
             </React.Fragment>

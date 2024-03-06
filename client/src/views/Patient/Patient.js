@@ -505,6 +505,7 @@ function Patient() {
     // // Tumor fact click - List View
     $(document).on("click", ".list_view .fact", function () {
 
+
         //JDL when someone clicks on a cancer fact, it goes here....probably need to make a map from old/new property names now to explain my thinking
         const cssClass = 'highlighted_fact';
 
@@ -523,6 +524,7 @@ function Patient() {
         // Also highlight the same fact in table view
         $("#table_view_" + factId).addClass(cssClass);
     });
+
 
     $(document).on("click", ".fact", function (event) {
         function hasParentClass(child, classname) {

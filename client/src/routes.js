@@ -38,14 +38,14 @@ import DashboardPage from "views/Dashboard/Dashboard.js";
 // import Patient from "./views/Patient/Patient";
 
 const dashboardRoutes = [
-  {
-    path: "/dashboard",
-    name: "Dashboard",
-    rtlName: "لوحة القيادة",
-    icon: Dashboard,
-    component: DashboardPage,
-    layout: "/deepphe"
-  }
+    {
+        path: "/dashboard",
+        name: "Dashboard",
+        rtlName: "لوحة القيادة",
+        icon: Dashboard,
+        component: DashboardPage,
+        layout: "/deepphe"
+    }
 ];
 
 export default dashboardRoutes;

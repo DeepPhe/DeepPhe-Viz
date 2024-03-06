@@ -1,5 +1,3 @@
-resolve: {
-  fallback: {
-    fs: false
-  }
+node: {
+    fs: 'empty'
 }

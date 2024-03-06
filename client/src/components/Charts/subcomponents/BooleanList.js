@@ -1,47 +1,49 @@
 import React, {Component} from "react";
-import ToggleSwitch from "../../CustomButtons/ToggleSwitch";
+import SwitchControl from "./controls/SwitchControl";
 
 class BooleanList extends Component {
+    //why does this update twice?  Not a huge deal...but it's annoying
+ state = {
+        definition: this.props.definition,
+        updated: false
+    };
     constructor(props) {
         super(props);
-        this.state = {
-            definition: props.definition,
-            selected: props.selected,
-            onSelect: props.onSelect
-        };
     }
 
-    toggleActivityEnabled = activity => ({enabled}) => {
-
+    broadcastUpdate = (definition) => {
+        this.props.broadcastUpdate(definition)
     }
-    handleToggleSwitch = (switchId) => ({enabled}) => {
-        console.log("Switch id: " + switchId + " enabled: " + enabled)
-        this.setState({[switchId]: enabled})
-    };
+
+    handleSwitchUpdate = (definition) => {
+        this.setState({definition: definition, updated: false})
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state.updated === false) {
+            this.setState({updated: true})
+            this.broadcastUpdate(this.state.definition)
+        }
+
+       // console.log(this.state.definition.fieldName + ":")
+      //  this.state.definition.switches.forEach(switchInfo => {
+        //    console.log("    Switch " + switchInfo.name + ": " + switchInfo.value)
+      //  })
+    }
+
     render() {
+        const {definition} = this.props
         return (
             <React.Fragment>
-                <div id={"metastasis-overlay-row"}>
-                <div id={"metastasis-row"} className={"row filter_center_rows"}>
-                    <div className={"slider-container"}>
-                        {this.state.definition.globalPatientCountsForCategories.map((item, index) => {
-
-                            return <ToggleSwitch wantsDivs={false} label={item.category} theme="graphite-small"
-                                             enabled={true}
-                                        onStateChanged={this.handleToggleSwitch("metastasis present")}/>
-                        })}
+                <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
+                    <div id={"boolean-list-row"} className={"row filter_center_rows"}>
+                        <div className={"slider-container"}>
+                            <SwitchControl broadcastUpdate = {this.handleSwitchUpdate} definition = {definition}/>
+                        </div>
                     </div>
-                </div>
                 </div>
             </React.Fragment>
         );
-    }
-
-    handleChange(index, event) {
-        let value = this.state.value;
-        value[index] = event.target.checked;
-        this.setState({ value: value });
-        this.props.onChange(value);
     }
 }
 

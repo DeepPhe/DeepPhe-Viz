@@ -247,7 +247,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             // Only activate listener at the end of a brush gesture, such as on mouseup.
             // Update the resulting charts on brush end
             .on("end", end1Brush);
-        ;
+
 
         let ageSelectionBrush = ageSelectionGrp.append("g")
             .attr("transform", "translate(0, 0)")
@@ -407,7 +407,7 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
 
 
                 // Update the final target patients array and resulting charts
-              //  let targetPatients = Cohort.getTargetPatients(that.props.patients, that.props.patients);
+                //  let targetPatients = Cohort.getTargetPatients(that.props.patients, that.props.patients);
 
                 // Update curre ntFirstEncounterAgeRange
                 //currentFirstEncounterAgeRange = [lowerAge, upperAge];
@@ -728,8 +728,6 @@ export default class PatientFirstEncounterAgePerStageChart extends React.Compone
             const that = this;
             this.showChart(that);
         }
-
-
 
 
     }
