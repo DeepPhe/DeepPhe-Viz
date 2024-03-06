@@ -6,17 +6,18 @@ const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
 let initialHighlightedDoc = '';
 let mentionedTerms = '';
+let dpheTerms = '';
 let reportTextRight = '';
-export { mentionedTerms };
-export { reportTextRight };
+export {mentionedTerms};
+export {reportTextRight};
 
 export default class Timeline extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-           json : null,
-            patientId : this.props.patientId
+            json: null,
+            patientId: this.props.patientId
         };
         this.getUrl.bind(this);
         this.fetchData.bind(this);
@@ -47,7 +48,7 @@ export default class Timeline extends React.Component {
             renderTimeline("timeline", response.patientInfo, response.reportTypes, response.typeCounts, response.maxVerticalCountsPerType, response.episodes, response.episodeCounts, response.episodeDates, response.reportData, response.reportsGroupedByDateAndTypeObj)
         }
         const renderTimeline = (svgContainerId, patientInfo, reportTypes, typeCounts, maxVerticalCountsPerType, episodes, episodeCounts, episodeDates, reportData, reportsGroupedByDateAndTypeObj) => {
-           // console.log(reportTypes)
+            // console.log(reportTypes)
 
             //next line might not belong
             let factBasedReports = {};
@@ -88,10 +89,6 @@ export default class Timeline extends React.Component {
 
             }
 
-
-
-
-
             // Highlight one or multiple text mentions
             function highlightTextMentions(textMentions, reportText, term = "NONE") {
                 const cssClass = "highlighted_term";
@@ -126,11 +123,9 @@ export default class Timeline extends React.Component {
                             textFragments.push(reportText.substring(lastValidTM.endOffset, textMention.beginOffset));
                         }
                     }
-                    console.log(term);
-                    if (textMention.text.indexOf(term) > -1){
+                    if (textMention.text.indexOf(term) > -1) {
                         textFragments.push('<span class="' + cssClass + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
-                    }
-                    else{
+                    } else {
                         textFragments.push('<span class="' + cssClassAll + '">' + reportText.substring(textMention.beginOffset, textMention.endOffset) + '</span>');
                     }
 
@@ -148,11 +143,11 @@ export default class Timeline extends React.Component {
                     highlightedReportText += textFragments[j];
                 }
                 const e = new Event("change");
-                    const element = document.querySelector('input[type=radio][name="sort_order"]');
-                    element.dispatchEvent(e);
+                const element = document.querySelector('input[type=radio][name="sort_order"]');
+                element.dispatchEvent(e);
 
-                    return highlightedReportText;
-                }
+                return highlightedReportText;
+            }
 
             const variablesObj = {
                 'topography_major': {
@@ -207,12 +202,12 @@ export default class Timeline extends React.Component {
 
             function buildColorDistribution(textMention) {
                 let colorDistribution = [];
-                let increment = (100/textMention.count).toFixed(2);
+                let increment = (100 / textMention.count).toFixed(2);
 
                 for (let i = 0; i < textMention.count; i++) {
                     let bgcolor = "highlight_terms";
-                    let start = (i > 0) ? i*increment + "%" : 0;
-                    let finish = (i < textMention.count - 1) ? (i + 1)*increment + "%" : "100%";
+                    let start = (i > 0) ? i * increment + "%" : 0;
+                    let finish = (i < textMention.count - 1) ? (i + 1) * increment + "%" : "100%";
                     colorDistribution.push(bgcolor + " " + start);
                     colorDistribution.push(bgcolor + " " + finish);
                 }
@@ -238,23 +233,23 @@ export default class Timeline extends React.Component {
                 }
 
                 //MAKE SURE OUR LIST OF POINTS IS IN ORDER
-                points.sort(function(a, b) {
+                points.sort(function (a, b) {
                     return a - b;
                 });
 
                 // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
                 // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
                 for (let i in points) {
-                    if (i === 0 || points[i] === points[i-1]) continue;
-                    let includedRanges = ranges.filter(function(x) {
-                        return (Math.max(x.beginOffset,points[i-1]) < Math.min(x.endOffset,points[i]));
+                    if (i === 0 || points[i] === points[i - 1]) continue;
+                    let includedRanges = ranges.filter(function (x) {
+                        return (Math.max(x.beginOffset, points[i - 1]) < Math.min(x.endOffset, points[i]));
                     });
 
                     if (includedRanges.length > 0) {
                         let flattenedRange = {
-                            beginOffset:points[i-1],
-                            endOffset:points[i],
-                            count:0
+                            beginOffset: points[i - 1],
+                            endOffset: points[i],
+                            count: 0
                         }
 
                         for (let j in includedRanges) {
@@ -294,7 +289,32 @@ export default class Timeline extends React.Component {
 
                         let reportText = response.reportText;
                         // console.log(reportText);
+
+                        // mentionedTerms = response.mentionedTerms;
+                        //
+                        // mentionedTerms.forEach(function (mention) {
+                        //     let confidenceValue = mention.confidence;
+                        //     console.log("Confidence Value:", confidenceValue);z
+                        // });
+
+                        // Assuming mentionedTerms is an array of mentions within the response object
                         mentionedTerms = response.mentionedTerms;
+
+
+                        // Check if mentionedTerms is defined before accessing its elements
+                        if (mentionedTerms) {
+                            // Check the structure of a single mention
+                            let sampleMention = mentionedTerms[0];
+
+                            if (sampleMention) {
+                                console.log("Structure of a single mention:", sampleMention);
+                            } else {
+                                console.log("Sample mention is undefined in the response.");
+                            }
+                        } else {
+                            console.log("mentionedTerms is undefined in the response.");
+                        }
+
 
                         // If there are fact based reports, highlight the displaying one
                         const currentReportCssClass = 'current_displaying_report';
@@ -355,16 +375,12 @@ export default class Timeline extends React.Component {
                             //show the highlightedreport instead of just reportText
                             initialHighlightedDoc = highlightedReportText;
                             reportTextDiv.html(highlightedReportText);
-                            // highlightTextMentions(textMentions, reportText);
-                            // let reportTextDiv = $("#report_text");
-                            // // Show report content, either highlighted or not
-                            // reportTextDiv.html(reportText);
                             // Scroll back to top of the report content div
                             reportTextDiv.animate({scrollTop: 0}, "fast");
                             reportTextRight = $("#report_text").text();
                         }
 
-                        textMentions.forEach(function(obj) {
+                        textMentions.forEach(function (obj) {
                             //console.log(JSON.stringify(obj))
                             let fact_based_term_class = '';
                             let popUp = 'popUp'
@@ -373,7 +389,7 @@ export default class Timeline extends React.Component {
                                 fact_based_term_class = ' fact_based_term';
                             }
                             // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
-                            if(!uniqueArr.includes(obj.text)) {
+                            if (!uniqueArr.includes(obj.text)) {
                                 uniqueArr.push(obj.text);
                                 renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="frequency">' + '(' + obj.mentionFrequency + ')' + '</span></li>';
 
@@ -415,7 +431,7 @@ export default class Timeline extends React.Component {
                     return parseInt(a.begin) - parseInt(b.begin) || parseInt(a.end) - parseInt(b.end);
                 });
 
-                mentionedTerms.forEach(function(obj) {
+                mentionedTerms.forEach(function (obj) {
                     //grabbing mention begin and end so that I can highlight each mention at the start
                     let textMentionObj = {};
                     textMentionObj.text = obj.term;
@@ -464,15 +480,16 @@ export default class Timeline extends React.Component {
 
             // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
             // to have a consistent report type order
-           //console.log("reportTypes: " + reportTypes);
+            //console.log("reportTypes: " + reportTypes);
             //console.log("reportData: " + JSON.stringify(reportData));
-            if (reportTypes !==null) {
-            reportTypes.forEach(function(key) {
-                totalMaxVerticalCounts += maxVerticalCountsPerType[key];
-                if (typeof verticalPositions[key] === 'undefined') {
-                    verticalPositions[key] = totalMaxVerticalCounts;
-                }
-            })};
+            if (reportTypes !== null) {
+                reportTypes.forEach(function (key) {
+                    totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+                    if (typeof verticalPositions[key] === 'undefined') {
+                        verticalPositions[key] = totalMaxVerticalCounts;
+                    }
+                })
+            }
 
             const margin = {top: 20, right: 20, bottom: 10, left: 250};
             const mainReportTypeRowHeightPerCount = 16;
@@ -513,7 +530,7 @@ export default class Timeline extends React.Component {
             const parseTime = d3.timeParse("%Y-%m-%d");
 
             // Convert string to date
-            if (reportData !==null) {
+            if (reportData !== null) {
                 reportData.forEach(function (d) {
                     // Format the date to a human-readable string first, formatTime() takes Date object instead of string
                     // d.origTime.slice(0, 19) returns the time string without the time zone part.
@@ -549,7 +566,7 @@ export default class Timeline extends React.Component {
 
 
                 // This is all the possible episodes, each patient may only have some of these
-                // but we'll need to render the colors consistently across patients
+                // we'll need to render the colors consistently across patients
                 let allEpisodes = [
                     'Pre-diagnostic',
                     'Diagnostic',
@@ -637,6 +654,8 @@ export default class Timeline extends React.Component {
                     .attr("class", "timeline_svg")
                     .attr("width", margin.left + width + margin.right)
                     .attr("height", margin.top + legendHeight + gapBetweenlegendAndMain + height + pad + overviewHeight + pad + ageAreaHeight + margin.bottom);
+
+
 
                 // Dynamically calculate the x posiiton of each legend rect
                 let episodeLegendX = function (index) {
@@ -1172,10 +1191,10 @@ export default class Timeline extends React.Component {
         this.fetchData(url).then(
             function (response) {
                 response.json().then(
-                    function(jsonResponse) {
-                        processTimelineResponse(jsonResponse) })
+                    function (jsonResponse) {
+                        processTimelineResponse(jsonResponse)
+                    })
             });
-
 
 
     }
