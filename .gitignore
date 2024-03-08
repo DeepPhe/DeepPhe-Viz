@@ -1,5 +1,11 @@
 .DS_Store
+client/DeepPheVizClient
+api/DeepPheVizApi
+api/bin/www2
 .idea/
+*.exe
+*.zip
+*.map
 *.iml
 # Logs
 logs

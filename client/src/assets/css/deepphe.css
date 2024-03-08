@@ -842,7 +842,7 @@ th {
     float: left;
     scrollbar-color: grey lightgrey;
     /*width: 600px;*/
-    font-size: large;
+    font-size: 14px;
     /*delete to revert*/
     width: auto;
     /*delete to revert*/

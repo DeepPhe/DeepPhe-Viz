@@ -276,12 +276,12 @@ export default class CohortFilter extends React.Component {
     CategoryRangeSelector = (filterdefinition) => {
         return (
             <div className={"category-range-selector"}>
-                <div className={"category-range-selector-title"}>{props.title}</div>
-                <div className={"category-range-selector-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"category-range-selector-item"} key={index}>{item}</div>
-                    ))}
-                </div>
+                {/*<div className={"category-range-selector-title"}>{props.title}</div>*/}
+                {/*<div className={"category-range-selector-items"}>*/}
+                {/*    {props.items.map((item, index) => (*/}
+                {/*        <div className={"category-range-selector-item"} key={index}>{item}</div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
             </div>
         )
     }
@@ -289,12 +289,12 @@ export default class CohortFilter extends React.Component {
     NumericRangeSelector = (filterdefinition) => {
         return (
             <div className={"numeric-range-selector"}>
-                <div className={"numeric-range-selector-title"}>{props.title}</div>
-                <div className={"numeric-range-selector-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"numeric-range-selector-item"} key={index}>{item}</div>
-                    ))}
-                </div>
+                {/*<div className={"numeric-range-selector-title"}>{props.title}</div>*/}
+                {/*<div className={"numeric-range-selector-items"}>*/}
+                {/*    {props.items.map((item, index) => (*/}
+                {/*        <div className={"numeric-range-selector-item"} key={index}>{item}</div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
             </div>
         )
     }
@@ -302,12 +302,12 @@ export default class CohortFilter extends React.Component {
     BooleanList = (filterdefinition) => {
         return (
             <div className={"boolean-list"}>
-                <div className={"boolean-list-title"}>{props.title}</div>
-                <div className={"boolean-list-items"}>
-                    {props.items.map((item, index) => (
-                        <div className={"boolean-list-item"} key={index}>{item}</div>
-                    ))}
-                </div>
+                {/*<div className={"boolean-list-title"}>{props.title}</div>*/}
+                {/*<div className={"boolean-list-items"}>*/}
+                {/*    {props.items.map((item, index) => (*/}
+                {/*        <div className={"boolean-list-item"} key={index}>{item}</div>*/}
+                {/*    ))}*/}
+                {/*</div>*/}
             </div>
         )
     }
