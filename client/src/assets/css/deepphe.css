@@ -155,7 +155,7 @@ a {
     border-color: rgb(232, 232, 232);
     padding: 10px !important;
     /*overflow-y: auto;*/
-    width: 280px;
+
 }
 
 #mentions_container label {
@@ -393,9 +393,6 @@ svg .tick text {
 }
 
 
-#docs {
-    display: none;
-}
 
 .navItem {
     border-radius: 7px;
@@ -742,9 +739,7 @@ th {
     border: 1px solid #dbdbdb;
 }
 
-#report_instance {
-    display: none;
-}
+
 
 #timeline {
     background-color: #fff;
@@ -846,7 +841,6 @@ th {
     /*delete to revert*/
     width: auto;
     /*delete to revert*/
-    height: 75%;
     padding: 10px 10px 10px 5px;
     overflow-y: scroll;
     font-family: Monaco, monospace;

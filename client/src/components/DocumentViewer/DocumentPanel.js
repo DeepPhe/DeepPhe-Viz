@@ -1,11 +1,24 @@
-import GridItem from "../Grid/GridItem";
 import React, { useState } from "react";
 import $ from "jquery";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
+  const concepts = props.concepts;
+  const getMentionsForConcept = (conceptId) => {
+    const idx = concepts.findIndex((c) => c.id === conceptId);
+    return concepts[idx].mentionIds.map((mentionId) => {
+      const idx = doc.mentions.findIndex((m) => m.id === mentionId);
+      if (idx !== -1) return doc.mentions[idx];
+    });
+  };
   let handleTermClick = (e) => {
     let obj = {};
+    const conceptId = e.target.getAttribute("data-id");
+    const mentions = getMentionsForConcept(conceptId);
+    console.log("Show these mentions: ", mentions)
+
+    //highlightTextMentions(highlightAllMentions(mentions));
+
     const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
     obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
     obj.begin = e.target.getAttribute("data-begin");
@@ -267,10 +280,9 @@ export function DocumentPanel(props) {
   } else
     return (
       <React.Fragment>
-        <div id="scroll-line"></div>
-        <GridItem xs={8} sm={8} md={9} id="report_text">
-          {doc.text}
-        </GridItem>
+        {/*<div id="scroll-line"></div>*/}
+
+        {doc.text}
       </React.Fragment>
     );
 }

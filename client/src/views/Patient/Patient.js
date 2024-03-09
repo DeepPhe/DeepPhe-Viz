@@ -22,6 +22,7 @@ function Patient(props) {
   const [summary, setSummary] = useState({});
   const [patientDocument, setPatientDocument] = useState({});
   const [patientJson, setPatientJson] = useState({});
+  const [patientConcepts, setPatientConcepts] = useState([]);
   const [dpheGroups, setDpheGroups] = useState([]);
   const [reportId, setReportId] = useState({});
   const [factId, setFactId] = useState({});
@@ -472,7 +473,21 @@ function Patient(props) {
   //         });
   // }
 
-  const getDocumentViewer = (patientId, reportId, factId, factBasedReports, patientDocument ) => {
+  const getDocumentViewer = (
+    patientId,
+    reportId,
+    factId,
+    factBasedReports,
+    patientDocument,
+    patientJson
+  ) => {
+    if (isEmpty(reportId) || isEmpty(patientConcepts)) {
+      return <div> Loading... </div>;
+    }
+    const mentionIdsInDocument = patientDocument.mentions.map((m) => {return m.id});
+    const conceptsInDocument = patientJson.concepts.filter((c) => {
+      return c.mentionIds.some((m) => mentionIdsInDocument.includes(m));
+    });
     return (
       <DocumentViewer
         patientId={patientId}
@@ -480,14 +495,16 @@ function Patient(props) {
         factId={factId}
         factBasedReports={factBasedReports}
         patientDocument={patientDocument}
-
+        concepts={conceptsInDocument}
       ></DocumentViewer>
     );
   };
+
   function isEmpty(obj) {
     for (const i in obj) return false;
     return true;
   }
+
   useEffect(() => {
     function GetSummary(patientId) {
       return new Promise((resolve, reject) => {
@@ -501,16 +518,24 @@ function Patient(props) {
     }
 
     if (isEmpty(patientJson)) {
+      const that = this;
       getNewPatientJsonFromFile().then((json) => {
         setPatientJson(json);
         setPatientDocument(json["documents"][3]);
+        setPatientConcepts(
+          json.concepts
+            .map((concept) => {
+              return concept.mentionIds;
+            })
+            .flat()
+        );
       });
     }
 
     // this.updateCurrentReport(currentReport);
     // GetSummary(patientId);
     console.log(patientId, reportId);
-  }, [patientId, reportId, patientJson]);
+  }, [patientId, reportId, patientJson, patientConcepts]);
 
   function highlightSelectedTimelineReport(reportId) {
     // Remove previous added highlighting classes
@@ -791,7 +816,7 @@ function Patient(props) {
     const cancers = summary;
     //const melanomaAttributes = []; // obj.melanomaAttributes;
     return (
-      <span>
+      <React.Fragment>
         <Navbar className={"mainNavBar"}>
           <Container>
             <Navbar.Brand className={"mainNavBar"} href="/">
@@ -1132,11 +1157,17 @@ function Patient(props) {
             {/*    </div>*/}
             {/*  </CardBody>*/}
             {/*</Card>*/}
-            {getDocumentViewer(patientId, reportId, factId, factBasedReports, patientDocument)}
           </GridItem>
           <GridItem xs={12} sm={12} md={1} />
         </GridContainer>
-
+        {getDocumentViewer(
+          patientId,
+          reportId,
+          factId,
+          factBasedReports,
+          patientDocument,
+          patientJson
+        )}
         <div className={"mainFooter"}>
           <Row>
             <Col md={1}></Col>
@@ -1160,7 +1191,7 @@ function Patient(props) {
             <Col md={1}></Col>
           </Row>
         </div>
-      </span>
+      </React.Fragment>
     );
   }
 }
