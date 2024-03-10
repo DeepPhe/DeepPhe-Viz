@@ -1,30 +1,36 @@
 import React, { useState } from "react";
 import $ from "jquery";
+import parse from "html-react-parser";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
+  const [docText, setDocText] = useState(props.doc.text);
   const concepts = props.concepts;
+  const getMentionsGivenMentionIds = (mentionIds) => {
+    return doc.mentions.filter((m) => mentionIds.includes(m.id));
+  };
   const getMentionsForConcept = (conceptId) => {
     const idx = concepts.findIndex((c) => c.id === conceptId);
-    return concepts[idx].mentionIds.map((mentionId) => {
-      const idx = doc.mentions.findIndex((m) => m.id === mentionId);
-      if (idx !== -1) return doc.mentions[idx];
+    return concepts[idx].mentionIds.filter((mentionId) => {
+      return doc.mentions.some((m) => m.id === mentionId);
     });
   };
   let handleTermClick = (e) => {
     let obj = {};
     const conceptId = e.target.getAttribute("data-id");
-    const mentions = getMentionsForConcept(conceptId);
-    console.log("Show these mentions: ", mentions)
+    const mentions = getMentionsGivenMentionIds(
+      getMentionsForConcept(conceptId)
+    );
+    console.log("Show these mentions: ", mentions);
 
-    //highlightTextMentions(highlightAllMentions(mentions));
+    setDocText(highlightTextMentions(highlightAllMentions(mentions), doc.text));
 
     const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
     obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
     obj.begin = e.target.getAttribute("data-begin");
     obj.end = e.target.getAttribute("data-end");
 
-    scrollToHighlightedTextMention(obj, doc);
+    // scrollToHighlightedTextMention(obj, doc);
   };
 
   $(document).on("click", ".report_mentioned_term", handleTermClick);
@@ -34,7 +40,7 @@ export function DocumentPanel(props) {
     mentionedTerms.forEach(function (obj) {
       //grabbing mention begin and end so that I can highlight each mention at the start
       let textMentionObj = {};
-      textMentionObj.text = obj.term;
+      textMentionObj.text = obj.preferredText;
       textMentionObj.begin = obj.begin;
       textMentionObj.end = obj.end;
       textMentionObj.mentionFrequency = obj.frequency;
@@ -199,7 +205,7 @@ export function DocumentPanel(props) {
       console.log(term.slice(0, -3));
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
-      if (textMention.preferredText.indexOf(term) > -1) {
+      if (textMention.text.indexOf(term) > -1) {
         console.log("reached?");
         textFragments.push(
           '<span class="' +
@@ -275,14 +281,20 @@ export function DocumentPanel(props) {
   //     doc
   //   );
 
+  const getHTML = (docText) => {
+    return parse(docText);
+  };
+
   if (doc === null) {
     return <div>Loading...</div>;
-  } else
+  } else {
+    console.log("calling render");
+
     return (
       <React.Fragment>
         {/*<div id="scroll-line"></div>*/}
-
-        {doc.text}
+        {getHTML(docText)}
       </React.Fragment>
     );
+  }
 }

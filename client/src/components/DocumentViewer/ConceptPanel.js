@@ -81,6 +81,13 @@ export function ConceptPanel(props) {
     }
   }
 
+  const getMentionsCountForConcept = (conceptId) => {
+    const idx = concepts.findIndex((c) => c.id === conceptId);
+    return concepts[idx].mentionIds.filter((mentionId) => {
+      return mentions.some((m) => m.id === mentionId);
+    }).length;
+  };
+
   $('input[type=radio][name="sort_order"]').change(function () {
     const value = $(this).val();
     if (value === "alphabetically") {
@@ -139,13 +146,15 @@ export function ConceptPanel(props) {
         {sortedConcepts.map((obj) => {
           return (
             <ListItem
+              key={obj.id}
               class={"conceptListItem report_mentioned_term"}
               data-id={obj.id}
               data-negated={obj.negated}
               data-confidence={obj.confidence}
               data-uncertain={obj.uncertain}
+              data-text={obj.preferredText}
             >
-              {obj.preferredText}
+              {obj.preferredText} {getMentionsCountForConcept(obj.id)}
               {/*// class="report_mentioned_term fact_based_term_class"*/}
               {/*// data-begin={obj.begin}*/}
               {/*// data-end={obj.end}*/}
