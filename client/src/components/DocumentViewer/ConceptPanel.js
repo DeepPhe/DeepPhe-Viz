@@ -154,7 +154,7 @@ export function ConceptPanel(props) {
               data-uncertain={obj.uncertain}
               data-text={obj.preferredText}
             >
-              {obj.preferredText} {getMentionsCountForConcept(obj.id)}
+              {obj.preferredText} ({getMentionsCountForConcept(obj.id)})
               {/*// class="report_mentioned_term fact_based_term_class"*/}
               {/*// data-begin={obj.begin}*/}
               {/*// data-end={obj.end}*/}
