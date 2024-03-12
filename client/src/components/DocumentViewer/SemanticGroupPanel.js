@@ -2,6 +2,23 @@ import GridItem from "../Grid/GridItem";
 import React, { useState } from "react";
 
 export function SemanticGroupPanel(props) {
+
+  //WILL USE THIS LATER
+  function buildColorDistribution(textMention) {
+    let colorDistribution = [];
+    let increment = (100 / textMention.count).toFixed(2);
+
+    for (let i = 0; i < textMention.count; i++) {
+      let bgcolor = "highlight_terms";
+      let start = i > 0 ? i * increment + "%" : 0;
+      let finish =
+        i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
+      colorDistribution.push(bgcolor + " " + start);
+      colorDistribution.push(bgcolor + " " + finish);
+    }
+    return colorDistribution;
+  }
+
   const handleCheckboxChange = (checkboxId) => {
     setCheckboxes((prevState) => ({
       ...prevState,
@@ -19,7 +36,10 @@ export function SemanticGroupPanel(props) {
     checkbox7: true,
   });
 
-  const checkboxGridVisible = props.getCheckboxGridVisible;
+  const checkboxGridVisible = () => {
+    return true;
+  };
+  //props.getCheckboxGridVisible;
   return (
     <GridItem xs={12} md={12} lg={6}>
       <div className="dropdown">

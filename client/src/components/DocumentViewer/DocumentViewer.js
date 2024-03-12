@@ -30,8 +30,6 @@ export function DocumentViewer(props) {
     return checkboxGridVisible;
   };
 
-
-
   const getReport = () => {
     const factIdTemp = "";
     // If there are fact based reports, highlight the displaying one
@@ -60,75 +58,69 @@ export function DocumentViewer(props) {
     // Show rendered mentioned terms
     // First check if this report is a fact-based report so we cna highlight the fact-related terms
 
-      // let highlightedReportText = highlightTextMentions(
-      //   mentionedTerms,
-      //   reportText
-      // );
-      //
-      // reportTextDiv.html(highlightedReportText);
-      // reportTextDiv.animate({ scrollTop: 0 }, "fast");
-    }
+    // let highlightedReportText = highlightTextMentions(
+    //   mentionedTerms,
+    //   reportText
+    // );
+    //
+    // reportTextDiv.html(highlightedReportText);
+    // reportTextDiv.animate({ scrollTop: 0 }, "fast");
+  };
 
-    getReport();
+  getReport();
   return (
-    <GridContainer>
-      <GridItem xs={12} sm={12} md={1} />
-      <GridItem xs={12} sm={12} md={10}>
-        <Card id={"docs"}>
-          <CardHeader className={"basicCardHeader"}>
-            Documents Related to Selected Cancer/Tumor Detail
-          </CardHeader>
-          <CardBody>
-            <div id="report_instance">
-              <GridItem className="report_section clearfix">
-                <GridContainer>
-                  {/*<div id="timeline" className="clearfix"></div>*/}
-                  {/*<div className="divider clearfix"></div>*/}
-                  {/*<div id="fact_detail"></div>*/}
-                  <GridItem xs={6} id="report_id"></GridItem>
-                  <GridItem xs={6} id="zoom_controls">
-                    <button id="zoom_in_btn" type="button">
-                      <i className="fa  fa-search-plus"></i>
-                    </button>
-                    <button id="zoom_out_btn" type="button">
-                      <i className="fa  fa-search-minus"></i>
-                    </button>
+      <Card id={"docs"}>
+        <CardHeader className={"basicCardHeader"}>
+          Documents Related to Selected Cancer/Tumor Detail
+        </CardHeader>
+        <CardBody>
+          <div id="report_instance">
+            <GridItem className="report_section clearfix">
+              <GridContainer>
+                {/*<div id="timeline" className="clearfix"></div>*/}
+                {/*<div className="divider clearfix"></div>*/}
+                {/*<div id="fact_detail"></div>*/}
+                <GridItem xs={6} id="report_id"></GridItem>
+                <GridItem xs={6} id="zoom_controls">
+                  <button id="zoom_in_btn" type="button">
+                    <i className="fa  fa-search-plus"></i>
+                  </button>
+                  <button id="zoom_out_btn" type="button">
+                    <i className="fa  fa-search-minus"></i>
+                  </button>
+                </GridItem>
+                <GridContainer id="term_and_report_container">
+                  <GridItem
+                    style={{ border: "none" }}
+                    md={4}
+                    id="mentions_container"
+                    className="mentions_container"
+                  >
+                    <GridContainer id="term_container2">
+                      <GridItem
+                        md={2}
+                        id="mentions_container2"
+                        className="mentions_container2"
+                      >
+                        <ConceptPanel
+                          mentions={patientDocument.mentions}
+                          concepts={concepts}
+                          getCheckboxGridVisible={getCheckboxGridVisible}
+                          setCheckboxGridVisible={setCheckboxGridVisible}
+                          handleDropdownClick={handleDropdownClick}
+                        />
+                      </GridItem>
+                    </GridContainer>
                   </GridItem>
-                  <GridContainer id="term_and_report_container">
-                    <GridItem
-                      md={4}
-                      id="mentions_container"
-                      className="mentions_container"
-                    >
-                      <GridContainer id="term_container2">
-                        <GridItem
-                          md={2}
-                          id="mentions_container2"
-                          className="mentions_container2"
-                        >
-                          <ConceptPanel
-                            mentions={patientDocument.mentions}
-                            concepts={concepts}
-                            getCheckboxGridVisible={getCheckboxGridVisible}
-                            setCheckboxGridVisible={setCheckboxGridVisible}
-                            handleDropdownClick={handleDropdownClick}
-                          />
-                        </GridItem>
-                      </GridContainer>
-                    </GridItem>
 
-                    <GridItem md={6} id="report_text">
-                      <DocumentPanel doc={patientDocument}
-                      concepts={concepts}/>
-                    </GridItem>
-                  </GridContainer>
+                  <GridItem md={8} id="report_text">
+                    <DocumentPanel doc={patientDocument} concepts={concepts} />
+                  </GridItem>
                 </GridContainer>
-              </GridItem>
-            </div>
-          </CardBody>
-        </Card>
-      </GridItem>
-      <GridItem xs={12} sm={12} md={1} />
-    </GridContainer>
+              </GridContainer>
+            </GridItem>
+          </div>
+        </CardBody>
+      </Card>
   );
 }

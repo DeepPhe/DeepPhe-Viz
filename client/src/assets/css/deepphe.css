@@ -126,12 +126,7 @@ a {
     flex: 0 0;
 }
 
-#mentions_container3 {
-    padding: 0 !important;
-    margin-top: -5px !important;
-    max-width: 100%;
-    flex-basis: 14% !important;
-}
+
 
 .mentioned_terms_list_border {
     border-style: solid;
@@ -155,6 +150,16 @@ a {
     border-color: rgb(232, 232, 232);
     padding: 10px !important;
     /*overflow-y: auto;*/
+    ::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 7px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background-color: rgba(0,0,0,.5);
+        -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+    }
 
 }
 

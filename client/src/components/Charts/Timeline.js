@@ -22,6 +22,7 @@ export default class Timeline extends React.Component {
     this.fetchData.bind(this);
     this.setReportId = this.props.setReportId;
     this.patientJson = props.patientJson;
+    this.reportId = props.reportId;
   }
 
   getUrl() {
@@ -720,13 +721,13 @@ export default class Timeline extends React.Component {
 
           episodeSpansData.push(obj);
         });
-
+debugger;
         // SVG
         let svg = d3
           .select("#" + svgContainerId)
           .append("svg")
           .attr("class", "timeline_svg")
-          .attr("width", margin.left + width + margin.right)
+          .attr("width", window.innerWidth)
           .attr(
             "height",
             margin.top +
