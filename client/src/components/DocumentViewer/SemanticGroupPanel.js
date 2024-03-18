@@ -2,8 +2,9 @@ import GridItem from "../Grid/GridItem";
 import React, { useState } from "react";
 
 export function SemanticGroupPanel(props) {
+  const semanticGroups = props.semanticGroups;
+  const handleSemanticGroupChange = props.handleSemanticGroupChange;
 
-  //WILL USE THIS LATER
   function buildColorDistribution(textMention) {
     let colorDistribution = [];
     let increment = (100 / textMention.count).toFixed(2);
@@ -19,29 +20,12 @@ export function SemanticGroupPanel(props) {
     return colorDistribution;
   }
 
-  const handleCheckboxChange = (checkboxId) => {
-    setCheckboxes((prevState) => ({
-      ...prevState,
-      [checkboxId]: !prevState[checkboxId],
-    }));
+  const handleCheckboxChange = (e) => {
+    handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
   };
 
-  const [checkboxes, setCheckboxes] = useState({
-    checkbox1: true, // Set to true if you want it initially checked
-    checkbox2: true, // Set to true if you want it initially checked
-    checkbox3: true,
-    checkbox4: true,
-    checkbox5: true,
-    checkbox6: true,
-    checkbox7: true,
-  });
-
-  const checkboxGridVisible = () => {
-    return true;
-  };
-  //props.getCheckboxGridVisible;
-  return (
-    <GridItem xs={12} md={12} lg={6}>
+  const getHeader = () => {
+    return (
       <div className="dropdown">
         <div
           className={`dropdown-container ${
@@ -60,74 +44,56 @@ export function SemanticGroupPanel(props) {
           className={`checkbox-grid ${
             checkboxGridVisible() ? "visible" : "hidden"
           }`}
-        >
-          <div className="report_mentioned_term_magenta">
-            <input
-              type="checkbox"
-              id="checkbox1"
-              checked={checkboxes.checkbox1}
-              onChange={() => handleCheckboxChange("checkbox1")}
-            />
-            <label htmlFor="checkbox1">Sign/Symptom</label>
-          </div>
-          <div className="report_mentioned_term_black">
-            <input
-              type="checkbox"
-              id="checkbox2"
-              checked={checkboxes.checkbox2}
-              onChange={() => handleCheckboxChange("checkbox2")}
-            />
-            <label className="black" htmlFor="checkbox2">
-              Test/Procedure
-            </label>
-          </div>
-          <div className="report_mentioned_term_grey">
-            <input
-              type="checkbox"
-              id="checkbox3"
-              checked={checkboxes.checkbox3}
-              onChange={() => handleCheckboxChange("checkbox3")}
-            />
-            <label htmlFor="checkbox3">Anatomical Site</label>
-          </div>
-          <div className="report_mentioned_term_green">
-            <input
-              type="checkbox"
-              id="checkbox4"
-              checked={checkboxes.checkbox4}
-              onChange={() => handleCheckboxChange("checkbox4")}
-            />
-            <label htmlFor="checkbox4">Disease/Disorder</label>
-          </div>
-          <div className="report_mentioned_term_red">
-            <input
-              type="checkbox"
-              id="checkbox5"
-              checked={checkboxes.checkbox5}
-              onChange={() => handleCheckboxChange("checkbox5")}
-            />
-            <label htmlFor="checkbox5">Medication</label>
-          </div>
-          <div className="report_mentioned_term">
-            <input
-              type="checkbox"
-              id="checkbox6"
-              checked={checkboxes.checkbox6}
-              onChange={() => handleCheckboxChange("checkbox6")}
-            />
-            <label htmlFor="checkbox6">BLUE</label>
-          </div>
-          <div className="report_mentioned_term">
-            <input
-              type="checkbox"
-              id="checkbox7"
-              checked={checkboxes.checkbox7}
-              onChange={() => handleCheckboxChange("checkbox7")}
-            />
-            <label htmlFor="checkbox7">Negated</label>
-          </div>
-        </div>
+        />
       </div>
+    );
+  };
+
+  const getSemanticGroupBox = (group, index, values) => {
+    const id = "checkbox" + index;
+    return (
+      <div
+        style={{
+          margin: "0 5px 5px 0",
+          cursor: "pointer",
+          fontFamily: "Monaco, monospace",
+          borderRadius: "5px",
+          float: "left",
+          backgroundColor: values.color,
+        }}
+      >
+        <input
+          name={"semanticGroups"}
+          key={id}
+          type="radio"
+          id={id}
+          checked={values.checked}
+          onChange={handleCheckboxChange}
+          data-semantic-group={group}
+        />
+        <label htmlFor={id}>{group}</label>
+      </div>
+    );
+  };
+
+  const getSemanticGroups = () => {
+    return (
+      <div className="semantic-groups">
+        {Object.keys(semanticGroups).map((group, index) => {
+          return getSemanticGroupBox(group, index, semanticGroups[group]);
+        })}
+      </div>
+    );
+  };
+
+  const checkboxGridVisible = () => {
+    return true;
+  };
+  //props.getCheckboxGridVisible;
+  return (
+    <GridItem>
+      {getHeader()}
+      {getSemanticGroups()}
     </GridItem>
   );
 }

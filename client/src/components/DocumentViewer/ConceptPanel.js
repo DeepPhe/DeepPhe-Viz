@@ -1,4 +1,3 @@
-
 import GridContainer from "../Grid/GridContainer";
 import { SemanticGroupPanel } from "./SemanticGroupPanel";
 import React from "react";
@@ -18,6 +17,8 @@ export function ConceptPanel(props) {
   const factBasedReports = props.factBasedReports;
   const reportId = props.reportId;
   const factId = props.factId;
+  const handleSemanticGroupChange = props.handleSemanticGroupChange;
+  const semanticGroups = props.semanticGroups;
   $(document).on("input", "#confidenceRange", function () {
     // Declare variables
     let slider = document.getElementById("confidenceRange");
@@ -30,7 +31,9 @@ export function ConceptPanel(props) {
     };
   });
 
-
+  const handleConfidenceChange = (e) => {
+    console.log(e);
+  };
 
   const checkboxGridVisible = props.getCheckboxGridVisible;
   const setCheckboxGridVisible = props.setCheckboxGridVisible;
@@ -73,12 +76,17 @@ export function ConceptPanel(props) {
               getCheckboxGridVisible={checkboxGridVisible}
               setCheckboxGridVisible={setCheckboxGridVisible}
               handleDropdownClick={handleDropdownClick}
+              semanticGroups={semanticGroups}
+              handleSemanticGroupChange={handleSemanticGroupChange}
             />
-            <ConfidencePanel />
+            <ConfidencePanel
+              handleConfidenceChange={handleConfidenceChange}
+            />
             <SortPanel></SortPanel>
             <ConceptListPanel
-            concepts={concepts}
-            mentions={mentions}></ConceptListPanel>
+              concepts={concepts}
+              mentions={mentions}
+            ></ConceptListPanel>
           </GridContainer>
         </CardBody>
       </Card>

@@ -721,7 +721,7 @@ export default class Timeline extends React.Component {
 
           episodeSpansData.push(obj);
         });
-debugger;
+
         // SVG
         let svg = d3
           .select("#" + svgContainerId)

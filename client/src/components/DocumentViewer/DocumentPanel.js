@@ -6,6 +6,7 @@ export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
   const concepts = props.concepts;
+  const semanticGroups = props.semanticGroups;
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
@@ -23,7 +24,7 @@ export function DocumentPanel(props) {
     );
     console.log("Show these mentions: ", mentions);
 
-    setDocText(highlightTextMentions(highlightAllMentions(mentions), doc.text));
+    setDocText(highlightTextMentions(highlightAllMentions(mentions), doc.text, "yellow"));
 
     const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
     obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
@@ -170,7 +171,7 @@ export function DocumentPanel(props) {
     //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
   }
 
-  function highlightTextMentions(textMentions, reportText, term = "NONE") {
+  function highlightTextMentions(textMentions, reportText, color, term = "NONE") {
     const cssClass = "highlighted_term";
     const cssClassAll = "highlight_terms";
 
@@ -184,6 +185,7 @@ export function DocumentPanel(props) {
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
       let lastValidTM = textMentions[lastValidTMIndex];
+
 
       // If this is the first textmention, paste the start of the document before the first TM.
       if (i === 0) {
@@ -208,17 +210,13 @@ export function DocumentPanel(props) {
       if (textMention.text.indexOf(term) > -1) {
         console.log("reached?");
         textFragments.push(
-          '<span class="' +
-            cssClass +
-            '">' +
+          '<span style="background-color:'+color+'">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
       } else {
         textFragments.push(
-          '<span class="' +
-            cssClassAll +
-            '">' +
+          '<span style="background-color:'+color+'">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
@@ -282,7 +280,19 @@ export function DocumentPanel(props) {
   //   );
 
   const getHTML = (docText) => {
-    return parse(docText);
+    let html = docText
+    Object.keys(semanticGroups).forEach((key) => {
+      const group = semanticGroups[key];
+      const mentionsForConcept = getMentionsGivenMentionIds(getMentionsForConcept(group.id));
+      if (group.checked) {
+        html = highlightTextMentions(highlightAllMentions(mentionsForConcept), html, group.color);
+      }
+
+    })
+    // return parse("<svg height=\"1000\" width=\"1000\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
+    //   "  <text x=\"5\" y=\"15\" fill=\"red\">"+docText+"</text>\n" +
+    //   "</svg>")
+    return parse(html);
   };
 
   if (doc === null) {

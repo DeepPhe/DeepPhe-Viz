@@ -989,23 +989,7 @@ input[type="checkbox"] {
     margin-right: 5px;
 }
 
-/*
-look towards magenta/purple
- */
-.report_mentioned_term_magenta {
-    margin: 0 5px 5px 0;
-    padding: 3px 2px 0;
-    cursor: pointer;
-    font-family: Monaco, monospace;
-    background-image: linear-gradient(
-            -100deg,
-            #edb1f1,
-            #d59bf6,
-            #9896f1
-    );
-    border-radius: 5px;
-    float: left;
-}
+
 
 .report_mentioned_term_black {
     margin: 0 5px 5px 0;
@@ -1297,12 +1281,7 @@ white text with more shading
     /*border-radius: 5px;*/
     border-radius: 0.5em 0.5em 0.5em 0.5em;
     font-weight: bold;
-    background-image: linear-gradient(
-            -100deg,
-            rgba(255, 224, 0, 0.2),
-            rgba(255, 224, 0, 0.7) 95%,
-            rgba(255, 224, 0, 0.1)
-    );
+
 }
 
 

@@ -2,6 +2,8 @@ import GridItem from "../Grid/GridItem";
 import React, { useState } from "react";
 
 export function ConfidencePanel(props: ConfidencePanelProps) {
+  const handleConfidenceChange = props.handleConfidenceChange;
+
   const { confidence, onConfidenceChange } = props;
   const [value, setValue] = useState(confidence);
 
@@ -12,13 +14,17 @@ export function ConfidencePanel(props: ConfidencePanelProps) {
         // className={`${checkboxGridVisible() ? "visible" : "hidden"}`}
       >
         {" "}
-        Confidence Range
+        Minimum confidence required to display concept
         <input
           type="range"
           min="1"
           max="100"
           className="slider"
           id="confidenceRange"
+          onChange={(e) => {
+            setValue(e.target.value);
+            handleConfidenceChange(e.target.value);
+          }}
         />
         <p>
           Confidence: <span id="confidenceValue"></span> %

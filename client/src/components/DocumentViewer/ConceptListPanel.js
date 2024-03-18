@@ -115,6 +115,7 @@ export function ConceptListPanel(props) {
               data-confidence={obj.confidence}
               data-uncertain={obj.uncertain}
               data-text={obj.preferredText}
+              data-dphe-group={obj.dpheGroup}
             >
               {obj.preferredText} ({getMentionsCountForConcept(obj.id)})
               {/*// class="report_mentioned_term fact_based_term_class"*/}

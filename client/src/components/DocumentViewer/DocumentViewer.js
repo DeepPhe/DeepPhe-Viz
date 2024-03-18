@@ -3,7 +3,7 @@ import GridItem from "../Grid/GridItem";
 import Card from "../Card/Card";
 import CardHeader from "../Card/CardHeader";
 import CardBody from "../Card/CardBody";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ConceptPanel } from "./ConceptPanel";
 import { DocumentPanel } from "./DocumentPanel";
 import $ from "jquery";
@@ -15,11 +15,101 @@ export function DocumentViewer(props) {
   const reportId = props.reportId;
   const factId = props.factId;
   const concepts = props.concepts;
+  const [semanticGroups, setSemanticGroups] = useState({});
+
+  useEffect(() => {
+    if (isEmpty(semanticGroups)) {
+      getSemanticGroups();
+    }
+  }, [semanticGroups]);
 
   function isEmpty(obj) {
     for (const i in obj) return false;
     return true;
   }
+
+  const getRandomColor = (index) => {
+    const colors = [
+      "#FF6633",
+      "#FFB399",
+      "#FF33FF",
+      "#FFFF99",
+      "#00B3E6",
+      "#E6B333",
+      "#3366E6",
+      "#999966",
+      "#99FF99",
+      "#B34D4D",
+      "#80B300",
+      "#809900",
+      "#E6B3B3",
+      "#6680B3",
+      "#66991A",
+      "#FF99E6",
+      "#CCFF1A",
+      "#FF1A66",
+      "#E6331A",
+      "#33FFCC",
+      "#66994D",
+      "#B366CC",
+      "#4D8000",
+      "#B33300",
+      "#CC80CC",
+      "#66664D",
+      "#991AFF",
+      "#E666FF",
+      "#4DB3FF",
+      "#1AB399",
+      "#E666B3",
+      "#33991A",
+      "#CC9999",
+      "#B3B31A",
+      "#00E680",
+      "#4D8066",
+      "#809980",
+      "#E6FF80",
+      "#1AFF33",
+      "#999933",
+      "#FF3380",
+      "#CCCC00",
+      "#66E64D",
+      "#4D80CC",
+      "#9900B3",
+      "#E64D66",
+      "#4DB380",
+      "#FF4D4D",
+      "#99E6E6",
+      "#6666FF",
+    ];
+    return colors[index];
+  };
+
+  const getSemanticGroups = () => {
+    let groups = {};
+    const uniqueConcepts = Array.from(
+      new Set(concepts.map((c) => c.dpheGroup))
+    );
+    let first = true;
+    uniqueConcepts.map((group, index) => {
+      groups[group] = {
+        checked: first,
+        color: getRandomColor(index),
+        id: concepts.filter((c) => c.dpheGroup === group)[0].id,
+      };
+      first = false;
+    });
+    setSemanticGroups(groups);
+  };
+
+  const handleSemanticGroupChange = (group, checked) => {
+    const previouslyChecked = Object.keys(semanticGroups).filter(
+      (key) => semanticGroups[key].checked
+    );
+    let groups = {...semanticGroups};
+    groups[previouslyChecked].checked = false;
+    groups[group].checked = true;
+    setSemanticGroups(groups);
+  };
 
   const handleDropdownClick = () => {
     setCheckboxGridVisible((prevState) => {
@@ -67,8 +157,11 @@ export function DocumentViewer(props) {
     // reportTextDiv.animate({ scrollTop: 0 }, "fast");
   };
 
-  getReport();
-  return (
+  if (isEmpty(semanticGroups)) {
+    return "Loading...";
+  } else {
+    getReport();
+    return (
       <Card id={"docs"}>
         <CardHeader className={"basicCardHeader"}>
           Documents Related to Selected Cancer/Tumor Detail
@@ -108,13 +201,19 @@ export function DocumentViewer(props) {
                           getCheckboxGridVisible={getCheckboxGridVisible}
                           setCheckboxGridVisible={setCheckboxGridVisible}
                           handleDropdownClick={handleDropdownClick}
+                          semanticGroups={semanticGroups}
+                          handleSemanticGroupChange={handleSemanticGroupChange}
                         />
                       </GridItem>
                     </GridContainer>
                   </GridItem>
 
                   <GridItem md={8} id="report_text">
-                    <DocumentPanel doc={patientDocument} concepts={concepts} />
+                    <DocumentPanel
+                      doc={patientDocument}
+                      concepts={concepts}
+                      semanticGroups={semanticGroups}
+                    />
                   </GridItem>
                 </GridContainer>
               </GridContainer>
@@ -122,5 +221,6 @@ export function DocumentViewer(props) {
           </div>
         </CardBody>
       </Card>
-  );
+    );
+  }
 }
