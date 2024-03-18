@@ -281,14 +281,14 @@ export function DocumentPanel(props) {
 
   const getHTML = (docText) => {
     let html = docText
-    Object.keys(semanticGroups).forEach((key) => {
-      const group = semanticGroups[key];
-      const mentionsForConcept = getMentionsGivenMentionIds(getMentionsForConcept(group.id));
-      if (group.checked) {
-        html = highlightTextMentions(highlightAllMentions(mentionsForConcept), html, group.color);
-      }
-
-    })
+    // Object.keys(semanticGroups).forEach((key) => {
+    //   const group = semanticGroups[key];
+    //   const mentionsForConcept = getMentionsGivenMentionIds(getMentionsForConcept(group.id));
+    //   if (group.checked) {
+    //     html = highlightTextMentions(highlightAllMentions(mentionsForConcept), html, group.color);
+    //   }
+    //
+    // })
     // return parse("<svg height=\"1000\" width=\"1000\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
     //   "  <text x=\"5\" y=\"15\" fill=\"red\">"+docText+"</text>\n" +
     //   "</svg>")

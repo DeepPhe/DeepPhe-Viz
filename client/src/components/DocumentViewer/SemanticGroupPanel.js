@@ -65,7 +65,7 @@ export function SemanticGroupPanel(props) {
         <input
           name={"semanticGroups"}
           key={id}
-          type="radio"
+          type="checkbox"
           id={id}
           checked={values.checked}
           onChange={handleCheckboxChange}

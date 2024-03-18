@@ -89,25 +89,23 @@ export function DocumentViewer(props) {
     const uniqueConcepts = Array.from(
       new Set(concepts.map((c) => c.dpheGroup))
     );
-    let first = true;
     uniqueConcepts.map((group, index) => {
       groups[group] = {
-        checked: first,
+        checked: true,
         color: getRandomColor(index),
         id: concepts.filter((c) => c.dpheGroup === group)[0].id,
       };
-      first = false;
     });
     setSemanticGroups(groups);
   };
 
   const handleSemanticGroupChange = (group, checked) => {
-    const previouslyChecked = Object.keys(semanticGroups).filter(
-      (key) => semanticGroups[key].checked
-    );
+    // const previouslyChecked = Object.keys(semanticGroups).filter(
+    //   (key) => semanticGroups[key].checked
+    // );
     let groups = {...semanticGroups};
-    groups[previouslyChecked].checked = false;
-    groups[group].checked = true;
+    // groups[previouslyChecked].checked = false;
+    groups[group].checked = checked;
     setSemanticGroups(groups);
   };
 
