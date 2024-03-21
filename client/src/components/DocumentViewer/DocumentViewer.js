@@ -141,6 +141,7 @@ export function DocumentViewer(props) {
 
     // Show report ID
     $("#report_id").html(
+        //TODO: Report ID is not being Displayed until after the document has been interacted with
       '<i class="fa fa-file-o"></i><span class="display_report_id ' +
         currentReportCssClass +
         '">' +

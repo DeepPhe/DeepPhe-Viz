@@ -204,7 +204,7 @@ export function DocumentPanel(props) {
           );
         }
       }
-      console.log(term.slice(0, -3));
+      console.log(term);
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
       if (textMention.text.indexOf(term) > -1) {
@@ -298,7 +298,7 @@ export function DocumentPanel(props) {
   if (doc === null) {
     return <div>Loading...</div>;
   } else {
-    console.log("calling render");
+    // console.log("calling render");
 
     return (
       <React.Fragment>
