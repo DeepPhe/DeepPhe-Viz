@@ -80,6 +80,7 @@ export function SemanticGroupPanel(props) {
     return (
       <div className="semantic-groups">
         {Object.keys(semanticGroups).map((group, index) => {
+          console.log(semanticGroups[group]);
           return getSemanticGroupBox(group, index, semanticGroups[group]);
         })}
       </div>

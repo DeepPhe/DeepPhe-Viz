@@ -9,6 +9,7 @@ export function ConceptListPanel(props) {
     const {concepts, mentions} = props;
     const semanticGroups = props.semanticGroups;
     const confidence = props.confidence;
+    // const conceptColor = props.color;
     $("#occ_radio").prop("checked", true);
     $("#stack_radio").prop("checked", true);
 
@@ -79,7 +80,6 @@ export function ConceptListPanel(props) {
         }).length;
     };
 
-
     function conceptGroupIsSelected(concept) {
         return semanticGroups[concept.dpheGroup].checked
     }
@@ -95,8 +95,7 @@ export function ConceptListPanel(props) {
     }
 
     function getConceptsList() {
-
-        const filteredConcepts = filterConcepts(concepts)
+        const filteredConcepts = filterConcepts(concepts);
         let sortedConcepts = filteredConcepts.sort((a, b) =>
             a.preferredText > b.preferredText ? 1 : -1
         );
@@ -126,9 +125,9 @@ export function ConceptListPanel(props) {
                 {sortedConcepts.map((obj) => {
                     return (
                         <ListItem
-                            style={{fontSize: "14px"}}
+                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].color}}
                             key={obj.id}
-                            class={"conceptListItem report_mentioned_term"}
+                            class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}
                             data-negated={obj.negated}
                             data-confidence={obj.confidence}

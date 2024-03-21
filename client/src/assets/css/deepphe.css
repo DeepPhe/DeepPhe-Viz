@@ -890,12 +890,6 @@ th {
     padding: 3px 2px 0;
     cursor: pointer;
     font-family: Monaco, monospace;
-    background-image: linear-gradient(
-            -100deg,
-            #a8d1ff,
-            rgba(109, 116, 199, 0.7) 95%,
-            rgba(112, 121, 222, 0.1)
-    );
     border-radius: 5px;
     float: left;
 }

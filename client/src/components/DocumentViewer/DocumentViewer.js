@@ -28,6 +28,11 @@ export function DocumentViewer(props) {
     return true;
   }
 
+  // define a tree structure for semantic groups where the root node is the general topic of the
+  // concepts and the children are the subtopics of the concept
+  // start with 50% transparency and all black fonts !!!!
+  // https://sashamaps.net/docs/resources/20-colors/
+  // https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
   const getRandomColor = (index) => {
     const colors = [
       "#FF6633",
@@ -211,6 +216,7 @@ export function DocumentViewer(props) {
                       doc={patientDocument}
                       concepts={concepts}
                       semanticGroups={semanticGroups}
+                      // conceptColor={}
                     />
                   </GridItem>
                 </GridContainer>
