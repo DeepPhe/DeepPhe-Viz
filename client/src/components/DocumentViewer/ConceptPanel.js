@@ -56,15 +56,15 @@ export function ConceptPanel(props) {
           onClick={handleDropdownClick}
         >
           Concept Filter
-          {/*{checkboxGridVisible() ? (*/}
-          {/*  <span>*/}
-          {/*    <i className="caret-custom fa fa-caret-down fa-2x"></i>*/}
-          {/*  </span>*/}
-          {/*) : (*/}
-          {/*  <span>*/}
-          {/*    <i className="caret-custom fa fa-caret-up fa-2x"></i>*/}
-          {/*  </span>*/}
-          {/*)}*/}
+          {checkboxGridVisible() ? (
+            <span>
+              <i className="caret-custom fa fa-caret-down fa-2x"></i>
+            </span>
+          ) : (
+            <span>
+              <i className="caret-custom fa fa-caret-up fa-2x"></i>
+            </span>
+          )}
         </CardHeader>
         <CardBody
           style={{ border: "none", boxShadow: "none" }}

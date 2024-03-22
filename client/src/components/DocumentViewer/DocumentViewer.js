@@ -105,11 +105,7 @@ export function DocumentViewer(props) {
   };
 
   const handleSemanticGroupChange = (group, checked) => {
-    // const previouslyChecked = Object.keys(semanticGroups).filter(
-    //   (key) => semanticGroups[key].checked
-    // );
     let groups = {...semanticGroups};
-    // groups[previouslyChecked].checked = false;
     groups[group].checked = checked;
     setSemanticGroups(groups);
   };
@@ -139,16 +135,6 @@ export function DocumentViewer(props) {
       .find(">:first-child")
       .addClass(currentFactTermsCssClass);
 
-    // Show report ID
-    $("#report_id").html(
-        //TODO: Report ID is not being Displayed until after the document has been interacted with
-      '<i class="fa fa-file-o"></i><span class="display_report_id ' +
-        currentReportCssClass +
-        '">' +
-        reportId +
-        "</span>"
-    );
-
     // Show rendered mentioned terms
     // First check if this report is a fact-based report so we cna highlight the fact-related terms
 
@@ -177,7 +163,12 @@ export function DocumentViewer(props) {
                 {/*<div id="timeline" className="clearfix"></div>*/}
                 {/*<div className="divider clearfix"></div>*/}
                 {/*<div id="fact_detail"></div>*/}
-                <GridItem xs={6} id="report_id"></GridItem>
+                <GridItem xs={6} id="report_id">
+                  <i className="fa fa-file-o"></i>
+                  <span className="display_report_id currentReportCssClass current_displaying_report">
+                    {reportId}
+                  </span>
+                </GridItem>
                 <GridItem xs={6} id="zoom_controls">
                   <button id="zoom_in_btn" type="button">
                     <i className="fa  fa-search-plus"></i>
@@ -217,7 +208,6 @@ export function DocumentViewer(props) {
                       doc={patientDocument}
                       concepts={concepts}
                       semanticGroups={semanticGroups}
-                      // conceptColor={}
                     />
                   </GridItem>
                 </GridContainer>

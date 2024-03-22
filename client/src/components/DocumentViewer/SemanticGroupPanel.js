@@ -25,37 +25,14 @@ export function SemanticGroupPanel(props) {
     };
 
     const getHeader = () => {
-        console.log(checkboxGridVisible());
         return (
 
-            <div className="caret-options-container">
+            <div className={`caret-options-container ${checkboxGridVisible() ? "visible" : "hidden"}`}>
                 <div className="options-container">
                     <span>Semantic Groups</span>
                 </div>
                 <hr className="line"/>
             </div>
-
-
-            // <div className="dropdown">
-            //     <div
-            //         className={`dropdown-container ${
-            //             checkboxGridVisible() ? "visible" : "hidden"
-            //         }`}
-            //     >
-            //         <div className="caret-options-container">
-            //             <div className="options-container">
-            //                 <span>Semantic Groups</span>
-            //             </div>
-            //         </div>
-            //         <hr className="line"/>
-            //     </div>
-            //
-            //     <div
-            //         className={`checkbox-grid ${
-            //             checkboxGridVisible() ? "visible" : "hidden"
-            //         }`}
-            //     />
-            // </div>
 
         );
     };
@@ -89,7 +66,9 @@ export function SemanticGroupPanel(props) {
 
     const getSemanticGroups = () => {
         return (
-            <div className="semantic-groups">
+            // adding checkboxGridVisible() to hide semantic-semantic groups when prompted
+            <div className={`semantic-groups ${checkboxGridVisible() ? "visible" : "hidden"}`}>
+            {/*<div className={"semantic-groups"}>*/}
                 {Object.keys(semanticGroups).map((group, index) => {
                     return getSemanticGroupBox(group, index, semanticGroups[group]);
                 })}

@@ -85,12 +85,12 @@ a {
 }
 
 
-#mentions_container,
-#report_instance {
-    margin: 0 !important;
-    padding: 0 !important;
+/*#mentions_container,*/
+/*#report_instance {*/
+/*    margin: 0 !important;*/
+/*    padding: 0 !important;*/
 
-}
+/*}*/
 /*delete to revert*/
 /*#report_id {*/
 /*    position: absolute;*/
@@ -910,6 +910,7 @@ th {
 
 .caret-options-container {
     width: 300px;
+    visibility: hidden;
 }
 
 .caret-container {
@@ -956,10 +957,6 @@ th {
     height: 10px; /* Adjust the height as needed */
     background-color: #000; /* Adjust the color as needed */
     margin-left: 5px;
-}
-
-.visible {
-    display: grid;
 }
 
 .hidden {
