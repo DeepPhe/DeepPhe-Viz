@@ -135,6 +135,8 @@ export function DocumentViewer(props) {
       .find(">:first-child")
       .addClass(currentFactTermsCssClass);
 
+
+
     // Show rendered mentioned terms
     // First check if this report is a fact-based report so we cna highlight the fact-related terms
 

@@ -38,7 +38,7 @@ export function ConceptPanel(props) {
 
   const checkboxGridVisible = props.getCheckboxGridVisible;
   const setCheckboxGridVisible = props.setCheckboxGridVisible;
-  const handleDropdownClick = props.handleDropdownClick;
+  // const handleDropdownClick = props.handleDropdownClick;
   return (
     <React.Fragment>
       <Card
@@ -53,18 +53,9 @@ export function ConceptPanel(props) {
           style={{ border: "none", boxShadow: "none" }}
           id="mentions_label"
           className={"basicCardHeader"}
-          onClick={handleDropdownClick}
+          // onClick={handleDropdownClick}
         >
           Concept Filter
-          {checkboxGridVisible() ? (
-            <span>
-              <i className="caret-custom fa fa-caret-down fa-2x"></i>
-            </span>
-          ) : (
-            <span>
-              <i className="caret-custom fa fa-caret-up fa-2x"></i>
-            </span>
-          )}
         </CardHeader>
         <CardBody
           style={{ border: "none", boxShadow: "none" }}
@@ -76,7 +67,7 @@ export function ConceptPanel(props) {
             <SemanticGroupPanel
               getCheckboxGridVisible={checkboxGridVisible}
               setCheckboxGridVisible={setCheckboxGridVisible}
-              handleDropdownClick={handleDropdownClick}
+              // handleDropdownClick={handleDropdownClick}
               semanticGroups={semanticGroups}
               handleSemanticGroupChange={handleSemanticGroupChange}
             />

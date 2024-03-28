@@ -4,6 +4,8 @@ import React, {useState} from "react";
 export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
+    // const [checkboxGridVisible, setCheckboxGridVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(true);
 
     function buildColorDistribution(textMention) {
         let colorDistribution = [];
@@ -24,16 +26,41 @@ export function SemanticGroupPanel(props) {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
     };
 
+    // const toggleVisibility = () => {
+    //     setCheckboxGridVisible((prevState) => {
+    //         return !prevState;
+    //     });
+    // };
+    //
+    // const checkboxGridVisible = () => {
+    //     return true;
+    // };
+
+
+
+    const toggleVisibility = () => {
+        setIsVisible(!isVisible);
+    };
+
     const getHeader = () => {
         return (
-
-            <div className={`caret-options-container ${checkboxGridVisible() ? "visible" : "hidden"}`}>
+            <div className={`caret-options-container visible`}>
+                {isVisible ? (
+                    <span>
+                    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibility}></i>
+                        {/* Show this icon when visible */}
+                </span>
+                ) : (
+                    <span>
+                    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibility}></i>
+                        {/* Show this icon when hidden */}
+                </span>
+                )}
                 <div className="options-container">
                     <span>Semantic Groups</span>
                 </div>
                 <hr className="line"/>
             </div>
-
         );
     };
 
@@ -67,8 +94,8 @@ export function SemanticGroupPanel(props) {
     const getSemanticGroups = () => {
         return (
             // adding checkboxGridVisible() to hide semantic-semantic groups when prompted
-            <div className={`semantic-groups ${checkboxGridVisible() ? "visible" : "hidden"}`}>
-            {/*<div className={"semantic-groups"}>*/}
+            <div className={`semantic-groups ${isVisible ? "visible" : "hidden"}`}>
+                {/*<div className={"semantic-groups"}>*/}
                 {Object.keys(semanticGroups).map((group, index) => {
                     return getSemanticGroupBox(group, index, semanticGroups[group]);
                 })}
@@ -76,10 +103,6 @@ export function SemanticGroupPanel(props) {
         );
     };
 
-    const checkboxGridVisible = () => {
-        return true;
-    };
-    //props.getCheckboxGridVisible;
     return (
         <GridItem>
             {getHeader()}

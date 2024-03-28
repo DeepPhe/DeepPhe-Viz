@@ -19,9 +19,19 @@ export function DocumentPanel(props) {
   let handleTermClick = (e) => {
     let obj = {};
     const conceptId = e.target.getAttribute("data-id");
-    const mentions = getMentionsGivenMentionIds(
-      getMentionsForConcept(conceptId)
-    );
+    console.log("conceptID:", conceptId);
+    console.log("conceptID2:", concepts[0].id);
+    let mentions = [];
+    console.log(concepts.length);
+    for(let i = 0; i < concepts.length; i++){
+      let hello = getMentionsGivenMentionIds(
+          getMentionsForConcept(concepts[i].id)
+      );
+      mentions.push(hello);
+    }
+    // const mentions = getMentionsGivenMentionIds(
+    //   getMentionsForConcept(conceptId)
+    // );
     console.log("Show these mentions: ", mentions);
 
     setDocText(highlightTextMentions(highlightAllMentions(mentions), doc.text, "yellow"));
@@ -154,13 +164,14 @@ export function DocumentPanel(props) {
     // Highlight this term in the report text
     //console.log(mentionedTerms);
     textMentions = highlightAllMentions(doc.mentions);
+    console.log(textMentions);
     // console.log(textMentions);
     let highlightedReportText = highlightTextMentions(
       doc.mentions,
       doc.text,
       obj.term
     );
-    //console.log(highlightedReportText);
+    console.log(highlightedReportText);
 
     // Use html() for html rendering
     reportTextDiv.html(highlightedReportText);
@@ -204,7 +215,7 @@ export function DocumentPanel(props) {
           );
         }
       }
-      console.log(term);
+
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
       if (textMention.text.indexOf(term) > -1) {
@@ -281,6 +292,7 @@ export function DocumentPanel(props) {
 
   const getHTML = (docText) => {
     let html = docText
+    // setDocText(highlightTextMentions(highlightAllMentions(concepts), doc.text, "yellow"));
     // Object.keys(semanticGroups).forEach((key) => {
     //   const group = semanticGroups[key];
     //   const mentionsForConcept = getMentionsGivenMentionIds(getMentionsForConcept(group.id));
