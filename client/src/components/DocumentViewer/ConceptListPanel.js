@@ -5,10 +5,14 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
 
+export let sortedConcepts;
+
 export function ConceptListPanel(props) {
     const {concepts, mentions} = props;
     const semanticGroups = props.semanticGroups;
     const confidence = props.confidence;
+
+
     // const conceptColor = props.color;
     $("#occ_radio").prop("checked", true);
     $("#stack_radio").prop("checked", true);
@@ -96,7 +100,7 @@ export function ConceptListPanel(props) {
 
     function getConceptsList() {
         const filteredConcepts = filterConcepts(concepts);
-        let sortedConcepts = filteredConcepts.sort((a, b) =>
+        sortedConcepts = filteredConcepts.sort((a, b) =>
             a.preferredText > b.preferredText ? 1 : -1
         );
 

@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import $ from "jquery";
 import parse from "html-react-parser";
+import {sortedConcepts} from "./ConceptListPanel";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
   const concepts = props.concepts;
+  const confidence = props.confidence;
   const semanticGroups = props.semanticGroups;
+  let highlightedMentions = [];
+
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
@@ -19,44 +23,61 @@ export function DocumentPanel(props) {
   let handleTermClick = (e) => {
     let obj = {};
     const conceptId = e.target.getAttribute("data-id");
-    console.log("conceptID:", conceptId);
-    console.log("conceptID2:", concepts[0].id);
-    let mentions = [];
-    console.log(concepts.length);
-    for(let i = 0; i < concepts.length; i++){
-      let hello = getMentionsGivenMentionIds(
-          getMentionsForConcept(concepts[i].id)
-      );
-      mentions.push(hello);
-    }
-    // const mentions = getMentionsGivenMentionIds(
-    //   getMentionsForConcept(conceptId)
-    // );
-    console.log("Show these mentions: ", mentions);
 
-    setDocText(highlightTextMentions(highlightAllMentions(mentions), doc.text, "yellow"));
+    const mentions = getMentionsGivenMentionIds(
+      getMentionsForConcept(conceptId)
+    );
+    highlightedMentions.push(mentions);
+    console.log("Show these mentions: ", highlightedMentions);
+
+
+    // setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "blue"));
 
     const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
     obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
     obj.begin = e.target.getAttribute("data-begin");
     obj.end = e.target.getAttribute("data-end");
 
-    // scrollToHighlightedTextMention(obj, doc);
+    scrollToHighlightedTextMention(obj, doc);
   };
 
   $(document).on("click", ".report_mentioned_term", handleTermClick);
 
   function highlightAllMentions(mentionedTerms) {
     let textMentions = [];
-    mentionedTerms.forEach(function (obj) {
+    // mentionedTerms.forEach(function (nestedArray) {
+    //   nestedArray.forEach(function(obj) {
+    mentionedTerms.forEach(function (obj){
+        //grabbing mention begin and end so that I can highlight each mention at the start
+        let textMentionObj = {};
+        // console.log(obj.begin);
+        textMentionObj.text = obj["preferredText"];
+        textMentionObj.begin = obj.begin;
+        textMentionObj.end = obj.end;
+        textMentionObj.mentionFrequency = obj.frequency;
+        // console.log(textMentionObj);
+        textMentions.push(textMentionObj);
+      });
+    // });
+
+    return textMentions;
+  }
+
+  function highlightAllMentionsAtStart(mentionedTerms) {
+    let textMentions = [];
+    mentionedTerms.forEach(function (nestedArray) {
+      nestedArray.forEach(function(obj) {
+    // mentionedTerms.forEach(function (obj){
       //grabbing mention begin and end so that I can highlight each mention at the start
       let textMentionObj = {};
-      textMentionObj.text = obj.preferredText;
+      // console.log(obj.begin);
+      textMentionObj.text = obj["preferredText"];
       textMentionObj.begin = obj.begin;
       textMentionObj.end = obj.end;
       textMentionObj.mentionFrequency = obj.frequency;
-      //console.log(textMentionObj);
+      // console.log(textMentionObj);
       textMentions.push(textMentionObj);
+      });
     });
 
     return textMentions;
@@ -73,9 +94,6 @@ export function DocumentPanel(props) {
   });
 
   function flattenRanges(ranges) {
-    // console.log("======input ranges======");
-    // console.log(ranges);
-
     let points = [];
     let flattened = [];
     for (let i in ranges) {
@@ -88,7 +106,6 @@ export function DocumentPanel(props) {
       points.push(ranges[i].begin);
       points.push(ranges[i].end);
     }
-    // console.log("points: ", points);
 
     //MAKE SURE OUR LIST OF POINTS IS IN ORDER
     //COMMENT THIS OUT LATER
@@ -139,11 +156,6 @@ export function DocumentPanel(props) {
     const cssClass = "current_mentioned_term";
     // First remove the previously added highlighting
     $(".report_mentioned_term").removeClass(cssClass);
-    // $('.report_mentioned_term_1').removeClass(cssClass);
-    // $('.report_mentioned_term_2').removeClass(cssClass);
-    // $('.report_mentioned_term_3').removeClass(cssClass);
-    // $('.report_mentioned_term_4').removeClass(cssClass);
-    // Then add to this current one by selecting the attributes
     $(
       'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
     ).addClass(cssClass);
@@ -218,6 +230,7 @@ export function DocumentPanel(props) {
 
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
+      console.log(textMention);
       if (textMention.text.indexOf(term) > -1) {
         console.log("reached?");
         textFragments.push(
@@ -236,6 +249,7 @@ export function DocumentPanel(props) {
       lastValidTMIndex = i;
     }
     // Push end of the document
+    console.log(lastValidTMIndex);
     textFragments.push(
       reportText.substring(textMentions[lastValidTMIndex].end)
     );
@@ -253,70 +267,38 @@ export function DocumentPanel(props) {
     return highlightedReportText;
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    const scrollLine = document.getElementById("scroll-line");
-    const content = document.getElementById("report_text");
-    // console.log(scrollLine);
-    // console.log("HERE");
-    // console.log(content.innerHTML);
+  // Ensures setHTML is only called once and changes once concepts change
+  useEffect(() => {
+    setHTML();
+  }, [sortedConcepts]);
 
-    // Update the line position when the content is scrolled
-    // content.addEventListener("scroll", function () {
-    //   const scrollTop = content.scrollTop;
-    //   const scrollHeight = content.scrollHeight;
-    //   const clientHeight = content.clientHeight;
-    //
-    //   const scrollFraction = scrollTop / (scrollHeight - clientHeight);
-    //
-    //   const scrollLineTop = scrollFraction * (clientHeight - 40); // Adjust based on line size
-    //   scrollLine.style.top = scrollLineTop + "px";
-    //   scrollLine.style.display = "block";
-    // });
-    //
-    // // Hide the line when the user stops scrolling
-    // let scrollTimer;
-    // content.addEventListener("scroll", function () {
-    //   clearTimeout(scrollTimer);
-    //   scrollTimer = setTimeout(function () {
-    //     scrollLine.style.display = "none";
-    //   }, 1000); // Adjust delay as needed
-    // });
-  });
+  console.log(sortedConcepts);
 
-  // if (factBasedTermsWithPosition.length > 0) {
-  //   scrollToHighlightedTextMention(
-  //     factBasedTermsWithPosition[0],
-  //     reportText,
-  //     doc
-  //   );
+
+  for(let i = 0; i < sortedConcepts.length; i++){
+    const mentions = getMentionsGivenMentionIds(
+        getMentionsForConcept(sortedConcepts[i].id)
+    );
+    highlightedMentions.push(mentions);
+  }
+
+  function setHTML() {
+    setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "yellow"));
+  }
+
+
 
   const getHTML = (docText) => {
-    let html = docText
-    // setDocText(highlightTextMentions(highlightAllMentions(concepts), doc.text, "yellow"));
-    // Object.keys(semanticGroups).forEach((key) => {
-    //   const group = semanticGroups[key];
-    //   const mentionsForConcept = getMentionsGivenMentionIds(getMentionsForConcept(group.id));
-    //   if (group.checked) {
-    //     html = highlightTextMentions(highlightAllMentions(mentionsForConcept), html, group.color);
-    //   }
-    //
-    // })
-    // return parse("<svg height=\"1000\" width=\"1000\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
-    //   "  <text x=\"5\" y=\"15\" fill=\"red\">"+docText+"</text>\n" +
-    //   "</svg>")
-    return parse(html);
+    return parse(docText);
   };
 
   if (doc === null) {
     return <div>Loading...</div>;
   } else {
-    // console.log("calling render");
-
-    return (
-      <React.Fragment>
-        {/*<div id="scroll-line"></div>*/}
-        {getHTML(docText)}
-      </React.Fragment>
-    );
+      return (
+        <React.Fragment>
+          {getHTML(docText)}
+        </React.Fragment>
+      );
   }
 }

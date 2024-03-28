@@ -25,16 +25,13 @@ export function SearchPanel(props) {
 
   return (
     <React.Fragment>
-      <GridItem
-        id="search_label"
-        // className={`${checkboxGridVisible() ? "visible" : "hidden"}`}
-      >
+      <GridItem id="search_label">
         {" "}
         Filter Concepts
         <input
           type="search"
           id="mention_search_input"
-          placeholder="Search for mentions.."
+          placeholder="Search for concepts..."
         ></input>
       </GridItem>
     </React.Fragment>

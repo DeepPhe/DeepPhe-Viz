@@ -26,18 +26,6 @@ export function SemanticGroupPanel(props) {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
     };
 
-    // const toggleVisibility = () => {
-    //     setCheckboxGridVisible((prevState) => {
-    //         return !prevState;
-    //     });
-    // };
-    //
-    // const checkboxGridVisible = () => {
-    //     return true;
-    // };
-
-
-
     const toggleVisibility = () => {
         setIsVisible(!isVisible);
     };
@@ -93,9 +81,8 @@ export function SemanticGroupPanel(props) {
 
     const getSemanticGroups = () => {
         return (
-            // adding checkboxGridVisible() to hide semantic-semantic groups when prompted
+            // adding isVisible to hide semantic-semantic groups when prompted
             <div className={`semantic-groups ${isVisible ? "visible" : "hidden"}`}>
-                {/*<div className={"semantic-groups"}>*/}
                 {Object.keys(semanticGroups).map((group, index) => {
                     return getSemanticGroupBox(group, index, semanticGroups[group]);
                 })}
