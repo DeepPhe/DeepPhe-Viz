@@ -876,7 +876,7 @@ th {
     font-weight: bold;
 }
 
-.mentioned_terms_list {
+.filtered_concepts_list {
     list-style-type: none;
     font-size: 18px;
     font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;

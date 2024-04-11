@@ -5,13 +5,12 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
 
-export let sortedConcepts;
 
+// TODO: change name from ConceptListPanel to FilteredConceptList
 export function ConceptListPanel(props) {
     const {concepts, mentions} = props;
     const semanticGroups = props.semanticGroups;
     const confidence = props.confidence;
-
 
     // const conceptColor = props.color;
     $("#occ_radio").prop("checked", true);
@@ -77,6 +76,7 @@ export function ConceptListPanel(props) {
         }
     }
 
+    // calculates the count of mentions associated with a given concept based on conceptID
     const getMentionsCountForConcept = (conceptId) => {
         const idx = concepts.findIndex((c) => c.id === conceptId);
         return concepts[idx].mentionIds.filter((mentionId) => {
@@ -84,48 +84,60 @@ export function ConceptListPanel(props) {
         }).length;
     };
 
+    //accessing the .checked property to see if [concept.dpheGroup] is checked
     function conceptGroupIsSelected(concept) {
         return semanticGroups[concept.dpheGroup].checked
     }
 
+    // Filters concepts through many sorts and filters
     function filterConcepts(concepts){
-        let filterConcepts = []
+        console.log(concepts);
+        let filteredConcepts = []
+
         concepts.map((concept) =>{
             if(parseFloat(concept.confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concept)){
-                filterConcepts.push(concept)
+                filteredConcepts.push(concept)
             }
         })
-        return filterConcepts;
-    }
 
-    function getConceptsList() {
-        const filteredConcepts = filterConcepts(concepts);
-        sortedConcepts = filteredConcepts.sort((a, b) =>
+        let sortedConcepts = filteredConcepts.sort((a, b) =>
             a.preferredText > b.preferredText ? 1 : -1
         );
 
         sortedConcepts = sortedConcepts.filter((obj, index, array) => {
             return obj.preferredText !== "" && obj.preferredText !== ";";
         });
+
         sortedConcepts = sortedConcepts.filter((obj, index, array) => {
             return (
                 array.findIndex((a) => a.preferredText === obj.preferredText) === index
             );
         });
 
-        const mentionCounter = {};
-        sortedConcepts.forEach((obj) => {
-            const text = obj.preferredText;
-            if (mentionCounter[text]) {
-                mentionCounter[text] += 1;
-            } else {
-                mentionCounter[text] = 1;
-            }
-            obj.mentionFrequency = mentionCounter[text];
-        });
+        return sortedConcepts;
+    }
+
+
+    function getConceptsList() {
+        // const filteredConcepts = filterConcepts(concepts);
+
+        //CODE MOVED TO filterConcepts
+        //
+
+        // const mentionCounter = {};
+        // sortedConcepts.forEach((obj) => {
+        //     const text = obj.preferredText;
+        //     if (mentionCounter[text]) {
+        //         mentionCounter[text] += 1;
+        //     } else {
+        //         mentionCounter[text] = 1;
+        //     }
+        //     obj.mentionFrequency = mentionCounter[text];
+        // });
+        let sortedConcepts = filterConcepts(concepts);
 
         return (
-            <List id="mentions" class="mentioned_terms_list">
+            <List id="filtered_concepts" class="filtered_concepts_list">
                 {sortedConcepts.map((obj) => {
                     return (
                         <ListItem
@@ -140,12 +152,6 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                         >
                             {obj.preferredText} ({getMentionsCountForConcept(obj.id)})
-                            {/*// class="report_mentioned_term fact_based_term_class"*/}
-                            {/*// data-begin={obj.begin}*/}
-                            {/*// data-end={obj.end}*/}
-                            {/*// >*/}
-                            {/*// {obj.preferredText +*/}
-                            {/*//   <span class="frequency">({obj.mentionFrequency})</span>}*/}
                         </ListItem>
                     );
                 })}
@@ -174,3 +180,5 @@ export function ConceptListPanel(props) {
         </React.Fragment>
     );
 }
+
+

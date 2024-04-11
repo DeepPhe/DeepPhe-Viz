@@ -1,10 +1,14 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
+import {sortedConcepts} from "./ConceptListPanel";
 
 export function ConfidencePanel(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const {confidence, onConfidenceChange} = props;
     const [value, setValue] = useState(confidence);
+    // console.log(props);
+
+    // console.log(sortedConcepts);
 
     return (
         <GridItem style={{width: "100%"}}>
@@ -20,6 +24,9 @@ export function ConfidencePanel(props) {
                     className="slider"
                     id="confidenceRange"
                     onChange={(e) => {
+                        // console.log(e.target.value);
+                        const newValue = e.target.value;
+                        console.log(newValue);
                         setValue(e.target.value);
                         handleConfidenceChange(e.target.value);
                     }}

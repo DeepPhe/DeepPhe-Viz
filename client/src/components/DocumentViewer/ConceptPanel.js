@@ -36,6 +36,10 @@ export function ConceptPanel(props) {
     setConfidence(e/100)
   };
 
+  // const handleFilterConceptChange = (e) => {
+  //
+  // };
+
   const checkboxGridVisible = props.getCheckboxGridVisible;
   const setCheckboxGridVisible = props.setCheckboxGridVisible;
   // const handleDropdownClick = props.handleDropdownClick;
@@ -70,6 +74,7 @@ export function ConceptPanel(props) {
               // handleDropdownClick={handleDropdownClick}
               semanticGroups={semanticGroups}
               handleSemanticGroupChange={handleSemanticGroupChange}
+              // handleConceptChange={handleConceptChange}
             />
             <ConfidencePanel
               handleConfidenceChange={handleConfidenceChange}
@@ -80,6 +85,7 @@ export function ConceptPanel(props) {
               mentions={mentions}
               semanticGroups={semanticGroups}
               confidence={confidence}
+              // handleFilteredConceptChange={handleFilteredConceptChange}
             ></ConceptListPanel>
           </GridContainer>
         </CardBody>

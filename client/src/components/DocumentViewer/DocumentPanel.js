@@ -1,15 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import $ from "jquery";
 import parse from "html-react-parser";
-import {sortedConcepts} from "./ConceptListPanel";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
+  // const prevSortedConceptsRef = useRef();
   const concepts = props.concepts;
-  const confidence = props.confidence;
+  // const [confidence, setConfidence] = useState(0.5);
   const semanticGroups = props.semanticGroups;
   let highlightedMentions = [];
+  // const [filteredConcepts, setFilteredConcepts] = useState(sortedConcepts);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -52,6 +53,7 @@ export function DocumentPanel(props) {
         let textMentionObj = {};
         // console.log(obj.begin);
         textMentionObj.text = obj["preferredText"];
+        // textMentionObj.text = obj.text;
         textMentionObj.begin = obj.begin;
         textMentionObj.end = obj.end;
         textMentionObj.mentionFrequency = obj.frequency;
@@ -72,6 +74,7 @@ export function DocumentPanel(props) {
       let textMentionObj = {};
       // console.log(obj.begin);
       textMentionObj.text = obj["preferredText"];
+        // textMentionObj.text = obj.text;
       textMentionObj.begin = obj.begin;
       textMentionObj.end = obj.end;
       textMentionObj.mentionFrequency = obj.frequency;
@@ -166,6 +169,7 @@ export function DocumentPanel(props) {
 
     let textMentionObj = {};
     textMentionObj.text = obj.preferredText;
+    // textMentionObj.text = obj.text;
     textMentionObj.begin = obj.begin;
     textMentionObj.end = obj.end;
 
@@ -176,15 +180,13 @@ export function DocumentPanel(props) {
     // Highlight this term in the report text
     //console.log(mentionedTerms);
     textMentions = highlightAllMentions(doc.mentions);
-    console.log(textMentions);
+    // console.log(textMentions);
     // console.log(textMentions);
     let highlightedReportText = highlightTextMentions(
       doc.mentions,
       doc.text,
       obj.term
     );
-    console.log(highlightedReportText);
-
     // Use html() for html rendering
     reportTextDiv.html(highlightedReportText);
 
@@ -230,8 +232,8 @@ export function DocumentPanel(props) {
 
       //TODO: FIX this later, Need to get text without the mentionFrequency on it
       let correctTerm = term.slice(0, -3);
-      console.log(textMention);
-      if (textMention.text.indexOf(term) > -1) {
+      // console.log(textMention);
+      if (textMention.preferredText.indexOf(term) > -1) {
         console.log("reached?");
         textFragments.push(
           '<span style="background-color:'+color+'">' +
@@ -249,7 +251,6 @@ export function DocumentPanel(props) {
       lastValidTMIndex = i;
     }
     // Push end of the document
-    console.log(lastValidTMIndex);
     textFragments.push(
       reportText.substring(textMentions[lastValidTMIndex].end)
     );
@@ -267,28 +268,24 @@ export function DocumentPanel(props) {
     return highlightedReportText;
   }
 
-  // Ensures setHTML is only called once and changes once concepts change
-  useEffect(() => {
-    setHTML();
-  }, [sortedConcepts]);
-
-  console.log(sortedConcepts);
-
-
-  for(let i = 0; i < sortedConcepts.length; i++){
-    const mentions = getMentionsGivenMentionIds(
-        getMentionsForConcept(sortedConcepts[i].id)
-    );
-    highlightedMentions.push(mentions);
+  function getAllConceptIDs(){
+    let conceptIDList = [];
+    for(let i = 0; i < concepts.length; i++){
+      const mentions = getMentionsGivenMentionIds(
+          getMentionsForConcept(concepts[i].id)
+      );
+      conceptIDList.push(mentions);
+    }
+    return conceptIDList;
   }
 
   function setHTML() {
-    setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "yellow"));
+    let listBlah = getAllConceptIDs();
+    setDocText(highlightTextMentions(highlightAllMentionsAtStart(listBlah), doc.text, "yellow"));
   }
 
-
-
   const getHTML = (docText) => {
+    console.log(getAllConceptIDs());
     return parse(docText);
   };
 
