@@ -20,6 +20,7 @@ export function ConceptPanel(props) {
   const handleSemanticGroupChange = props.handleSemanticGroupChange;
   const semanticGroups = props.semanticGroups;
   const [confidence, setConfidence] = useState(0.5);
+  let filteredConcepts = props.filteredConcepts;
   $(document).on("input", "#confidenceRange", function () {
     // Declare variables
     let slider = document.getElementById("confidenceRange");
@@ -33,7 +34,8 @@ export function ConceptPanel(props) {
   });
 
   const handleConfidenceChange = (e) => {
-    setConfidence(e/100)
+    setConfidence(e/100);
+    props.setFilteredConcepts([]);
   };
 
   // const handleFilterConceptChange = (e) => {
@@ -85,7 +87,9 @@ export function ConceptPanel(props) {
               mentions={mentions}
               semanticGroups={semanticGroups}
               confidence={confidence}
-              // handleFilteredConceptChange={handleFilteredConceptChange}
+              setFilteredConcepts={props.setFilteredConcepts}
+              filteredConcepts={filteredConcepts}
+                // handleFilteredConceptChange={handleFilteredConceptChange}
             ></ConceptListPanel>
           </GridContainer>
         </CardBody>

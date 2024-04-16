@@ -26,7 +26,7 @@ export function ConfidencePanel(props) {
                     onChange={(e) => {
                         // console.log(e.target.value);
                         const newValue = e.target.value;
-                        console.log(newValue);
+                        // console.log(newValue);
                         setValue(e.target.value);
                         handleConfidenceChange(e.target.value);
                     }}

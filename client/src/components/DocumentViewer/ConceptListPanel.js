@@ -134,7 +134,14 @@ export function ConceptListPanel(props) {
         //     }
         //     obj.mentionFrequency = mentionCounter[text];
         // });
-        let sortedConcepts = filterConcepts(concepts);
+        let sortedConcepts = [];
+        if(props.filteredConcepts.length === 0) {
+            sortedConcepts = filterConcepts(concepts);
+            props.setFilteredConcepts(sortedConcepts);
+        }
+        else{
+            sortedConcepts = props.filteredConcepts;
+        }
 
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">

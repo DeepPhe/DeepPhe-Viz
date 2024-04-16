@@ -15,13 +15,15 @@ export function DocumentViewer(props) {
   const reportId = props.reportId;
   const factId = props.factId;
   const concepts = props.concepts;
+  const [filteredConcepts, setFilteredConcepts] = useState([]);
   const [semanticGroups, setSemanticGroups] = useState({});
 
   useEffect(() => {
     if (isEmpty(semanticGroups)) {
       getSemanticGroups();
     }
-  }, [semanticGroups]);
+    console.log(filteredConcepts);
+  }, [semanticGroups,filteredConcepts]);
 
   function isEmpty(obj) {
     for (const i in obj) return false;
@@ -200,6 +202,8 @@ export function DocumentViewer(props) {
                           handleDropdownClick={handleDropdownClick}
                           semanticGroups={semanticGroups}
                           handleSemanticGroupChange={handleSemanticGroupChange}
+                          setFilteredConcepts={setFilteredConcepts}
+                          filteredConcepts={filteredConcepts}
                         />
                       </GridItem>
                     </GridContainer>
@@ -210,6 +214,8 @@ export function DocumentViewer(props) {
                       doc={patientDocument}
                       concepts={concepts}
                       semanticGroups={semanticGroups}
+                      setFilteredConcepts={setFilteredConcepts}
+                      filteredConcepts={filteredConcepts}
                     />
                   </GridItem>
                 </GridContainer>

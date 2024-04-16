@@ -1,14 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
 import $ from "jquery";
 import parse from "html-react-parser";
+// import {sortedConcepts} from "./ConceptListPanel";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
-  // const prevSortedConceptsRef = useRef();
+  // const [currentSortedConcepts, setSortedConcepts] = useState(sortedConcepts);
   const concepts = props.concepts;
   // const [confidence, setConfidence] = useState(0.5);
   const semanticGroups = props.semanticGroups;
+  const filteredConcepts = props.filteredConcepts;
   let highlightedMentions = [];
   // const [filteredConcepts, setFilteredConcepts] = useState(sortedConcepts);
 
@@ -32,7 +34,7 @@ export function DocumentPanel(props) {
     console.log("Show these mentions: ", highlightedMentions);
 
 
-    // setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "blue"));
+    setDocText(highlightTextMentions(highlightAllMentions(highlightedMentions), doc.text, "blue"));
 
     const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
     obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
@@ -52,11 +54,11 @@ export function DocumentPanel(props) {
         //grabbing mention begin and end so that I can highlight each mention at the start
         let textMentionObj = {};
         // console.log(obj.begin);
-        textMentionObj.text = obj["preferredText"];
+        textMentionObj.preferredText = obj["preferredText"];
         // textMentionObj.text = obj.text;
         textMentionObj.begin = obj.begin;
         textMentionObj.end = obj.end;
-        textMentionObj.mentionFrequency = obj.frequency;
+        // textMentionObj.mentionFrequency = obj.frequency;
         // console.log(textMentionObj);
         textMentions.push(textMentionObj);
       });
@@ -73,11 +75,13 @@ export function DocumentPanel(props) {
       //grabbing mention begin and end so that I can highlight each mention at the start
       let textMentionObj = {};
       // console.log(obj.begin);
-      textMentionObj.text = obj["preferredText"];
+      textMentionObj.preferredText = obj["preferredText"];
         // textMentionObj.text = obj.text;
       textMentionObj.begin = obj.begin;
       textMentionObj.end = obj.end;
-      textMentionObj.mentionFrequency = obj.frequency;
+      textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].color;
+      textMentionObj.color = semanticGroups[obj.dpheGroup].color;
+      // textMentionObj.mentionFrequency = obj.frequency;
       // console.log(textMentionObj);
       textMentions.push(textMentionObj);
       });
@@ -196,7 +200,7 @@ export function DocumentPanel(props) {
     //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
   }
 
-  function highlightTextMentions(textMentions, reportText, color, term = "NONE") {
+  function highlightTextMentions(textMentions, reportText, term = "NONE") {
     const cssClass = "highlighted_term";
     const cssClassAll = "highlight_terms";
 
@@ -236,13 +240,13 @@ export function DocumentPanel(props) {
       if (textMention.preferredText.indexOf(term) > -1) {
         console.log("reached?");
         textFragments.push(
-          '<span style="background-color:'+color+'">' +
+          '<span style="background-color:'+textMention.backgroundColor+'">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
       } else {
         textFragments.push(
-          '<span style="background-color:'+color+'">' +
+          '<span style="background-color:'+textMention.backgroundColor+'">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
@@ -250,6 +254,7 @@ export function DocumentPanel(props) {
 
       lastValidTMIndex = i;
     }
+    // debugger;
     // Push end of the document
     textFragments.push(
       reportText.substring(textMentions[lastValidTMIndex].end)
@@ -268,26 +273,71 @@ export function DocumentPanel(props) {
     return highlightedReportText;
   }
 
+  // const handleConceptChange = (sortedConcepts) => {
+  //   setHTML()
+  // };
+
+  // Ensures setHTML is only called once and changes once concepts change
+  // useEffect(() => {
+  //   setHTML();
+  // }, [sortedConcepts]);
+
+
+  // useEffect(() => {
+  //   // This effect will run whenever currentSortedConcepts changes
+  //   // Perform any actions based on currentSortedConcepts
+  //   setHTML();
+  // }, [currentSortedConcepts]);
+
+  // function getAllConceptIDs(){
+  //   for(let i = 0; i < currentSortedConcepts.length; i++){
+  //     const mentions = getMentionsGivenMentionIds(
+  //         getMentionsForConcept(currentSortedConcepts[i].id)
+  //     );
+  //     highlightedMentions.push(mentions);
+  //   }
+  // }
+
   function getAllConceptIDs(){
     let conceptIDList = [];
-    for(let i = 0; i < concepts.length; i++){
+    for(let i = 0; i < filteredConcepts.length; i++){
       const mentions = getMentionsGivenMentionIds(
-          getMentionsForConcept(concepts[i].id)
+          getMentionsForConcept(filteredConcepts[i].id)
       );
       conceptIDList.push(mentions);
     }
     return conceptIDList;
   }
 
+  // function setHTML() {
+  //   console.log(sortedConcepts);
+  //   getAllConceptIDs();
+  //   setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "yellow"));
+  // }
+
   function setHTML() {
     let listBlah = getAllConceptIDs();
+    console.log(listBlah);
     setDocText(highlightTextMentions(highlightAllMentionsAtStart(listBlah), doc.text, "yellow"));
   }
 
+
+
+  useEffect(() => {
+    if(props.filteredConcepts.length > 0){
+      setHTML()
+    }
+  });
+
+
   const getHTML = (docText) => {
-    console.log(getAllConceptIDs());
     return parse(docText);
   };
+
+  // const getHTML = (docText) => {
+  //   console.log(getAllConceptIDs());
+  //   return parse(docText);
+  // };
 
   if (doc === null) {
     return <div>Loading...</div>;
