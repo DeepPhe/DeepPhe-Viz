@@ -91,7 +91,6 @@ export function ConceptListPanel(props) {
 
     // Filters concepts through many sorts and filters
     function filterConcepts(concepts){
-        console.log(concepts);
         let filteredConcepts = []
 
         concepts.map((concept) =>{
@@ -135,6 +134,7 @@ export function ConceptListPanel(props) {
         //     obj.mentionFrequency = mentionCounter[text];
         // });
         let sortedConcepts = [];
+
         if(props.filteredConcepts.length === 0) {
             sortedConcepts = filterConcepts(concepts);
             props.setFilteredConcepts(sortedConcepts);
@@ -148,7 +148,7 @@ export function ConceptListPanel(props) {
                 {sortedConcepts.map((obj) => {
                     return (
                         <ListItem
-                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].color}}
+                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor}}
                             key={obj.id}
                             class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}

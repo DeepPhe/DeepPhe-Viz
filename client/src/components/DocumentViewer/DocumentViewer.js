@@ -20,9 +20,10 @@ export function DocumentViewer(props) {
 
   useEffect(() => {
     if (isEmpty(semanticGroups)) {
-      getSemanticGroups();
+    getSemanticGroups();
     }
-    console.log(filteredConcepts);
+    // console.log(semanticGroups);
+    // console.log(filteredConcepts);
   }, [semanticGroups,filteredConcepts]);
 
   function isEmpty(obj) {
@@ -91,6 +92,41 @@ export function DocumentViewer(props) {
     return colors[index];
   };
 
+  const semanticGroupColorDict = (key) => {
+    let colorDict = {
+      "Behavior": "#FF6633",
+      "Body Fluid or Substance": "#6666FF",
+      "Body Part": "#99E6E6",
+      "Chemo/immuno/hormone Therapy Regimen": "#FF4D4D",
+      "Clinical Test Result": "#4DB380",
+      "Disease or Disorder": "#E64D66",
+      "Disease Qualifier" : "#9900B3",
+      "Disease Stage Qualifier" : "#4D80CC",
+      "Finding" : "#66E64D",
+      "Gene" : "#CCCC00",
+      "General Qualifier" : "#FF3380",
+      "Generic TNM Finding" : "#999933",
+      "Intervention or Procedure" : "#1AFF33",
+      "Lymph Node" : "#E6FF80",
+      "Mass" : "#809980",
+      "Neoplasm" :"#4D8066",
+      "Pathologic Process" : "#00E680",
+      "Pharmacologic Substance" : "#B3B31A",
+      "Position" : "#CC9999",
+      "Quantitative Concept" : "#33991A",
+      "Side" : "#4DB3FF",
+      "Spatial Qualifier": "#1AB399",
+      "Unknown" : "#E666B3"
+    };
+
+    if (key in colorDict) {
+      return colorDict[key];
+    }
+    else {
+      return "Key '" + key + "' not found in the dictionary";
+    }
+  }
+
   const getSemanticGroups = () => {
     let groups = {};
     const uniqueConcepts = Array.from(
@@ -99,7 +135,7 @@ export function DocumentViewer(props) {
     uniqueConcepts.map((group, index) => {
       groups[group] = {
         checked: true,
-        color: getRandomColor(index),
+        backgroundColor: semanticGroupColorDict(group),
         id: concepts.filter((c) => c.dpheGroup === group)[0].id,
       };
     });

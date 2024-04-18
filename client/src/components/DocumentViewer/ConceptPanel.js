@@ -74,6 +74,7 @@ export function ConceptPanel(props) {
               getCheckboxGridVisible={checkboxGridVisible}
               setCheckboxGridVisible={setCheckboxGridVisible}
               // handleDropdownClick={handleDropdownClick}
+              setFilteredConcepts={props.setFilteredConcepts}
               semanticGroups={semanticGroups}
               handleSemanticGroupChange={handleSemanticGroupChange}
               // handleConceptChange={handleConceptChange}

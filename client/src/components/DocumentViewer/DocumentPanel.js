@@ -6,13 +6,10 @@ import parse from "html-react-parser";
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
-  // const [currentSortedConcepts, setSortedConcepts] = useState(sortedConcepts);
   const concepts = props.concepts;
-  // const [confidence, setConfidence] = useState(0.5);
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
   let highlightedMentions = [];
-  // const [filteredConcepts, setFilteredConcepts] = useState(sortedConcepts);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -36,12 +33,12 @@ export function DocumentPanel(props) {
 
     setDocText(highlightTextMentions(highlightAllMentions(highlightedMentions), doc.text, "blue"));
 
-    const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
-    obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
-    obj.begin = e.target.getAttribute("data-begin");
-    obj.end = e.target.getAttribute("data-end");
+    // const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
+    // obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
+    // obj.begin = e.target.getAttribute("data-begin");
+    // obj.end = e.target.getAttribute("data-end");
 
-    scrollToHighlightedTextMention(obj, doc);
+    // scrollToHighlightedTextMention(obj, doc);
   };
 
   $(document).on("click", ".report_mentioned_term", handleTermClick);
@@ -67,7 +64,7 @@ export function DocumentPanel(props) {
     return textMentions;
   }
 
-  function highlightAllMentionsAtStart(mentionedTerms) {
+  function createMentionObj(mentionedTerms) {
     let textMentions = [];
     mentionedTerms.forEach(function (nestedArray) {
       nestedArray.forEach(function(obj) {
@@ -79,7 +76,8 @@ export function DocumentPanel(props) {
         // textMentionObj.text = obj.text;
       textMentionObj.begin = obj.begin;
       textMentionObj.end = obj.end;
-      textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].color;
+      textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
+      // console.log(textMentionObj.preferredText, textMentionObj.backgroundColor, obj.dpheGroup);
       textMentionObj.color = semanticGroups[obj.dpheGroup].color;
       // textMentionObj.mentionFrequency = obj.frequency;
       // console.log(textMentionObj);
@@ -119,7 +117,7 @@ export function DocumentPanel(props) {
     points.sort(function (a, b) {
       return a - b;
     });
-    console.log("sorted points: ", points);
+    // console.log("sorted points: ", points);
 
     // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
     // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
@@ -201,8 +199,9 @@ export function DocumentPanel(props) {
   }
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
-    const cssClass = "highlighted_term";
-    const cssClassAll = "highlight_terms";
+    // const cssClass = "highlighted_term";
+    // const cssClassAll = "highlight_terms";
+    console.log(textMentions);
 
     // Flatten the ranges, this is the key to solve overlapping
     textMentions = flattenRanges(textMentions);
@@ -225,7 +224,8 @@ export function DocumentPanel(props) {
         }
       } else {
         // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-        if (parseInt(textMention.begin) <= parseInt(lastValidTM.end)) {
+        // if (parseInt(textMention.begin) <= parseInt(lastValidTM.end)) {
+        if (textMention.begin <= lastValidTM.end) {
           lastValidTMIndex = i;
         } else {
           textFragments.push(
@@ -234,19 +234,18 @@ export function DocumentPanel(props) {
         }
       }
 
-      //TODO: FIX this later, Need to get text without the mentionFrequency on it
-      let correctTerm = term.slice(0, -3);
-      // console.log(textMention);
       if (textMention.preferredText.indexOf(term) > -1) {
-        console.log("reached?");
+        // console.log("1", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
         textFragments.push(
-          '<span style="background-color:'+textMention.backgroundColor+'">' +
+          '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
       } else {
+        // console.log("2", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
+        console.log(textMention);
         textFragments.push(
-          '<span style="background-color:'+textMention.backgroundColor+'">' +
+          '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
@@ -266,37 +265,9 @@ export function DocumentPanel(props) {
     for (let j = 0; j < textFragments.length; j++) {
       highlightedReportText += textFragments[j];
     }
-    // const e = new Event("change");
-    // const element = document.querySelector('input[type=radio][name="sort_order"]');
-    // element.dispatchEvent(e);
 
     return highlightedReportText;
   }
-
-  // const handleConceptChange = (sortedConcepts) => {
-  //   setHTML()
-  // };
-
-  // Ensures setHTML is only called once and changes once concepts change
-  // useEffect(() => {
-  //   setHTML();
-  // }, [sortedConcepts]);
-
-
-  // useEffect(() => {
-  //   // This effect will run whenever currentSortedConcepts changes
-  //   // Perform any actions based on currentSortedConcepts
-  //   setHTML();
-  // }, [currentSortedConcepts]);
-
-  // function getAllConceptIDs(){
-  //   for(let i = 0; i < currentSortedConcepts.length; i++){
-  //     const mentions = getMentionsGivenMentionIds(
-  //         getMentionsForConcept(currentSortedConcepts[i].id)
-  //     );
-  //     highlightedMentions.push(mentions);
-  //   }
-  // }
 
   function getAllConceptIDs(){
     let conceptIDList = [];
@@ -309,19 +280,11 @@ export function DocumentPanel(props) {
     return conceptIDList;
   }
 
-  // function setHTML() {
-  //   console.log(sortedConcepts);
-  //   getAllConceptIDs();
-  //   setDocText(highlightTextMentions(highlightAllMentionsAtStart(highlightedMentions), doc.text, "yellow"));
-  // }
-
   function setHTML() {
-    let listBlah = getAllConceptIDs();
-    console.log(listBlah);
-    setDocText(highlightTextMentions(highlightAllMentionsAtStart(listBlah), doc.text, "yellow"));
+    let conceptIds = getAllConceptIDs();
+    console.log(conceptIds, doc.text);
+    setDocText(highlightTextMentions(createMentionObj(conceptIds), doc.text));
   }
-
-
 
   useEffect(() => {
     if(props.filteredConcepts.length > 0){
@@ -334,10 +297,6 @@ export function DocumentPanel(props) {
     return parse(docText);
   };
 
-  // const getHTML = (docText) => {
-  //   console.log(getAllConceptIDs());
-  //   return parse(docText);
-  // };
 
   if (doc === null) {
     return <div>Loading...</div>;
@@ -345,6 +304,7 @@ export function DocumentPanel(props) {
       return (
         <React.Fragment>
           {getHTML(docText)}
+          {/*{setHTML()}*/}
         </React.Fragment>
       );
   }

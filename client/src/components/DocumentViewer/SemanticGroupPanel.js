@@ -24,6 +24,7 @@ export function SemanticGroupPanel(props) {
 
     const handleCheckboxChange = (e) => {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
+        props.setFilteredConcepts([]);
     };
 
     const toggleVisibility = () => {
@@ -44,15 +45,21 @@ export function SemanticGroupPanel(props) {
                         {/* Show this icon when hidden */}
                 </span>
                 )}
+
                 <div className="options-container">
                     <span>Semantic Groups</span>
+
                 </div>
+
+
                 <hr className="line"/>
+
             </div>
         );
     };
 
     const getSemanticGroupBox = (group, index, values) => {
+        // console.log(values);
         const id = "checkbox" + index;
         return (
             <div
@@ -62,7 +69,7 @@ export function SemanticGroupPanel(props) {
                     fontFamily: "Monaco, monospace",
                     borderRadius: "5px",
                     float: "left",
-                    backgroundColor: values.color,
+                    backgroundColor: values.backgroundColor,
                 }}
             >
                 <input
