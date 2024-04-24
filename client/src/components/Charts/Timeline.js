@@ -1164,8 +1164,8 @@ export default class Timeline extends React.Component {
 
             // And show the report content
             $("#report_instance").show();
-        //    that.setReportId(d.id);
-            that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
+            that.setReportId(d.id);
+            //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
             //that.getReport(d.id, "", that.patientJson);
           });
 
