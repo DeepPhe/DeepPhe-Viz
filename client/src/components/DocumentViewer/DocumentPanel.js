@@ -198,20 +198,40 @@ export function DocumentPanel(props) {
     //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
   }
 
+  function getUniqueColorAndMention(word, wordsArray, colorsArray) {
+    // Find the index of the word in the wordsArray (case insensitive)
+    const index = wordsArray.findIndex((w) => w.toLowerCase() === word.toLowerCase());
+
+    // If the word is found, return an array with the word and its corresponding color
+    if (index !== -1) {
+      return [wordsArray[index], colorsArray[index]];
+    } else {
+      // If the word is not found, return undefined
+      return undefined;
+    }
+  }
+
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
     // const cssClass = "highlighted_term";
     // const cssClassAll = "highlight_terms";
-    console.log(textMentions);
+    // console.log(textMentions);
 
     // Flatten the ranges, this is the key to solve overlapping
     textMentions = flattenRanges(textMentions);
-    // console.log(textMentions);
+    console.log(textMentions);
 
     let textFragments = [];
     let lastValidTMIndex = 0;
 
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
+      let resultArray = getUniqueColorAndMention(reportText.substring(textMention.begin, textMention.end), textMention.preferredText, textMention.backgroundColor);
+      if (resultArray !== undefined){
+        textMention.preferredText = resultArray[0];
+        textMention.backgroundColor = resultArray[1];
+      }
+
+      console.log(textMention);
       let lastValidTM = textMentions[lastValidTMIndex];
 
 
@@ -242,8 +262,10 @@ export function DocumentPanel(props) {
             "</span>"
         );
       } else {
-        // console.log("2", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
-        console.log(textMention);
+        console.log("2", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
+        // console.log(textMention);
+        // console.log(textMention);
+
         textFragments.push(
           '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
             reportText.substring(textMention.begin, textMention.end) +
@@ -282,7 +304,7 @@ export function DocumentPanel(props) {
 
   function setHTML() {
     let conceptIds = getAllConceptIDs();
-    console.log(conceptIds, doc.text);
+    // console.log(conceptIds, doc.text);
     setDocText(highlightTextMentions(createMentionObj(conceptIds), doc.text));
   }
 

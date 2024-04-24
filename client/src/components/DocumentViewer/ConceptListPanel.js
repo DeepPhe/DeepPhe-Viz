@@ -4,6 +4,7 @@ import React from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
+import {grey} from "@material-ui/core/colors";
 
 
 // TODO: change name from ConceptListPanel to FilteredConceptList
@@ -79,10 +80,20 @@ export function ConceptListPanel(props) {
     // calculates the count of mentions associated with a given concept based on conceptID
     const getMentionsCountForConcept = (conceptId) => {
         const idx = concepts.findIndex((c) => c.id === conceptId);
+        // Check if idx is undefined, return 0
+        // console.log(idx);
+        // if (idx == -1) {
+        //     return 0;
+        // }
+        // // Otherwise, proceed with the original logic
+        // else {
         return concepts[idx].mentionIds.filter((mentionId) => {
             return mentions.some((m) => m.id === mentionId);
         }).length;
+        // }
+
     };
+
 
     //accessing the .checked property to see if [concept.dpheGroup] is checked
     function conceptGroupIsSelected(concept) {
@@ -112,36 +123,36 @@ export function ConceptListPanel(props) {
                 array.findIndex((a) => a.preferredText === obj.preferredText) === index
             );
         });
+        // if(sortedConcepts.length === 0){
+        //     const placeHolder = {};
+        //     let placeHolderArray = [];
+        //     placeHolder.preferredText = "No concepts";
+        //     placeHolder.begin = 0;
+        //     placeHolder.end = 0;
+        //     placeHolder.backgroundColor = "grey";
+        //     placeHolder.dpheGroup = "Unknown";
+        //     placeHolderArray.push(placeHolder);
+        //     return placeHolderArray;
+        // }
 
         return sortedConcepts;
     }
 
 
     function getConceptsList() {
-        // const filteredConcepts = filterConcepts(concepts);
-
-        //CODE MOVED TO filterConcepts
-        //
-
-        // const mentionCounter = {};
-        // sortedConcepts.forEach((obj) => {
-        //     const text = obj.preferredText;
-        //     if (mentionCounter[text]) {
-        //         mentionCounter[text] += 1;
-        //     } else {
-        //         mentionCounter[text] = 1;
-        //     }
-        //     obj.mentionFrequency = mentionCounter[text];
-        // });
         let sortedConcepts = [];
 
         if(props.filteredConcepts.length === 0) {
+            console.log(props.filteredConcepts);
             sortedConcepts = filterConcepts(concepts);
             props.setFilteredConcepts(sortedConcepts);
+            console.log(sortedConcepts);
         }
         else{
             sortedConcepts = props.filteredConcepts;
         }
+
+
 
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
