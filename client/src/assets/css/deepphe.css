@@ -885,6 +885,12 @@ th {
     margin-top: 10px;
 }
 
+.sortPanel {
+    position:relative;
+    left:200px;
+    top: -60px;
+}
+
 .report_mentioned_term {
     margin: 0 5px 5px 0;
     padding: 3px 2px 0;
@@ -892,6 +898,10 @@ th {
     font-family: Monaco, monospace;
     border-radius: 5px;
     float: left;
+}
+
+#concepts_container {
+    margin-top: -50px;
 }
 
 .checkbox-grid {
@@ -909,7 +919,7 @@ th {
 }
 
 .caret-options-container {
-    width: 300px;
+    /*width: 300px;*/
     visibility: hidden;
 }
 

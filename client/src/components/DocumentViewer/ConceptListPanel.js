@@ -106,9 +106,6 @@ export function ConceptListPanel(props) {
     // Filters concepts through many sorts and filters
     function filterConcepts(concepts){
         let filteredConcepts = []
-        for(let i = 0; i < concepts.length; i++){
-            console.log(concepts[i].id);
-        }
 
         // concepts.map((concept) =>{
         //     if(parseFloat(concept.confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concept)){
@@ -131,9 +128,9 @@ export function ConceptListPanel(props) {
             return obj.preferredText !== "" && obj.preferredText !== ";";
         });
         // console.log(sortedConcepts);
-        for(let i = 0; i < sortedConcepts.length; i++){
-            console.log("end", sortedConcepts[i].id);
-        }
+        // for(let i = 0; i < sortedConcepts.length; i++){
+        //     console.log("end", sortedConcepts[i].id);
+        // }
 
         //Works but what is this for?
         // sortedConcepts = sortedConcepts.filter((obj, index, array) => {
@@ -162,15 +159,21 @@ export function ConceptListPanel(props) {
     function getConceptsList() {
         let sortedConcepts = [];
 
-        if(props.filteredConcepts.length === 0 && !conceptsSorted) {
+        if(props.filteredConcepts.length === 0) {
             // console.log(props.filteredConcepts);
             sortedConcepts = filterConcepts(concepts);
+            if(sortedConcepts.length === 0){
+                sortedConcepts = [-1];
+            }
             props.setFilteredConcepts(sortedConcepts);
-            conceptsSorted = true;
+            // conceptsSorted = true;
             // console.log(sortedConcepts);
         }
         else{
             sortedConcepts = props.filteredConcepts;
+        }
+        if(sortedConcepts[0] === -1){
+            sortedConcepts = [];
         }
 
         // console.log(sortedConcepts);
@@ -204,13 +207,6 @@ export function ConceptListPanel(props) {
     return (
         <React.Fragment>
             <GridItem md={12} id="concepts_container" className="ment_container">
-                <CardHeader
-                    style={{border: "none", boxShadow: "none"}}
-                    id="mentions_label"
-                    className={"basicCardHeader"}
-                >
-                    Concepts
-                </CardHeader>
                 <GridItem
                     style={{border: "none", boxShadow: "none"}}
                     md={12}

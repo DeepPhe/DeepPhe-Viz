@@ -47,6 +47,7 @@ export function ConceptPanel(props) {
   // const handleDropdownClick = props.handleDropdownClick;
   return (
     <React.Fragment>
+
       <Card
         style={{
           overflow: "hidden",
@@ -80,7 +81,7 @@ export function ConceptPanel(props) {
               // handleConceptChange={handleConceptChange}
             />
             <ConfidencePanel
-              handleConfidenceChange={handleConfidenceChange}
+                handleConfidenceChange={handleConfidenceChange}
             />
             <SortPanel></SortPanel>
             <ConceptListPanel
@@ -91,7 +92,8 @@ export function ConceptPanel(props) {
               setFilteredConcepts={props.setFilteredConcepts}
               filteredConcepts={filteredConcepts}
                 // handleFilteredConceptChange={handleFilteredConceptChange}
-            ></ConceptListPanel>
+            >
+            </ConceptListPanel>
           </GridContainer>
         </CardBody>
       </Card>

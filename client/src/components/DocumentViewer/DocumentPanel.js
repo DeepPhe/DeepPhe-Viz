@@ -15,10 +15,15 @@ export function DocumentPanel(props) {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
   const getMentionsForConcept = (conceptId) => {
-    const idx = concepts.findIndex((c) => c.id === conceptId);
-    return concepts[idx].mentionIds.filter((mentionId) => {
-      return doc.mentions.some((m) => m.id === mentionId);
-    });
+    if(conceptId !== undefined) {
+      const idx = concepts.findIndex((c) => c.id === conceptId);
+      return concepts[idx].mentionIds.filter((mentionId) => {
+        return doc.mentions.some((m) => m.id === mentionId);
+      });
+    }
+    else{
+      return [];
+    }
   };
   let handleTermClick = (e) => {
     let obj = {};
@@ -215,6 +220,9 @@ export function DocumentPanel(props) {
     // const cssClass = "highlighted_term";
     // const cssClassAll = "highlight_terms";
     // console.log(textMentions);
+    if(textMentions.length === 0){
+      return reportText;
+    }
 
     // Flatten the ranges, this is the key to solve overlapping
     textMentions = flattenRanges(textMentions);
@@ -222,6 +230,8 @@ export function DocumentPanel(props) {
 
     let textFragments = [];
     let lastValidTMIndex = 0;
+
+
 
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
@@ -281,7 +291,7 @@ export function DocumentPanel(props) {
     // debugger;
     // Push end of the document
     textFragments.push(
-      reportText.substring(textMentions[lastValidTMIndex].end)
+        reportText.substring(textMentions[lastValidTMIndex].end)
     );
 
     // Assemble the final report content with highlighted texts
@@ -297,10 +307,10 @@ export function DocumentPanel(props) {
   function getAllConceptIDs(){
     let conceptIDList = [];
     for(let i = 0; i < filteredConcepts.length; i++){
-      const mentions = getMentionsGivenMentionIds(
-          getMentionsForConcept(filteredConcepts[i].id)
-      );
-      conceptIDList.push(mentions);
+        const mentions = getMentionsGivenMentionIds(
+            getMentionsForConcept(filteredConcepts[i].id)
+        );
+        conceptIDList.push(mentions);
     }
     return conceptIDList;
   }

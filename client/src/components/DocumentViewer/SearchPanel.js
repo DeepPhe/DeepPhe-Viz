@@ -23,6 +23,8 @@ export function SearchPanel(props) {
     }
   });
 
+
+
   return (
     <React.Fragment>
       <GridItem id="search_label">

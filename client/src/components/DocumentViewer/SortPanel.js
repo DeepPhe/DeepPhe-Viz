@@ -7,8 +7,9 @@ export function SortPanel(props) {
 
     return (
         <React.Fragment>
+            <div className="sortPanel">
             <GridItem xs={12} id="sort_label">
-                Sort Concepts
+                <b>Sort Concepts</b>
             </GridItem>
             <GridItem md={12} lg={12} className="sort_radio_item">
                 <input
@@ -37,6 +38,7 @@ export function SortPanel(props) {
                 ></input>
                 <label htmlFor="alpha_radio">&nbsp; By Semantic Group</label>
             </GridItem>
+            </div>
         </React.Fragment>
     );
 }

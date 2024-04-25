@@ -1,6 +1,7 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
 import {sortedConcepts} from "./ConceptListPanel";
+import CardHeader from "../Card/CardHeader";
 
 export function ConfidencePanel(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
@@ -12,10 +13,18 @@ export function ConfidencePanel(props) {
 
     return (
         <GridItem style={{width: "100%"}}>
+            <CardHeader
+                style={{border: "none", boxShadow: "none"}}
+                id="mentions_label"
+                className={"basicCardHeader"}
+            >
+                Concepts
+            </CardHeader>
             <div id="confidence_label">
-                Minimum confidence required to display concept
+                {/*Minimum confidence <br/>*/}
+                {/*required to display concept*/}
                 <p>
-                    Confidence: <span id="confidenceValue">50</span> %
+                    <b>Confidence:</b> <span id="confidenceValue">50</span> %
                 </p>
                 <input
                     type="range"
