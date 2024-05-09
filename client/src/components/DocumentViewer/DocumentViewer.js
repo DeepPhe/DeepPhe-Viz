@@ -17,13 +17,14 @@ export function DocumentViewer(props) {
   const concepts = props.concepts;
   const [filteredConcepts, setFilteredConcepts] = useState([]);
   const [semanticGroups, setSemanticGroups] = useState({});
+  const [fontSize, setFontSize] = useState(12);
+  // const clickedTerm = props.clickedTerm;
+  const [clickedTerm, setClickedTerm] = useState("");
 
   useEffect(() => {
     if (isEmpty(semanticGroups)) {
     getSemanticGroups();
     }
-    // console.log(semanticGroups);
-    // console.log(filteredConcepts);
   }, [semanticGroups,filteredConcepts]);
 
   function isEmpty(obj) {
@@ -36,43 +37,46 @@ export function DocumentViewer(props) {
   // start with 50% transparency and all black fonts !!!!
   // https://sashamaps.net/docs/resources/20-colors/
   // https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
-  const semanticGroupColorDict = (key) => {
+  const semanticGroupColorDict = (key, whichValue) => {
     let colorDict = {
-      "Attribute" : "#ffc700",
-      "Behavior": "#ff8712",
-      "Body Fluid or Substance": "#add8e6",
-      "Body Part": "#99E6E6",
-      "Chemo/immuno/hormone Therapy Regimen": "#f74a83",
-      "Clinical Test Result": "#ffadc1",
-      "Disease or Disorder": "#7fce94",
-      "Disease Qualifier" : "#ffdb00",
-      "Disease Stage Qualifier" : "#ffa247",
-      "Disease Grade Qualifier" : "#ffa247",
-      "Finding" : "#ffbcdd",
-      "Gene" : "#ff9ea4",
-      "General Qualifier" : "#ffbf00",
-      "Generic TNM Finding" : "#ff9731",
-      "Intervention or Procedure" : "#f74a6b",
-      "Imaging Device" : "#785ef0",
-      "Lymph Node" : "#bfefff",
-      "Temporal Qualifier" : "#ffab00",
-      "Tissue": "#b2dfee",
-      "Mass" : "#a8ffc0",
-      "Neoplasm" :"#96e7ac",
-      "Pathologic Process" : "#ffef00",
-      "Pathological TNM Finding" : "#ff8e20",
-      "Pharmacologic Substance" : "#f74aa1",
-      "Position" : "#CC9999",
-      "Property" : "#ffc700",
-      "Quantitative Concept" : "#33991A",
-      "Side" : "#93ccea",
-      "Spatial Qualifier": "#9ac0cd",
-      "Severity" : "#ff7e00",
-      "Unknown" : "#808080"
+      "Behavior": ["#ff8712", 4],
+      "Disease Stage Qualifier" : ["#ef7c0c", 0],
+      "Disease Grade Qualifier" : ["#ffa247", 1],
+      "Body Fluid or Substance": ["#add8e6", 9],
+      "Body Part": ["#99E6E6", 12],
+      "Chemo/immuno/hormone Therapy Regimen": ["#f74a83", 26],
+      "Clinical Test Result": ["#ffadc1", 14],
+      "Clinical Course of Disease": ["#e5d815",19],
+      "Disease or Disorder": ["#7fce94", 16],
+      "Disease Qualifier" : ["#ffdb00", 21],
+      "Finding" : ["#ffbcdd", 13],
+      "Gene" : ["#ff9ea4", 15],
+      "General Qualifier" : ["#ffbf00", 23],
+      "Generic TNM Finding" : ["#ff9731", 2],
+      "Intervention or Procedure" : ["#f74a6b", 27],
+      "Imaging Device" : ["#785ef0", 12],
+      "Lymph Node" : ["#bfefff", 7],
+      "Temporal Qualifier" : ["#ffab00", 24],
+      "Tissue": ["#b2dfee", 8],
+      "Mass" : ["#a8ffc0", 18],
+      "Neoplasm" : ["#96e7ac", 17],
+      "Pathologic Process" : ["#ffef00", 20],
+      "Pathological TNM Finding" : ["#ff8e20", 3],
+      "Pharmacologic Substance" : ["#f74aa1", 25],
+      "Position" : ["#CC9999", 28],
+      "Property or Attribute" : ["#ffc700", 22],
+      "Quantitative Concept" : ["#33991A", 29],
+      "Side" : ["#93ccea", 10],
+      "Spatial Qualifier": ["#9ac0cd", 11],
+      "Severity" : ["#ff7e00", 5],
+      "Unknown" : ["#808080", 30]
     };
 
-    if (key in colorDict) {
-      return colorDict[key];
+    if (key in colorDict && whichValue === "color") {
+      return colorDict[key][0];
+    }
+    if (key in colorDict && whichValue === "order"){
+      return colorDict[key][1];
     }
     else {
       return "Key '" + key + "' not found in the dictionary";
@@ -87,11 +91,22 @@ export function DocumentViewer(props) {
     uniqueConcepts.map((group, index) => {
       groups[group] = {
         checked: true,
-        backgroundColor: semanticGroupColorDict(group),
+        backgroundColor: semanticGroupColorDict(group, "color"),
+        order: semanticGroupColorDict(group, "order"),
         id: concepts.filter((c) => c.dpheGroup === group)[0].id,
       };
     });
-    setSemanticGroups(groups);
+    // Convert the map to an array of key-value pairs
+    const entries = Object.entries(groups);
+
+    // Sort the array based on the "order" value
+    entries.sort((a, b) => a[1].order - b[1].order);
+
+    // If you want the sorted result as a map, you can convert it back
+    const sortedMap = new Map(entries);
+
+    const sortedObject = Object.fromEntries(sortedMap);
+    setSemanticGroups(sortedObject);
   };
 
   const handleSemanticGroupChange = (group, checked) => {
@@ -107,6 +122,24 @@ export function DocumentViewer(props) {
   };
   const getCheckboxGridVisible = () => {
     return checkboxGridVisible;
+  };
+
+
+  const handleTermClick = (e) => {
+    setClickedTerm(e.target.dataset.text); //concept ID, then for this concept ID I want to highlight all terms that are listed under
+    // concepts as belonging to this Conecpt ID
+    console.log("docView", clickedTerm);
+  }
+
+  const zoomClick = (e) => {
+    let value = 0;
+    if(e.target.classList.contains('zoom-in')){
+      value = 1;
+    }
+    else{
+      value = -1;
+    }
+    setFontSize(fontSize + value);
   };
 
   const getReport = () => {
@@ -125,18 +158,6 @@ export function DocumentViewer(props) {
       .find(">:first-child")
       .addClass(currentFactTermsCssClass);
 
-
-
-    // Show rendered mentioned terms
-    // First check if this report is a fact-based report so we cna highlight the fact-related terms
-
-    // let highlightedReportText = highlightTextMentions(
-    //   mentionedTerms,
-    //   reportText
-    // );
-    //
-    // reportTextDiv.html(highlightedReportText);
-    // reportTextDiv.animate({ scrollTop: 0 }, "fast");
   };
 
   if (isEmpty(semanticGroups)) {
@@ -152,9 +173,6 @@ export function DocumentViewer(props) {
           <div id="report_instance">
             <GridItem className="report_section clearfix">
               <GridContainer>
-                {/*<div id="timeline" className="clearfix"></div>*/}
-                {/*<div className="divider clearfix"></div>*/}
-                {/*<div id="fact_detail"></div>*/}
                 <GridItem xs={6} id="report_id">
                   <i className="fa fa-file-o"></i>
                   <span className="display_report_id currentReportCssClass current_displaying_report">
@@ -162,11 +180,11 @@ export function DocumentViewer(props) {
                   </span>
                 </GridItem>
                 <GridItem xs={6} id="zoom_controls">
-                  <button id="zoom_in_btn" type="button">
-                    <i className="fa  fa-search-plus"></i>
+                  <button id="zoom_in_btn" className={"zoom-in"} type="button" onClick={(e) => {zoomClick(e)}}>
+                    <i className="fa fa-search-plus zoom-in"></i>
                   </button>
-                  <button id="zoom_out_btn" type="button">
-                    <i className="fa  fa-search-minus"></i>
+                  <button id="zoom_out_btn" className={"zoom-out"} type="button" onClick={(e) => {zoomClick(e)}}>
+                    <i className="fa fa-search-minus zoom-out"></i>
                   </button>
                 </GridItem>
                 <GridContainer id="term_and_report_container">
@@ -192,6 +210,7 @@ export function DocumentViewer(props) {
                           handleSemanticGroupChange={handleSemanticGroupChange}
                           setFilteredConcepts={setFilteredConcepts}
                           filteredConcepts={filteredConcepts}
+                          handleTermClick={handleTermClick}
                         />
                       </GridItem>
                     </GridContainer>
@@ -204,6 +223,8 @@ export function DocumentViewer(props) {
                       semanticGroups={semanticGroups}
                       setFilteredConcepts={setFilteredConcepts}
                       filteredConcepts={filteredConcepts}
+                      fontSize={fontSize}
+                      clickedTerm={clickedTerm}
                     />
                   </GridItem>
                 </GridContainer>

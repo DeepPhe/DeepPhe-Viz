@@ -1,15 +1,16 @@
 import React, {useEffect, useRef, useState} from "react";
 import $ from "jquery";
 import parse from "html-react-parser";
-// import {sortedConcepts} from "./ConceptListPanel";
+import {element} from "prop-types";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
   const concepts = props.concepts;
+  const clickedTerm = props.clickedTerm;
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
-  let highlightedMentions = [];
+  const fontSize = props.fontSize;
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -25,46 +26,17 @@ export function DocumentPanel(props) {
       return [];
     }
   };
-  let handleTermClick = (e) => {
-    let obj = {};
-    const conceptId = e.target.getAttribute("data-id");
 
-    const mentions = getMentionsGivenMentionIds(
-      getMentionsForConcept(conceptId)
-    );
-    highlightedMentions.push(mentions);
-    console.log("Show these mentions: ", highlightedMentions);
-
-
-    setDocText(highlightTextMentions(highlightAllMentions(highlightedMentions), doc.text, "blue"));
-
-    // const indexOfLastParenthesis = e.target.textContent.lastIndexOf("(");
-    // obj.term = e.target.textContent.slice(0, indexOfLastParenthesis);
-    // obj.begin = e.target.getAttribute("data-begin");
-    // obj.end = e.target.getAttribute("data-end");
-
-    // scrollToHighlightedTextMention(obj, doc);
-  };
-
-  $(document).on("click", ".report_mentioned_term", handleTermClick);
 
   function highlightAllMentions(mentionedTerms) {
     let textMentions = [];
-    // mentionedTerms.forEach(function (nestedArray) {
-    //   nestedArray.forEach(function(obj) {
     mentionedTerms.forEach(function (obj){
-        //grabbing mention begin and end so that I can highlight each mention at the start
         let textMentionObj = {};
-        // console.log(obj.begin);
         textMentionObj.preferredText = obj["preferredText"];
-        // textMentionObj.text = obj.text;
         textMentionObj.begin = obj.begin;
         textMentionObj.end = obj.end;
-        // textMentionObj.mentionFrequency = obj.frequency;
-        // console.log(textMentionObj);
         textMentions.push(textMentionObj);
       });
-    // });
 
     return textMentions;
   }
@@ -72,36 +44,31 @@ export function DocumentPanel(props) {
   function createMentionObj(mentionedTerms) {
     let textMentions = [];
     mentionedTerms.forEach(function (nestedArray) {
-      nestedArray.forEach(function(obj) {
+        nestedArray.forEach(function(obj) {
     // mentionedTerms.forEach(function (obj){
       //grabbing mention begin and end so that I can highlight each mention at the start
-      let textMentionObj = {};
-      // console.log(obj.begin);
-      textMentionObj.preferredText = obj["preferredText"];
-        // textMentionObj.text = obj.text;
-      textMentionObj.begin = obj.begin;
-      textMentionObj.end = obj.end;
-      textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
-      // console.log(textMentionObj.preferredText, textMentionObj.backgroundColor, obj.dpheGroup);
-      textMentionObj.color = semanticGroups[obj.dpheGroup].color;
-      // textMentionObj.mentionFrequency = obj.frequency;
-      // console.log(textMentionObj);
-      textMentions.push(textMentionObj);
+        let textMentionObj = {};
+
+        textMentionObj.preferredText = obj["preferredText"];
+        textMentionObj.begin = obj.begin;
+        textMentionObj.end = obj.end;
+        textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
+        textMentionObj.color = semanticGroups[obj.dpheGroup].color;
+        if (clickedTerm.toLowerCase() === textMentionObj.preferredText.toLowerCase()){
+          console.log(clickedTerm, " ", textMentionObj.preferredText);
+          textMentionObj.clickedTerm = true;
+        }
+        else{
+          console.log("hello");
+          textMentionObj.clickedTerm = false;
+        }
+        textMentions.push(textMentionObj);
       });
     });
 
     return textMentions;
   }
 
-  $(document).on("click", "#zoom_in_btn", function () {
-    let newFontSize = parseInt($("#report_text").css("font-size")) + 1;
-    $("#report_text").css("font-size", newFontSize);
-  });
-
-  $(document).on("click", "#zoom_out_btn", function () {
-    let newFontSize = parseInt($("#report_text").css("font-size")) - 1;
-    $("#report_text").css("font-size", newFontSize);
-  });
 
   function flattenRanges(ranges) {
     let points = [];
@@ -187,8 +154,6 @@ export function DocumentPanel(props) {
     // Highlight this term in the report text
     //console.log(mentionedTerms);
     textMentions = highlightAllMentions(doc.mentions);
-    // console.log(textMentions);
-    // console.log(textMentions);
     let highlightedReportText = highlightTextMentions(
       doc.mentions,
       doc.text,
@@ -197,29 +162,9 @@ export function DocumentPanel(props) {
     // Use html() for html rendering
     reportTextDiv.html(highlightedReportText);
 
-    // Scroll to that position inside the report text div
-    // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
-    // 5 is position tweak
-    //reportTextDiv.scrollTop(reportTextDiv.scrollTop() + $('.highlighted_term').position().top - 5);
   }
 
-  // function getUniqueColorAndMention(word, wordsArray, colorsArray) {
-  //   // Find the index of the word in the wordsArray (case insensitive)
-  //   const index = wordsArray.findIndex((w) => w.toLowerCase() === word.toLowerCase());
-  //
-  //   // If the word is found, return an array with the word and its corresponding color
-  //   if (index !== -1) {
-  //     return [wordsArray[index], colorsArray[index]];
-  //   } else {
-  //     // If the word is not found, return undefined
-  //     return undefined;
-  //   }
-  // }
-
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
-    // const cssClass = "highlighted_term";
-    // const cssClassAll = "highlight_terms";
-    // console.log(textMentions);
     if(textMentions.length === 0){
       return reportText;
     }
@@ -235,18 +180,10 @@ export function DocumentPanel(props) {
 
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
-      // console.log(textMention);
-      // let resultArray = getUniqueColorAndMention(reportText.substring(textMention.begin, textMention.end), textMention.preferredText, textMention.backgroundColor);
-      // if (resultArray !== undefined){
-      // textMention.preferredText = resultArray[0];
 
-      // console.log(textMention.backgroundColor);
       textMention.backgroundColor = textMention.backgroundColor[textMention.backgroundColor.length - 1];
-      // }
 
-      // console.log(textMention);
       let lastValidTM = textMentions[lastValidTMIndex];
-
 
       // If this is the first textmention, paste the start of the document before the first TM.
       if (i === 0) {
@@ -257,7 +194,6 @@ export function DocumentPanel(props) {
         }
       } else {
         // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-        // if (parseInt(textMention.begin) <= parseInt(lastValidTM.end)) {
         if (textMention.begin <= lastValidTM.end) {
           lastValidTMIndex = i;
         } else {
@@ -266,23 +202,22 @@ export function DocumentPanel(props) {
           );
         }
       }
+      // console.log(textMention.clickedTerm);
+      console.log(textMention);
+      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border: 5px solid red;' : 'border-style: none;';
 
       if (textMention.preferredText.indexOf(term) > -1) {
-        // console.log("1", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
         textFragments.push(
           '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
             reportText.substring(textMention.begin, textMention.end) +
             "</span>"
         );
-      } else {
-        // console.log("2", textMention.preferredText, textMention.backgroundColor, reportText.substring(textMention.begin, textMention.end));
-        // console.log(textMention);
-        // console.log(textMention);
+      }
+      else {
 
         textFragments.push(
-          '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
-            reportText.substring(textMention.begin, textMention.end) +
-            "</span>"
+          '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px;">' +
+            reportText.substring(textMention.begin, textMention.end) + "</span>"
         );
       }
 
@@ -317,7 +252,6 @@ export function DocumentPanel(props) {
 
   function setHTML() {
     let conceptIds = getAllConceptIDs();
-    // console.log(conceptIds, doc.text);
     setDocText(highlightTextMentions(createMentionObj(conceptIds), doc.text));
   }
 
@@ -338,8 +272,9 @@ export function DocumentPanel(props) {
   } else {
       return (
         <React.Fragment>
-          {getHTML(docText)}
-          {/*{setHTML()}*/}
+          <div style={{'fontSize': props.fontSize}}>
+            {getHTML(docText)}
+          </div>
         </React.Fragment>
       );
   }

@@ -9,7 +9,7 @@ export function SortPanel(props) {
         <React.Fragment>
             <div className="sortPanel">
             <GridItem xs={12} id="sort_label">
-                <b>Sort Concepts</b>
+                <b>Sort Concepts:</b>
             </GridItem>
             <GridItem md={12} lg={12} className="sort_radio_item">
                 <input

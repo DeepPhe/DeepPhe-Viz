@@ -9,22 +9,8 @@ import Divider from "@material-ui/core/Divider";
 export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
-    // const [checkboxGridVisible, setCheckboxGridVisible] = useState(true);
     const [isVisible, setIsVisible] = useState(true);
 
-    function buildColorDistribution(textMention) {
-        let colorDistribution = [];
-        let increment = (100 / textMention.count).toFixed(2);
-
-        for (let i = 0; i < textMention.count; i++) {
-            let bgcolor = "highlight_terms";
-            let start = i > 0 ? i * increment + "%" : 0;
-            let finish = i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
-            colorDistribution.push(bgcolor + " " + start);
-            colorDistribution.push(bgcolor + " " + finish);
-        }
-        return colorDistribution;
-    }
 
     const handleCheckboxChange = (e) => {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
@@ -110,14 +96,10 @@ export function SemanticGroupPanel(props) {
 
     function checkAll() {
         handleAllCheckboxChange(true);
-        // $(".semantic-checkbox:not(:checked)").trigger("click");
-        // $(".semantic-checkbox:not(:checked)").trigger("change");
     }
 
     function unCheckAll() {
         handleAllCheckboxChange(false);
-        // $(".semantic-checkbox:checked").trigger("click");
-        // $(".semantic-checkbox:checked").trigger("change");
     }
 
     return (<GridItem>

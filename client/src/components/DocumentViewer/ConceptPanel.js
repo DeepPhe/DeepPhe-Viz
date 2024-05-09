@@ -91,7 +91,7 @@ export function ConceptPanel(props) {
               confidence={confidence}
               setFilteredConcepts={props.setFilteredConcepts}
               filteredConcepts={filteredConcepts}
-                // handleFilteredConceptChange={handleFilteredConceptChange}
+              handleTermClick={props.handleTermClick}
             >
             </ConceptListPanel>
           </GridContainer>
