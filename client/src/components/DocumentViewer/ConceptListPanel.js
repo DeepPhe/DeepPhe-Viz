@@ -81,6 +81,7 @@ export function ConceptListPanel(props) {
 
     // calculates the count of mentions associated with a given concept based on conceptID
     const getMentionsCountForConcept = (conceptId) => {
+        // console.log(concepts);
         const idx = concepts.findIndex((c) => c.id === conceptId);
         return concepts[idx].mentionIds.filter((mentionId) => {
             return mentions.some((m) => m.id === mentionId);
@@ -130,12 +131,6 @@ export function ConceptListPanel(props) {
         if(sortedConcepts[0] === -1){
             sortedConcepts = [];
         }
-
-        // function handleTermClick(e) {
-        //     const clickedTerm = e.target.dataset.text;
-        //     setClickedTerm(clickedTerm);
-        //     console.log("concept", clickedTerm);
-        // }
 
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">

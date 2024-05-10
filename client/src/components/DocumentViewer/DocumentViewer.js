@@ -126,9 +126,10 @@ export function DocumentViewer(props) {
 
 
   const handleTermClick = (e) => {
-    setClickedTerm(e.target.dataset.text); //concept ID, then for this concept ID I want to highlight all terms that are listed under
+    console.log("docView", e.target);
+    setClickedTerm(e.target.dataset.id); //concept ID, then for this concept ID I want to highlight all terms that are listed under
     // concepts as belonging to this Conecpt ID
-    console.log("docView", clickedTerm);
+
   }
 
   const zoomClick = (e) => {

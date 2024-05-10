@@ -16,7 +16,11 @@ export function DocumentPanel(props) {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
   const getMentionsForConcept = (conceptId) => {
+    if(conceptId === ""){
+      return [];
+    }
     if(conceptId !== undefined) {
+      console.log(conceptId);
       const idx = concepts.findIndex((c) => c.id === conceptId);
       return concepts[idx].mentionIds.filter((mentionId) => {
         return doc.mentions.some((m) => m.id === mentionId);
@@ -54,14 +58,13 @@ export function DocumentPanel(props) {
         textMentionObj.end = obj.end;
         textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
-        if (clickedTerm.toLowerCase() === textMentionObj.preferredText.toLowerCase()){
-          console.log(clickedTerm, " ", textMentionObj.preferredText);
-          textMentionObj.clickedTerm = true;
-        }
-        else{
-          console.log("hello");
-          textMentionObj.clickedTerm = false;
-        }
+        textMentionObj.id = obj.id;
+        console.log("this is clickedTerm:", clickedTerm);
+        const mentionsForHighlight = getMentionsForConcept(clickedTerm);
+        //grab mentionIds from conceptID that I get from click
+          //then i check to see if textMentionObj.id is in the list of mentionIDS if it is True, else false
+        // console.log(clickedTerm)
+        textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
         textMentions.push(textMentionObj);
       });
     });
@@ -89,7 +92,6 @@ export function DocumentPanel(props) {
     points.sort(function (a, b) {
       return a - b;
     });
-    // console.log("sorted points: ", points);
 
     // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
     // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
@@ -98,7 +100,6 @@ export function DocumentPanel(props) {
       let includedRanges = ranges.filter(function (x) {
         return Math.max(x.begin, points[i - 1]) < Math.min(x.end, points[i]);
       });
-      //console.log(includedRanges);
 
       if (includedRanges.length > 0) {
         let flattenedRange = {
@@ -108,7 +109,6 @@ export function DocumentPanel(props) {
         };
 
         for (let j in includedRanges) {
-          //console.log(includedRanges[j]);
           let includedRange = includedRanges[j];
 
           for (let prop in includedRange) {
@@ -147,12 +147,9 @@ export function DocumentPanel(props) {
     textMentionObj.begin = obj.begin;
     textMentionObj.end = obj.end;
 
-    //console.log(textMentionObj);
     textMentions.push(textMentionObj);
-    //console.log(term);
 
     // Highlight this term in the report text
-    //console.log(mentionedTerms);
     textMentions = highlightAllMentions(doc.mentions);
     let highlightedReportText = highlightTextMentions(
       doc.mentions,
@@ -171,7 +168,6 @@ export function DocumentPanel(props) {
 
     // Flatten the ranges, this is the key to solve overlapping
     textMentions = flattenRanges(textMentions);
-    // console.log(textMentions);
 
     let textFragments = [];
     let lastValidTMIndex = 0;
@@ -202,9 +198,7 @@ export function DocumentPanel(props) {
           );
         }
       }
-      // console.log(textMention.clickedTerm);
-      console.log(textMention);
-      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border: 5px solid red;' : 'border-style: none;';
+      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style:solid;' : 'border-style: none;';
 
       if (textMention.preferredText.indexOf(term) > -1) {
         textFragments.push(
@@ -241,10 +235,11 @@ export function DocumentPanel(props) {
 
   function getAllConceptIDs(){
     let conceptIDList = [];
+
     for(let i = 0; i < filteredConcepts.length; i++){
-        const mentions = getMentionsGivenMentionIds(
-            getMentionsForConcept(filteredConcepts[i].id)
-        );
+      // console.log(getMentionsForConcept(filteredConcepts[i].id));
+        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConcepts[i].id));
+        console.log(mentions);
         conceptIDList.push(mentions);
     }
     return conceptIDList;
