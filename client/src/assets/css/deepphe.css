@@ -918,10 +918,10 @@ th {
     cursor: pointer;
 }
 
-.caret-options-container {
-    /*width: 300px;*/
-    visibility: hidden;
-}
+/*.caret-options-container {*/
+/*    !*width: 300px;*!*/
+/*    visibility: hidden;*/
+/*}*/
 
 .caret-container {
     margin-left: 5px; /* Adjust the margin as needed */
@@ -948,9 +948,6 @@ th {
     width: 180px;
 }
 
-.dropdownButton {
-
-}
 
 .hidden {
     display: none;
@@ -1410,11 +1407,11 @@ white text with more shading
 }
 
 /* Hide the table view and expanded arrow as well as all toggleable facts by default */
-.table_view,
-.fa-caret-down,
-.toggleable {
-    display: none;
-}
+/*.table_view,*/
+/*.fa-caret-down,*/
+/*.toggleable {*/
+/*    display: none;*/
+/*}*/
 
 .view_options {
     margin-left: 10px;

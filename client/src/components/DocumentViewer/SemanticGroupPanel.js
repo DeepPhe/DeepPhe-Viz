@@ -3,7 +3,10 @@ import React, {useState} from "react";
 import $ from "jquery";
 import GridContainer from "../Grid/GridContainer";
 import {Box} from "@material-ui/core";
-import Divider from "@material-ui/core/Divider";
+// import { Divider } from '@mui/material';
+// import Divider from "@material-ui/core/Divider";
+// import Divider from '@mui/material/Divider';
+
 
 
 export function SemanticGroupPanel(props) {
@@ -30,8 +33,16 @@ export function SemanticGroupPanel(props) {
 
     const getHeader = () => {
         return (<GridContainer>
-                <GridItem xs={12}
-                          className={`caret-options-container visible`}>
+            {/*className={`caret-options-container visible`}*/ }
+                <GridItem xs={4}>
+                    <div>
+                        <span><b>Semantic Groups:</b></span>
+                    </div>
+                </GridItem>
+                <GridItem xs={7}>
+
+                </GridItem>
+                <GridItem xs={1} >
                     {isVisible ? (<span>
                     <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibility}></i>
                             {/* Show this icon when visible */}
@@ -39,19 +50,13 @@ export function SemanticGroupPanel(props) {
                     <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibility}></i>
                             {/* Show this icon when hidden */}
                 </span>)}
-
-                    <div className="options-container">
-                        <span>Semantic Groups</span>
-
-                    </div>
-                    <Divider sx={{ backgroundColor: "teal", height: "3px", margin: "16px 0" }}/>
                 </GridItem>
-
+                {/*<Divider orientation="horizontal" flexItem />*/}
 
                 <GridItem xs={12}>
                     <Box display={"flex"} justifyContent={"flex-end"}>
-                        <button id={"check-all-btn"} onClick={checkAll}>check all</button>
-                        <button id={"uncheck-all-btn"} onClick={unCheckAll}>uncheck all</button>
+                        <button id={"check-all-btn"} className={`${isVisible ? "visible" : "hidden"}`} onClick={checkAll}>check all</button>
+                        <button id={"uncheck-all-btn"} className={`${isVisible ? "visible" : "hidden"}`} onClick={unCheckAll}>uncheck all</button>
                     </Box>
                 </GridItem>
 
@@ -102,7 +107,7 @@ export function SemanticGroupPanel(props) {
         handleAllCheckboxChange(false);
     }
 
-    return (<GridItem>
+    return (<GridItem xs={12}>
 
             {getHeader()}
             {getSemanticGroups()}
