@@ -27,7 +27,7 @@ export function SearchPanel(props) {
 
   return (
     <React.Fragment>
-      <GridItem id="search_label" xs={5}>
+      <GridItem id="search_label" xs={6}>
         {" "}
         <b>Filter Concepts:</b>
         <input

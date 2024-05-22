@@ -1084,6 +1084,15 @@ white text with more shading
     opacity: 1;
 }
 
+.visible {
+    display: block !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
 /* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/
 
 /*.report_mentioned_term_1 {*/

@@ -1,6 +1,6 @@
 import GridItem from "../Grid/GridItem";
 import CardHeader from "../Card/CardHeader";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
@@ -10,7 +10,7 @@ import {grey} from "@material-ui/core/colors";
 
 // TODO: change name from ConceptListPanel to FilteredConceptList
 export function ConceptListPanel(props) {
-    const {concepts, mentions} = props;
+    const {concepts, mentions, filteredConcepts, setFilteredConcepts} = props;
     const semanticGroups = props.semanticGroups;
     const confidence = props.confidence;
     const [clickedTerm, setClickedTerm] = useState("");
@@ -83,15 +83,30 @@ export function ConceptListPanel(props) {
     const getMentionsCountForConcept = (conceptId) => {
         // console.log(concepts);
         const idx = concepts.findIndex((c) => c.id === conceptId);
+        if(idx === -1){
+            return 0;
+        }
         return concepts[idx].mentionIds.filter((mentionId) => {
             return mentions.some((m) => m.id === mentionId);
         }).length;
     };
 
+    useEffect(() => {
+        console.log(concepts);
+        const sortedConcepts = filterConcepts(concepts);
+        if (sortedConcepts.length === 0) {
+            setFilteredConcepts([-1]);
+        } else {
+            setFilteredConcepts(sortedConcepts);
+        }
+    }, [concepts, confidence]);
 
     //accessing the .checked property to see if [concept.dpheGroup] is checked
     function conceptGroupIsSelected(concept) {
-        return semanticGroups[concept.dpheGroup].checked
+        if(semanticGroups[concept.dpheGroup]){
+            return semanticGroups[concept.dpheGroup].checked
+        }
+        return false;
     }
 
     // Filters concepts through many sorts and filters
@@ -99,6 +114,7 @@ export function ConceptListPanel(props) {
         let filteredConcepts = []
 
         for(let i = 0; i < concepts.length; i++){
+            console.log(concepts[i]);
             if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
                 filteredConcepts.push(concepts[i]);
             }
@@ -119,7 +135,8 @@ export function ConceptListPanel(props) {
         let sortedConcepts = [];
 
         if(props.filteredConcepts.length === 0) {
-            sortedConcepts = filterConcepts(concepts);
+            // sortedConcepts = filterConcepts(concepts);
+            sortedConcepts = filteredConcepts;
             if(sortedConcepts.length === 0){
                 sortedConcepts = [-1];
             }

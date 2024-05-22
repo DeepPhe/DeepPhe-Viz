@@ -20,8 +20,10 @@ export function DocumentPanel(props) {
       return [];
     }
     if(conceptId !== undefined) {
-      console.log(conceptId);
       const idx = concepts.findIndex((c) => c.id === conceptId);
+      if(idx === -1){
+        return [];
+      }
       return concepts[idx].mentionIds.filter((mentionId) => {
         return doc.mentions.some((m) => m.id === mentionId);
       });
@@ -59,11 +61,9 @@ export function DocumentPanel(props) {
         textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
         textMentionObj.id = obj.id;
-        console.log("this is clickedTerm:", clickedTerm);
         const mentionsForHighlight = getMentionsForConcept(clickedTerm);
         //grab mentionIds from conceptID that I get from click
           //then i check to see if textMentionObj.id is in the list of mentionIDS if it is True, else false
-        // console.log(clickedTerm)
         textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
         textMentions.push(textMentionObj);
       });
@@ -237,9 +237,7 @@ export function DocumentPanel(props) {
     let conceptIDList = [];
 
     for(let i = 0; i < filteredConcepts.length; i++){
-      // console.log(getMentionsForConcept(filteredConcepts[i].id));
         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConcepts[i].id));
-        console.log(mentions);
         conceptIDList.push(mentions);
     }
     return conceptIDList;
@@ -252,9 +250,11 @@ export function DocumentPanel(props) {
 
   useEffect(() => {
     if(props.filteredConcepts.length > 0){
+      setDoc(props.doc);
+      setDocText(props.doc.text);
       setHTML()
     }
-  });
+  },[props.doc]);
 
 
   const getHTML = (docText) => {

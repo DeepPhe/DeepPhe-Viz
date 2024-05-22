@@ -1,6 +1,6 @@
 import GridContainer from "../Grid/GridContainer";
 import { SemanticGroupPanel } from "./SemanticGroupPanel";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import CardHeader from "../Card/CardHeader";
 import $ from "jquery";
 import CardBody from "../Card/CardBody";
@@ -41,6 +41,13 @@ export function ConceptPanel(props) {
   // const handleFilterConceptChange = (e) => {
   //
   // };
+
+  useEffect(() => {
+
+    props.setFilteredConcepts(props.filteredConcepts);
+    // console.log("are we getting here");
+    // console.log(props.filteredConcepts);
+  }, [props.filteredConcepts]);
 
   const checkboxGridVisible = props.getCheckboxGridVisible;
   const setCheckboxGridVisible = props.setCheckboxGridVisible;

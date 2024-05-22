@@ -1,11 +1,11 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
-import $ from "jquery";
 import GridContainer from "../Grid/GridContainer";
-import {Box} from "@material-ui/core";
-// import { Divider } from '@mui/material';
-// import Divider from "@material-ui/core/Divider";
-// import Divider from '@mui/material/Divider';
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+// import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import Divider from '@mui/material/Divider';
 
 
 
@@ -51,12 +51,26 @@ export function SemanticGroupPanel(props) {
                             {/* Show this icon when hidden */}
                 </span>)}
                 </GridItem>
-                {/*<Divider orientation="horizontal" flexItem />*/}
+                <Divider orientation="horizontal" flexItem />
 
                 <GridItem xs={12}>
-                    <Box display={"flex"} justifyContent={"flex-end"}>
-                        <button id={"check-all-btn"} className={`${isVisible ? "visible" : "hidden"}`} onClick={checkAll}>check all</button>
-                        <button id={"uncheck-all-btn"} className={`${isVisible ? "visible" : "hidden"}`} onClick={unCheckAll}>uncheck all</button>
+                    <Box sx={{ mb:2, display: 'flex', justifyContent: 'flex-start' }} className={`${isVisible ? "visible" : "hidden"}`}>
+                        <Button
+                            sx={{fontSize:'14px', mr: 2}}
+                            id={"check-all-btn"}
+                            variant="contained"
+                            size="small"
+                            // startIcon={<CheckBoxIcon />}
+                            onClick={checkAll}
+                        >Check All</Button>
+                        <Button
+                            sx={{fontSize:'14px'}}
+                            id={"uncheck-all-btn"}
+                            variant="contained"
+                            size="small"
+                            onClick={unCheckAll}
+                        >Uncheck All</Button>
+
                     </Box>
                 </GridItem>
 

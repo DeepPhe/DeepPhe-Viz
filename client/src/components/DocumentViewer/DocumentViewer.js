@@ -126,7 +126,6 @@ export function DocumentViewer(props) {
 
 
   const handleTermClick = (e) => {
-    console.log("docView", e.target);
     setClickedTerm(e.target.dataset.id); //concept ID, then for this concept ID I want to highlight all terms that are listed under
     // concepts as belonging to this Conecpt ID
 
@@ -158,7 +157,7 @@ export function DocumentViewer(props) {
       .children()
       .find(">:first-child")
       .addClass(currentFactTermsCssClass);
-
+    console.log(filteredConcepts);
   };
 
   if (isEmpty(semanticGroups)) {

@@ -20,29 +20,41 @@ function Patient(props) {
   const [patientDocument, setPatientDocument] = useState({});
   const [patientJson, setPatientJson] = useState({});
   const [patientConcepts, setPatientConcepts] = useState([]);
-  const [reportId, setReportId] = useState({});
+  const [reportId, setReportId] = useState("");
   const [factId, setFactId] = useState({});
   const [gettingSummary, setGettingSummary] = useState(false);
+  const [currDoc, setCurrDoc] = useState(0);
+  const [currPatientJson, setCurrPatientJson] = useState("");
 
+  // currPatientJson !== reportId ||
   useEffect(() => {
-    if (isEmpty(patientJson)) {
-      const that = this;
       getNewPatientJsonFromFile().then((json) => {
         setPatientJson(json);
-        setPatientDocument(json["documents"][3]);
+        setPatientDocument(json["documents"][currDoc]);
+        setCurrDoc(currDoc + 1);
+        // console.log(currDoc);
+        if (currDoc > 9) {
+          setCurrDoc(0)
+        }
+        // console.log(currDoc);
         setPatientConcepts(
-          json.concepts
-            .map((concept) => {
-              return concept.mentionIds;
-            })
-            .flat()
+            json.concepts
+                .map((concept) => {
+                  return concept.mentionIds;
+                })
+                .flat()
         );
       });
-    }
+
+  }, [currPatientJson]);
+
+  useEffect(() => {
+    setCurrPatientJson(reportId);
+
     if (!isEmpty(summary)) {
       setGettingSummary(false);
     }
-  }, [patientId, reportId, patientJson, patientConcepts, summary]);
+  }, [patientId, reportId, patientConcepts, summary]);
 
   function getNewPatientJsonFromFile() {
     return new Promise((resolve, reject) => {
@@ -132,6 +144,8 @@ function Patient(props) {
     const conceptsInDocument = patientJson.concepts.filter((c) => {
       return c.mentionIds.some((m) => mentionIdsInDocument.includes(m));
     });
+    // console.log("rerendering document viewer", patientDocument);
+
     return (
       <DocumentViewer
         patientId={patientId}
@@ -204,23 +218,28 @@ function Patient(props) {
     }
     return <div> Loading... </div>;
   } else {
-    setEventHandlers(patientId);
-    return (
-      <React.Fragment>
-        {getComponentNavBar()}
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={1} />
-          <GridItem xs={12} sm={12} md={10}>
-            {getComponentPatientIdAndDemographics()}
-            {getComponentCancerAndTumorDetail()}
-            {getComponentPatientEpisodeTimeline()}
-            {getComponentDocumentViewer()}
-          </GridItem>
-          <GridItem xs={12} sm={12} md={1} />
-        </GridContainer>
-        {getComponentFooter()}
-      </React.Fragment>
-    );
+    if (Object.keys(patientJson).length === 0) {
+      return <div> Loading... </div>;
+    }
+    else{
+      setEventHandlers(patientId);
+      return (
+          <React.Fragment>
+            {getComponentNavBar()}
+            <GridContainer>
+              <GridItem xs={12} sm={12} md={1}/>
+              <GridItem xs={12} sm={12} md={10}>
+                {getComponentPatientIdAndDemographics()}
+                {getComponentCancerAndTumorDetail()}
+                {getComponentPatientEpisodeTimeline()}
+                {getComponentDocumentViewer()}
+              </GridItem>
+              <GridItem xs={12} sm={12} md={1}/>
+            </GridContainer>
+            {getComponentFooter()}
+          </React.Fragment>
+      );
+    }
   }
 }
 
