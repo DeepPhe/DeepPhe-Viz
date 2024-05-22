@@ -23,7 +23,7 @@ export function DocumentViewer(props) {
 
   useEffect(() => {
     if (isEmpty(semanticGroups)) {
-    getSemanticGroups();
+      getSemanticGroups();
     }
   }, [semanticGroups,filteredConcepts]);
 
@@ -126,9 +126,7 @@ export function DocumentViewer(props) {
 
 
   const handleTermClick = (e) => {
-    setClickedTerm(e.target.dataset.id); //concept ID, then for this concept ID I want to highlight all terms that are listed under
-    // concepts as belonging to this Conecpt ID
-
+    setClickedTerm(e.target.dataset.id);
   }
 
   const zoomClick = (e) => {
@@ -157,7 +155,6 @@ export function DocumentViewer(props) {
       .children()
       .find(">:first-child")
       .addClass(currentFactTermsCssClass);
-    console.log(filteredConcepts);
   };
 
   if (isEmpty(semanticGroups)) {
@@ -221,6 +218,7 @@ export function DocumentViewer(props) {
                       doc={patientDocument}
                       concepts={concepts}
                       semanticGroups={semanticGroups}
+                      handleSemanticGroupChange={handleSemanticGroupChange}
                       setFilteredConcepts={setFilteredConcepts}
                       filteredConcepts={filteredConcepts}
                       fontSize={fontSize}

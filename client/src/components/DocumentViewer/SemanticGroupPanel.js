@@ -17,14 +17,13 @@ export function SemanticGroupPanel(props) {
 
     const handleCheckboxChange = (e) => {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
-        props.setFilteredConcepts([]);
+        console.log("Changing Semantic Group:", e.target);
     };
 
     const handleAllCheckboxChange = (checked) => {
         Object.keys(semanticGroups).map((group, index) => {
             handleSemanticGroupChange(group, checked);
         });
-        props.setFilteredConcepts([]);
     };
 
     const toggleVisibility = () => {

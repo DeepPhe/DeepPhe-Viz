@@ -20,9 +20,10 @@ export function ConceptPanel(props) {
   const handleSemanticGroupChange = props.handleSemanticGroupChange;
   const semanticGroups = props.semanticGroups;
   const [confidence, setConfidence] = useState(0.5);
-  let filteredConcepts = props.filteredConcepts;
+  const filteredConcepts = props.filteredConcepts;
+  const setFilteredConcepts = props.setFilteredConcepts;
+
   $(document).on("input", "#confidenceRange", function () {
-    // Declare variables
     let slider = document.getElementById("confidenceRange");
     let output = document.getElementById("confidenceValue");
 
@@ -35,23 +36,9 @@ export function ConceptPanel(props) {
 
   const handleConfidenceChange = (e) => {
     setConfidence(e/100);
-    props.setFilteredConcepts([]);
   };
 
-  // const handleFilterConceptChange = (e) => {
-  //
-  // };
 
-  useEffect(() => {
-
-    props.setFilteredConcepts(props.filteredConcepts);
-    // console.log("are we getting here");
-    // console.log(props.filteredConcepts);
-  }, [props.filteredConcepts]);
-
-  const checkboxGridVisible = props.getCheckboxGridVisible;
-  const setCheckboxGridVisible = props.setCheckboxGridVisible;
-  // const handleDropdownClick = props.handleDropdownClick;
   return (
     <React.Fragment>
 
@@ -79,24 +66,22 @@ export function ConceptPanel(props) {
           <GridContainer sx={{ background: "red" }} spacing={1}>
             <SearchPanel></SearchPanel>
             <SemanticGroupPanel
-              getCheckboxGridVisible={checkboxGridVisible}
-              setCheckboxGridVisible={setCheckboxGridVisible}
-              // handleDropdownClick={handleDropdownClick}
-              setFilteredConcepts={props.setFilteredConcepts}
+              setFilteredConcepts={setFilteredConcepts}
               semanticGroups={semanticGroups}
               handleSemanticGroupChange={handleSemanticGroupChange}
-              // handleConceptChange={handleConceptChange}
             />
             <ConfidencePanel
                 handleConfidenceChange={handleConfidenceChange}
             />
-            <SortPanel></SortPanel>
+            <SortPanel>
+              filteredConcepts={filteredConcepts}
+            </SortPanel>
             <ConceptListPanel
               concepts={concepts}
               mentions={mentions}
               semanticGroups={semanticGroups}
               confidence={confidence}
-              setFilteredConcepts={props.setFilteredConcepts}
+              setFilteredConcepts={setFilteredConcepts}
               filteredConcepts={filteredConcepts}
               handleTermClick={props.handleTermClick}
             >

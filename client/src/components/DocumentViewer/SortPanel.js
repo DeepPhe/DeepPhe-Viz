@@ -3,6 +3,42 @@ import React from "react";
 import $ from "jquery";
 
 export function SortPanel(props) {
+    const {filteredConcepts, setFilteredConcepts} = props
+
+
+    $("#occ_radio").prop("checked", true);
+
+    $('input[type=radio][name="sort_order"]').change(function () {
+        const value = $(this).val();
+        if (value === "alphabetically") {
+            sortMentions(value);
+        } else if (value === "occurrence") {
+            sortMentions(value);
+        }
+    });
+
+    function sortMentions(method) {
+        // Copy the filteredConcepts array to avoid mutating the original state
+        let conceptsCopy = [...filteredConcepts];
+
+        if (conceptsCopy.length > 0) {
+            // Sort the conceptsCopy array based on the sorting method
+            conceptsCopy.sort((a, b) => {
+                if (method === 'alphabetically') {
+                    return a.preferredText.toLowerCase().localeCompare(b.preferredText.toLowerCase());
+                } else if (method === 'occurrence') {
+                    return a.dataBegin - b.dataBegin; // Assuming dataBegin is a property of the concepts
+                } else {
+                    return 0; // No sorting
+                }
+            });
+
+            console.log(conceptsCopy);
+
+            // Update the filteredConcepts state with the sorted array
+            setFilteredConcepts(conceptsCopy);
+        }
+    }
 
 
     return (

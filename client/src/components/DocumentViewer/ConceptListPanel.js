@@ -10,74 +10,26 @@ import {grey} from "@material-ui/core/colors";
 
 // TODO: change name from ConceptListPanel to FilteredConceptList
 export function ConceptListPanel(props) {
-    const {concepts, mentions, filteredConcepts, setFilteredConcepts} = props;
+    const {concepts, mentions} = props;
     const semanticGroups = props.semanticGroups;
     const confidence = props.confidence;
+    const filteredConcepts = props.filteredConcepts;
+    const setFilteredConcepts = props.setFilteredConcepts;
     const [clickedTerm, setClickedTerm] = useState("");
 
-    // const conceptColor = props.color;
-    $("#occ_radio").prop("checked", true);
-    $("#stack_radio").prop("checked", true);
 
-    // $('input[type=radio][name="sort_order"]').change(function () {
-    //     const value = $(this).val();
-    //     if (value === "alphabetically") {
-    //         sortMentions(value);
-    //     } else if (value === "occurrence") {
-    //         sortMentions(value);
+    // } else if (method === "occurrence") {
+    //     if (
+    //         parseInt(li[i].getAttribute("data-begin")) >
+    //         parseInt(li[i + 1].getAttribute("data-begin"))
+    //     ) {
+    //         if (!uniqueArr.includes(li[i].textContent)) {
+    //             uniqueArr.push(li[i].textContent);
+    //         }
+    //         stop = true;
+    //         break;
     //     }
-    // });
 
-    function sortMentions(method) {
-        // Declaring Variables
-        let geek_list, i, run, li, stop;
-        // Taking content of list as input
-        geek_list = document.getElementById("mentions");
-
-        if (geek_list !== null && geek_list !== undefined) {
-            run = true;
-            const uniqueArr = [];
-
-            while (run) {
-                run = false;
-                li = geek_list.getElementsByTagName("li");
-
-                // Loop traversing through all the list items
-                for (i = 0; i < li.length - 1; i++) {
-                    stop = false;
-                    if (method === "alphabetically") {
-                        if (
-                            li[i].textContent.toLowerCase() >
-                            li[i + 1].textContent.toLowerCase()
-                        ) {
-                            stop = true;
-                            break;
-                        }
-                    } else if (method === "occurrence") {
-                        if (
-                            parseInt(li[i].getAttribute("data-begin")) >
-                            parseInt(li[i + 1].getAttribute("data-begin"))
-                        ) {
-                            if (!uniqueArr.includes(li[i].textContent)) {
-                                uniqueArr.push(li[i].textContent);
-                            }
-                            stop = true;
-                            break;
-                        }
-                    }
-                }
-
-                /* If the current item is smaller than
-                   the next item then adding it after
-                   it using insertBefore() method */
-                if (stop) {
-                    li[i].parentNode.insertBefore(li[i + 1], li[i]);
-
-                    run = true;
-                }
-            }
-        }
-    }
 
     // calculates the count of mentions associated with a given concept based on conceptID
     const getMentionsCountForConcept = (conceptId) => {
@@ -92,12 +44,11 @@ export function ConceptListPanel(props) {
     };
 
     useEffect(() => {
-        console.log(concepts);
         const sortedConcepts = filterConcepts(concepts);
         if (sortedConcepts.length === 0) {
-            setFilteredConcepts([-1]);
+            props.setFilteredConcepts([-1]);
         } else {
-            setFilteredConcepts(sortedConcepts);
+            props.setFilteredConcepts(sortedConcepts);
         }
     }, [concepts, confidence]);
 
@@ -114,7 +65,7 @@ export function ConceptListPanel(props) {
         let filteredConcepts = []
 
         for(let i = 0; i < concepts.length; i++){
-            console.log(concepts[i]);
+            // console.log(parseFloat(concepts[i].confidence) >= parseFloat(confidence), conceptGroupIsSelected(concepts[i]))
             if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
                 filteredConcepts.push(concepts[i]);
             }
@@ -133,25 +84,25 @@ export function ConceptListPanel(props) {
 
     function getConceptsList() {
         let sortedConcepts = [];
+        sortedConcepts = filteredConcepts;
+        // console.log(sortedConcepts);
+        if(filteredConcepts.length === 0) {
 
-        if(props.filteredConcepts.length === 0) {
-            // sortedConcepts = filterConcepts(concepts);
-            sortedConcepts = filteredConcepts;
             if(sortedConcepts.length === 0){
                 sortedConcepts = [-1];
             }
-            props.setFilteredConcepts(sortedConcepts);
-        }
-        else{
-            sortedConcepts = props.filteredConcepts;
+            setFilteredConcepts(sortedConcepts);
         }
         if(sortedConcepts[0] === -1){
             sortedConcepts = [];
         }
 
+        // console.log(sortedConcepts);
+
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {sortedConcepts.map((obj) => {
+                    // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
                             style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor}}

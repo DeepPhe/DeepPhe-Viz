@@ -34,19 +34,6 @@ export function DocumentPanel(props) {
   };
 
 
-  function highlightAllMentions(mentionedTerms) {
-    let textMentions = [];
-    mentionedTerms.forEach(function (obj){
-        let textMentionObj = {};
-        textMentionObj.preferredText = obj["preferredText"];
-        textMentionObj.begin = obj.begin;
-        textMentionObj.end = obj.end;
-        textMentions.push(textMentionObj);
-      });
-
-    return textMentions;
-  }
-
   function createMentionObj(mentionedTerms) {
     let textMentions = [];
     mentionedTerms.forEach(function (nestedArray) {
@@ -128,38 +115,6 @@ export function DocumentPanel(props) {
     return flattened;
   }
 
-  function scrollToHighlightedTextMention(obj, doc, term = "NONE") {
-    // Highlight the selected term in the term list
-    const cssClass = "current_mentioned_term";
-    // First remove the previously added highlighting
-    $(".report_mentioned_term").removeClass(cssClass);
-    $(
-      'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
-    ).addClass(cssClass);
-
-    let reportTextDiv = $("#report_text");
-
-    let textMentions = [];
-
-    let textMentionObj = {};
-    textMentionObj.text = obj.preferredText;
-    // textMentionObj.text = obj.text;
-    textMentionObj.begin = obj.begin;
-    textMentionObj.end = obj.end;
-
-    textMentions.push(textMentionObj);
-
-    // Highlight this term in the report text
-    textMentions = highlightAllMentions(doc.mentions);
-    let highlightedReportText = highlightTextMentions(
-      doc.mentions,
-      doc.text,
-      obj.term
-    );
-    // Use html() for html rendering
-    reportTextDiv.html(highlightedReportText);
-
-  }
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
     if(textMentions.length === 0){
@@ -252,9 +207,10 @@ export function DocumentPanel(props) {
     if(props.filteredConcepts.length > 0){
       setDoc(props.doc);
       setDocText(props.doc.text);
+      console.log(semanticGroups);
       setHTML()
     }
-  },[props.doc]);
+  },[props.doc, props.filteredConcepts, props.clickedTerm]);
 
 
   const getHTML = (docText) => {
