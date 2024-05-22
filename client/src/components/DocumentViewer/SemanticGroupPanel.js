@@ -1,5 +1,5 @@
 import GridItem from "../Grid/GridItem";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import GridContainer from "../Grid/GridContainer";
 
 import Box from '@mui/material/Box';
@@ -17,7 +17,6 @@ export function SemanticGroupPanel(props) {
 
     const handleCheckboxChange = (e) => {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);
-        console.log("Changing Semantic Group:", e.target);
     };
 
     const handleAllCheckboxChange = (checked) => {

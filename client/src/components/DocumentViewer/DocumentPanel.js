@@ -207,7 +207,6 @@ export function DocumentPanel(props) {
     if(props.filteredConcepts.length > 0){
       setDoc(props.doc);
       setDocText(props.doc.text);
-      console.log(semanticGroups);
       setHTML()
     }
   },[props.doc, props.filteredConcepts, props.clickedTerm]);

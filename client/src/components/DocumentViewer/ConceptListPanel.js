@@ -50,7 +50,7 @@ export function ConceptListPanel(props) {
         } else {
             props.setFilteredConcepts(sortedConcepts);
         }
-    }, [concepts, confidence]);
+    }, [concepts, confidence, semanticGroups]);
 
     //accessing the .checked property to see if [concept.dpheGroup] is checked
     function conceptGroupIsSelected(concept) {

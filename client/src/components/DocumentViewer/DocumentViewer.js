@@ -22,9 +22,10 @@ export function DocumentViewer(props) {
   const [clickedTerm, setClickedTerm] = useState("");
 
   useEffect(() => {
-    if (isEmpty(semanticGroups)) {
+    if (isEmpty(semanticGroups)) { //It's something here that i need to fix
       getSemanticGroups();
     }
+    // else ()
   }, [semanticGroups,filteredConcepts]);
 
   function isEmpty(obj) {
