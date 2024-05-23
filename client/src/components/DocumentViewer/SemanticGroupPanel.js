@@ -31,7 +31,6 @@ export function SemanticGroupPanel(props) {
 
     const getHeader = () => {
         return (<GridContainer>
-            {/*className={`caret-options-container visible`}*/ }
                 <GridItem xs={4}>
                     <div>
                         <span><b>Semantic Groups:</b></span>

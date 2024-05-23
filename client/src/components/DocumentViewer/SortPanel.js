@@ -1,9 +1,9 @@
 import GridItem from "../Grid/GridItem";
-import React from "react";
+import React, {useEffect} from "react";
 import $ from "jquery";
 
 export function SortPanel(props) {
-    const {filteredConcepts, setFilteredConcepts} = props
+    const { filteredConcepts, setFilteredConcepts } = props;
 
 
     $("#occ_radio").prop("checked", true);
@@ -19,11 +19,13 @@ export function SortPanel(props) {
 
     function sortMentions(method) {
         // Copy the filteredConcepts array to avoid mutating the original state
-        let conceptsCopy = [...filteredConcepts];
+        const conceptsCopy = filteredConcepts;
 
+        console.log(conceptsCopy);
         if (conceptsCopy.length > 0) {
             // Sort the conceptsCopy array based on the sorting method
             conceptsCopy.sort((a, b) => {
+                console.log("a", a, "b", b);
                 if (method === 'alphabetically') {
                     return a.preferredText.toLowerCase().localeCompare(b.preferredText.toLowerCase());
                 } else if (method === 'occurrence') {
@@ -32,8 +34,6 @@ export function SortPanel(props) {
                     return 0; // No sorting
                 }
             });
-
-            console.log(conceptsCopy);
 
             // Update the filteredConcepts state with the sorted array
             setFilteredConcepts(conceptsCopy);

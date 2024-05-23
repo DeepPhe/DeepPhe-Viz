@@ -4,11 +4,7 @@ import React, {useEffect, useState} from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
-import {grey} from "@material-ui/core/colors";
-// import {getMentionsForConcept} from "./DocumentPanel"
 
-
-// TODO: change name from ConceptListPanel to FilteredConceptList
 export function ConceptListPanel(props) {
     const {concepts, mentions} = props;
     const semanticGroups = props.semanticGroups;
@@ -16,19 +12,6 @@ export function ConceptListPanel(props) {
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const [clickedTerm, setClickedTerm] = useState("");
-
-
-    // } else if (method === "occurrence") {
-    //     if (
-    //         parseInt(li[i].getAttribute("data-begin")) >
-    //         parseInt(li[i + 1].getAttribute("data-begin"))
-    //     ) {
-    //         if (!uniqueArr.includes(li[i].textContent)) {
-    //             uniqueArr.push(li[i].textContent);
-    //         }
-    //         stop = true;
-    //         break;
-    //     }
 
 
     // calculates the count of mentions associated with a given concept based on conceptID
@@ -45,10 +28,11 @@ export function ConceptListPanel(props) {
 
     useEffect(() => {
         const sortedConcepts = filterConcepts(concepts);
+
         if (sortedConcepts.length === 0) {
-            props.setFilteredConcepts([-1]);
+            setFilteredConcepts([-1]);
         } else {
-            props.setFilteredConcepts(sortedConcepts);
+            setFilteredConcepts(sortedConcepts);
         }
     }, [concepts, confidence, semanticGroups]);
 

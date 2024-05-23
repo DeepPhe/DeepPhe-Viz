@@ -64,18 +64,21 @@ export function ConceptPanel(props) {
           id="mentions_container"
         >
           <GridContainer sx={{ background: "red" }} spacing={1}>
-            <SearchPanel></SearchPanel>
+            <SearchPanel
+              filteredConcepts={filteredConcepts}
+              setFilteredConcepts={setFilteredConcepts
+            }/>
             <SemanticGroupPanel
-              setFilteredConcepts={setFilteredConcepts}
               semanticGroups={semanticGroups}
               handleSemanticGroupChange={handleSemanticGroupChange}
             />
             <ConfidencePanel
                 handleConfidenceChange={handleConfidenceChange}
             />
-            <SortPanel>
-              filteredConcepts={filteredConcepts}
-            </SortPanel>
+            <SortPanel
+                filteredConcepts={filteredConcepts}
+                setFilteredConcepts={setFilteredConcepts}
+            />
             <ConceptListPanel
               concepts={concepts}
               mentions={mentions}
@@ -84,8 +87,7 @@ export function ConceptPanel(props) {
               setFilteredConcepts={setFilteredConcepts}
               filteredConcepts={filteredConcepts}
               handleTermClick={props.handleTermClick}
-            >
-            </ConceptListPanel>
+            />
           </GridContainer>
         </CardBody>
       </Card>

@@ -127,7 +127,21 @@ export function DocumentViewer(props) {
 
 
   const handleTermClick = (e) => {
-    setClickedTerm(e.target.dataset.id);
+
+    const previouslyClickedElement = document.querySelector('.border-highlight');
+    if (previouslyClickedElement) {
+      previouslyClickedElement.classList.remove('border-highlight');
+    }
+    //Clicking the highlighted concept again will get rid of the highlight
+    console.log(e);
+    if(clickedTerm === e.target.dataset.id){
+      setClickedTerm("");
+    }
+    else{
+      setClickedTerm(e.target.dataset.id);
+
+      e.target.classList.add('border-highlight');
+    }
   }
 
   const zoomClick = (e) => {

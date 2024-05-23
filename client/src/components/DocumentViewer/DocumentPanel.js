@@ -49,8 +49,7 @@ export function DocumentPanel(props) {
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
         textMentionObj.id = obj.id;
         const mentionsForHighlight = getMentionsForConcept(clickedTerm);
-        //grab mentionIds from conceptID that I get from click
-          //then i check to see if textMentionObj.id is in the list of mentionIDS if it is True, else false
+
         textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
         textMentions.push(textMentionObj);
       });

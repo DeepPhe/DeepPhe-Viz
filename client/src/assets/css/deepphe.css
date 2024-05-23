@@ -1092,6 +1092,9 @@ white text with more shading
     display: none !important;
 }
 
+.border-highlight {
+    border-style: solid; /* Customize the border style as needed */
+}
 
 /* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/
 
