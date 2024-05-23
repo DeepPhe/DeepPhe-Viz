@@ -89,7 +89,7 @@ export function ConceptListPanel(props) {
                     // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
-                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor}}
+                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor, margin: "4px"}}
                             key={obj.id}
                             class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}
@@ -109,8 +109,7 @@ export function ConceptListPanel(props) {
     }
 
     return (
-        <React.Fragment>
-            <GridItem md={12} id="concepts_container" className="ment_container">
+
                 <GridItem
                     style={{border: "none", boxShadow: "none"}}
                     md={12}
@@ -118,8 +117,7 @@ export function ConceptListPanel(props) {
                 >
                     <div id="report_mentioned_terms">{getConceptsList()}</div>
                 </GridItem>
-            </GridItem>
-        </React.Fragment>
+
     );
 }
 

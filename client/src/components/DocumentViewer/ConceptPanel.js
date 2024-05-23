@@ -40,57 +40,74 @@ export function ConceptPanel(props) {
 
 
   return (
-    <React.Fragment>
+      <React.Fragment>
 
-      <Card
-        style={{
-          overflow: "hidden",
-          marginTop: "0px",
-          border: "none",
-          boxShadow: "none",
-        }}
-      >
-        <CardHeader
-          style={{ border: "none", boxShadow: "none" }}
-          id="mentions_label"
-          className={"basicCardHeader"}
-          // onClick={handleDropdownClick}
+        <Card
+            style={{
+              overflow: "hidden",
+              marginTop: "0px",
+              border: "none",
+              boxShadow: "none",
+            }}
         >
-          Concept Filter
-        </CardHeader>
-        <CardBody
-          style={{ border: "none", boxShadow: "none" }}
-          xs={12}
-          id="mentions_container"
-        >
-          <GridContainer sx={{ background: "red" }} spacing={1}>
-            <SearchPanel
-              filteredConcepts={filteredConcepts}
-              setFilteredConcepts={setFilteredConcepts
-            }/>
-            <SemanticGroupPanel
-              semanticGroups={semanticGroups}
-              handleSemanticGroupChange={handleSemanticGroupChange}
-            />
-            <ConfidencePanel
-                handleConfidenceChange={handleConfidenceChange}
-            />
-            <SortPanel
-                filteredConcepts={filteredConcepts}
-                setFilteredConcepts={setFilteredConcepts}
-            />
+          <CardHeader
+              style={{ border: "none", boxShadow: "none" }}
+              id="mentions_label"
+              className={"basicCardHeader"}
+              // onClick={handleDropdownClick}
+          >
+            Concept Filter
+          </CardHeader>
+          <CardBody
+              style={{ border: "none", boxShadow: "none" }}
+              xs={12}
+              id="mentions_container"
+          >
+            {/*<GridContainer sx={{ background: "red" }} spacing={1}>*/}
+              <SearchPanel
+                  filteredConcepts={filteredConcepts}
+                  setFilteredConcepts={setFilteredConcepts
+                  }/>
+              <SemanticGroupPanel
+                  semanticGroups={semanticGroups}
+                  handleSemanticGroupChange={handleSemanticGroupChange}
+              />
+            {/*</GridContainer>*/}
+          </CardBody>
+          <CardHeader
+              style={{border: "none", boxShadow: "none"}}
+              id="mentions_label"
+              className={"basicCardHeader"}
+              xs={12}
+          >
+            Concepts
+          </CardHeader>
+          <CardBody
+              style={{ border: "none", boxShadow: "none" }}
+              xs={12}
+              id="mentions_container"
+          >
+              <GridContainer spacing={2}>
+                <ConfidencePanel
+                    handleConfidenceChange={handleConfidenceChange}
+                />
+                <SortPanel
+                    filteredConcepts={filteredConcepts}
+                    setFilteredConcepts={setFilteredConcepts}
+                />
+              </GridContainer>
             <ConceptListPanel
-              concepts={concepts}
-              mentions={mentions}
-              semanticGroups={semanticGroups}
-              confidence={confidence}
-              setFilteredConcepts={setFilteredConcepts}
-              filteredConcepts={filteredConcepts}
-              handleTermClick={props.handleTermClick}
+                concepts={concepts}
+                mentions={mentions}
+                semanticGroups={semanticGroups}
+                confidence={confidence}
+                setFilteredConcepts={setFilteredConcepts}
+                filteredConcepts={filteredConcepts}
+                handleTermClick={props.handleTermClick}
             />
-          </GridContainer>
+          {/*</GridContainer>*/}
         </CardBody>
       </Card>
-    </React.Fragment>
-  );
+</React.Fragment>
+);
 }

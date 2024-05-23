@@ -26,7 +26,6 @@ export function SearchPanel(props) {
 
 
   return (
-    <React.Fragment>
       <GridItem id="search_label" xs={6}>
         {" "}
         <b>Filter Concepts:</b>
@@ -36,6 +35,5 @@ export function SearchPanel(props) {
           placeholder="Search for concepts..."
         ></input>
       </GridItem>
-    </React.Fragment>
   );
 }

@@ -1,6 +1,8 @@
 import GridItem from "../Grid/GridItem";
 import React, {useEffect} from "react";
 import $ from "jquery";
+import {FormControlLabel, FormLabel, Radio, RadioGroup} from "@mui/material";
+import FormControl from "@material-ui/core/FormControl";
 
 export function SortPanel(props) {
     const { filteredConcepts, setFilteredConcepts } = props;
@@ -42,39 +44,21 @@ export function SortPanel(props) {
 
 
     return (
-        <React.Fragment>
-            <div className="sortPanel">
-            <GridItem xs={12} id="sort_label">
-                <b>Sort Concepts:</b>
-            </GridItem>
-            <GridItem md={12} lg={12} className="sort_radio_item">
-                <input
-                    id="occ_radio"
-                    type="radio"
-                    name="sort_order"
-                    value="occurrence"
-                ></input>
-                <label htmlFor="occ_radio">&nbsp; By Occurrence</label>
-            </GridItem>
-            <GridItem md={12} lg={12} className="sort_radio_item">
-                <input
-                    id="alpha_radio"
-                    type="radio"
-                    name="sort_order"
-                    value="alphabetically"
-                ></input>
-                <label htmlFor="alpha_radio">&nbsp; Alphabetically</label>
-            </GridItem>
-            <GridItem md={12} lg={12} className="sort_radio_item">
-                <input
-                    id="alpha_radio"
-                    type="radio"
-                    name="sort_order"
-                    value="alphabetically"
-                ></input>
-                <label htmlFor="alpha_radio">&nbsp; By Semantic Group</label>
-            </GridItem>
-            </div>
-        </React.Fragment>
+
+        <GridItem xs={6} >
+        <FormControl>
+            <FormLabel sx={{ fontWeight: 'light', fontSize: '1em'}}><b>Sort Order:</b></FormLabel>
+            <RadioGroup
+                aria-labelledby="demo-radio-buttons-group-label"
+                defaultValue="female"
+                name="radio-buttons-group"
+            >
+                <FormControlLabel value="female" control={<Radio size='small'/>} label="Female" />
+                <FormControlLabel value="male" control={<Radio size='small'/>} label="Male" />
+                <FormControlLabel value="other" control={<Radio size='small'/>} label="Other" />
+            </RadioGroup>
+        </FormControl>
+        </GridItem>
+
     );
 }
