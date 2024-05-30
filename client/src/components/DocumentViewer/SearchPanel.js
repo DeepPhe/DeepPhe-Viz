@@ -27,13 +27,13 @@ export function SearchPanel(props) {
 
   return (
       <GridItem id="search_label" xs={6}>
-        {" "}
-        <b>Filter Concepts:</b>
-        <input
-          type="search"
-          id="mention_search_input"
-          placeholder="Search for concepts..."
-        ></input>
+        {/*{" "}*/}
+        {/*<b>Filter Concepts:</b>*/}
+        {/*<input*/}
+        {/*  type="search"*/}
+        {/*  id="mention_search_input"*/}
+        {/*  placeholder="Search for concepts..."*/}
+        {/*></input>*/}
       </GridItem>
   );
 }

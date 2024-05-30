@@ -39,7 +39,7 @@ export function DocumentPanel(props) {
     mentionedTerms.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
         let textMentionObj = {};
-        console.log(obj);
+        // console.log(obj);
 
         textMentionObj.preferredText = obj["preferredText"];
         textMentionObj.begin = obj.begin;

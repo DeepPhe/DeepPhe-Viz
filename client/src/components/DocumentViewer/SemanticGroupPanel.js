@@ -4,16 +4,24 @@ import GridContainer from "../Grid/GridContainer";
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+// import CheckBoxIcon from '@mui/icons-material/CheckBox';
+// import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import Divider from '@mui/material/Divider';
+
 
 
 
 export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
+    // const [displayAll, setDisplayAll] = useState(true);
     const [isVisible, setIsVisible] = useState(true);
+    // const [iconToggled, setIconToggled] = useState(false);
+
+    // const DisplayAll = () => {
+    //
+    //     setIconToggled(!iconToggled);
+    // };
 
 
     const handleCheckboxChange = (e) => {
@@ -52,22 +60,22 @@ export function SemanticGroupPanel(props) {
                 <Divider orientation="horizontal" flexItem />
 
                 <GridItem xs={12}>
-                    <Box sx={{ mb:6, mr: 3, display: 'flex', justifyContent: 'flex-start' }} className={`${isVisible ? "visible" : "hidden"}`}>
+                    <Box sx={{ mb:2, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>
                         <Button
-                            sx={{fontSize:'14px', float: 'right'}}
+                            sx={{fontSize:'14px', mr: 1}}
                             id={"check-all-btn"}
                             variant="contained"
                             size="small"
-                            startIcon={<CheckBoxOutlineBlankIcon />}
+                            // startIcon={iconToggled ? <CheckBoxIcon/> : <CheckBoxOutlineBlankIcon />}
                             onClick={checkAll}
-                        >Display All</Button>
-                        {/*<Button*/}
-                        {/*    sx={{fontSize:'14px'}}*/}
-                        {/*    id={"uncheck-all-btn"}*/}
-                        {/*    variant="contained"*/}
-                        {/*    size="small"*/}
-                        {/*    onClick={unCheckAll}*/}
-                        {/*>Uncheck All</Button>*/}
+                        >Check All</Button>
+                        <Button
+                            sx={{fontSize:'14px'}}
+                            id={"uncheck-all-btn"}
+                            variant="contained"
+                            size="small"
+                            onClick={unCheckAll}
+                        >Uncheck All</Button>
 
                     </Box>
                 </GridItem>
