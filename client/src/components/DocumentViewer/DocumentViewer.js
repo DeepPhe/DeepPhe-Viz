@@ -17,7 +17,7 @@ export function DocumentViewer(props) {
   const concepts = props.concepts;
   const [filteredConcepts, setFilteredConcepts] = useState([]);
   const [semanticGroups, setSemanticGroups] = useState({});
-  const [fontSize, setFontSize] = useState(12);
+  const [fontSize, setFontSize] = useState(15);
   // const clickedTerm = props.clickedTerm;
   const [clickedTerm, setClickedTerm] = useState("");
 
@@ -26,7 +26,7 @@ export function DocumentViewer(props) {
       getSemanticGroups();
     }
     // else ()
-  }, [semanticGroups,filteredConcepts]);
+  }, [semanticGroups,filteredConcepts, setFilteredConcepts]);
 
   function isEmpty(obj) {
     for (const i in obj) return false;
@@ -52,6 +52,7 @@ export function DocumentViewer(props) {
       "Disease Qualifier" : ["#ffdb00", 21],
       "Finding" : ["#ffbcdd", 13],
       "Gene" : ["#ff9ea4", 15],
+      "Gene Product" : ["#ff9ea4", 15.1],
       "General Qualifier" : ["#ffbf00", 23],
       "Generic TNM Finding" : ["#ff9731", 2],
       "Intervention or Procedure" : ["#f74a6b", 27],
@@ -62,7 +63,7 @@ export function DocumentViewer(props) {
       "Mass" : ["#a8ffc0", 18],
       "Neoplasm" : ["#96e7ac", 17],
       "Pathologic Process" : ["#ffef00", 20],
-      "Pathological TNM Finding" : ["#ff8e20", 3],
+      "Pathologic TNM Finding" : ["#ff8e20", 3],
       "Pharmacologic Substance" : ["#f74aa1", 25],
       "Position" : ["#CC9999", 28],
       "Property or Attribute" : ["#ffc700", 22],
@@ -89,6 +90,7 @@ export function DocumentViewer(props) {
     const uniqueConcepts = Array.from(
       new Set(concepts.map((c) => c.dpheGroup))
     );
+    console.log(uniqueConcepts);
     uniqueConcepts.map((group, index) => {
       groups[group] = {
         checked: true,

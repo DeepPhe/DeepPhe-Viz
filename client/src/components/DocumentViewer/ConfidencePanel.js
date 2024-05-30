@@ -1,47 +1,34 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
 import CardHeader from "../Card/CardHeader";
-import {Stack, Slider} from "@mui/material";
+import {Stack, Slider, FormLabel} from "@mui/material";
 import Box from "@mui/material/Box";
 
 export function ConfidencePanel(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
-    const {confidence, onConfidenceChange} = props;
-    const [value, setValue] = useState(confidence);
+    const [value, setValue] = useState(50);
 
-    const handleChange = (e) => {
-        setValue(e);
-    };
 
     return (
-        <GridItem xs={6}>
-            {/*<GridItem alignItems="center">*/}
-            {/*<div id="confidence_label">*/}
-            {/*    <p>*/}
-            {/*        <b>Confidence:</b> <span id="confidenceValue">50</span> %*/}
-            {/*    </p>*/}
-            {/*    <input*/}
-            {/*        type="range"*/}
-            {/*        min="1"*/}
-            {/*        max="100"*/}
-            {/*        className="slider"*/}
-            {/*        id="confidenceRange"*/}
-            {/*        onChange={(e) => {*/}
-            {/*            const newValue = e.target.value;*/}
-            {/*            setValue(newValue);*/}
-            {/*            handleConfidenceChange(newValue);*/}
-            {/*        }}*/}
-            {/*    />*/}
+        <GridItem xs={6} alignItems='center'>
 
-            {/*</div>*/}
-            {/*</GridItem>*/}
-
-            {/*<Stack spacing={2} direction="row" sx={{ mb: 1 }} alignItems="center">*/}
-                <Slider aria-label="Always visible"
-                        defaultValue={50}
-                        valueLabelDisplay="on" />
-            {/*</Stack>*/}
-
+            <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>
+                <b>Confidence:</b> <span id="confidenceValue">{value}</span> %
+            </FormLabel>
+                <GridItem xs={1} />
+                <GridItem xs={11} >
+                    <Slider
+                        value={value}
+                        min={1}
+                        max={100}
+                        onChange={(e, newValue) => {
+                            setValue(newValue);
+                            handleConfidenceChange(newValue);
+                        }}
+                        aria-labelledby="confidence-slider"
+                        sx={{ marginTop: '2em'}}
+                    />
+                </GridItem>
         </GridItem>
     );
 }

@@ -81,7 +81,7 @@ a {
 }
 
 #confidenceValue {
-    margin-bottom: 0;
+    font-size: 20px;
 }
 
 
@@ -1094,6 +1094,15 @@ white text with more shading
 
 .border-highlight {
     border-style: solid;
+}
+
+
+.compact-radio-group .MuiFormControlLabel-root {
+    margin-bottom: -15px !important;
+    padding-left: 17px !important;
+}
+.compact-radio-group .MuiFormControlLabel-root:last-child {
+    margin-bottom: -17px !important;
 }
 
 /* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/

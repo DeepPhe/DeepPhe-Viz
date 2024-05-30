@@ -54,7 +54,6 @@ export function ConceptPanel(props) {
               style={{ border: "none", boxShadow: "none" }}
               id="mentions_label"
               className={"basicCardHeader"}
-              // onClick={handleDropdownClick}
           >
             Concept Filter
           </CardHeader>
@@ -63,7 +62,6 @@ export function ConceptPanel(props) {
               xs={12}
               id="mentions_container"
           >
-            {/*<GridContainer sx={{ background: "red" }} spacing={1}>*/}
               <SearchPanel
                   filteredConcepts={filteredConcepts}
                   setFilteredConcepts={setFilteredConcepts
@@ -72,7 +70,6 @@ export function ConceptPanel(props) {
                   semanticGroups={semanticGroups}
                   handleSemanticGroupChange={handleSemanticGroupChange}
               />
-            {/*</GridContainer>*/}
           </CardBody>
           <CardHeader
               style={{border: "none", boxShadow: "none"}}

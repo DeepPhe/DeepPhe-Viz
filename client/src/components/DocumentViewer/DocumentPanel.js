@@ -38,9 +38,8 @@ export function DocumentPanel(props) {
     let textMentions = [];
     mentionedTerms.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
-    // mentionedTerms.forEach(function (obj){
-      //grabbing mention begin and end so that I can highlight each mention at the start
         let textMentionObj = {};
+        console.log(obj);
 
         textMentionObj.preferredText = obj["preferredText"];
         textMentionObj.begin = obj.begin;
@@ -221,7 +220,7 @@ export function DocumentPanel(props) {
   } else {
       return (
         <React.Fragment>
-          <div style={{'fontSize': props.fontSize}}>
+          <div style={{'fontSize': fontSize}}>
             {getHTML(docText)}
           </div>
         </React.Fragment>

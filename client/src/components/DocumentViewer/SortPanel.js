@@ -3,21 +3,20 @@ import React, {useEffect} from "react";
 import $ from "jquery";
 import {FormControlLabel, FormLabel, Radio, RadioGroup} from "@mui/material";
 import FormControl from "@material-ui/core/FormControl";
+import { styled } from '@mui/system';
+
+const CustomRadioGroup = styled(RadioGroup)(({ theme }) => ({
+    '& .MuiFormControlLabel-root': {
+        marginBottom: theme.spacing(1), // Adjust spacing here
+    },
+    '& .MuiFormControlLabel-root:last-child': {
+        marginBottom: 0, // Remove margin for the last item
+    },
+}));
+
 
 export function SortPanel(props) {
     const { filteredConcepts, setFilteredConcepts } = props;
-
-
-    $("#occ_radio").prop("checked", true);
-
-    $('input[type=radio][name="sort_order"]').change(function () {
-        const value = $(this).val();
-        if (value === "alphabetically") {
-            sortMentions(value);
-        } else if (value === "occurrence") {
-            sortMentions(value);
-        }
-    });
 
     function sortMentions(method) {
         // Copy the filteredConcepts array to avoid mutating the original state
@@ -27,36 +26,49 @@ export function SortPanel(props) {
         if (conceptsCopy.length > 0) {
             // Sort the conceptsCopy array based on the sorting method
             conceptsCopy.sort((a, b) => {
-                console.log("a", a, "b", b);
                 if (method === 'alphabetically') {
                     return a.preferredText.toLowerCase().localeCompare(b.preferredText.toLowerCase());
                 } else if (method === 'occurrence') {
-                    return a.dataBegin - b.dataBegin; // Assuming dataBegin is a property of the concepts
-                } else {
-                    return 0; // No sorting
+                    console.log(a.begin);
+                    return a.begin - b.end; // Assuming dataBegin is a property of the concepts
+                } else if (method === 'confidence'){
+                    return a.confidence - b.confidence;
+                }
+                else{
+                    return 0
                 }
             });
+
+            console.log(conceptsCopy);
 
             // Update the filteredConcepts state with the sorted array
             setFilteredConcepts(conceptsCopy);
         }
     }
 
+    const handleSortChange = (event) => {
+        console.log(event)
+        const method = event.target.value;
+        sortMentions(method);
+    };
+
 
     return (
-
         <GridItem xs={6} >
         <FormControl>
-            <FormLabel sx={{ fontWeight: 'light', fontSize: '1em'}}><b>Sort Order:</b></FormLabel>
-            <RadioGroup
+            <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px'}}><b>Sort Order:</b></FormLabel>
+            <CustomRadioGroup
+                className="compact-radio-group"
                 aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="female"
+                defaultValue="occurrence"
                 name="radio-buttons-group"
+                onChange={handleSortChange}
             >
-                <FormControlLabel value="female" control={<Radio size='small'/>} label="Female" />
-                <FormControlLabel value="male" control={<Radio size='small'/>} label="Male" />
-                <FormControlLabel value="other" control={<Radio size='small'/>} label="Other" />
-            </RadioGroup>
+                <FormControlLabel value="occurrence" control={<Radio size='small'/>} label="Occurrence"  />
+                <FormControlLabel value="alphabetically" control={<Radio size='small'/>} label="Alphabetically"  />
+                <FormControlLabel value="semantic" control={<Radio size='small'/>} label="Semantic Group" />
+                <FormControlLabel value="confidence" control={<Radio size='small'/>} label="Confidence" />
+            </CustomRadioGroup>
         </FormControl>
         </GridItem>
 
