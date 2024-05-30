@@ -42,7 +42,7 @@ export function SemanticGroupPanel(props) {
         return (<GridContainer>
                 <GridItem xs={4}>
                     <div>
-                        <span><b>Semantic Groups:</b></span>
+                        <span><b className="titles">Semantic Groups:</b></span>
                     </div>
                 </GridItem>
                 <GridItem xs={7}>

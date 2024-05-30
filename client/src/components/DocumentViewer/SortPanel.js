@@ -9,6 +9,7 @@ import Menu, { MenuProps } from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Divider from "@mui/material/Divider";
 
 // const CustomRadioGroup = styled(RadioGroup)(({ theme }) => ({
 //     '& .MuiFormControlLabel-root': {
@@ -76,32 +77,32 @@ export function SortPanel(props) {
                     variant="contained"
                     // disableElevation
                     onClick={handleClick}
-                    endIcon={<KeyboardArrowDownIcon />}
-                    style={{margin: 'auto', marginTop: '5%', display: "flex"}}
+                    endIcon={<KeyboardArrowDownIcon style={{fill: 'white'}} />}
+                    style={{margin: 'auto', marginTop: '13%', display: "flex"}}
                 >
-                    Sort By
+                    Sort Concepts
                 </Button>
 
                 <Menu
                     id="demo-customized-menu"
-                    // MenuListProps={{
-                    //     'aria-labelledby': 'demo-customized-button',
-                    // }}
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
 
                 >
-                    <MenuItem onClick={handleClose}>
+                    <MenuItem onClick={handleClose} value={"alphabetically"}>
                         Alphabetically
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
+                    <Divider sx={{ background: 'black', borderBottomWidth: 2 }} />
+                    <MenuItem onClick={handleClose} value={"occurrence"}>
                         Occurrence
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
+                    <Divider sx={{ background: 'black', borderBottomWidth: 2 }} />
+                    <MenuItem onClick={handleClose} value={"semantic"}>
                         Semantic Group
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
+                    <Divider sx={{ background: 'black', borderBottomWidth: 2 }} />
+                    <MenuItem onClick={handleClose} value={"confidence"}>
                         Confidence
                     </MenuItem>
                     </Menu>

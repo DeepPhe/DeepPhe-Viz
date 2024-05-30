@@ -13,7 +13,7 @@ export function ConfidencePanel(props) {
         <GridItem xs={6} alignItems='center'>
 
             <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>
-                <b>Confidence:</b> <span id="confidenceValue">{value}</span> %
+                <b className="titles">Confidence:</b> <span id="confidenceValue">{value}</span> %
             </FormLabel>
                 <GridItem xs={1} />
                 <GridItem xs={11} >
@@ -26,7 +26,7 @@ export function ConfidencePanel(props) {
                             handleConfidenceChange(newValue);
                         }}
                         aria-labelledby="confidence-slider"
-                        sx={{ marginTop: '2em'}}
+                        sx={{ mt: '1.5em', ml: '10px'}}
                     />
                 </GridItem>
         </GridItem>
