@@ -23,20 +23,26 @@ function Patient(props) {
   const [reportId, setReportId] = useState("");
   const [factId, setFactId] = useState({});
   const [gettingSummary, setGettingSummary] = useState(false);
-  const [currDoc, setCurrDoc] = useState(0);
+  const [currDoc, setCurrDoc] = useState(-1);
   const [currPatientJson, setCurrPatientJson] = useState("");
 
-  // currPatientJson !== reportId ||
   useEffect(() => {
       getNewPatientJsonFromFile().then((json) => {
         setPatientJson(json);
-        setPatientDocument(json["documents"][currDoc]);
-        setCurrDoc(currDoc + 1);
-        // console.log(currDoc);
-        if (currDoc > 9) {
-          setCurrDoc(0)
+        if(currDoc <=9 ){
+          if(currDoc === -1){
+            setPatientDocument(json["documents"][0]);
+            setCurrDoc(currDoc + 1);
+          }
+          else{
+            setPatientDocument(json["documents"][currDoc]);
+            setCurrDoc(currDoc + 1);
+          }
         }
-        // console.log(currDoc);
+        else{
+          setPatientDocument(json["documents"][0]);
+          setCurrDoc(0);
+        }
         setPatientConcepts(
             json.concepts
                 .map((concept) => {
@@ -46,7 +52,7 @@ function Patient(props) {
         );
       });
 
-  }, [currPatientJson]);
+  }, [currPatientJson, setCurrDoc]);
 
   useEffect(() => {
     setCurrPatientJson(reportId);

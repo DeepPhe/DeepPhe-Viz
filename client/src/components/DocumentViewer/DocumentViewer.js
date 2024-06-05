@@ -45,7 +45,7 @@ export function DocumentViewer(props) {
       "Disease Grade Qualifier" : ["#ffa247", 1],
       "Body Fluid or Substance": ["#add8e6", 9],
       "Body Part": ["#99E6E6", 12],
-      "Chemo/immuno/hormone Therapy Regimen": ["#f74a83", 26],
+      "Chemo/immuno/hormone Therapy Regimen": ["#b36cef", 26],
       "Clinical Test Result": ["#ffadc1", 14],
       "Clinical Course of Disease": ["#e5d815",19],
       "Disease or Disorder": ["#7fce94", 16],
@@ -55,7 +55,7 @@ export function DocumentViewer(props) {
       "Gene Product" : ["#ff9ea4", 15.1],
       "General Qualifier" : ["#ffbf00", 23],
       "Generic TNM Finding" : ["#ff9731", 2],
-      "Intervention or Procedure" : ["#f74a6b", 27],
+      "Intervention or Procedure" : ["#ca99f4", 27],
       "Imaging Device" : ["#785ef0", 12],
       "Lymph Node" : ["#bfefff", 7],
       "Temporal Qualifier" : ["#ffab00", 24],
@@ -64,7 +64,7 @@ export function DocumentViewer(props) {
       "Neoplasm" : ["#96e7ac", 17],
       "Pathologic Process" : ["#ffef00", 20],
       "Pathologic TNM Finding" : ["#ff8e20", 3],
-      "Pharmacologic Substance" : ["#f74aa1", 25],
+      "Pharmacologic Substance" : ["#9c3fea", 25],
       "Position" : ["#CC9999", 28],
       "Property or Attribute" : ["#ffc700", 22],
       "Quantitative Concept" : ["#33991A", 29],
@@ -90,7 +90,6 @@ export function DocumentViewer(props) {
     const uniqueConcepts = Array.from(
       new Set(concepts.map((c) => c.dpheGroup))
     );
-    console.log(uniqueConcepts);
     uniqueConcepts.map((group, index) => {
       groups[group] = {
         checked: true,

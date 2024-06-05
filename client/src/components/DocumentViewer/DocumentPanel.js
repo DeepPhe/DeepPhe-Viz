@@ -47,6 +47,7 @@ export function DocumentPanel(props) {
         textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
         textMentionObj.id = obj.id;
+        textMentionObj.negated = obj.negated;
         const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
         textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
@@ -113,6 +114,10 @@ export function DocumentPanel(props) {
     return flattened;
   }
 
+  function isNegated(negatedArray) {
+    return negatedArray.includes(true);
+  }
+
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
     if(textMentions.length === 0){
@@ -134,7 +139,6 @@ export function DocumentPanel(props) {
 
       let lastValidTM = textMentions[lastValidTMIndex];
 
-      // If this is the first textmention, paste the start of the document before the first TM.
       if (i === 0) {
         if (textMention.begin === 0) {
           textFragments.push("");
@@ -142,7 +146,6 @@ export function DocumentPanel(props) {
           textFragments.push(reportText.substring(0, textMention.begin));
         }
       } else {
-        // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
         if (textMention.begin <= lastValidTM.end) {
           lastValidTMIndex = i;
         } else {
@@ -161,11 +164,66 @@ export function DocumentPanel(props) {
         );
       }
       else {
-
-        textFragments.push(
-          '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px;">' +
-            reportText.substring(textMention.begin, textMention.end) + "</span>"
-        );
+        //We want to check what is in front of textmention without checking what is behind it, so this is a special
+        //case for the first textMention
+        if(i === 0){
+          if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]){
+            console.log("left side:", textMention);
+            textFragments.push(
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
+                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            );
+          }
+          //regular 5px border
+          else{
+            console.log("reg:", textMention);
+            textFragments.push(
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
+                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            );
+          }
+        }
+        //check for past and future textMention, if they are same color then change border to 0
+        if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
+          console.log(textMention.backgroundColor, textMentions[i + 1].backgroundColor[textMention.backgroundColor.length - 1]);
+          if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
+            console.log("middle:", textMention);
+            textFragments.push(
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0; padding-left:2px; padding-right:2px;' +
+                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            );
+          }
+          //checking past textMention only
+          else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
+            console.log("right side:", textMention);
+            textFragments.push(
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0 5px 5px 0; padding-left:2px; padding-right:2px;' +
+                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            );
+          }
+          //checking future textMention only
+          else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
+            console.log("left side:", textMention);
+            textFragments.push(
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
+                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            );
+          }
+          // no future or past textMention with same color
+          else {
+            console.log("reg:", textMention);
+              textFragments.push(
+                  '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
+                  (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                  reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+              );
+            }
+        }
       }
 
       lastValidTMIndex = i;
@@ -182,6 +240,7 @@ export function DocumentPanel(props) {
     for (let j = 0; j < textFragments.length; j++) {
       highlightedReportText += textFragments[j];
     }
+    // console.log(highlightedReportText);
 
     return highlightedReportText;
   }

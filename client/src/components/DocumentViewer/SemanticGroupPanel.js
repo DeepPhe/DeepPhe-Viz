@@ -40,12 +40,12 @@ export function SemanticGroupPanel(props) {
 
     const getHeader = () => {
         return (<GridContainer>
-                <GridItem xs={4}>
+                <GridItem xs={5}>
                     <div>
                         <span><b className="titles">Semantic Groups:</b></span>
                     </div>
                 </GridItem>
-                <GridItem xs={7}>
+                <GridItem xs={6}>
 
                 </GridItem>
                 <GridItem xs={1} >
