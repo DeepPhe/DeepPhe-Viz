@@ -154,7 +154,15 @@ export function DocumentPanel(props) {
           );
         }
       }
-      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style:solid;' : 'border-style: none;';
+      // borderLeft: solid; borderTop: solid; borderBottom: solid;
+      // console.log(textMention.clickedTerm.some((element) => {return element}));
+      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
+      // what we are going to have to do is, is check if border-style is solid in each push, and slightly change the border
+      // style depending on which push we are doing, for regular we can just keep it as solid, but then again,
+      // this only applies for highlighted things that are not the same background color. Food for thought,
+      // maybe it would be easier if I just combined spans together if they were next to each other regardless of
+      // background color.
+      //TODO: Ask Sean his thoughts on above.
 
       if (textMention.preferredText.indexOf(term) > -1) {
         textFragments.push(
@@ -167,8 +175,11 @@ export function DocumentPanel(props) {
         //We want to check what is in front of textmention without checking what is behind it, so this is a special
         //case for the first textMention
         if(i === 0){
-          if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]){
-            console.log("left side:", textMention);
+          if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
+            // console.log("left side:", textMention);
+            // if (borderRadiusStyle === 'border-style: solid;') {
+            //   borderRadiusStyle = 'borderLeft: solid; borderTop: solid; borderBottom: solid;';
+            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -177,7 +188,7 @@ export function DocumentPanel(props) {
           }
           //regular 5px border
           else{
-            console.log("reg:", textMention);
+            // console.log("reg:", textMention);
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -185,20 +196,31 @@ export function DocumentPanel(props) {
             );
           }
         }
+
         //check for past and future textMention, if they are same color then change border to 0
         if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
-          console.log(textMention.backgroundColor, textMentions[i + 1].backgroundColor[textMention.backgroundColor.length - 1]);
+          // console.log(textMention.backgroundColor, textMentions[i + 1].backgroundColor[textMention.backgroundColor.length - 1]);
           if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
-            console.log("middle:", textMention);
+            // console.log("middle:", textMention);
+            // if(borderRadiusStyle === 'border-style: solid;'){
+            //   borderRadiusStyle = 'borderTop: solid; borderBottom: solid;';
+            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
                 reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
             );
+
           }
           //checking past textMention only
           else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
-            console.log("right side:", textMention);
+            // console.log("right side:", textMention);
+            // if(borderRadiusStyle === 'border-style: none;'){
+            //   // continue;
+            // }
+            // else{
+            //   borderRadiusStyle = 'borderRight: solid; borderTop: solid; borderBottom: solid;';
+            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0 5px 5px 0; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -207,7 +229,13 @@ export function DocumentPanel(props) {
           }
           //checking future textMention only
           else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
-            console.log("left side:", textMention);
+            // console.log("left side:", textMention);
+            // if(borderRadiusStyle === 'border-style: none;'){
+            //   // continue;
+            // }
+            // else{
+            //   borderRadiusStyle = 'borderLeft: solid; borderTop: solid; borderBottom: solid;';
+            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -216,7 +244,7 @@ export function DocumentPanel(props) {
           }
           // no future or past textMention with same color
           else {
-            console.log("reg:", textMention);
+            // console.log("reg:", textMention);
               textFragments.push(
                   '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
                   (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -237,12 +265,64 @@ export function DocumentPanel(props) {
     // Assemble the final report content with highlighted texts
     let highlightedReportText = "";
 
+    textFragments = cleanUpTextFragments(textFragments);
+
     for (let j = 0; j < textFragments.length; j++) {
       highlightedReportText += textFragments[j];
     }
-    // console.log(highlightedReportText);
 
     return highlightedReportText;
+  }
+
+  function cleanUpTextFragments(textFragments){
+
+    //getting correct click
+    for(let i = 0; i < textFragments.length; i++){
+      if(textFragments[i].includes('border-style: solid;')){
+        console.log('solid: ', textFragments[i]);
+        if((textFragments[i+1].includes('</span>') && textFragments[i+1].includes('border-style: solid;')) && !textFragments[i-1].includes('</span>')){
+          console.log('left', textFragments[i]);
+          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderLeft: solid; borderTop: solid; borderBottom: solid;');
+        }
+        else if(textFragments[i-1].includes('</span>') && !textFragments[i+1].includes('border-style: solid;')){
+          console.log('right', textFragments[i]);
+          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderRight: solid; borderTop: solid; borderBottom: solid;');
+        }
+        else if(textFragments[i+1].includes('</span>') && textFragments[i-1].includes('</span>')){
+          console.log('middle', textFragments[i]);
+          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderTop: solid; borderBottom: solid;');
+        }
+      }
+
+      //if border-radius is 5px 0 0 5px, there should be a span to the right, if there isn't then we should change that border
+      if(textFragments[i].includes('border-radius: 5px 0 0 5px;' )){
+        if(!textFragments[i+1].includes('</span>')){
+          textFragments[i] = textFragments[i].replace('border-radius: 5px 0 0 5px;', 'border-radius: 5px;');
+        }
+      }
+
+      //if border-radius is 0, there should be a span to the right and left of it
+      //if not, there could be a mention to the right or left of it that is spaced away
+      //we need to figure this out and make changes accordingly
+      if(textFragments[i].includes('border-radius:0;' )){
+        if(!textFragments[i+1].includes('</span>')){
+          textFragments[i] = textFragments[i].replace('border-radius:0;', 'border-radius:0 5px 5px 0;');
+        }
+        else if(!textFragments[i-1].includes('</span>')){
+          textFragments[i] = textFragments[i].replace('border-radius:0;', 'border-radius: 5px 0 0 5px;');
+        }
+      }
+
+      //if border-radius is 0 5px 5px 0, there should be a span to the left, if there isn't then we should change that border
+      if(textFragments[i].includes('border-radius:0 5px 5px 0')){
+        if(!textFragments[i-1].includes('</span>')){
+          textFragments[i] = textFragments[i].replace('border-radius:0 5px 5px 0;', 'border-radius: 5px;');
+        }
+
+      }
+
+    }
+    return textFragments;
   }
 
   function getAllConceptIDs(){
