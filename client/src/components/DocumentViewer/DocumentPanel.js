@@ -2,6 +2,8 @@ import React, {useEffect, useRef, useState} from "react";
 import $ from "jquery";
 import parse from "html-react-parser";
 import {element} from "prop-types";
+import { Badge } from '@mui/material';
+import MailIcon from '@mui/icons-material/Mail';
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
@@ -171,22 +173,25 @@ export function DocumentPanel(props) {
         if(i === 0 && textMentions[i+1]){
           if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
             // console.log("left side:", textMention);
-            // if (borderRadiusStyle === 'border-style: solid;') {
-            //   borderRadiusStyle = 'borderLeft: solid; borderTop: solid; borderBottom: solid;';
-            // }
             textFragments.push(
-                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
-                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; ' +
+                'padding-left:2px; padding-right:2px;' + (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
                 reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
             );
           }
           //regular 5px border
           else{
+            const spanClass = isNegated(textMention.negated) ? 'badge' : '';
+            const spanStyle = `background-color: ${textMention.backgroundColor};
+            ${borderRadiusStyle};
+            border-radius: 5px;
+            padding-left: 2px;
+            padding-right: 2px;`;
             // console.log("reg:", textMention);
             textFragments.push(
-                '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
-                (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
-                reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+                `<span style="${spanStyle}" class="${spanClass}">` +
+                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+                `</span>`
             );
           }
         }
@@ -224,11 +229,32 @@ export function DocumentPanel(props) {
           // no future or past textMention with same color
           else {
             // console.log("reg:", textMention);
+            //BADGE CODE
+            const spanClass = isNegated(textMention.negated) ? 'badge-icon' : '';
+            const spanStyle = `background-color: ${textMention.backgroundColor};
+            ${borderRadiusStyle};
+            border-radius: 5px;
+            padding-left: 2px;
+            padding-right: 2px;`;
+            // console.log("reg:", textMention);
+            textFragments.push(
+                `<span style="${spanStyle}">` +
+                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+                `</span>`
+            );
+            if(spanClass){
               textFragments.push(
-                  '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:5px; padding-left:2px; padding-right:2px;' +
-                  (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
-                  reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+                '<span class="badge-icon"></span>'
               );
+            }
+
+            //UNDERLINE CODE
+            // textFragments.push(
+            //     '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px; padding-left:2px; padding-right:2px;' +
+            //     (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
+            //     reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
+            // );
+
             }
         }
       }

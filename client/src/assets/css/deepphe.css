@@ -1476,9 +1476,26 @@ white text with more shading
 
 .semantic_label {
     /*font-weight: bold;*/
-    font-size: 16px;
+    font-size: 14px;
     padding: 3px;
 
+}
+
+.badge-container {
+    position: relative;
+    display: inline-block;
+}
+
+.badge-icon {
+    /*position: absolute;*/
+    position: relative;
+    top: -10px; /* Adjust as needed */
+    left:-7px;
+    background-color: red;
+    color: white;
+    border-radius: 100%;
+    padding: 0.1px 7px;
+    font-size: 12px;
 }
 
 .view_options input:checked + label {
