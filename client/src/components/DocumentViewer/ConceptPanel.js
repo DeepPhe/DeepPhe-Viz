@@ -10,6 +10,8 @@ import { ConfidencePanel } from "./ConfidencePanel";
 import { SortPanel } from "./SortPanel";
 import { SearchPanel } from "./SearchPanel";
 import { ConceptListPanel } from "./ConceptListPanel";
+import GridItem from "../Grid/GridItem";
+import ListItem from "@material-ui/core/ListItem";
 
 export function ConceptPanel(props) {
   const concepts = props.concepts;
@@ -69,6 +71,7 @@ export function ConceptPanel(props) {
               <SemanticGroupPanel
                   semanticGroups={semanticGroups}
                   handleSemanticGroupChange={handleSemanticGroupChange}
+                  confidence={confidence}
               />
           </CardBody>
           <CardHeader
@@ -93,7 +96,17 @@ export function ConceptPanel(props) {
                     setFilteredConcepts={setFilteredConcepts}
                 />
               </GridContainer>
+              <GridContainer>
+                  <ListItem
+                      xs={12}
+                      style={{fontSize: "15px", backgroundColor: 'rgb(153, 230, 230)', marginTop:'10px',borderStyle: 'solid', borderColor: 'transparent', fontWeight: 'bold'}}
+                      class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
+                  >
+                      Example (Document count,Patient count)
+                  </ListItem>
+              </GridContainer>
             <ConceptListPanel
+
                 concepts={concepts}
                 mentions={mentions}
                 semanticGroups={semanticGroups}

@@ -14,14 +14,15 @@ import Divider from '@mui/material/Divider';
 export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
-    // const [displayAll, setDisplayAll] = useState(true);
+    const confidence = props.confidence;
     const [isVisible, setIsVisible] = useState(true);
-    // const [iconToggled, setIconToggled] = useState(false);
 
-    // const DisplayAll = () => {
-    //
-    //     setIconToggled(!iconToggled);
-    // };
+
+    useEffect(() => {
+        getSemanticGroups()
+        console.log("hello");
+
+    }, [confidence]);
 
 
     const handleCheckboxChange = (e) => {
@@ -106,7 +107,7 @@ export function SemanticGroupPanel(props) {
                     onChange={handleCheckboxChange}
                     data-semantic-group={group}
                 />
-                <label htmlFor={id}>{group}</label>
+                <label className='semantic_label' htmlFor={id}>{group}</label>
             </div>);
     };
 
@@ -118,6 +119,7 @@ export function SemanticGroupPanel(props) {
                 })}
             </div>);
     };
+
 
     function checkAll() {
         handleAllCheckboxChange(true);
