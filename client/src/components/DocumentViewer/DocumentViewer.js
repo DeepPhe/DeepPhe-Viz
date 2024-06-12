@@ -134,7 +134,6 @@ export function DocumentViewer(props) {
       previouslyClickedElement.classList.remove('border-highlight');
     }
     //Clicking the highlighted concept again will get rid of the highlight
-    // console.log(e);
     if(clickedTerm === e.target.dataset.id){
       setClickedTerm("");
     }

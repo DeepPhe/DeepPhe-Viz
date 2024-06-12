@@ -199,28 +199,18 @@ export function DocumentPanel(props) {
 
         //check for past and future textMention, if they are same color then change border to 0
         if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
-          // console.log(textMention.backgroundColor, textMentions[i + 1].backgroundColor[textMention.backgroundColor.length - 1]);
+
           if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
             // console.log("middle:", textMention);
-            // if(borderRadiusStyle === 'border-style: solid;'){
-            //   borderRadiusStyle = 'borderTop: solid; borderBottom: solid;';
-            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
                 reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
             );
-
           }
           //checking past textMention only
           else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
             // console.log("right side:", textMention);
-            // if(borderRadiusStyle === 'border-style: none;'){
-            //   // continue;
-            // }
-            // else{
-            //   borderRadiusStyle = 'borderRight: solid; borderTop: solid; borderBottom: solid;';
-            // }
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius:0 5px 5px 0; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -229,13 +219,8 @@ export function DocumentPanel(props) {
           }
           //checking future textMention only
           else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
-            // console.log("left side:", textMention);
-            // if(borderRadiusStyle === 'border-style: none;'){
-            //   // continue;
-            // }
-            // else{
-            //   borderRadiusStyle = 'borderLeft: solid; borderTop: solid; borderBottom: solid;';
-            // }
+            // console.log("left side:", textMentions[i]);
+            // console.log('left side, next right:', textMentions[i+1]);
             textFragments.push(
                 '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px 0 0 5px; padding-left:2px; padding-right:2px;' +
                 (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
@@ -279,17 +264,17 @@ export function DocumentPanel(props) {
     //getting correct click
     for(let i = 0; i < textFragments.length; i++){
       if(textFragments[i].includes('border-style: solid;')){
-        console.log('solid: ', textFragments[i]);
-        if((textFragments[i+1].includes('</span>') && textFragments[i+1].includes('border-style: solid;')) && !textFragments[i-1].includes('</span>')){
-          console.log('left', textFragments[i]);
+        // console.log('solid: ', textFragments[i]);
+        if(textFragments[i+1].includes('</span>') && !textFragments[i-1].includes('</span>')){
+          // console.log('left', textFragments[i]);
           textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderLeft: solid; borderTop: solid; borderBottom: solid;');
         }
         else if(textFragments[i-1].includes('</span>') && !textFragments[i+1].includes('border-style: solid;')){
-          console.log('right', textFragments[i]);
+          // console.log('right', textFragments[i]);
           textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderRight: solid; borderTop: solid; borderBottom: solid;');
         }
         else if(textFragments[i+1].includes('</span>') && textFragments[i-1].includes('</span>')){
-          console.log('middle', textFragments[i]);
+          // console.log('middle', textFragments[i]);
           textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderTop: solid; borderBottom: solid;');
         }
       }

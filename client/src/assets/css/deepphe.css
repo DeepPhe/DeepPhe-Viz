@@ -75,7 +75,7 @@ a {
 }
 
 #report_mentioned_terms {
-    margin-top: 5px;
+    margin-top: -9px;
     height: 500px; /*change it so it's dynamic with main view*/
     overflow-y: auto;
 }

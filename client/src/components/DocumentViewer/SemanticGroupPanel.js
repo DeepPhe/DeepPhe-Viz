@@ -60,7 +60,7 @@ export function SemanticGroupPanel(props) {
                 <Divider orientation="horizontal" flexItem />
 
                 <GridItem xs={12}>
-                    <Box sx={{ mb:2, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>
+                    <Box sx={{ mb:1, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>
                         <Button
                             sx={{fontSize:'14px', mr: 1}}
                             id={"check-all-btn"}
