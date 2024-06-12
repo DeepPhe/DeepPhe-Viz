@@ -72,6 +72,7 @@ export function ConceptPanel(props) {
                   semanticGroups={semanticGroups}
                   handleSemanticGroupChange={handleSemanticGroupChange}
                   confidence={confidence}
+                  filteredConcepts={filteredConcepts}
               />
           </CardBody>
           <CardHeader

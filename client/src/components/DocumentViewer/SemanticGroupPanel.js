@@ -15,12 +15,19 @@ export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
     const confidence = props.confidence;
+    const filteredConcepts = props.filteredConcepts;
     const [isVisible, setIsVisible] = useState(true);
 
 
     useEffect(() => {
-        getSemanticGroups()
-        console.log("hello");
+
+        // getSemanticGroups()
+        const visibleSemantics = [];
+        for(let i = 0; i < filteredConcepts.length -1; i++){
+            visibleSemantics.push(filteredConcepts[i].dpheGroup);
+            // console.log(filteredConcepts[i].dpheGroup);
+        }
+        console.log(visibleSemantics)
 
     }, [confidence]);
 
