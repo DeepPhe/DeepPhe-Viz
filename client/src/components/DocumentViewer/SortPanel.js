@@ -107,21 +107,6 @@ export function SortPanel(props) {
                     </MenuItem>
                     </Menu>
 
-        {/*<FormControl>*/}
-        {/*    <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px'}}><b>Sort Order:</b></FormLabel>*/}
-        {/*    <CustomRadioGroup*/}
-        {/*        className="compact-radio-group"*/}
-        {/*        aria-labelledby="demo-radio-buttons-group-label"*/}
-        {/*        defaultValue="occurrence"*/}
-        {/*        name="radio-buttons-group"*/}
-        {/*        onChange={handleSortChange}*/}
-        {/*    >*/}
-        {/*        <FormControlLabel value="occurrence" control={<Radio size='small'/>} label="Occurrence"  />*/}
-        {/*        <FormControlLabel value="alphabetically" control={<Radio size='small'/>} label="Alphabetically"  />*/}
-        {/*        <FormControlLabel value="semantic" control={<Radio size='small'/>} label="Semantic Group" />*/}
-        {/*        <FormControlLabel value="confidence" control={<Radio size='small'/>} label="Confidence" />*/}
-        {/*    </CustomRadioGroup>*/}
-        {/*</FormControl>*/}
         </GridItem>
 
     );

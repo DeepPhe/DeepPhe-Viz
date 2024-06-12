@@ -157,12 +157,6 @@ export function DocumentPanel(props) {
       // borderLeft: solid; borderTop: solid; borderBottom: solid;
       // console.log(textMention.clickedTerm.some((element) => {return element}));
       let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
-      // what we are going to have to do is, is check if border-style is solid in each push, and slightly change the border
-      // style depending on which push we are doing, for regular we can just keep it as solid, but then again,
-      // this only applies for highlighted things that are not the same background color. Food for thought,
-      // maybe it would be easier if I just combined spans together if they were next to each other regardless of
-      // background color.
-      //TODO: Ask Sean his thoughts on above.
 
       if (textMention.preferredText.indexOf(term) > -1) {
         textFragments.push(
@@ -174,7 +168,7 @@ export function DocumentPanel(props) {
       else {
         //We want to check what is in front of textmention without checking what is behind it, so this is a special
         //case for the first textMention
-        if(i === 0){
+        if(i === 0 && textMentions[i+1]){
           if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
             // console.log("left side:", textMention);
             // if (borderRadiusStyle === 'border-style: solid;') {

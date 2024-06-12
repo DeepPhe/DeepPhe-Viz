@@ -15,7 +15,7 @@ export function ConceptListPanel(props) {
 
 
     // calculates the count of mentions associated with a given concept based on conceptID
-    const getMentionsCountForConcept = (conceptId) => {
+    const getDocMentionsCountForConcept = (conceptId) => {
         // console.log(concepts);
         const idx = concepts.findIndex((c) => c.id === conceptId);
         if(idx === -1){
@@ -25,6 +25,15 @@ export function ConceptListPanel(props) {
             return mentions.some((m) => m.id === mentionId);
         }).length;
     };
+
+    const getPatientMentionsCountForConcept = (conceptId) => {
+        const idx = concepts.findIndex((c) => c.id === conceptId);
+        if(idx === -1){
+            return 0;
+        }
+        return concepts[idx].mentionIds.length;
+    };
+
 
     useEffect(() => {
         const sortedConcepts = filterConcepts(concepts);
@@ -89,7 +98,7 @@ export function ConceptListPanel(props) {
                     // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
-                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor, margin: "4px"}}
+                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor, margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
                             key={obj.id}
                             class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}
@@ -100,7 +109,7 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {obj.preferredText} ({getMentionsCountForConcept(obj.id)})
+                            {obj.preferredText} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)})
                         </ListItem>
                     );
                 })}

@@ -900,6 +900,10 @@ th {
     float: left;
 }
 
+.example_text{
+    font-weight: bolder !important;
+}
+
 #concepts_container {
     margin-top: -50px;
 }
@@ -1093,7 +1097,7 @@ white text with more shading
 }
 
 .border-highlight {
-    border-style: solid;
+    border-color: black !important;
 }
 
 
@@ -1468,6 +1472,13 @@ white text with more shading
 
 .view_options label:hover {
     cursor: pointer;
+}
+
+.semantic_label {
+    /*font-weight: bold;*/
+    font-size: 16px;
+    padding: 3px;
+
 }
 
 .view_options input:checked + label {
