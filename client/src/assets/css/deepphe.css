@@ -1481,21 +1481,83 @@ white text with more shading
 
 }
 
-.badge-container {
+/*.badge-container {*/
+/*    position: relative;*/
+/*    display: inline-block;*/
+/*}*/
+
+/*.badge-icon {*/
+/*    !*position: absolute;*!*/
+/*    position: relative;*/
+/*    top: -10px; !* Adjust as needed *!*/
+/*    left:-7px;*/
+/*    background-color: red;*/
+/*    border-radius: 100%;*/
+/*    padding: 0px 7px;*/
+/*    font-size: 12px;*/
+/*}*/
+/*.badge-strike-icon {*/
+/*    !*position: absolute;*!*/
+/*    display: inline-block;*/
+/*    position: relative;*/
+/*    top: -10px; !* Adjust as needed *!*/
+/*    left:-4px;*/
+/*    background-color: black;*/
+/*    border-radius: 10%;*/
+/*    padding: 0 2px;*/
+/*    transform: rotate(30deg);*/
+/*}*/
+
+span.neg{
     position: relative;
     display: inline-block;
 }
+span.neg .icon{
+    position: absolute;
+    right: -6px;
+    top: -55%;
+    font-size: 120%;
+    color: red;
+    font-weight: bold;
+}
 
-.badge-icon {
-    /*position: absolute;*/
+.span-info{
     position: relative;
-    top: -10px; /* Adjust as needed */
-    left:-7px;
-    background-color: red;
-    color: white;
-    border-radius: 100%;
-    padding: 0.1px 7px;
-    font-size: 12px;
+}
+
+.tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center !important;
+    border-radius: 5px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1 !important;
+    bottom: 100% ; /* Position above the span */
+    margin-bottom: 5px !important;
+    left: 50% ;
+    margin-left: -60px !important; /* Center the tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+}
+
+.span-info:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 .view_options input:checked + label {

@@ -38,6 +38,7 @@ export function DocumentPanel(props) {
 
   function createMentionObj(mentionedTerms) {
     let textMentions = [];
+    console.log(filteredConcepts);
     mentionedTerms.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
         let textMentionObj = {};
@@ -50,6 +51,7 @@ export function DocumentPanel(props) {
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
         textMentionObj.id = obj.id;
         textMentionObj.negated = obj.negated;
+        textMentionObj.confidence = obj.confidence;
         const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
         textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
@@ -229,31 +231,19 @@ export function DocumentPanel(props) {
           // no future or past textMention with same color
           else {
             // console.log("reg:", textMention);
-            //BADGE CODE
-            const spanClass = isNegated(textMention.negated) ? 'badge-icon' : '';
+            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
             const spanStyle = `background-color: ${textMention.backgroundColor};
             ${borderRadiusStyle};
             border-radius: 5px;
             padding-left: 2px;
             padding-right: 2px;`;
-            // console.log("reg:", textMention);
-            textFragments.push(
-                `<span style="${spanStyle}">` +
+            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
                 `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `</span>`
-            );
-            if(spanClass){
-              textFragments.push(
-                '<span class="badge-icon"></span>'
-              );
-            }
+                `<span class="tooltip">${textMention.preferredText} ${textMention.confidence}</span>` +
+                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+                `</span>`;
 
-            //UNDERLINE CODE
-            // textFragments.push(
-            //     '<span style="background-color:' + textMention.backgroundColor + ';' + borderRadiusStyle + ' border-radius: 5px; padding-left:2px; padding-right:2px;' +
-            //     (isNegated(textMention.negated) ? ' text-decoration: underline dotted red 3px;' : '') + '">' +
-            //     reportText.substring(textMention.begin, textMention.end).trim() + "</span>"
-            // );
+            textFragments.push(htmlString);
 
             }
         }
