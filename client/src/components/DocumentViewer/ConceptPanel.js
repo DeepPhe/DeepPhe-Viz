@@ -97,15 +97,15 @@ export function ConceptPanel(props) {
                     setFilteredConcepts={setFilteredConcepts}
                 />
               </GridContainer>
-              <GridContainer>
-                  <ListItem
-                      xs={12}
-                      style={{fontSize: "15px", backgroundColor: 'rgb(153, 230, 230)', marginTop:'10px',borderStyle: 'solid', borderColor: 'transparent', fontWeight: 'bold'}}
-                      class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
-                  >
-                      Example (Document count,Patient count)
-                  </ListItem>
-              </GridContainer>
+              {/*<GridContainer>*/}
+              {/*    <ListItem*/}
+              {/*        xs={12}*/}
+              {/*        style={{fontSize: "15px", backgroundColor: 'rgb(153, 230, 230)', marginTop:'10px',borderStyle: 'solid', borderColor: 'transparent', fontWeight: 'bold'}}*/}
+              {/*        class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use*/}
+              {/*    >*/}
+              {/*        Example (Document count,Patient count)*/}
+              {/*    </ListItem>*/}
+              {/*</GridContainer>*/}
             <ConceptListPanel
 
                 concepts={concepts}

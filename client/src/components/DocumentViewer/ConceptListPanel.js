@@ -109,7 +109,7 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {obj.preferredText} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)})
+                            {obj.preferredText} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)}):{Math.round(obj.confidence * 100)}%
                         </ListItem>
                     );
                 })}

@@ -1,8 +1,6 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
-import CardHeader from "../Card/CardHeader";
 import {Stack, Slider, FormLabel} from "@mui/material";
-import Box from "@mui/material/Box";
 
 export function ConfidencePanel(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
