@@ -1,6 +1,6 @@
 import GridItem from "../Grid/GridItem";
 import React, {useState} from "react";
-import { BarChart } from '@mui/x-charts/BarChart';
+import { BarChart } from '@mui/x-charts';
 import {Stack, Slider, FormLabel} from "@mui/material";
 
 export function ConfidenceDataViz(props) {
@@ -10,16 +10,17 @@ export function ConfidenceDataViz(props) {
 
     return (
         <GridItem xs={6} alignItems='center'>
+            <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>
+                <b className="titles">Confidence:</b>
+            </FormLabel>
             <BarChart
                 series={[
-                    { data: [35, 44, 24, 34] },
-                    { data: [51, 6, 49, 30] },
-                    { data: [15, 25, 30, 50] },
-                    { data: [60, 50, 15, 25] },
+                    { data: [35, 44, 24] },
+                    { data: [51, 6, 49] },
                 ]}
-                height={290}
-                xAxis={[{ data: ['Q1', 'Q2', 'Q3', 'Q4'], scaleType: 'band' }]}
-                margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+                height={190}
+                xAxis={[{ data: ['L', 'M', 'H'], scaleType: 'band' }]}
+                margin={{ top: 10, bottom: 30, left: 25, right: 10 }}
             />
         </GridItem>
     );

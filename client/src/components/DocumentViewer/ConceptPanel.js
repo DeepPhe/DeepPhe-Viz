@@ -12,6 +12,7 @@ import { SearchPanel } from "./SearchPanel";
 import { ConceptListPanel } from "./ConceptListPanel";
 import GridItem from "../Grid/GridItem";
 import ListItem from "@material-ui/core/ListItem";
+import {ConfidenceDataViz} from "./ConfidenceDataViz";
 
 export function ConceptPanel(props) {
   const concepts = props.concepts;
@@ -89,13 +90,22 @@ export function ConceptPanel(props) {
               id="mentions_container"
           >
               <GridContainer spacing={2}>
-                <ConfidencePanel
-                    handleConfidenceChange={handleConfidenceChange}
-                />
-                <SortPanel
+
+                {/*<ConfidencePanel*/}
+                {/*    handleConfidenceChange={handleConfidenceChange}*/}
+                {/*/>*/}
+                  <ConfidenceDataViz
+                      handleConfidenceChange={handleConfidenceChange}
+                  />
+                  <SortPanel
                     filteredConcepts={filteredConcepts}
                     setFilteredConcepts={setFilteredConcepts}
-                />
+                  />
+              </GridContainer>
+              <GridContainer>
+                  <ConfidencePanel
+                      handleConfidenceChange={handleConfidenceChange}
+                  />
               </GridContainer>
               {/*<GridContainer>*/}
               {/*    <ListItem*/}
