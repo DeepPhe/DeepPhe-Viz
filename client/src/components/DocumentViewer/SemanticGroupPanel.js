@@ -27,7 +27,7 @@ export function SemanticGroupPanel(props) {
             visibleSemantics.push(filteredConcepts[i].dpheGroup);
             // console.log(filteredConcepts[i].dpheGroup);
         }
-        console.log(visibleSemantics)
+        // console.log(visibleSemantics)
 
     }, [confidence]);
 

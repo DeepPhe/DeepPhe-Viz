@@ -11,19 +11,20 @@ import Grid from "@material-ui/core/Grid";
 
 function ConfidenceButtons({ label, value, selectedValue, onChange, backgroundColor }) {
     return (
-        <Grid item xs={4}>
+        <GridItem xs={4} sx={{marginLeft: 5}}>
             <Box borderRadius={2} sx={{backgroundColor: backgroundColor, marginRight: 0.5}}>
                 <FormControlLabel
                     control={<Checkbox
-                        sx={{ paddingRight: 0 }}
+                        sx={{ paddingRight: 0}}
                         checked={selectedValue === value}
                         onChange={() => onChange(value)}
                     />}
                     label={<Typography sx={{ width: '100%', textAlign: 'center' }}>{label}</Typography>}
-                    sx={{ flexGrow: 1, justifyContent: 'center', marginRight: 0 }}
+                    sx={{ flexGrow: 1, justifyContent: 'center', marginRight: 0, alignItems: 'center',
+                        width: '100%' }}
                 />
             </Box>
-        </Grid>
+        </GridItem>
     );
 }
 
@@ -39,13 +40,20 @@ export function ConfidencePanel(props) {
     };
 
     return (
-        <GridItem xs={9} alignItems='center'>
-            <Box sx={{ marginBottom: '10px !important' }}>
+        <GridItem xs={12} alignItems='center'>
+            <Box sx={{ marginBottom: '10px !important', flexDirection: 'column',
+                alignItems: 'center'}}>
                 <GridContainer spacing={2}>
-                    <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>
+                    <GridItem xs={12}>
+                    <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px',display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        textAlign: 'center' }}>
                         <b className="titles">Confidence:</b> <span id="confidenceValue">{value}</span> %
                     </FormLabel>
-                    <GridItem xs={1} />
+                    </GridItem>
+                    {/*<GridItem xs={1} />*/}
+                    <GridItem xs={12}>
                     <Slider
                         value={value}
                         min={1}
@@ -55,11 +63,16 @@ export function ConfidencePanel(props) {
                             handleConfidenceChange(newValue);
                         }}
                         aria-labelledby="confidence-slider"
-                        sx={{ mt: '1.5em', ml: '10px'}}
+                        sx={{ mt: '1.5em', ml: '45px', mr: '-60px'}}
                     />
-                    <ConfidenceButtons label="Low" value={0} selectedValue={selectedValue} onChange={handleChange} backgroundColor="orange"/>
-                    <ConfidenceButtons label="Medium" value={33} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#FFF455"/>
-                    <ConfidenceButtons label="High" value={66} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#7ABA78"/>
+                    </GridItem>
+                    <GridItem xs={12}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <ConfidenceButtons label="Low" value={0} selectedValue={selectedValue} onChange={handleChange} backgroundColor="orange"/>
+                            <ConfidenceButtons label="Medium" value={33} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#FFF455"/>
+                            <ConfidenceButtons label="High" value={66} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#7ABA78"/>
+                        </Box>
+                    </GridItem>
                 </GridContainer>
             </Box>
         </GridItem>
