@@ -90,12 +90,9 @@ export function ConceptPanel(props) {
               id="mentions_container"
           >
               <GridContainer spacing={2}>
-
-                {/*<ConfidencePanel*/}
-                {/*    handleConfidenceChange={handleConfidenceChange}*/}
-                {/*/>*/}
                   <ConfidenceDataViz
                       handleConfidenceChange={handleConfidenceChange}
+                      concepts={concepts}
                   />
                   <SortPanel
                     filteredConcepts={filteredConcepts}

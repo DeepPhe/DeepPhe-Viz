@@ -38,15 +38,15 @@ export function DocumentPanel(props) {
 
   function createMentionObj(mentionedTerms) {
     let textMentions = [];
-    console.log(filteredConcepts);
-    console.log(mentionedTerms);
+    // console.log(filteredConcepts);
+    // console.log(mentionedTerms);
     mentionedTerms.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
         let textMentionObj = {};
         const index = filteredConcepts.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
 
         const conceptConfidence = Math.round(filteredConcepts[index].confidence * 100);
-        console.log(conceptConfidence);
+        // console.log(conceptConfidence);
 
         textMentionObj.preferredText = obj["preferredText"];
         textMentionObj.begin = obj.begin;
