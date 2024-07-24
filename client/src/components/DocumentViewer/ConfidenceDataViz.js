@@ -35,47 +35,10 @@ export function ConfidenceDataViz(props) {
     // const green5 = concepts.filter(concepts => concepts.confidence >= 0.901 && concepts.confidence <= 0.95);
     // const green6 = concepts.filter(concepts => concepts.confidence >= 0.951 && concepts.confidence <= 1);
 
-    // const semanticGroupColorDict = (key, whichValue) => {
-    //     let colorDict = {
-    //         "Behavior": ["#ff8712", 4],
-    //         "Disease Stage Qualifier" : ["#ef7c0c", 0],
-    //         "Disease Grade Qualifier" : ["#ffa247", 1],
-    //         "Body Fluid or Substance": ["#add8e6", 9],
-    //         "Body Part": ["#99E6E6", 12],
-    //         "Chemo/immuno/hormone Therapy Regimen": ["#da9cf5", 26],
-    //         "Clinical Test Result": ["#ffadc1", 14],
-    //         "Clinical Course of Disease": ["#e5d815",19],
-    //         "Disease or Disorder": ["#7fce94", 16],
-    //         "Disease Qualifier" : ["#ffdb00", 21],
-    //         "Finding" : ["#ffbcdd", 13],
-    //         "Gene" : ["#ff9ea4", 15],
-    //         "Gene Product" : ["#ff9ea4", 15.1],
-    //         "General Qualifier" : ["#ffbf00", 23],
-    //         "Generic TNM Finding" : ["#ff9731", 2],
-    //         "Intervention or Procedure" : ["#ca99f4", 27],
-    //         "Imaging Device" : ["#785ef0", 12],
-    //         "Lymph Node" : ["#bfefff", 7],
-    //         "Temporal Qualifier" : ["#ffab00", 24],
-    //         "Tissue": ["#b2dfee", 8],
-    //         "Mass" : ["#a8ffc0", 18],
-    //         "Neoplasm" : ["#96e7ac", 17],
-    //         "Pathologic Process" : ["#ffef00", 20],
-    //         "Pathologic TNM Finding" : ["#ff8e20", 3],
-    //         "Pharmacologic Substance" : ["#b36cef", 25],
-    //         "Position" : ["#CC9999", 28],
-    //         "Property or Attribute" : ["#ffc700", 22],
-    //         "Quantitative Concept" : ["#33991A", 29],
-    //         "Side" : ["#93ccea", 10],
-    //         "Spatial Qualifier": ["#9ac0cd", 11],
-    //         "Severity" : ["#ff7e00", 5],
-    //         "Unknown" : ["#808080", 30]
-    //     };
-
-
 
     function getSemanticGroupConfidenceCount(name){
         const confidenceList = concepts.filter(item => item.dpheGroup === name).map(item => item.confidence);
-        console.log(confidenceList);
+        // console.log(confidenceList);
         return percentCounter(confidenceList);
 
     }
@@ -89,7 +52,6 @@ export function ConfidenceDataViz(props) {
                 buckets[index] += 1; // add an iterator to the index of the percentage it falls into i.e. '.29 = 2'
             }
         });
-
         return buckets;
     }
 
@@ -159,34 +121,25 @@ export function ConfidenceDataViz(props) {
     const Unknown = getSemanticGroupConfidenceCount("Unknown");
 
     const orangeGroup = groupSemantics([Behavior, DSQ, DGQ, TQ, Severity, PTNMF, GTNMF]); //Done
-    const yellowGroup = groupSemantics(DQ, PoA, GQ, CCoD)
+    const yellowGroup = groupSemantics([DQ, PoA, GQ, CCoD, PP]); //Done
+    const blueGroup = groupSemantics([LN, BodyPart, BFoS, Side, SQ, Tissue]);
+    const pinkGroup = groupSemantics([Finding, CTR, Gene, GP]);
+    const greenGroup = groupSemantics([DoD, Neoplasm, Mass, QC]);
+    const purpleGroup = groupSemantics([PS, CihTR, IoP, ImgD]);
+    const brownGroup = groupSemantics([Position]);
+    const greyGroup = groupSemantics([Unknown]);
 
-    console.log(orangeGroup);
 
     const series = [
-        { label: '1', data: Behavior, stack: 'total' },
-        { label: '2', data: DSQ, stack: 'total' },
-        { label: '3', data: DGQ, stack: 'total' },
-        { label: '4', data: BFoS, stack: 'total' },
-        { label: '5', data: BodyPart, stack: 'total' },
-        { label: '6', data: BodyPart, stack: 'total' },
+        { label: '1', data: orangeGroup, stack: 'total' },
+        { label: '2', data: yellowGroup, stack: 'total' },
+        { label: '3', data: blueGroup, stack: 'total' },
+        { label: '4', data: pinkGroup, stack: 'total' },
+        { label: '5', data: greenGroup, stack: 'total' },
+        { label: '6', data: purpleGroup, stack: 'total' },
+        { label: '7', data: brownGroup, stack: 'total' },
+        { label: '8', data: greyGroup, stack: 'total' },
     ]
-
-    // const chartSetting = {
-    //     sx: {
-    //         [`.${axisClasses.left} .${axisClasses.label}`]: {
-    //             transform: "rotate(-90deg) translate(0px, -20px)"
-    //         },
-    //         [`.${axisClasses.bottom} .${axisClasses.tickLabel}`]: {
-    //             transform: "rotateZ(-45deg)"
-    //         }
-    //     }
-    // };
-
-
-    //TODO: BRING up Dermis issue, 7 occurances in bar chart, but only 6 in filtered list.
-    // console.log(concepts);
-    // console.log(green1, green2);
 
 
     return (
@@ -195,7 +148,7 @@ export function ConfidenceDataViz(props) {
             {/*    <b className="titles">Confidence:</b>*/}
             {/*</FormLabel>*/}
             <BarChart
-                height={190}
+                height={300}
                 series={series}
                 margin={{ top: 10, bottom: 26, left: 40, right: 10 }}
                 yAxis={[{label: 'Occurrences'}]}
@@ -206,33 +159,30 @@ export function ConfidenceDataViz(props) {
                         // data: ['5%','10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '65%', '70%', '75%',
                         //     '80%', '85%', '90%', '95%', '100%'],  5%
                         data: ['10%', '20%', '30%', '40%', '50%', '60%', '70%','80%', '90%', '100%'],
+                        colors: ["#FFA500",
+                            '#FFF455',
+                            '#7ABA78',
+                            "#FFA500",
+                            '#FFF455',
+                            '#7ABA78',
+                            "#FFA500",
+                            '#FFF455'],
                         // colorMap:
                         //     ({
                         //         type: 'ordinal',
                         //         // values: ['5%','10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '65%', '70%', '75%',
                         //         //     '80%', '85%', '90%', '95%', '100%'], 5%
-                        //         values: ['10%', '20%', '30%', '40%', '50%', '60%', '70%','80%', '90%', '100%'],
+                        //         values: ['1', '2', '3', '4', '5', '6', '7','8'],
                         //         // values: ['16.5%', '33%', '49.5%', '66%', '82.5%', '99%' ],
                         //         colors: [
                         //             "#FFA500",
-                        //             "#FFA500",
-                        //             "#FFA500",
-                        //             "#FFA500",
-                        //             // "#FFA500",
-                        //             // "#FFA500",
-                        //             // "#FFA500",
                         //             '#FFF455',
+                        //             '#7ABA78',
+                        //             "#FFA500",
                         //             '#FFF455',
-                        //             '#FFF455',
-                        //             // '#FFF455',
-                        //             // '#FFF455',
-                        //             // '#FFF455',
                         //             '#7ABA78',
-                        //             '#7ABA78',
-                        //             '#7ABA78',
-                        //             // '#7ABA78',
-                        //             // '#7ABA78',
-                        //             // '#7ABA78',
+                        //             "#FFA500",
+                        //             '#FFF455'
                         //         ],
                         //     })
                     },
