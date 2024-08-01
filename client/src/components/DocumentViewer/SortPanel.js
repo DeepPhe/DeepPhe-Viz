@@ -53,7 +53,7 @@ export function SortPanel(props) {
     };
 
     return (
-        <GridItem xs={4}>
+        <GridItem xs={12}>
             <Button
                 id="demo-customized-button"
                 aria-controls={open ? 'demo-customized-menu' : undefined}
@@ -62,7 +62,7 @@ export function SortPanel(props) {
                 variant="contained"
                 onClick={handleClick}
                 endIcon={<KeyboardArrowDownIcon style={{ fill: 'white' }} />}
-                style={{ margin: 'auto', marginTop: '13%', display: "flex", padding: "6px" }}
+                style={{ margin: 'auto', marginTop: '15px', display: "flex", padding: "6px", marginBottom: '15px' }}
             >
                 Sort Concepts
             </Button>
@@ -76,10 +76,6 @@ export function SortPanel(props) {
                 <MenuItem onClick={() => handleSortChange('alphabetically')}>
                     Alphabetically
                 </MenuItem>
-                {/*<Divider sx={{ background: 'black', borderBottomWidth: 2 }} />*/}
-                {/*<MenuItem onClick={() => handleSortChange('occurrence')}>*/}
-                {/*    Occurrence*/}
-                {/*</MenuItem>*/}
                 <Divider sx={{ background: 'black', borderBottomWidth: 2 }} />
                 <MenuItem onClick={() => handleSortChange('semantic')}>
                     Semantic Group

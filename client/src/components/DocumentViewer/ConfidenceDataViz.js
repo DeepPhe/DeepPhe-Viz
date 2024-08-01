@@ -1,12 +1,18 @@
 import GridItem from "../Grid/GridItem";
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import {axisClasses, BarChart} from '@mui/x-charts';
+import Slider from '@mui/material/Slider';
+import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 import {FormLabel} from "@mui/material";
+import GridContainer from "../Grid/GridContainer";
 
 export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
+    // const value = props.value;
     const [value, setValue] = useState(50);
+    const [sliderPosition, setSliderPosition] = useState(199);
     // const orange1 = concepts.filter(concepts => concepts.confidence >= 0 && concepts.confidence <= 0.164);
     // const orange2 = concepts.filter(concepts => concepts.confidence >= 0.165 && concepts.confidence <= 0.329);
     // const yellow1 = concepts.filter(concepts => concepts.confidence >= 0.330 && concepts.confidence <= 0.494);
@@ -131,64 +137,105 @@ export function ConfidenceDataViz(props) {
 
 
     const series = [
-        { label: '1', data: orangeGroup, stack: 'total' },
-        { label: '2', data: yellowGroup, stack: 'total' },
-        { label: '3', data: blueGroup, stack: 'total' },
-        { label: '4', data: pinkGroup, stack: 'total' },
-        { label: '5', data: greenGroup, stack: 'total' },
-        { label: '6', data: purpleGroup, stack: 'total' },
-        { label: '7', data: brownGroup, stack: 'total' },
-        { label: '8', data: greyGroup, stack: 'total' },
+        { data: orangeGroup, stack: 'total', color: '#ff8712' },
+        { data: yellowGroup, stack: 'total', color: '#e5d815' },
+        { data: blueGroup, stack: 'total', color: '#add8e6' },
+        { data: pinkGroup, stack: 'total', color: '#ffadc1' },
+        { data: greenGroup, stack: 'total', color: '#a8ffc0' },
+        { data: purpleGroup, stack: 'total', color: '#ca99f4' },
+        { data: brownGroup, stack: 'total', color: '#CC9999' },
+        { data: greyGroup, stack: 'total', color: '#808080' },
     ]
 
+    const SliderLine = styled('div')(({ theme }) => ({
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: '4px',  // Increased thickness
+        backgroundColor: theme.palette.primary.main,
+        cursor: 'ew-resize',
+        zIndex: 10,  // Ensure it is above the chart
+        height: '274px',
+        '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '30%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px', // Width of the grey block
+            height: '20px', // Height of the grey block
+            backgroundColor: 'grey',
+            borderRadius: '4px',
+        },
+    }));
+
+
+
+    const chartRef = useRef(null);
+
+    const handleSliderChange = (event) => {
+        const rect = chartRef.current.getBoundingClientRect();
+        let newValue = event.clientX - rect.left;
+        const newIndex = Math.floor((newValue / rect.width) * series.length);
+        // console.log(rect.width);
+        if (newValue >= 43 && newValue <= rect.width-16) {
+            setSliderPosition(newValue);
+            // console.log("change is happening");
+            let confidenceFaceValue = Math.floor((newValue-43)/3.09);
+            if(confidenceFaceValue > 99){
+                confidenceFaceValue = 100;
+            }
+            setValue(confidenceFaceValue);
+            handleConfidenceChange(confidenceFaceValue);
+            // setHighlightIndex(newIndex);
+        }
+    };
+
+    const handleMouseDown = () => {
+        document.addEventListener('mousemove', handleSliderChange);
+        document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleSliderChange);
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
 
     return (
-        <GridItem xs={12} alignItems='center'>
+        <GridContainer spacing={2}>
+            <GridItem xs={12} alignItems='center'>
             {/*<FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>*/}
             {/*    <b className="titles">Confidence:</b>*/}
             {/*</FormLabel>*/}
-            <BarChart
-                height={300}
-                series={series}
-                margin={{ top: 10, bottom: 26, left: 40, right: 10 }}
-                yAxis={[{label: 'Occurrences'}]}
-                xAxis={[
-                    {
-                        scaleType: 'band',
-                        // data: ['16.5%','33%', '49.5%', '66%', '82.5%', '99%'],
-                        // data: ['5%','10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '65%', '70%', '75%',
-                        //     '80%', '85%', '90%', '95%', '100%'],  5%
-                        data: ['10%', '20%', '30%', '40%', '50%', '60%', '70%','80%', '90%', '100%'],
-                        colors: ["#FFA500",
-                            '#FFF455',
-                            '#7ABA78',
-                            "#FFA500",
-                            '#FFF455',
-                            '#7ABA78',
-                            "#FFA500",
-                            '#FFF455'],
-                        // colorMap:
-                        //     ({
-                        //         type: 'ordinal',
-                        //         // values: ['5%','10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '60%', '65%', '70%', '75%',
-                        //         //     '80%', '85%', '90%', '95%', '100%'], 5%
-                        //         values: ['1', '2', '3', '4', '5', '6', '7','8'],
-                        //         // values: ['16.5%', '33%', '49.5%', '66%', '82.5%', '99%' ],
-                        //         colors: [
-                        //             "#FFA500",
-                        //             '#FFF455',
-                        //             '#7ABA78',
-                        //             "#FFA500",
-                        //             '#FFF455',
-                        //             '#7ABA78',
-                        //             "#FFA500",
-                        //             '#FFF455'
-                        //         ],
-                        //     })
-                    },
-                ]}
+                <BarChart
+                    ref={chartRef}
+                    height={300}
+                    series={series}
+                    margin={{ top: 20, bottom: 26, left: 40, right: 15 }}
+                    yAxis={[{label: 'Occurrences'}]}
+                    xAxis={[
+                        {
+                            scaleType: 'band',
+                            data: ['10%', '20%', '30%', '40%', '50%', '60%', '70%','80%', '90%', '100%'],
+                            tickLabelPlacement: "tick",
+                            tickPlacement: "end"
+                        },
+                    ]}
 
-            />
-        </GridItem>
+                />
+                <SliderLine
+                    style={{ left: `${sliderPosition}px` }}
+                    onMouseDown={handleMouseDown}
+                />
+            </GridItem>
+            <GridItem xs={12}>
+                <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px',display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center' }}>
+                    <b className="titles">Confidence:</b> <span id="confidenceValue">{value}</span> %
+                </FormLabel>
+            </GridItem>
+        </GridContainer>
     );
 }

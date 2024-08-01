@@ -93,6 +93,7 @@ export function ConceptPanel(props) {
                   <ConfidenceDataViz
                       handleConfidenceChange={handleConfidenceChange}
                       concepts={concepts}
+                      // value={value}
                   />
               </GridContainer>
               <GridContainer>

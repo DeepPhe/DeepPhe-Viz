@@ -44,35 +44,28 @@ export function ConfidencePanel(props) {
             <Box sx={{ marginBottom: '10px !important', flexDirection: 'column',
                 alignItems: 'center'}}>
                 <GridContainer spacing={2}>
-                    <GridItem xs={12}>
-                    <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px',display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        textAlign: 'center' }}>
-                        <b className="titles">Confidence:</b> <span id="confidenceValue">{value}</span> %
-                    </FormLabel>
-                    </GridItem>
+
                     {/*<GridItem xs={1} />*/}
-                    <GridItem xs={12}>
-                    <Slider
-                        value={value}
-                        min={1}
-                        max={100}
-                        onChange={(e, newValue) => {
-                            setValue(newValue);
-                            handleConfidenceChange(newValue);
-                        }}
-                        aria-labelledby="confidence-slider"
-                        sx={{ mt: '1.5em', ml: '45px', mr: '-60px'}}
-                    />
-                    </GridItem>
-                    <GridItem xs={12}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <ConfidenceButtons label="Low" value={0} selectedValue={selectedValue} onChange={handleChange} backgroundColor="orange"/>
-                            <ConfidenceButtons label="Medium" value={33} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#FFF455"/>
-                            <ConfidenceButtons label="High" value={66} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#7ABA78"/>
-                        </Box>
-                    </GridItem>
+                    {/*<GridItem xs={12}>*/}
+                    {/*<Slider*/}
+                    {/*    value={value}*/}
+                    {/*    min={1}*/}
+                    {/*    max={100}*/}
+                    {/*    onChange={(e, newValue) => {*/}
+                    {/*        setValue(newValue);*/}
+                    {/*        handleConfidenceChange(newValue);*/}
+                    {/*    }}*/}
+                    {/*    aria-labelledby="confidence-slider"*/}
+                    {/*    sx={{ mt: '1.5em', ml: '48px', mr: '-60px', width: '83%'}}*/}
+                    {/*/>*/}
+                    {/*</GridItem>*/}
+                    {/*<GridItem xs={12}>*/}
+                    {/*    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '90%', float: 'right', mt: '15px'}}>*/}
+                    {/*        <ConfidenceButtons label="Low" value={0} selectedValue={selectedValue} onChange={handleChange} backgroundColor="orange"/>*/}
+                    {/*        <ConfidenceButtons label="Medium" value={33} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#FFF455"/>*/}
+                    {/*        <ConfidenceButtons label="High" value={66} selectedValue={selectedValue} onChange={handleChange} backgroundColor="#7ABA78"/>*/}
+                    {/*    </Box>*/}
+                    {/*</GridItem>*/}
                 </GridContainer>
             </Box>
         </GridItem>
