@@ -7,8 +7,7 @@ import Button from '@mui/material/Button';
 // import CheckBoxIcon from '@mui/icons-material/CheckBox';
 // import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import Divider from '@mui/material/Divider';
-
-
+import {hexToRgba} from "./ColorUtils";
 
 
 export function SemanticGroupPanel(props) {
@@ -94,6 +93,7 @@ export function SemanticGroupPanel(props) {
     const getSemanticGroupBox = (group, index, values) => {
         // console.log(values);
         const id = "checkbox" + index;
+        const backgroundColor = hexToRgba(values.backgroundColor, 0.65); // Adjust the alpha value as needed
         return (<div
                 style={{
                     margin: "0 5px 5px 0",
@@ -101,7 +101,7 @@ export function SemanticGroupPanel(props) {
                     fontFamily: "Monaco, monospace",
                     borderRadius: "5px",
                     float: "left",
-                    backgroundColor: values.backgroundColor,
+                    backgroundColor: backgroundColor,
                 }}
             >
                 <input

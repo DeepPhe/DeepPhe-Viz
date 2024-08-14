@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import $ from "jquery";
+import {hexToRgba} from "./ColorUtils";
 
 export function ConceptListPanel(props) {
     const {concepts, mentions} = props;
@@ -12,6 +13,7 @@ export function ConceptListPanel(props) {
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const [clickedTerm, setClickedTerm] = useState("");
+
 
 
     // calculates the count of mentions associated with a given concept based on conceptID
@@ -98,7 +100,7 @@ export function ConceptListPanel(props) {
                     // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
-                            style={{fontSize: "14px", backgroundColor: semanticGroups[obj.dpheGroup].backgroundColor, margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
+                            style={{fontSize: "14px", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
                             key={obj.id}
                             class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}

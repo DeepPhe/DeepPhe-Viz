@@ -969,7 +969,10 @@ th {
 }
 
 input[type="checkbox"] {
-    margin-right: 5px;
+    margin-left: 4px;
+    margin-right: 3px;
+    width: 13px;
+    height: 13px;
 }
 
 
@@ -1479,6 +1482,10 @@ white text with more shading
     font-size: 14px;
     padding: 3px;
 
+}
+
+.semantic_checkbox {
+    margin-left: 3px;
 }
 
 /*.badge-container {*/

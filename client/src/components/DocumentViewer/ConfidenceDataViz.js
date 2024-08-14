@@ -137,14 +137,14 @@ export function ConfidenceDataViz(props) {
 
 
     const series = [
-        { data: orangeGroup, stack: 'total', color: '#ff8712' },
-        { data: yellowGroup, stack: 'total', color: '#e5d815' },
-        { data: blueGroup, stack: 'total', color: '#add8e6' },
-        { data: pinkGroup, stack: 'total', color: '#ffadc1' },
-        { data: greenGroup, stack: 'total', color: '#a8ffc0' },
-        { data: purpleGroup, stack: 'total', color: '#ca99f4' },
-        { data: brownGroup, stack: 'total', color: '#CC9999' },
-        { data: greyGroup, stack: 'total', color: '#808080' },
+        { data: orangeGroup, stack: 'total', color: 'rgba(255, 135, 18, 0.65)' },
+        { data: yellowGroup, stack: 'total', color: 'rgba(255, 191, 0, 0.65)' },
+        { data: blueGroup, stack: 'total', color: 'rgba(173, 216, 230, 0.65)' },
+        { data: pinkGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
+        { data: greenGroup, stack: 'total', color: 'rgba(127, 206, 148, 0.65)' },
+        { data: purpleGroup, stack: 'total', color: 'rgba(179, 108, 239, 0.65)' },
+        { data: brownGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
+        { data: greyGroup, stack: 'total', color: 'rgba(128, 128, 128, 0.65)' },
     ]
 
     const SliderLine = styled('div')(({ theme }) => ({
@@ -159,13 +159,25 @@ export function ConfidenceDataViz(props) {
         '&::before': {
             content: '""',
             position: 'absolute',
-            top: '50%',
+            top: '40%',
             left: '30%',
             transform: 'translate(-50%, -50%)',
             width: '20px', // Width of the grey block
             height: '20px', // Height of the grey block
-            backgroundColor: 'grey',
+            backgroundColor: 'lightgrey',
             borderRadius: '4px',
+        },
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: '40%',
+            left: '30%',
+            transform: 'translate(-50%, -50%)',
+            width: '18px',
+            height: '2px', // Thickness of the lines
+            backgroundColor: 'grey',
+            borderRadius: '2px', // Optional: Rounds the edges of the lines
+            display: 'block',
         },
     }));
 

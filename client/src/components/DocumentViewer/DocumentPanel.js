@@ -1,9 +1,6 @@
-import React, {useEffect, useRef, useState} from "react";
-import $ from "jquery";
+import React, {useEffect, useState} from "react";
 import parse from "html-react-parser";
-import {element} from "prop-types";
-import { Badge } from '@mui/material';
-import MailIcon from '@mui/icons-material/Mail';
+import {hexToRgba} from "./ColorUtils";
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
@@ -51,7 +48,8 @@ export function DocumentPanel(props) {
         textMentionObj.preferredText = obj["preferredText"];
         textMentionObj.begin = obj.begin;
         textMentionObj.end = obj.end;
-        textMentionObj.backgroundColor = semanticGroups[obj.dpheGroup].backgroundColor;
+        const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
+        textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
         textMentionObj.color = semanticGroups[obj.dpheGroup].color;
         textMentionObj.id = obj.id;
         textMentionObj.negated = obj.negated;

@@ -62,7 +62,7 @@ export function SortPanel(props) {
                 variant="contained"
                 onClick={handleClick}
                 endIcon={<KeyboardArrowDownIcon style={{ fill: 'white' }} />}
-                style={{ margin: 'auto', marginTop: '15px', display: "flex", padding: "6px", marginBottom: '15px' }}
+                style={{ margin: 'auto', marginTop: '15px', display: "flex", padding: "6px", marginBottom: '15px', float: 'left' }}
             >
                 Sort Concepts
             </Button>
