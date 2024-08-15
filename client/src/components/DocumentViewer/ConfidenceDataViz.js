@@ -159,14 +159,24 @@ export function ConfidenceDataViz(props) {
         '&::before': {
             content: '""',
             position: 'absolute',
-            top: '40%',
-            left: '30%',
-            transform: 'translate(-50%, -50%)',
-            width: '20px', // Width of the grey block
-            height: '20px', // Height of the grey block
-            backgroundColor: 'lightgrey',
-            borderRadius: '4px',
+            top: 0,
+            bottom: 0,
+            paddingLeft: '20px',
+            left: '-100vw',  // Extend the grey background to the left edge of the viewport
+            right: '50%',  // End the grey background at the slider line
+            backgroundColor: 'rgba(211, 211, 211, 0.5)', // Transparent light grey background
         },
+        // '&::before': {
+        //     content: '""',
+        //     position: 'absolute',
+        //     top: '40%',
+        //     left: '30%',
+        //     transform: 'translate(-50%, -50%)',
+        //     width: '20px', // Width of the grey block
+        //     height: '20px', // Height of the grey block
+        //     backgroundColor: 'lightgrey',
+        //     borderRadius: '4px',
+        // },
         '&::after': {
             content: '""',
             position: 'absolute',
