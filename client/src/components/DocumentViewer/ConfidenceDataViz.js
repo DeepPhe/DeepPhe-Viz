@@ -1,45 +1,17 @@
 import GridItem from "../Grid/GridItem";
 import React, {useRef, useState} from "react";
-import {axisClasses, BarChart} from '@mui/x-charts';
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
-import { styled } from '@mui/material/styles';
+import {BarChart} from '@mui/x-charts';
+import {styled} from '@mui/material/styles';
 import {FormLabel} from "@mui/material";
 import GridContainer from "../Grid/GridContainer";
-
 export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
     // const value = props.value;
-    const [value, setValue] = useState(50);
-    const [sliderPosition, setSliderPosition] = useState(199);
-    // const orange1 = concepts.filter(concepts => concepts.confidence >= 0 && concepts.confidence <= 0.164);
-    // const orange2 = concepts.filter(concepts => concepts.confidence >= 0.165 && concepts.confidence <= 0.329);
-    // const yellow1 = concepts.filter(concepts => concepts.confidence >= 0.330 && concepts.confidence <= 0.494);
-    // const yellow2 = concepts.filter(concepts => concepts.confidence >= 0.495 && concepts.confidence <= 0.659);
-    // const green1 = concepts.filter(concepts => concepts.confidence >= 0.660 && concepts.confidence <= 0.824);
-    // const green2 = concepts.filter(concepts => concepts.confidence >= 0.825 && concepts.confidence <= 1);
+    const [value, setValue] = useState(0);
+    const [sliderPosition, setSliderPosition] = useState(40);
 
 
-    // const orange1 = concepts.filter(concepts => concepts.confidence >= 0 && concepts.confidence <= 0.050); 5%
-    // const orange2 = concepts.filter(concepts => concepts.confidence >= 0.051 && concepts.confidence <= 0.10);
-    // const orange3 = concepts.filter(concepts => concepts.confidence >= 0.101 && concepts.confidence <= 0.15);
-    // const orange4 = concepts.filter(concepts => concepts.confidence >= 0.151 && concepts.confidence <= 0.20);
-    // const orange5 = concepts.filter(concepts => concepts.confidence >= 0.201 && concepts.confidence <= 0.25);
-    // const orange6 = concepts.filter(concepts => concepts.confidence >= 0.251 && concepts.confidence <= 0.30);
-    // const orange7 = concepts.filter(concepts => concepts.confidence >= 0.301 && concepts.confidence <= 0.35);
-    // const yellow1 = concepts.filter(concepts => concepts.confidence >= 0.351 && concepts.confidence <= 0.40);
-    // const yellow2 = concepts.filter(concepts => concepts.confidence >= 0.451 && concepts.confidence <= 0.50);
-    // const yellow3 = concepts.filter(concepts => concepts.confidence >= 0.501 && concepts.confidence <= 0.55);
-    // const yellow4 = concepts.filter(concepts => concepts.confidence >= 0.551 && concepts.confidence <= 0.60);
-    // const yellow5 = concepts.filter(concepts => concepts.confidence >= 0.601 && concepts.confidence <= 0.65);
-    // const yellow6 = concepts.filter(concepts => concepts.confidence >= 0.651 && concepts.confidence <= 0.70);
-    // const green1 = concepts.filter(concepts => concepts.confidence >= 0.701 && concepts.confidence <= 0.75);
-    // const green2 = concepts.filter(concepts => concepts.confidence >= 0.751 && concepts.confidence <= 80);
-    // const green3 = concepts.filter(concepts => concepts.confidence >= 0.801 && concepts.confidence <= 0.85);
-    // const green4 = concepts.filter(concepts => concepts.confidence >= 0.851 && concepts.confidence <= 90);
-    // const green5 = concepts.filter(concepts => concepts.confidence >= 0.901 && concepts.confidence <= 0.95);
-    // const green6 = concepts.filter(concepts => concepts.confidence >= 0.951 && concepts.confidence <= 1);
 
 
     function getSemanticGroupConfidenceCount(name){
@@ -69,29 +41,6 @@ export function ConfidenceDataViz(props) {
 
         return lists.reduce((acc, list) => acc.map((num, idx) => num + (list[idx] || 0)), initial);
     }
-
-
-    // const orange1 = concepts.filter(concepts => concepts.confidence >= 0 && concepts.confidence <= 0.10);
-    // const orange2 = concepts.filter(concepts => concepts.confidence >= 0.101 && concepts.confidence <= 0.20);
-    // const orange3 = concepts.filter(concepts => concepts.confidence >= 0.201 && concepts.confidence <= 0.30);
-    // const orange4 = concepts.filter(concepts => concepts.confidence >= 0.301 && concepts.confidence <= 0.40);
-    // const yellow1 = concepts.filter(concepts => concepts.confidence >= 0.401 && concepts.confidence <= 0.50);
-    // const yellow2 = concepts.filter(concepts => concepts.confidence >= 0.501 && concepts.confidence <= 0.60);
-    // const yellow3 = concepts.filter(concepts => concepts.confidence >= 0.601 && concepts.confidence <= 0.70);
-    // const green1 = concepts.filter(concepts => concepts.confidence >= 0.701 && concepts.confidence <= 0.80);
-    // const green2 = concepts.filter(concepts => concepts.confidence >= 0.801 && concepts.confidence <= 0.90);
-    // const green3 = concepts.filter(concepts => concepts.confidence >= 0.901 && concepts.confidence <= 1);
-
-
-    // const series = [{
-    //     // data: [orange1.length, orange2.length, orange3.length, orange4.length, orange5.length, orange6.length, orange7.length,
-    //     //     yellow1.length, yellow2.length, yellow3.length, yellow4.length, yellow5.length, yellow6.length,
-    //     //     green1.length, green2.length, green3.length, green4.length, green5.length, green6.length],
-    //     data: [orange1.length, orange2.length, orange3.length, orange4.length, yellow1.length, yellow2.length, yellow3.length,
-    //         green1.length, green2.length, green3.length],
-    //     // data: [orange1.length, orange2.length, yellow1.length, yellow2.length,  green1.length, green2.length],
-    //     // label: ['0-16.5%', '16.5-33%', '33-49.5%', '49.5-66%', '66-82.5%', '82.5-99%' ]
-    // }];
 
     const Behavior = getSemanticGroupConfidenceCount('Behavior');
     const DSQ = getSemanticGroupConfidenceCount('Disease Stage Qualifier');
@@ -134,10 +83,11 @@ export function ConfidenceDataViz(props) {
     const purpleGroup = groupSemantics([PS, CihTR, IoP, ImgD]);
     const brownGroup = groupSemantics([Position]);
     const greyGroup = groupSemantics([Unknown]);
+    let percent = 0
 
 
     const series = [
-        { data: orangeGroup, stack: 'total', color: 'rgba(255, 135, 18, 0.65)' },
+        { data: orangeGroup, stack: 'total', color: 'rgba(255, 135, 18, 0.65)'},
         { data: yellowGroup, stack: 'total', color: 'rgba(255, 191, 0, 0.65)' },
         { data: blueGroup, stack: 'total', color: 'rgba(173, 216, 230, 0.65)' },
         { data: pinkGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
@@ -147,69 +97,20 @@ export function ConfidenceDataViz(props) {
         { data: greyGroup, stack: 'total', color: 'rgba(128, 128, 128, 0.65)' },
     ]
 
-    const SliderLine = styled('div')(({ theme }) => ({
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        width: '4px',  // Increased thickness
-        backgroundColor: theme.palette.primary.main,
-        cursor: 'ew-resize',
-        zIndex: 10,  // Ensure it is above the chart
-        height: '274px',
-        '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            bottom: 0,
-            paddingLeft: '20px',
-            left: '-100vw',  // Extend the grey background to the left edge of the viewport
-            right: '50%',  // End the grey background at the slider line
-            backgroundColor: 'rgba(211, 211, 211, 0.5)', // Transparent light grey background
-        },
-        // '&::before': {
-        //     content: '""',
-        //     position: 'absolute',
-        //     top: '40%',
-        //     left: '30%',
-        //     transform: 'translate(-50%, -50%)',
-        //     width: '20px', // Width of the grey block
-        //     height: '20px', // Height of the grey block
-        //     backgroundColor: 'lightgrey',
-        //     borderRadius: '4px',
-        // },
-        '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: '40%',
-            left: '30%',
-            transform: 'translate(-50%, -50%)',
-            width: '18px',
-            height: '2px', // Thickness of the lines
-            backgroundColor: 'grey',
-            borderRadius: '2px', // Optional: Rounds the edges of the lines
-            display: 'block',
-        },
-    }));
-
-
-
     const chartRef = useRef(null);
 
     const handleSliderChange = (event) => {
-        const rect = chartRef.current.getBoundingClientRect();
-        let newValue = event.clientX - rect.left;
-        const newIndex = Math.floor((newValue / rect.width) * series.length);
-        // console.log(rect.width);
-        if (newValue >= 43 && newValue <= rect.width-16) {
+        const yAxisBuffer = 40
+        const endOfGraphBuffer = 16
+        const chartRect = chartRef.current.getBoundingClientRect();
+
+        let newValue = event.clientX - chartRect.left;
+        if (newValue >= yAxisBuffer && newValue <= chartRect.width-endOfGraphBuffer) {
+            percent = ((chartRect.width - endOfGraphBuffer) - yAxisBuffer) / 100
+            const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / percent)
             setSliderPosition(newValue);
-            // console.log("change is happening");
-            let confidenceFaceValue = Math.floor((newValue-43)/3.09);
-            if(confidenceFaceValue > 99){
-                confidenceFaceValue = 100;
-            }
-            setValue(confidenceFaceValue);
-            handleConfidenceChange(confidenceFaceValue);
-            // setHighlightIndex(newIndex);
+            setValue(confidencePercent);
+            // handleConfidenceChange(confidencePercent);
         }
     };
 
@@ -223,12 +124,66 @@ export function ConfidenceDataViz(props) {
         document.removeEventListener('mouseup', handleMouseUp);
     };
 
+    const [sliderValue, setSliderValue] = useState(50); // Initialize slider value
+
+
+    const Container = styled('div')({
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        height: '274px',
+        width: '100%', // Adjust according to your chart width
+    });
+
+
+    const GreyBackground = styled('div')(({ width }) => ({
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: `${width}px`, // Dynamic width
+        backgroundColor: 'rgba(128, 128, 128, 0.5)', // Transparent grey
+        zIndex: 5, // Ensure it is below the slider line
+    }));
+
+    const SliderLine = styled('div')(({ theme }) => ({
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        width: '4px',  // Increased thickness
+        backgroundColor: theme.palette.primary.main,
+        cursor: 'ew-resize',
+        zIndex: 10,  // Ensure it is above the chart
+        height: '274px',
+        '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '30%',
+            transform: 'translate(-50%, -50%)',
+            width: '20px', // Width of the grey block
+            height: '20px', // Height of the grey block
+            backgroundColor: 'lightgrey',
+            borderRadius: '4px',
+        },
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '18px',
+            height: '2px', // Thickness of the lines
+            backgroundColor: 'grey',
+            borderRadius: '2px', // Optional: Rounds the edges of the lines
+            display: 'block',
+        },
+    }));
+
+
+
     return (
         <GridContainer spacing={2}>
             <GridItem xs={12} alignItems='center'>
-            {/*<FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px' }}>*/}
-            {/*    <b className="titles">Confidence:</b>*/}
-            {/*</FormLabel>*/}
                 <BarChart
                     ref={chartRef}
                     height={300}
@@ -240,15 +195,26 @@ export function ConfidenceDataViz(props) {
                             scaleType: 'band',
                             data: ['10%', '20%', '30%', '40%', '50%', '60%', '70%','80%', '90%', '100%'],
                             tickLabelPlacement: "tick",
-                            tickPlacement: "end"
+                            tickPlacement: "end",
                         },
                     ]}
+                    tooltip={{
+                        trigger: 'none',
+                    }}
+                    axisHighlight={{
+                        x: 'none',
+                        y: 'none'
+                    }}
+                />
+                <Container>
+                    <GreyBackground width={(chartRef.current.getBoundingClientRect().width)} /> {/* Adjust 300 based on container width */}
+                    <SliderLine style={{ left: `${sliderPosition}px` }} onMouseDown={handleMouseDown} />
+                {/*<SliderLine*/}
+                {/*    style={{ left: `${sliderPosition}px` }}*/}
+                {/*    onMouseDown={handleMouseDown}*/}
+                {/*/>*/}
+                </Container>
 
-                />
-                <SliderLine
-                    style={{ left: `${sliderPosition}px` }}
-                    onMouseDown={handleMouseDown}
-                />
             </GridItem>
             <GridItem xs={12}>
                 <FormLabel sx={{ fontWeight: 'light', fontSize: '1em', marginBottom: '-5px',display: 'flex',
