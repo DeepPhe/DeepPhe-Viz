@@ -9,35 +9,35 @@ import GridContainer from "../Grid/GridContainer";
 import Grid from "@material-ui/core/Grid";
 
 
-function ConfidenceButtons({ label, value, selectedValue, onChange, backgroundColor }) {
-    return (
-        <GridItem xs={4} sx={{marginLeft: 5}}>
-            <Box borderRadius={2} sx={{backgroundColor: backgroundColor, marginRight: 0.5}}>
-                <FormControlLabel
-                    control={<Checkbox
-                        sx={{ paddingRight: 0}}
-                        checked={selectedValue === value}
-                        onChange={() => onChange(value)}
-                    />}
-                    label={<Typography sx={{ width: '100%', textAlign: 'center' }}>{label}</Typography>}
-                    sx={{ flexGrow: 1, justifyContent: 'center', marginRight: 0, alignItems: 'center',
-                        width: '100%' }}
-                />
-            </Box>
-        </GridItem>
-    );
-}
+// function ConfidenceButtons({ label, value, selectedValue, onChange, backgroundColor }) {
+//     return (
+//         <GridItem xs={4} sx={{marginLeft: 5}}>
+//             <Box borderRadius={2} sx={{backgroundColor: backgroundColor, marginRight: 0.5}}>
+//                 <FormControlLabel
+//                     control={<Checkbox
+//                         sx={{ paddingRight: 0}}
+//                         checked={selectedValue === value}
+//                         onChange={() => onChange(value)}
+//                     />}
+//                     label={<Typography sx={{ width: '100%', textAlign: 'center' }}>{label}</Typography>}
+//                     sx={{ flexGrow: 1, justifyContent: 'center', marginRight: 0, alignItems: 'center',
+//                         width: '100%' }}
+//                 />
+//             </Box>
+//         </GridItem>
+//     );
+// }
 
 export function ConfidencePanel(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const [selectedValue, setSelectedValue] = useState(null);
-    const [value, setValue] = useState(50);
+    const [value, setValue] = useState(0);
 
 
-    const handleChange = (value) => {
-        setSelectedValue(value);
-        handleConfidenceChange(value);
-    };
+    // const handleChange = (value) => {
+    //     setSelectedValue(value);
+    //     handleConfidenceChange(value);
+    // };
 
     return (
         <GridItem xs={12} alignItems='center'>

@@ -38,7 +38,6 @@ export function SortPanel(props) {
                 }
                 else
                 {
-                    // console.log(method);
                     return 0;
                 }
             });

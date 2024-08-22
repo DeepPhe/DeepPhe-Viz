@@ -47,12 +47,12 @@ export function SemanticGroupPanel(props) {
 
     const getHeader = () => {
         return (<GridContainer>
-                <GridItem xs={5}>
+                <GridItem xs={6}>
                     <div>
                         <span><b className="titles">Semantic Groups:</b></span>
                     </div>
                 </GridItem>
-                <GridItem xs={6}>
+                <GridItem xs={5}>
 
                 </GridItem>
                 <GridItem xs={1} >
@@ -69,7 +69,7 @@ export function SemanticGroupPanel(props) {
                 <GridItem xs={12}>
                     <Box sx={{ mb:1, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>
                         <Button
-                            sx={{fontSize:'14px', mr: 1}}
+                            sx={{fontSize:'17px', fontFamily: "Monaco, monospace", fontWeight: "bold", mr: 1}}
                             id={"check-all-btn"}
                             variant="contained"
                             size="small"
@@ -77,7 +77,7 @@ export function SemanticGroupPanel(props) {
                             onClick={checkAll}
                         >Check All</Button>
                         <Button
-                            sx={{fontSize:'14px'}}
+                            sx={{fontSize:'17px', fontFamily: "Monaco, monospace", fontWeight: "bold"}}
                             id={"uncheck-all-btn"}
                             variant="contained"
                             size="small"

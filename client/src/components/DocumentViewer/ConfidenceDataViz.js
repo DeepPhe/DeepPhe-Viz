@@ -8,8 +8,9 @@ export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
     // const value = props.value;
-    const [value, setValue] = useState(0);
+    const [confidencePercent, setConfidencePercent] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(40);
+    let previousPercent = 0;
 
 
 
@@ -83,7 +84,6 @@ export function ConfidenceDataViz(props) {
     const purpleGroup = groupSemantics([PS, CihTR, IoP, ImgD]);
     const brownGroup = groupSemantics([Position]);
     const greyGroup = groupSemantics([Unknown]);
-    let percent = 0
 
 
     const series = [
@@ -103,14 +103,17 @@ export function ConfidenceDataViz(props) {
         const yAxisBuffer = 40
         const endOfGraphBuffer = 16
         const chartRect = chartRef.current.getBoundingClientRect();
-
         let newValue = event.clientX - chartRect.left;
         if (newValue >= yAxisBuffer && newValue <= chartRect.width-endOfGraphBuffer) {
-            percent = ((chartRect.width - endOfGraphBuffer) - yAxisBuffer) / 100
-            const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / percent)
+            const graphPercent = ((chartRect.width - endOfGraphBuffer) - yAxisBuffer) / 100
+            const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / graphPercent)
             setSliderPosition(newValue);
-            setValue(confidencePercent);
-            // handleConfidenceChange(confidencePercent);
+            setConfidencePercent(confidencePercent);
+            if (confidencePercent !== previousPercent){
+                previousPercent = confidencePercent;
+                handleConfidenceChange(confidencePercent);
+
+            }
         }
     };
 
@@ -124,46 +127,34 @@ export function ConfidenceDataViz(props) {
         document.removeEventListener('mouseup', handleMouseUp);
     };
 
-    const [sliderValue, setSliderValue] = useState(50); // Initialize slider value
 
-
-    const Container = styled('div')({
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        height: '274px',
-        width: '100%', // Adjust according to your chart width
-    });
-
-
-    const GreyBackground = styled('div')(({ width }) => ({
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        width: `${width}px`, // Dynamic width
-        backgroundColor: 'rgba(128, 128, 128, 0.5)', // Transparent grey
-        zIndex: 5, // Ensure it is below the slider line
-    }));
+    // const SliderContainer = styled('div')({
+    //     position: 'absolute',
+    //     top: 0,
+    //     bottom: 0,
+    //     height: '274px', //274
+    //     width: '10%',
+    // });
 
     const SliderLine = styled('div')(({ theme }) => ({
         position: 'absolute',
-        top: 0,
+        top: 19,
         bottom: 0,
         width: '4px',  // Increased thickness
         backgroundColor: theme.palette.primary.main,
         cursor: 'ew-resize',
         zIndex: 10,  // Ensure it is above the chart
-        height: '274px',
+        height: '255px',
         '&::before': {
             content: '""',
             position: 'absolute',
-            top: '50%',
-            left: '30%',
-            transform: 'translate(-50%, -50%)',
-            width: '20px', // Width of the grey block
-            height: '20px', // Height of the grey block
-            backgroundColor: 'lightgrey',
-            borderRadius: '4px',
+            top: 0,
+            bottom: 0,
+            left: `${-sliderPosition+40}px`, // Move the grey background to the left relative to the slider position
+            width: `${sliderPosition-40}px`, // The width of the grey background changes dynamically
+            backgroundColor: 'rgba(128, 128, 128, 0.5)', // Transparent grey color
+            zIndex: -1, // Ensure it appears behind the slider line
+            display: "block",
         },
         '&::after': {
             content: '""',
@@ -172,8 +163,8 @@ export function ConfidenceDataViz(props) {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '18px',
-            height: '2px', // Thickness of the lines
-            backgroundColor: 'grey',
+            height: '20px', // Thickness of the lines
+            backgroundColor: 'lightgrey',
             borderRadius: '2px', // Optional: Rounds the edges of the lines
             display: 'block',
         },
@@ -187,9 +178,13 @@ export function ConfidenceDataViz(props) {
                 <BarChart
                     ref={chartRef}
                     height={300}
+                    // series={emptySeries}
                     series={series}
                     margin={{ top: 20, bottom: 26, left: 40, right: 15 }}
-                    yAxis={[{label: 'Occurrences'}]}
+                    yAxis={[{label: 'Occurrences',
+                    labelFontSize: 17}]}
+                    disableAxisListener={true}
+                    skipAnimation={true}
                     xAxis={[
                         {
                             scaleType: 'band',
@@ -206,14 +201,9 @@ export function ConfidenceDataViz(props) {
                         y: 'none'
                     }}
                 />
-                <Container>
-                    <GreyBackground width={(chartRef.current.getBoundingClientRect().width)} /> {/* Adjust 300 based on container width */}
-                    <SliderLine style={{ left: `${sliderPosition}px` }} onMouseDown={handleMouseDown} />
-                {/*<SliderLine*/}
-                {/*    style={{ left: `${sliderPosition}px` }}*/}
-                {/*    onMouseDown={handleMouseDown}*/}
-                {/*/>*/}
-                </Container>
+                {/*<SliderContainer>*/}
+                <SliderLine style={{ left: `${sliderPosition}px` }} onMouseDown={handleMouseDown}/>
+                {/*</SliderContainer>*/}
 
             </GridItem>
             <GridItem xs={12}>
@@ -221,7 +211,7 @@ export function ConfidenceDataViz(props) {
                     justifyContent: 'center',
                     alignItems: 'center',
                     textAlign: 'center' }}>
-                    <b className="titles">Confidence:</b> <span id="confidenceValue">{value}</span> %
+                    <b className="confidence_title">Confidence: </b> <span id="confidenceValue">{confidencePercent}</span> %
                 </FormLabel>
             </GridItem>
         </GridContainer>

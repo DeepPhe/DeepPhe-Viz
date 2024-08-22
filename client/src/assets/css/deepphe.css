@@ -8,7 +8,7 @@ iframe {
 
 html {
     color: #363636;
-    font-family: 'Roboto Condensed', sans-serif;
+    font-family: Monaco, monospace;
 
 }
 
@@ -62,6 +62,11 @@ a {
     margin-bottom: 15px;
 }
 
+#mentions_label {
+    font-size: 18px !important;
+    font-family: Monaco, monospace;
+}
+
 #search_label {
     margin-top: 5px;
 }
@@ -81,7 +86,7 @@ a {
 }
 
 #confidenceValue {
-    font-size: 20px;
+    font-size: 25px;
 }
 
 
@@ -240,7 +245,7 @@ a {
 
 /* Minimize the text rendering inconsistency across browsers */
 svg .tick text {
-    font-family: 'Roboto Condensed', sans-serif;
+    font-family: Monaco, monospace;
     font-size: 10px;
 }
 
@@ -879,7 +884,7 @@ th {
 .filtered_concepts_list {
     list-style-type: none;
     font-size: 18px;
-    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-family: Monaco, monospace;
     padding: 0;
 
     margin-top: 10px;
@@ -935,7 +940,6 @@ th {
     position: relative;
     top: -4px;
     float: right;
-
 }
 
 .line {
@@ -1058,7 +1062,7 @@ white text with more shading
 }
 
 .frequency {
-    font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+    font-family: Monaco, monospace;
     font-weight: 400;
     color: inherit;
 }
@@ -1114,6 +1118,11 @@ white text with more shading
 
 .titles {
     font-size: 18px;
+    font-family: Monaco, monospace;
+}
+.confidence_title {
+    font-size: 23px;
+    font-family: Monaco, monospace;
 }
 
 /* BLOCK OF CODE: below used to create darker or lighter shades to represent frequency, currently unused*/
@@ -1718,7 +1727,7 @@ her2 {
 }
 
 .App {
-    font-family: sans-serif;
+    font-family: Monaco, monospace;
     text-align: center;
 }
 

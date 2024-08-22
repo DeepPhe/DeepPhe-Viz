@@ -22,7 +22,7 @@ export function ConceptPanel(props) {
   const factId = props.factId;
   const handleSemanticGroupChange = props.handleSemanticGroupChange;
   const semanticGroups = props.semanticGroups;
-  const [confidence, setConfidence] = useState(0.5);
+  const [confidence, setConfidence] = useState(0);
   const filteredConcepts = props.filteredConcepts;
   const setFilteredConcepts = props.setFilteredConcepts;
 

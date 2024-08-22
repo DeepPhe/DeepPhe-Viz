@@ -12,6 +12,7 @@ export function ConceptListPanel(props) {
     const confidence = props.confidence;
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
+    let previousFilteredConcepts = []
     const [clickedTerm, setClickedTerm] = useState("");
 
 
@@ -46,6 +47,8 @@ export function ConceptListPanel(props) {
             setFilteredConcepts(sortedConcepts);
         }
     }, [concepts, confidence, semanticGroups]);
+
+
 
     //accessing the .checked property to see if [concept.dpheGroup] is checked
     function conceptGroupIsSelected(concept) {
@@ -100,7 +103,7 @@ export function ConceptListPanel(props) {
                     // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
-                            style={{fontSize: "14px", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
+                            style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
                             key={obj.id}
                             class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
                             data-id={obj.id}
