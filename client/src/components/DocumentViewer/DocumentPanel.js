@@ -126,6 +126,8 @@ export function DocumentPanel(props) {
 
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
+
+    //No mentions in reportText, we return just reportText
     if(textMentions.length === 0){
       return reportText;
     }
@@ -136,8 +138,7 @@ export function DocumentPanel(props) {
     let textFragments = [];
     let lastValidTMIndex = 0;
 
-
-
+    // For loop to highlight each mention in the report text
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
 
@@ -155,136 +156,131 @@ export function DocumentPanel(props) {
         if (textMention.begin <= lastValidTM.end) {
           lastValidTMIndex = i;
         } else {
-          textFragments.push(
-            reportText.substring(lastValidTM.end, textMention.begin)
-          );
+          textFragments.push(reportText.substring(lastValidTM.end, textMention.begin));
         }
       }
       // borderLeft: solid; borderTop: solid; borderBottom: solid;
       // console.log(textMention.clickedTerm.some((element) => {return element}));
       let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
 
-      if (textMention.preferredText.indexOf(term) > -1) {
-        textFragments.push(
-          '<span style="background-color:'+textMention.backgroundColor+'; border-radius:5px">' +
-            reportText.substring(textMention.begin, textMention.end) +
-            "</span>"
-        );
+      //we want to check for different cases, how many possible cases are there:
+      //1. nothing to left and nothing to right, so border stays circular on both sides
+      //2. nothing to left and something to right, so border is circular on left and flat on right
+      //3. something to left and nothing to right, so border is flat on left and circular on right
+      //4. something to left and something to right, so border is flat on both sides
+      // with 4 possible solutions we can create a helper function to determine the correct solution to each
+      // situation and then make that change in the main function
+      console.log(textMention.preferredText);
+      //We want to check what is in front of textmention without checking what is behind it, so this is a special
+      //case for the first textMention
+      if(i === 0 && textMentions[i+1]){
+        if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle =
+              `background-color: ${textMention.backgroundColor}; 
+              ${borderRadiusStyle};
+              border-radius: 5px 0 0 5px;
+              padding-left: 2px;
+              padding-right: 2px;`;
+
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
+
+          textFragments.push(htmlString);
+        }
+        //regular 5px border
+        else{
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle = `background-color: ${textMention.backgroundColor};
+          ${borderRadiusStyle};
+          border-radius: 5px;
+          padding-left: 2px;
+          padding-right: 2px;`;
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
+
+          textFragments.push(htmlString);
+        }
       }
-      else {
-        //We want to check what is in front of textmention without checking what is behind it, so this is a special
-        //case for the first textMention
-        if(i === 0 && textMentions[i+1]){
-          if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
-            // console.log("left side:", textMention);
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle =
-                `background-color: ${textMention.backgroundColor}; 
-                ${borderRadiusStyle};
-                border-radius: 5px 0 0 5px;
-                padding-left: 2px;
-                padding-right: 2px;`;
 
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
+      //check for past and future textMention, if they are same color then change border to 0
+      if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
 
-            textFragments.push(htmlString);
-          }
-          //regular 5px border
-          else{
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle = `background-color: ${textMention.backgroundColor};
-            ${borderRadiusStyle};
-            border-radius: 5px;
-            padding-left: 2px;
-            padding-right: 2px;`;
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
+        if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle = `background-color: ${textMention.backgroundColor};
+          ${borderRadiusStyle};
+          border-radius:0;
+          padding-left: 2px;
+          padding-right: 2px;`;
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
 
-            textFragments.push(htmlString);
-          }
+          textFragments.push(htmlString);
         }
+        //checking past textMention only
+        else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle = `background-color: ${textMention.backgroundColor};
+          ${borderRadiusStyle};
+          border-radius:0 5px 5px 0;
+          padding-left: 2px;
+          padding-right: 2px;`;
 
-        //check for past and future textMention, if they are same color then change border to 0
-        if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
 
-          if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle = `background-color: ${textMention.backgroundColor};
-            ${borderRadiusStyle};
-            border-radius:0;
-            padding-left: 2px;
-            padding-right: 2px;`;
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
-
-            textFragments.push(htmlString);
-          }
-          //checking past textMention only
-          else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle = `background-color: ${textMention.backgroundColor};
-            ${borderRadiusStyle};
-            border-radius:0 5px 5px 0;
-            padding-left: 2px;
-            padding-right: 2px;`;
-
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
-
-            textFragments.push(htmlString);
-          }
-          //checking future textMention only
-          else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle = `background-color: ${textMention.backgroundColor};
-            ${borderRadiusStyle};
-            border-radius: 5px 0 0 5px;
-            padding-left: 2px;
-            padding-right: 2px;`;
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
-
-            textFragments.push(htmlString);
-          }
-          else {
-            const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-            const spanStyle = `background-color: ${textMention.backgroundColor};
-            ${borderRadiusStyle};
-            border-radius: 5px;
-            padding-left: 2px;
-            padding-right: 2px;`;
-            const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-                `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-                `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-                (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-                `</span>`;
-
-            textFragments.push(htmlString);
-
-            }
+          textFragments.push(htmlString);
         }
+        //checking future textMention only
+        else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle = `background-color: ${textMention.backgroundColor};
+          ${borderRadiusStyle};
+          border-radius: 5px 0 0 5px;
+          padding-left: 2px;
+          padding-right: 2px;`;
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
+
+          textFragments.push(htmlString);
+        }
+        else {
+          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+          const spanStyle = `background-color: ${textMention.backgroundColor};
+          ${borderRadiusStyle};
+          border-radius: 5px;
+          padding-left: 2px;
+          padding-right: 2px;`;
+          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+              `</span>`;
+
+          textFragments.push(htmlString);
+
+          }
       }
 
       lastValidTMIndex = i;
     }
-    // debugger;
-    // Push end of the document
+    console.log(reportText.substring(textMentions[lastValidTMIndex].end))
     textFragments.push(
         reportText.substring(textMentions[lastValidTMIndex].end)
     );
@@ -299,6 +295,12 @@ export function DocumentPanel(props) {
     }
 
     return highlightedReportText;
+  }
+
+  function determineHighlightedBorder(textMention){
+
+    //4.  nothing to left and nothing to right, so border stays circular on both sides
+
   }
 
   function cleanUpTextFragments(textFragments){
