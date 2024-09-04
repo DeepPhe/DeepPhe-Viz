@@ -1,6 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useRef, useEffect, useState} from "react";
 import parse from "html-react-parser";
 import {hexToRgba} from "./ColorUtils";
+import { useCallback } from 'react';
+
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
@@ -9,7 +11,9 @@ export function DocumentPanel(props) {
   const clickedTerm = props.clickedTerm;
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
+  const [filteredConceptsWhole, setFilteredConceptsWhole] = useState([]);
   const fontSize = props.fontSize;
+  const confidence = props.confidence;
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -33,31 +37,35 @@ export function DocumentPanel(props) {
   };
 
 
-  function createMentionObj(mentionedTerms) {
+  function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
-    // console.log(filteredConcepts);
-    // console.log(mentionedTerms);
-    mentionedTerms.forEach(function (nestedArray) {
+    FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
-        let textMentionObj = {};
-        const index = filteredConcepts.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
+          // console.log(obj);
+          let textMentionObj = {};
+          const index = filteredConceptsWhole.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
 
-        const conceptConfidence = Math.round(filteredConcepts[index].confidence * 100);
-        // console.log(conceptConfidence);
+          const conceptConfidence = Math.round(filteredConceptsWhole[index].confidence * 100);
+          textMentionObj.preferredText = obj["preferredText"];
+          textMentionObj.begin = obj.begin;
+          textMentionObj.end = obj.end;
+          console.log(conceptConfidence, confidence * 100);
+          if(obj.confidence < confidence * 100){
+            console.log("hello");
+            textMentionObj.backgroundColor = 'white';
+          }
+          else{
+            const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
+            textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
+          }
+          textMentionObj.color = semanticGroups[obj.dpheGroup].color;
+          textMentionObj.id = obj.id;
+          textMentionObj.negated = obj.negated;
+          textMentionObj.confidence = conceptConfidence;
+          const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
-        textMentionObj.preferredText = obj["preferredText"];
-        textMentionObj.begin = obj.begin;
-        textMentionObj.end = obj.end;
-        const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
-        textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
-        textMentionObj.color = semanticGroups[obj.dpheGroup].color;
-        textMentionObj.id = obj.id;
-        textMentionObj.negated = obj.negated;
-        textMentionObj.confidence = conceptConfidence;
-        const mentionsForHighlight = getMentionsForConcept(clickedTerm);
-
-        textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
-        textMentions.push(textMentionObj);
+          textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
+          textMentions.push(textMentionObj);
       });
     });
 
@@ -159,26 +167,17 @@ export function DocumentPanel(props) {
           textFragments.push(reportText.substring(lastValidTM.end, textMention.begin));
         }
       }
-      // borderLeft: solid; borderTop: solid; borderBottom: solid;
-      // console.log(textMention.clickedTerm.some((element) => {return element}));
-      let borderRadiusStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
 
-      //we want to check for different cases, how many possible cases are there:
-      //1. nothing to left and nothing to right, so border stays circular on both sides
-      //2. nothing to left and something to right, so border is circular on left and flat on right
-      //3. something to left and nothing to right, so border is flat on left and circular on right
-      //4. something to left and something to right, so border is flat on both sides
-      // with 4 possible solutions we can create a helper function to determine the correct solution to each
-      // situation and then make that change in the main function
-      console.log(textMention.preferredText);
+      let borderStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
+
       //We want to check what is in front of textmention without checking what is behind it, so this is a special
       //case for the first textMention
-      if(i === 0 && textMentions[i+1]){
+      if(i === 0 && textMentions[i + 1]){
         if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle =
               `background-color: ${textMention.backgroundColor}; 
-              ${borderRadiusStyle};
+              ${borderStyle};
               border-radius: 5px 0 0 5px;
               padding-left: 2px;
               padding-right: 2px;`;
@@ -195,7 +194,7 @@ export function DocumentPanel(props) {
         else{
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderRadiusStyle};
+          ${borderStyle};
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
@@ -209,29 +208,13 @@ export function DocumentPanel(props) {
         }
       }
 
-      //check for past and future textMention, if they are same color then change border to 0
-      if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
-
-        if (textMentions[i - 1].backgroundColor === textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1] === textMention.backgroundColor) {
+      //We want to check what is behind the last textmention without checking what is in front it, so this is a special
+      //case for the last textMention
+      if(i === textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== ""){
+        if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderRadiusStyle};
-          border-radius:0;
-          padding-left: 2px;
-          padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-              `</span>`;
-
-          textFragments.push(htmlString);
-        }
-        //checking past textMention only
-        else if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
-          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-          const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderRadiusStyle};
+          ${borderStyle};
           border-radius:0 5px 5px 0;
           padding-left: 2px;
           padding-right: 2px;`;
@@ -244,26 +227,10 @@ export function DocumentPanel(props) {
 
           textFragments.push(htmlString);
         }
-        //checking future textMention only
-        else if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i+1].backgroundColor.length - 1]) {
+        else{
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderRadiusStyle};
-          border-radius: 5px 0 0 5px;
-          padding-left: 2px;
-          padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-              `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-              (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-              `</span>`;
-
-          textFragments.push(htmlString);
-        }
-        else {
-          const spanClass = isNegated(textMention.negated) ? 'neg' : '';
-          const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderRadiusStyle};
+          ${borderStyle};
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
@@ -274,20 +241,38 @@ export function DocumentPanel(props) {
               `</span>`;
 
           textFragments.push(htmlString);
+        }
 
-          }
+      }
+
+      if( i > 0 && i < textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== "") {
+
+        const borderRadius = determineBorderRadius(textMention, textMentions, i);
+        const spanClass = isNegated(textMention.negated) ? 'neg' : '';
+        const spanStyle = `background-color: ${textMention.backgroundColor};
+        ${borderStyle};
+        border-radius:${borderRadius};
+        padding-left: 2px;
+        padding-right: 2px;`;
+        const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+            `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+            `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+            (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+            `</span>`;
+
+        textFragments.push(htmlString);
+
       }
 
       lastValidTMIndex = i;
     }
-    console.log(reportText.substring(textMentions[lastValidTMIndex].end))
+
     textFragments.push(
         reportText.substring(textMentions[lastValidTMIndex].end)
     );
 
     // Assemble the final report content with highlighted texts
     let highlightedReportText = "";
-
     textFragments = cleanUpTextFragments(textFragments);
 
     for (let j = 0; j < textFragments.length; j++) {
@@ -297,10 +282,24 @@ export function DocumentPanel(props) {
     return highlightedReportText;
   }
 
-  function determineHighlightedBorder(textMention){
+  //Backgrounds both have color
+  function determineBorderRadius(textMention, textMentions, i) {
 
-    //4.  nothing to left and nothing to right, so border stays circular on both sides
-
+    //check for past and future textMention, if they are same color then change border to 0
+    if (textMentions[i - 1].backgroundColor && textMention.backgroundColor &&
+        textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
+      return "0";
+    }
+    //checking past textMention only
+    else if (textMentions[i - 1].backgroundColor && textMention.backgroundColor) {
+      return "0 5px 5px 0";
+    }
+    //checking future textMention only
+    else if (textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
+      return "5px 0 0 5px";
+    } else {
+      return "5px";
+    }
   }
 
   function cleanUpTextFragments(textFragments){
@@ -356,18 +355,31 @@ export function DocumentPanel(props) {
 
   function getAllConceptIDs(){
     let conceptIDList = [];
-
-    for(let i = 0; i < filteredConcepts.length; i++){
-        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConcepts[i].id));
+    console.log(filteredConceptsWhole);
+    for(let i = 0; i < filteredConceptsWhole.length; i++){
+        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsWhole[i].id));
         conceptIDList.push(mentions);
     }
     return conceptIDList;
   }
 
-  function setHTML() {
+  const setHTML = useCallback(() => {
     let conceptIds = getAllConceptIDs();
     setDocText(highlightTextMentions(createMentionObj(conceptIds), doc.text));
-  }
+  }, [getAllConceptIDs, highlightTextMentions, createMentionObj, doc.text]);
+
+
+  useEffect(() => {
+    if (props.filteredConcepts && props.filteredConcepts.length > 0) {
+      console.log("props.filteredConcepts:", props.filteredConcepts);
+      setFilteredConceptsWhole([...props.filteredConcepts]);
+
+      // Log the copied state right after setting it
+      setTimeout(() => {
+        console.log("filteredConceptsWhole after setState:", filteredConceptsWhole);
+      }, 0);
+    }
+  }, [props.filteredConcepts]);
 
   useEffect(() => {
     if(props.filteredConcepts.length > 0){
@@ -375,7 +387,12 @@ export function DocumentPanel(props) {
       setDocText(props.doc.text);
       setHTML()
     }
-  },[props.doc, props.filteredConcepts, props.clickedTerm]);
+  },[props.doc,props.clickedTerm, props.confidence]);
+
+  useEffect(() => {
+    // This useEffect will log the updated state after it has been set
+    console.log("filteredConceptsWhole has been updated:", filteredConceptsWhole);
+  }, [filteredConceptsWhole]);
   // props.doc, props.filteredConcepts, props.clickedTerm
 
   const getHTML = (docText) => {

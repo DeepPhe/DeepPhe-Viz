@@ -942,6 +942,20 @@ th {
     float: right;
 }
 
+.SortTitle{
+    font-size: 20px;
+    font-family: Monaco, monospace;
+
+}
+
+.collapseTitle{
+    font-size: 18px;
+    font-family: Monaco, monospace;
+    float: right;
+    cursor: context-menu;
+
+}
+
 .line {
     height: 1px;
     background-color: #000; /* Adjust the color as needed */
@@ -1539,6 +1553,8 @@ span.neg .icon{
 
 .span-info{
     position: relative;
+    cursor: context-menu;
+
 }
 
 .tooltip {

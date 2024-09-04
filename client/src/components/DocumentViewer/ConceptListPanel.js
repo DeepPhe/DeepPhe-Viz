@@ -63,7 +63,6 @@ export function ConceptListPanel(props) {
         let filteredConcepts = []
 
         for(let i = 0; i < concepts.length; i++){
-            // console.log(parseFloat(concepts[i].confidence) >= parseFloat(confidence), conceptGroupIsSelected(concepts[i]))
             if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
                 filteredConcepts.push(concepts[i]);
             }
@@ -95,17 +94,14 @@ export function ConceptListPanel(props) {
             sortedConcepts = [];
         }
 
-        // console.log(sortedConcepts);
-
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {sortedConcepts.map((obj) => {
-                    // console.log('Rendering ListItem:', obj);
                     return (
                         <ListItem
                             style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
                             key={obj.id}
-                            class={"report_mentioned_term"} //deleted 'conceptListItem' no apparent use
+                            class={"report_mentioned_term"}
                             data-id={obj.id}
                             data-negated={obj.negated}
                             data-confidence={obj.confidence}

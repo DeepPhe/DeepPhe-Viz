@@ -1,16 +1,16 @@
 import GridItem from "../Grid/GridItem";
-import React, {useRef, useState} from "react";
+import React, {useRef, useState, useCallback} from "react";
 import {BarChart} from '@mui/x-charts';
 import {styled} from '@mui/material/styles';
 import {FormLabel} from "@mui/material";
 import GridContainer from "../Grid/GridContainer";
+import _ from 'lodash';
 export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
     // const value = props.value;
     const [confidencePercent, setConfidencePercent] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(40);
-    let previousPercent = 0;
 
 
 
@@ -99,6 +99,13 @@ export function ConfidenceDataViz(props) {
 
     const chartRef = useRef(null);
 
+    const throttledHandleConfidenceChange = useCallback(
+        _.throttle((confidencePercent) => {
+            handleConfidenceChange(confidencePercent);
+        }, 300), // 100ms throttle interval
+        []
+    );
+
     const handleSliderChange = (event) => {
         const yAxisBuffer = 40
         const endOfGraphBuffer = 16
@@ -109,11 +116,8 @@ export function ConfidenceDataViz(props) {
             const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / graphPercent)
             setSliderPosition(newValue);
             setConfidencePercent(confidencePercent);
-            if (confidencePercent !== previousPercent){
-                previousPercent = confidencePercent;
-                handleConfidenceChange(confidencePercent);
+            throttledHandleConfidenceChange(confidencePercent);
 
-            }
         }
     };
 
@@ -126,15 +130,6 @@ export function ConfidenceDataViz(props) {
         document.removeEventListener('mousemove', handleSliderChange);
         document.removeEventListener('mouseup', handleMouseUp);
     };
-
-
-    // const SliderContainer = styled('div')({
-    //     position: 'absolute',
-    //     top: 0,
-    //     bottom: 0,
-    //     height: '274px', //274
-    //     width: '10%',
-    // });
 
     const SliderLine = styled('div')(({ theme }) => ({
         position: 'absolute',
@@ -201,9 +196,7 @@ export function ConfidenceDataViz(props) {
                         y: 'none'
                     }}
                 />
-                {/*<SliderContainer>*/}
                 <SliderLine style={{ left: `${sliderPosition}px` }} onMouseDown={handleMouseDown}/>
-                {/*</SliderContainer>*/}
 
             </GridItem>
             <GridItem xs={12}>

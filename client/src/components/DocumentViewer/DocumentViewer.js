@@ -18,6 +18,7 @@ export function DocumentViewer(props) {
   const [filteredConcepts, setFilteredConcepts] = useState([]);
   const [semanticGroups, setSemanticGroups] = useState({});
   const [fontSize, setFontSize] = useState(15);
+  const [confidence, setConfidence] = useState(0);
   // const clickedTerm = props.clickedTerm;
   const [clickedTerm, setClickedTerm] = useState("");
 
@@ -27,6 +28,22 @@ export function DocumentViewer(props) {
     }
     // else ()
   }, [semanticGroups,filteredConcepts, setFilteredConcepts]);
+
+  // $(document).on("input", "#confidenceRange", function () {
+  //   let slider = document.getElementById("confidenceRange");
+  //   let output = document.getElementById("confidenceValue");
+  //
+  //   output.innerHTML = slider.value;
+  //
+  //   slider.oninput = function () {
+  //     output.innerHTML = this.value;
+  //   };
+  // });
+
+  const handleConfidenceChange = (e) => {
+    setConfidence(e/100);
+  };
+
 
   function isEmpty(obj) {
     for (const i in obj) return false;
@@ -223,6 +240,8 @@ export function DocumentViewer(props) {
                           setFilteredConcepts={setFilteredConcepts}
                           filteredConcepts={filteredConcepts}
                           handleTermClick={handleTermClick}
+                          handleConfidenceChange={handleConfidenceChange}
+                          confidence={confidence}
                         />
                       </GridItem>
                     </GridContainer>
@@ -238,6 +257,7 @@ export function DocumentViewer(props) {
                       filteredConcepts={filteredConcepts}
                       fontSize={fontSize}
                       clickedTerm={clickedTerm}
+                      confidence={confidence}
                     />
                   </GridItem>
                 </GridContainer>

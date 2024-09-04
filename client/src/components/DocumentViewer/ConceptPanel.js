@@ -13,6 +13,7 @@ import { ConceptListPanel } from "./ConceptListPanel";
 import GridItem from "../Grid/GridItem";
 import ListItem from "@material-ui/core/ListItem";
 import {ConfidenceDataViz} from "./ConfidenceDataViz";
+import Divider from "@mui/material/Divider";
 
 export function ConceptPanel(props) {
   const concepts = props.concepts;
@@ -21,26 +22,11 @@ export function ConceptPanel(props) {
   const reportId = props.reportId;
   const factId = props.factId;
   const handleSemanticGroupChange = props.handleSemanticGroupChange;
+  const handleConfidenceChange = props.handleConfidenceChange;
   const semanticGroups = props.semanticGroups;
-  const [confidence, setConfidence] = useState(0);
   const filteredConcepts = props.filteredConcepts;
   const setFilteredConcepts = props.setFilteredConcepts;
-
-  $(document).on("input", "#confidenceRange", function () {
-    let slider = document.getElementById("confidenceRange");
-    let output = document.getElementById("confidenceValue");
-
-    output.innerHTML = slider.value;
-
-    slider.oninput = function () {
-      output.innerHTML = this.value;
-    };
-  });
-
-  const handleConfidenceChange = (e) => {
-    setConfidence(e/100);
-  };
-
+  const confidence = props.confidence;
 
   return (
       <React.Fragment>
@@ -93,14 +79,12 @@ export function ConceptPanel(props) {
                   <ConfidenceDataViz
                       handleConfidenceChange={handleConfidenceChange}
                       concepts={concepts}
-                      // value={value}
                   />
               </GridContainer>
               <GridContainer>
-                  <ConfidencePanel
-                      handleConfidenceChange={handleConfidenceChange}
-                  />
+                  <ConfidencePanel/>
               </GridContainer>
+              <Divider sx={{ background: 'black', borderBottomWidth: 2 }} />
               <GridContainer>
                   <SortPanel
                       filteredConcepts={filteredConcepts}
@@ -117,7 +101,6 @@ export function ConceptPanel(props) {
               {/*    </ListItem>*/}
               {/*</GridContainer>*/}
             <ConceptListPanel
-
                 concepts={concepts}
                 mentions={mentions}
                 semanticGroups={semanticGroups}
@@ -126,7 +109,6 @@ export function ConceptPanel(props) {
                 filteredConcepts={filteredConcepts}
                 handleTermClick={props.handleTermClick}
             />
-          {/*</GridContainer>*/}
         </CardBody>
       </Card>
 </React.Fragment>

@@ -16,19 +16,19 @@ export function SemanticGroupPanel(props) {
     const confidence = props.confidence;
     const filteredConcepts = props.filteredConcepts;
     const [isVisible, setIsVisible] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(true);
 
-
-    useEffect(() => {
-
-        // getSemanticGroups()
-        const visibleSemantics = [];
-        for(let i = 0; i < filteredConcepts.length -1; i++){
-            visibleSemantics.push(filteredConcepts[i].dpheGroup);
-            // console.log(filteredConcepts[i].dpheGroup);
-        }
-        // console.log(visibleSemantics)
-
-    }, [confidence]);
+    // useEffect(() => {
+    //
+    //     // getSemanticGroups()
+    //     const visibleSemantics = [];
+    //     for(let i = 0; i < filteredConcepts.length -1; i++){
+    //         visibleSemantics.push(filteredConcepts[i].dpheGroup);
+    //         // console.log(filteredConcepts[i].dpheGroup);
+    //     }
+    //     // console.log(visibleSemantics)
+    //
+    // }, [confidence]);
 
 
     const handleCheckboxChange = (e) => {
@@ -41,8 +41,9 @@ export function SemanticGroupPanel(props) {
         });
     };
 
-    const toggleVisibility = () => {
+    const toggleVisibilityandTitle = () => {
         setIsVisible(!isVisible);
+        setIsExpanded(!isExpanded);
     };
 
     const getHeader = () => {
@@ -53,14 +54,18 @@ export function SemanticGroupPanel(props) {
                     </div>
                 </GridItem>
                 <GridItem xs={5}>
-
+                    {isExpanded ?
+                        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Expanded </b>
+                        :
+                        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Collapsed </b>
+                    }
                 </GridItem>
                 <GridItem xs={1} >
                     {isVisible ? (<span>
-                    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibility}></i>
+                    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibilityandTitle}></i>
                             {/* Show this icon when visible */}
                 </span>) : (<span>
-                    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibility}></i>
+                    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibilityandTitle}></i>
                             {/* Show this icon when hidden */}
                 </span>)}
                 </GridItem>
