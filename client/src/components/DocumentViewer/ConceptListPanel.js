@@ -1,9 +1,7 @@
 import GridItem from "../Grid/GridItem";
-import CardHeader from "../Card/CardHeader";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import $ from "jquery";
 import {hexToRgba} from "./ColorUtils";
 
 export function ConceptListPanel(props) {
@@ -12,14 +10,9 @@ export function ConceptListPanel(props) {
     const confidence = props.confidence;
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
-    let previousFilteredConcepts = []
-    const [clickedTerm, setClickedTerm] = useState("");
-
-
 
     // calculates the count of mentions associated with a given concept based on conceptID
     const getDocMentionsCountForConcept = (conceptId) => {
-        // console.log(concepts);
         const idx = concepts.findIndex((c) => c.id === conceptId);
         if(idx === -1){
             return 0;
@@ -82,9 +75,7 @@ export function ConceptListPanel(props) {
     function getConceptsList() {
         let sortedConcepts = [];
         sortedConcepts = filteredConcepts;
-        // console.log(sortedConcepts);
         if(filteredConcepts.length === 0) {
-
             if(sortedConcepts.length === 0){
                 sortedConcepts = [-1];
             }

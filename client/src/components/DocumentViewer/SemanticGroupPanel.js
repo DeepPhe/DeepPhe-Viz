@@ -1,11 +1,9 @@
 import GridItem from "../Grid/GridItem";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import GridContainer from "../Grid/GridContainer";
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-// import CheckBoxIcon from '@mui/icons-material/CheckBox';
-// import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import Divider from '@mui/material/Divider';
 import {hexToRgba} from "./ColorUtils";
 
@@ -13,23 +11,8 @@ import {hexToRgba} from "./ColorUtils";
 export function SemanticGroupPanel(props) {
     const semanticGroups = props.semanticGroups;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
-    const confidence = props.confidence;
-    const filteredConcepts = props.filteredConcepts;
     const [isVisible, setIsVisible] = useState(true);
     const [isExpanded, setIsExpanded] = useState(true);
-
-    // useEffect(() => {
-    //
-    //     // getSemanticGroups()
-    //     const visibleSemantics = [];
-    //     for(let i = 0; i < filteredConcepts.length -1; i++){
-    //         visibleSemantics.push(filteredConcepts[i].dpheGroup);
-    //         // console.log(filteredConcepts[i].dpheGroup);
-    //     }
-    //     // console.log(visibleSemantics)
-    //
-    // }, [confidence]);
-
 
     const handleCheckboxChange = (e) => {
         handleSemanticGroupChange(e.target.dataset.semanticGroup, e.target.checked);

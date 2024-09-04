@@ -1,8 +1,7 @@
 import GridContainer from "../Grid/GridContainer";
 import { SemanticGroupPanel } from "./SemanticGroupPanel";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import CardHeader from "../Card/CardHeader";
-import $ from "jquery";
 import CardBody from "../Card/CardBody";
 import Card from "../Card/Card";
 
@@ -10,17 +9,15 @@ import { ConfidencePanel } from "./ConfidencePanel";
 import { SortPanel } from "./SortPanel";
 import { SearchPanel } from "./SearchPanel";
 import { ConceptListPanel } from "./ConceptListPanel";
-import GridItem from "../Grid/GridItem";
-import ListItem from "@material-ui/core/ListItem";
 import {ConfidenceDataViz} from "./ConfidenceDataViz";
 import Divider from "@mui/material/Divider";
 
 export function ConceptPanel(props) {
   const concepts = props.concepts;
   const mentions = props.mentions;
-  const factBasedReports = props.factBasedReports;
-  const reportId = props.reportId;
-  const factId = props.factId;
+  // const factBasedReports = props.factBasedReports;
+  // const reportId = props.reportId;
+  // const factId = props.factId;
   const handleSemanticGroupChange = props.handleSemanticGroupChange;
   const handleConfidenceChange = props.handleConfidenceChange;
   const semanticGroups = props.semanticGroups;
