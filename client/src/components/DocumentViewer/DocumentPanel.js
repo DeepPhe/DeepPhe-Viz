@@ -11,7 +11,7 @@ export function DocumentPanel(props) {
   const clickedTerm = props.clickedTerm;
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
-  const [filteredConceptsWhole, setFilteredConceptsWhole] = useState([]);
+  const [filteredConceptsStartingCopy, setFilteredConceptsStartingCopy] = useState([]);
   const fontSize = props.fontSize;
   const confidence = props.confidence;
 
@@ -36,32 +36,40 @@ export function DocumentPanel(props) {
     }
   };
 
+  useEffect(() => {
+    // Only set the copy once, when the component mounts
+    if (Array.isArray(filteredConcepts) && filteredConcepts.length > 0 && filteredConceptsStartingCopy.length === 0) {
+      setFilteredConceptsStartingCopy(filteredConcepts);
+    }
+  }, [filteredConcepts, filteredConceptsStartingCopy]);
+
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
+    console.log(FilteredConceptsIds);
+    console.log(filteredConceptsStartingCopy);
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
           // console.log(obj);
-          let textMentionObj = {};
-          const index = filteredConceptsWhole.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
 
-          const conceptConfidence = Math.round(filteredConceptsWhole[index].confidence * 100);
+          let textMentionObj = {};
+          const index = filteredConceptsStartingCopy.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
+
+          const conceptConfidence = Math.round(filteredConceptsStartingCopy[index].confidence * 100);
           textMentionObj.preferredText = obj["preferredText"];
           textMentionObj.begin = obj.begin;
           textMentionObj.end = obj.end;
-          console.log(conceptConfidence, confidence * 100);
-          if(obj.confidence < confidence * 100){
-            console.log("hello");
-            textMentionObj.backgroundColor = 'white';
+          textMentionObj.color = semanticGroups[obj.dpheGroup].color;
+          textMentionObj.id = obj.id;
+          textMentionObj.negated = obj.negated;
+          textMentionObj.confidence = conceptConfidence;
+          if(textMentionObj.confidence < confidence * 100){
+            textMentionObj.backgroundColor = 'lightgrey';
           }
           else{
             const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
             textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
           }
-          textMentionObj.color = semanticGroups[obj.dpheGroup].color;
-          textMentionObj.id = obj.id;
-          textMentionObj.negated = obj.negated;
-          textMentionObj.confidence = conceptConfidence;
           const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
           textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
@@ -303,7 +311,6 @@ export function DocumentPanel(props) {
   }
 
   function cleanUpTextFragments(textFragments){
-
     //getting correct click
     for(let i = 0; i < textFragments.length; i++){
       if(textFragments[i].includes('border-style: solid;')){
@@ -355,9 +362,8 @@ export function DocumentPanel(props) {
 
   function getAllConceptIDs(){
     let conceptIDList = [];
-    console.log(filteredConceptsWhole);
-    for(let i = 0; i < filteredConceptsWhole.length; i++){
-        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsWhole[i].id));
+    for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
+        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsStartingCopy[i].id));
         conceptIDList.push(mentions);
     }
     return conceptIDList;
@@ -369,17 +375,6 @@ export function DocumentPanel(props) {
   }, [getAllConceptIDs, highlightTextMentions, createMentionObj, doc.text]);
 
 
-  useEffect(() => {
-    if (props.filteredConcepts && props.filteredConcepts.length > 0) {
-      console.log("props.filteredConcepts:", props.filteredConcepts);
-      setFilteredConceptsWhole([...props.filteredConcepts]);
-
-      // Log the copied state right after setting it
-      setTimeout(() => {
-        console.log("filteredConceptsWhole after setState:", filteredConceptsWhole);
-      }, 0);
-    }
-  }, [props.filteredConcepts]);
 
   useEffect(() => {
     if(props.filteredConcepts.length > 0){
@@ -389,11 +384,6 @@ export function DocumentPanel(props) {
     }
   },[props.doc,props.clickedTerm, props.confidence]);
 
-  useEffect(() => {
-    // This useEffect will log the updated state after it has been set
-    console.log("filteredConceptsWhole has been updated:", filteredConceptsWhole);
-  }, [filteredConceptsWhole]);
-  // props.doc, props.filteredConcepts, props.clickedTerm
 
   const getHTML = (docText) => {
     return parse(docText);
