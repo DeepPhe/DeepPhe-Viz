@@ -63,7 +63,8 @@ export function DocumentPanel(props) {
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
           textMentionObj.confidence = conceptConfidence;
-          if(textMentionObj.confidence < confidence * 100){
+          console.log(semanticGroups[obj.dpheGroup]);
+          if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
             textMentionObj.backgroundColor = 'lightgrey';
           }
           else{
@@ -382,7 +383,7 @@ export function DocumentPanel(props) {
       setDocText(props.doc.text);
       setHTML()
     }
-  },[props.doc,props.clickedTerm, props.confidence]);
+  },[props.doc,props.clickedTerm, props.confidence, props.semanticGroups]);
 
 
   const getHTML = (docText) => {

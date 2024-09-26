@@ -48,6 +48,7 @@ export function ConceptPanel(props) {
               xs={12}
               id="mentions_container"
           >
+              {/*not be used*/}
               <SearchPanel
                   filteredConcepts={filteredConcepts}
                   setFilteredConcepts={setFilteredConcepts
@@ -56,7 +57,7 @@ export function ConceptPanel(props) {
                   semanticGroups={semanticGroups}
                   handleSemanticGroupChange={handleSemanticGroupChange}
                   confidence={confidence}
-                  filteredConcepts={filteredConcepts}
+                  concepts={concepts}
               />
           </CardBody>
           <CardHeader

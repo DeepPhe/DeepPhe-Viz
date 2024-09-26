@@ -99,11 +99,11 @@ export default class CohortFilter extends React.Component {
         // it._groups[0][0].setAttribute("width", newWidth)
 
     };
-
-    handleDateChange = (e: ChangeResult) => {
-
-        console.log("date change:" + e);
-    };
+    //
+    // handleDateChange = (e: ChangeResult) => {
+    //
+    //     console.log("date change:" + e);
+    // };
 
 
     buildQuery = () => {
@@ -214,15 +214,15 @@ export default class CohortFilter extends React.Component {
 
 
 
-    handleAgeChange = (e: ChangeResult) => {
-        this.setState({selectedAges: e})
-        this.buildQuery()
-    };
-
-    handleRangeChange = (name, e: ChangeResult) => {
-        this.setState({[name]: e})
-        this.buildQuery()
-    };
+    // handleAgeChange = (e: ChangeResult) => {
+    //     this.setState({selectedAges: e})
+    //     this.buildQuery()
+    // };
+    //
+    // handleRangeChange = (name, e: ChangeResult) => {
+    //     this.setState({[name]: e})
+    //     this.buildQuery()
+    // };
 
     handleToggleSwitch = (switchId) => ({enabled}) => {
         console.log("Switch id: " + switchId + " enabled: " + enabled)
