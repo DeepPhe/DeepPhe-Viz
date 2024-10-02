@@ -46,8 +46,8 @@ export function DocumentPanel(props) {
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
-    console.log(FilteredConceptsIds);
-    console.log(filteredConceptsStartingCopy);
+    console.log(concepts);
+    console.log(filteredConcepts);
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
           // console.log(obj);
@@ -63,7 +63,6 @@ export function DocumentPanel(props) {
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
           textMentionObj.confidence = conceptConfidence;
-          console.log(semanticGroups[obj.dpheGroup]);
           if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
             textMentionObj.backgroundColor = 'lightgrey';
           }

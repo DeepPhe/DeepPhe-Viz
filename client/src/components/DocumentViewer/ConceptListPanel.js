@@ -61,15 +61,30 @@ export function ConceptListPanel(props) {
             }
         }
 
-        let sortedConcepts = filteredConcepts.sort((a, b) =>
+        // sortedConcepts = sortedConcepts.filter((obj, index, array) => {
+        //     return obj.preferredText !== "" && obj.preferredText !== ";";
+        // });
+        return filteredConcepts.sort((a, b) =>
             a.preferredText > b.preferredText ? 1 : -1
         );
-
-        sortedConcepts = sortedConcepts.filter((obj, index, array) => {
-            return obj.preferredText !== "" && obj.preferredText !== ";";
-        });
-        return sortedConcepts;
     }
+
+    function separateWords(str) {
+        return str
+            .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space before capital letters
+            .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')  // Handle consecutive capitals like "URL"
+            .trim();  // Remove any leading/trailing spaces
+    }
+
+    const result = separateWords('intheworld');  // For all lowercase, no effect
+    console.log(result);  // "intheworld"
+
+    const camelCaseResult = separateWords('inTheWorld');
+    console.log(camelCaseResult);  // "in The World"
+
+    const pascalCaseResult = separateWords('InTheWorld');
+    console.log(pascalCaseResult);  // "In The World"
+
 
 
     function getConceptsList() {
@@ -85,6 +100,8 @@ export function ConceptListPanel(props) {
             sortedConcepts = [];
         }
 
+
+        console.log(sortedConcepts);
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {sortedConcepts.map((obj) => {
@@ -97,11 +114,11 @@ export function ConceptListPanel(props) {
                             data-negated={obj.negated}
                             data-confidence={obj.confidence}
                             data-uncertain={obj.uncertain}
-                            data-text={obj.preferredText}
+                            data-text={obj.classUri}
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {obj.preferredText} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)}):{Math.round(obj.confidence * 100)}%
+                            {separateWords(obj.classUri)} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)}):{Math.round(obj.confidence * 100)}%
                         </ListItem>
                     );
                 })}

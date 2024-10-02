@@ -55,6 +55,16 @@ export function DocumentViewer(props) {
   // start with 50% transparency and all black fonts !!!!
   // https://sashamaps.net/docs/resources/20-colors/
   // https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
+
+  // const semanticGroupColorTree = {
+  //   value: 'Behavior',
+  //   color: '#ff8712',
+  //   children: [
+  //       {
+  //         value: 'Disease Stage Qualifier'
+  //
+  //   }]
+  // }
   const semanticGroupColorDict = (key, whichValue) => {
     let colorDict = {
       "Behavior": ["#ff8712", 4],
