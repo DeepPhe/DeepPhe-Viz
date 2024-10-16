@@ -59,38 +59,69 @@ export function ConfidenceDataViz(props) {
     // function getAllConceptIDs(){
     //     let conceptIDList = [];
     //     for(let i = 0; i < concepts.length; i++){
-    //         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
-    //         conceptIDList.push(mentions);
+    //         const concept = concepts[i].id;
+    //         conceptIDList.push(concept);
     //     }
+    //
     //     return conceptIDList;
     // }
 
     function getSemanticGroupConfidenceCount(name, filterType){
         let confidenceList = [];
-        const ids = getAllMentionIDs()
+        const mentionIDs = getAllMentionIDs()
 
-        ids.forEach(function (nestedArray) {
-            nestedArray.forEach(function(obj) {
-                if (filterType === "Concepts") {
-                    // console.log("DID we get in here");
-                    if (name === obj.dpheGroup) {
-                        confidenceList.push(obj.confidence);
-                    }
-                } else if (filterType === "Mentions") {
-                    // console.log("how about here");
-                    confidenceList.push(obj.confidence / 100);
+        // const conceptIds = getAllConceptIDs();
+        // console.log(conceptIds);
+
+        if (filterType === "Concepts"){
+            // console.log(ids);
+            // ids.forEach(function(obj){
+            //     console.log(name, obj.dpheGroup);
+            //     if (name === obj.dpheGroup) {
+            //         confidenceList.push(obj.confidence);
+            //     }
+            // });
+            for(let i = 0; i < concepts.length; i++){
+                if (name === concepts[i].dpheGroup) {
+                    const conceptConfidence = concepts[i].confidence;
+                    confidenceList.push(conceptConfidence);
                 }
-            });
-        });
-
-        if (filterType === "Concepts") {
-            confidenceList = concepts
-                .filter(item => item.dpheGroup === name)
-                .map(item => item.confidence);
+            }
         }
+        else if (filterType === "Mentions"){
+            getAllMentionIDs().forEach(function (nestedArray){
+               nestedArray.forEach(function(obj) {
+                   if (name === obj.dpheGroup) {
+                       confidenceList.push(obj.confidence);
+                   }
+               });
+            });
+        }
+        // ids.forEach(function (nestedArray) {
+        //     nestedArray.forEach(function(obj) {
+        //         if (filterType === "Concepts") {
+        //             if (name === obj.dpheGroup) {
+        //                 // console.log(obj);
+        //                 // console.log(obj.preferredText, obj.id);
+        //                 confidenceList.push(obj.confidence);
+        //             }
+        //         } else if (filterType === "Mentions") {
+        //             confidenceList.push(obj.confidence);
+        //         }
+        //     });
+        // });
+        // console.log("Before", confidenceList);
 
+        // if (filterType === "Concepts") {
+        //     confidenceList = concepts
+        //         .filter(item => item.dpheGroup === name)
+        //         .map(item => item.confidence);
+        // }
+        // console.log("After", confidenceList);
+        // console.log(confidenceList);
         return percentCounter(confidenceList);
     }
+
 
     function percentCounter(confidenceList){
         const buckets = Array(10).fill(0); //fill all buckets as 0 init
@@ -154,7 +185,6 @@ export function ConfidenceDataViz(props) {
         { name: 'Unknown', group: 'grey' },
     ];
 
-    console.log(filterType);
 // Step 2: Map the concepts to their confidence counts
     const confidenceCounts = semanticGroups.reduce((acc, semanticGroup) => {
         acc[semanticGroup.name] = getSemanticGroupConfidenceCount(semanticGroup.name, filterType);
