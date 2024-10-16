@@ -29,16 +29,6 @@ export function DocumentViewer(props) {
     // else ()
   }, [semanticGroups,filteredConcepts, setFilteredConcepts]);
 
-  // $(document).on("input", "#confidenceRange", function () {
-  //   let slider = document.getElementById("confidenceRange");
-  //   let output = document.getElementById("confidenceValue");
-  //
-  //   output.innerHTML = slider.value;
-  //
-  //   slider.oninput = function () {
-  //     output.innerHTML = this.value;
-  //   };
-  // });
 
   const handleConfidenceChange = (e) => {
     setConfidence(e/100);
@@ -50,21 +40,50 @@ export function DocumentViewer(props) {
     return true;
   }
 
-  // define a tree structure for semantic groups where the root node is the general topic of the
-  // concepts and the children are the subtopics of the concept
-  // start with 50% transparency and all black fonts !!!!
-  // https://sashamaps.net/docs/resources/20-colors/
-  // https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=12
+  //TODO WORD ON THIS LATER: TREENODE PROJECT
 
-  // const semanticGroupColorTree = {
-  //   value: 'Behavior',
-  //   color: '#ff8712',
-  //   children: [
-  //       {
-  //         value: 'Disease Stage Qualifier'
-  //
-  //   }]
-  // }
+  class TreeNode {
+    constructor(concept, color = null) {
+      this.concept = concept; // Concept or topic name
+      this.color = color; // Associated color (optional)
+      this.subtopics = []; // Array to hold subtopics (children nodes)
+    }
+
+    // Method to add a subtopic with an optional color
+    addSubtopic(subtopicNode) {
+      this.subtopics.push(subtopicNode);
+    }
+
+    // Method to print the tree structure with concept, subtopics, and associated colors
+    print(indent = 0) {
+      const colorText = this.color ? ` (Color: ${this.color})` : ''; // Show color if available
+      console.log(" ".repeat(indent) + this.concept + colorText); // Print concept and color
+      this.subtopics.forEach(subtopic => subtopic.print(indent + 2)); // Recursively print subtopics
+    }
+  }
+
+  const semanticRoot = new TreeNode('')
+
+  const anatomyRoot= new TreeNode('Anatomy');
+  const deviceRoot = new TreeNode('Device');
+
+
+  // Anatomy
+  anatomyRoot.addSubtopic(new TreeNode('Body Part', '#99E6E6'));
+  anatomyRoot.addSubtopic(new TreeNode('Lymph Node', '#bfefff'));
+
+  // Device
+  deviceRoot.addSubtopic(new TreeNode('Imaging Device', '#785ef0'));
+
+  // Print the entire concept tree
+//   anatomyRoot.print();
+//   deviceRoot.print();
+
+
+  //TODO WORD ON THIS LATER: TREENODE PROJECT
+
+
+
   const semanticGroupColorDict = (key, whichValue) => {
     let colorDict = {
       "Behavior": ["#ff8712", 4],
@@ -252,6 +271,7 @@ export function DocumentViewer(props) {
                           handleTermClick={handleTermClick}
                           handleConfidenceChange={handleConfidenceChange}
                           confidence={confidence}
+                          doc={patientDocument}
                         />
                       </GridItem>
                     </GridContainer>

@@ -10,8 +10,39 @@ export function ConceptListPanel(props) {
     const confidence = props.confidence;
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
+    const doc = props.doc;
 
-    // calculates the count of mentions associated with a given concept based on conceptID
+    const getMentionsGivenMentionIds = (mentionIds) => {
+        return doc.mentions.filter((m) => mentionIds.includes(m.id));
+    };
+    const getMentionsForConcept = (conceptId) => {
+        if(conceptId === ""){
+            return [];
+        }
+        if(conceptId !== undefined) {
+            const idx = concepts.findIndex((c) => c.id === conceptId);
+            if(idx === -1){
+                return [];
+            }
+            return concepts[idx].mentionIds.filter((mentionId) => {
+                return doc.mentions.some((m) => m.id === mentionId);
+            });
+        }
+        else{
+            return [];
+        }
+    };
+
+    function getAllConceptIDs(){
+        let conceptIDList = [];
+        for(let i = 0; i < concepts.length; i++){
+            const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
+            conceptIDList.push(mentions);
+        }
+        return conceptIDList;
+    }
+
+    // Gets mention count for concept for single document of patient
     const getDocMentionsCountForConcept = (conceptId) => {
         const idx = concepts.findIndex((c) => c.id === conceptId);
         if(idx === -1){
@@ -22,6 +53,7 @@ export function ConceptListPanel(props) {
         }).length;
     };
 
+    // Gets mention count for concept for whole patient history
     const getPatientMentionsCountForConcept = (conceptId) => {
         const idx = concepts.findIndex((c) => c.id === conceptId);
         if(idx === -1){
@@ -32,8 +64,7 @@ export function ConceptListPanel(props) {
 
 
     useEffect(() => {
-        const sortedConcepts = filterConcepts(concepts);
-
+        const sortedConcepts = filterConceptsByConfidenceAndSemanticGroup(concepts);
         if (sortedConcepts.length === 0) {
             setFilteredConcepts([-1]);
         } else {
@@ -51,23 +82,31 @@ export function ConceptListPanel(props) {
         return false;
     }
 
-    // Filters concepts through many sorts and filters
-    function filterConcepts(concepts){
-        let filteredConcepts = []
 
+    // FilterConceptsByConfidenceAndSemanticGroup keeps an array of concepts that are updated dynamically
+    // based on confidence and Semantic group selection
+    function filterConceptsByConfidenceAndSemanticGroup(concepts){
+        let filteredConcepts = []
         for(let i = 0; i < concepts.length; i++){
             if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
                 filteredConcepts.push(concepts[i]);
             }
         }
+        // console.log(sortConceptsByOccurrence(filteredConcepts));
+        return filteredConcepts;
 
-        // sortedConcepts = sortedConcepts.filter((obj, index, array) => {
-        //     return obj.preferredText !== "" && obj.preferredText !== ";";
-        // });
-        return filteredConcepts.sort((a, b) =>
-            a.preferredText > b.preferredText ? 1 : -1
-        );
     }
+
+    // function sortConceptsByOccurrence(filteredConcepts){
+    //     return filteredConcepts.sort((a, b) => {
+    //         // Calculate occurrence (duration) for each object
+    //         const occurrenceA = a.end - a.begin;
+    //         const occurrenceB = b.end - b.begin;
+    //
+    //         // Sort in ascending order based on the occurrence
+    //         return occurrenceA - occurrenceB;
+    //     });
+    // }
 
     function separateWords(str) {
         return str
@@ -76,19 +115,13 @@ export function ConceptListPanel(props) {
             .trim();  // Remove any leading/trailing spaces
     }
 
-    const result = separateWords('intheworld');  // For all lowercase, no effect
-    console.log(result);  // "intheworld"
-
-    const camelCaseResult = separateWords('inTheWorld');
-    console.log(camelCaseResult);  // "in The World"
-
-    const pascalCaseResult = separateWords('InTheWorld');
-    console.log(pascalCaseResult);  // "In The World"
-
-
-
+    // Function to check if the classUri value already exists in the array
+    // function isClassUriUnique(array, newObj) {
+    //     return !array.some(obj => obj.classUri === newObj.classUri);
+    // }
     function getConceptsList() {
         let sortedConcepts = [];
+        let groupedMentions = [];
         sortedConcepts = filteredConcepts;
         if(filteredConcepts.length === 0) {
             if(sortedConcepts.length === 0){
@@ -100,11 +133,21 @@ export function ConceptListPanel(props) {
             sortedConcepts = [];
         }
 
+        // const conceptIDList = getAllConceptIDs()
+        //
+        // conceptIDList.forEach(function (nestedArray) {
+        //     nestedArray.forEach(function (obj) {
+        //         if(isClassUriUnique(groupedMentions,obj)){
+        //             groupedMentions.push(obj);
+        //         }
+        //     });
+        // });
 
-        console.log(sortedConcepts);
+        //If we want to list the concepts we will use : filterConceptsByConfidenceAndSemanticGroup(concepts)
+        //If we want to list the Mentions we will use : groupedMentions
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
-                {sortedConcepts.map((obj) => {
+                {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
                     return (
                         <ListItem
                             style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}

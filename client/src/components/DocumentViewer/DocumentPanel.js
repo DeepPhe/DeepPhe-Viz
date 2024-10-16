@@ -46,23 +46,22 @@ export function DocumentPanel(props) {
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
-    console.log(concepts);
-    console.log(filteredConcepts);
+    console.log(FilteredConceptsIds);
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
-          // console.log(obj);
-
           let textMentionObj = {};
-          const index = filteredConceptsStartingCopy.findIndex(filConcept => filConcept.dpheGroup === obj.dpheGroup);
 
-          const conceptConfidence = Math.round(filteredConceptsStartingCopy[index].confidence * 100);
+          const mentionConfidence = Math.round(obj.confidence);
           textMentionObj.preferredText = obj["preferredText"];
           textMentionObj.begin = obj.begin;
           textMentionObj.end = obj.end;
-          textMentionObj.color = semanticGroups[obj.dpheGroup].color;
+
+          // textMentionObj.color = semanticGroups[obj.dpheGroup].color; ALL UNDEFINED
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
-          textMentionObj.confidence = conceptConfidence;
+          textMentionObj.confidence = mentionConfidence;
+
+          // console.log(semanticGroups[obj.dpheGroup]);
           if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
             textMentionObj.backgroundColor = 'lightgrey';
           }
@@ -70,9 +69,11 @@ export function DocumentPanel(props) {
             const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
             textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
           }
+          // console.log(semanticGroups[obj.dpheGroup].backgroundColor);
           const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
           textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
+          // console.log(textMentionObj);
           textMentions.push(textMentionObj);
       });
     });
@@ -143,6 +144,7 @@ export function DocumentPanel(props) {
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
 
+    console.log(textMentions);
     //No mentions in reportText, we return just reportText
     if(textMentions.length === 0){
       return reportText;
@@ -364,6 +366,7 @@ export function DocumentPanel(props) {
     let conceptIDList = [];
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsStartingCopy[i].id));
+
         conceptIDList.push(mentions);
     }
     return conceptIDList;

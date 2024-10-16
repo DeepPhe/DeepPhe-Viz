@@ -88,8 +88,10 @@ export function SortPanel(props) {
                 </Menu>
             </GridItem>
             {/*<Divider xs={1} orientation="vertical" flexitem sx={{ background: 'black', borderBottomWidth: 2}} />*/}
-            <GridItem xs={8} style={{ display: 'flex' }}>
-                <b className="SortTitle" style={{ transform: 'translateY(30%)' }}>: {sortType}</b>
+            <GridItem xs={8} style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+                <b className="SortTitle" style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)' }}>
+                    : {sortType}
+                </b>
             </GridItem>
         </GridContainer>
     );

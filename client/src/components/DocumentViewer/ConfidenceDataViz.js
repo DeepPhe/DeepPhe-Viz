@@ -5,26 +5,95 @@ import {styled} from '@mui/material/styles';
 import {FormLabel} from "@mui/material";
 import GridContainer from "../Grid/GridContainer";
 import _ from 'lodash';
+import Radio from '@mui/material/Radio';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import RadioGroup from '@mui/material/RadioGroup';
+
 export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
+    const doc = props.doc;
     // const value = props.value;
     const [confidencePercent, setConfidencePercent] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(40);
+    const onFilterChange = props.onFilterChange;
+    const [filterType, setFilterType] = useState("Concepts"); // Default to "Concepts"
 
+    const handleRadioChange = (event) => {
+        const value = event.target.value;
+        // Call the parent handler with the new filter value
+        onFilterChange(value === "option1" ? "Concepts" : "Mentions");
+        setFilterType(value === "option1" ? "Concepts" : "Mentions")
+    };
 
+    const getMentionsGivenMentionIds = (mentionIds) => {
+        return doc.mentions.filter((m) => mentionIds.includes(m.id));
+    };
+    const getMentionsForConcept = (conceptId) => {
+        if(conceptId === ""){
+            return [];
+        }
+        if(conceptId !== undefined) {
+            const idx = concepts.findIndex((c) => c.id === conceptId);
+            if(idx === -1){
+                return [];
+            }
+            return concepts[idx].mentionIds.filter((mentionId) => {
+                return doc.mentions.some((m) => m.id === mentionId);
+            });
+        }
+        else{
+            return [];
+        }
+    };
 
+    function getAllMentionIDs(){
+        let conceptIDList = [];
+        for(let i = 0; i < concepts.length; i++){
+            const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
+            conceptIDList.push(mentions);
+        }
+        return conceptIDList;
+    }
 
-    function getSemanticGroupConfidenceCount(name){
-        const confidenceList = concepts.filter(item => item.dpheGroup === name).map(item => item.confidence);
-        // console.log(confidenceList);
+    // function getAllConceptIDs(){
+    //     let conceptIDList = [];
+    //     for(let i = 0; i < concepts.length; i++){
+    //         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
+    //         conceptIDList.push(mentions);
+    //     }
+    //     return conceptIDList;
+    // }
+
+    function getSemanticGroupConfidenceCount(name, filterType){
+        let confidenceList = [];
+        const ids = getAllMentionIDs()
+
+        ids.forEach(function (nestedArray) {
+            nestedArray.forEach(function(obj) {
+                if (filterType === "Concepts") {
+                    // console.log("DID we get in here");
+                    if (name === obj.dpheGroup) {
+                        confidenceList.push(obj.confidence);
+                    }
+                } else if (filterType === "Mentions") {
+                    // console.log("how about here");
+                    confidenceList.push(obj.confidence / 100);
+                }
+            });
+        });
+
+        if (filterType === "Concepts") {
+            confidenceList = concepts
+                .filter(item => item.dpheGroup === name)
+                .map(item => item.confidence);
+        }
+
         return percentCounter(confidenceList);
-
     }
 
     function percentCounter(confidenceList){
         const buckets = Array(10).fill(0); //fill all buckets as 0 init
-
         confidenceList.forEach(item => {
             if (item >= 0 && item <= 1) {
                 const index = Math.min(Math.floor(item * 10), 9);
@@ -43,59 +112,119 @@ export function ConfidenceDataViz(props) {
         return lists.reduce((acc, list) => acc.map((num, idx) => num + (list[idx] || 0)), initial);
     }
 
-    const Behavior = getSemanticGroupConfidenceCount('Behavior');
-    const DSQ = getSemanticGroupConfidenceCount('Disease Stage Qualifier');
-    const DGQ = getSemanticGroupConfidenceCount('Disease Grade Qualifier');
-    const BFoS = getSemanticGroupConfidenceCount('Body Fluid or Substance');
-    const BodyPart = getSemanticGroupConfidenceCount("Body Part");
-    const CihTR = getSemanticGroupConfidenceCount("Chemo/immuno/hormone Therapy Regimen");
-    const CTR = getSemanticGroupConfidenceCount("Clinical Test Result");
-    const CCoD = getSemanticGroupConfidenceCount("Clinical Course of Disease");
-    const DoD = getSemanticGroupConfidenceCount("Disease or Disorder");
-    const DQ = getSemanticGroupConfidenceCount("Disease Qualifier");
-    const Finding = getSemanticGroupConfidenceCount("Finding");
-    const Gene = getSemanticGroupConfidenceCount("Gene");
-    const GP = getSemanticGroupConfidenceCount("Gene Product");
-    const GQ = getSemanticGroupConfidenceCount("General Qualifier");
-    const GTNMF = getSemanticGroupConfidenceCount("Generic TNM Finding");
-    const IoP = getSemanticGroupConfidenceCount("Intervention or Procedure");
-    const ImgD = getSemanticGroupConfidenceCount("Imaging Device");
-    const LN = getSemanticGroupConfidenceCount("Lymph Node");
-    const TQ = getSemanticGroupConfidenceCount("Temporal Qualifier");
-    const Tissue = getSemanticGroupConfidenceCount("Tissue");
-    const Mass = getSemanticGroupConfidenceCount("Mass");
-    const Neoplasm = getSemanticGroupConfidenceCount("Neoplasm");
-    const PP = getSemanticGroupConfidenceCount("Pathologic Process");
-    const PTNMF = getSemanticGroupConfidenceCount("Pathologic TNM Finding");
-    const PS = getSemanticGroupConfidenceCount("Pharmacologic Substance");
-    const Position = getSemanticGroupConfidenceCount("Position");
-    const PoA = getSemanticGroupConfidenceCount("Property or Attribute");
-    const QC = getSemanticGroupConfidenceCount("Quantitative Concept");
-    const Side = getSemanticGroupConfidenceCount("Side");
-    const SQ = getSemanticGroupConfidenceCount("Spatial Qualifier");
-    const Severity = getSemanticGroupConfidenceCount("Severity");
-    const Unknown = getSemanticGroupConfidenceCount("Unknown");
+// Step 1: Define the concepts in an array
+    const semanticGroups = [
+        { name: 'Behavior', group: 'orange' },
+        { name: 'Disease Stage Qualifier', group: 'orange' },
+        { name: 'Disease Grade Qualifier', group: 'orange' },
+        { name: 'Temporal Qualifier', group: 'orange' },
+        { name: 'Severity', group: 'orange' },
+        { name: 'Pathologic TNM Finding', group: 'orange' },
+        { name: 'Generic TNM Finding', group: 'orange' },
 
-    const orangeGroup = groupSemantics([Behavior, DSQ, DGQ, TQ, Severity, PTNMF, GTNMF]); //Done
-    const yellowGroup = groupSemantics([DQ, PoA, GQ, CCoD, PP]); //Done
-    const blueGroup = groupSemantics([LN, BodyPart, BFoS, Side, SQ, Tissue]);
-    const pinkGroup = groupSemantics([Finding, CTR, Gene, GP]);
-    const greenGroup = groupSemantics([DoD, Neoplasm, Mass, QC]);
-    const purpleGroup = groupSemantics([PS, CihTR, IoP, ImgD]);
-    const brownGroup = groupSemantics([Position]);
-    const greyGroup = groupSemantics([Unknown]);
+        { name: 'Disease Qualifier', group: 'yellow' },
+        { name: 'Property or Attribute', group: 'yellow' },
+        { name: 'General Qualifier', group: 'yellow' },
+        { name: 'Clinical Course of Disease', group: 'yellow' },
+        { name: 'Pathologic Process', group: 'yellow' },
 
+        { name: 'Lymph Node', group: 'blue' },
+        { name: 'Body Part', group: 'blue' },
+        { name: 'Body Fluid or Substance', group: 'blue' },
+        { name: 'Side', group: 'blue' },
+        { name: 'Spatial Qualifier', group: 'blue' },
+        { name: 'Tissue', group: 'blue' },
 
+        { name: 'Finding', group: 'pink' },
+        { name: 'Clinical Test Result', group: 'pink' },
+        { name: 'Gene', group: 'pink' },
+        { name: 'Gene Product', group: 'pink' },
+
+        { name: 'Disease or Disorder', group: 'green' },
+        { name: 'Neoplasm', group: 'green' },
+        { name: 'Mass', group: 'green' },
+        { name: 'Quantitative Concept', group: 'green' },
+
+        { name: 'Pharmacologic Substance', group: 'purple' },
+        { name: 'Chemo/immuno/hormone Therapy Regimen', group: 'purple' },
+        { name: 'Intervention or Procedure', group: 'purple' },
+        { name: 'Imaging Device', group: 'purple' },
+
+        { name: 'Position', group: 'brown' },
+        { name: 'Unknown', group: 'grey' },
+    ];
+
+    console.log(filterType);
+// Step 2: Map the concepts to their confidence counts
+    const confidenceCounts = semanticGroups.reduce((acc, semanticGroup) => {
+        acc[semanticGroup.name] = getSemanticGroupConfidenceCount(semanticGroup.name, filterType);
+        return acc;
+    }, {});
+
+// Step 3: Group the concepts by color
+    const groupedSemantics = {
+        orangeGroup: groupSemantics([
+            confidenceCounts['Behavior'],
+            confidenceCounts['Disease Stage Qualifier'],
+            confidenceCounts['Disease Grade Qualifier'],
+            confidenceCounts['Temporal Qualifier'],
+            confidenceCounts['Severity'],
+            confidenceCounts['Pathologic TNM Finding'],
+            confidenceCounts['Generic TNM Finding']
+        ]),
+        yellowGroup: groupSemantics([
+            confidenceCounts['Disease Qualifier'],
+            confidenceCounts['Property or Attribute'],
+            confidenceCounts['General Qualifier'],
+            confidenceCounts['Clinical Course of Disease'],
+            confidenceCounts['Pathologic Process']
+        ]),
+        blueGroup: groupSemantics([
+            confidenceCounts['Lymph Node'],
+            confidenceCounts['Body Part'],
+            confidenceCounts['Body Fluid or Substance'],
+            confidenceCounts['Side'],
+            confidenceCounts['Spatial Qualifier'],
+            confidenceCounts['Tissue']
+        ]),
+        pinkGroup: groupSemantics([
+            confidenceCounts['Finding'],
+            confidenceCounts['Clinical Test Result'],
+            confidenceCounts['Gene'],
+            confidenceCounts['Gene Product']
+        ]),
+        greenGroup: groupSemantics([
+            confidenceCounts['Disease or Disorder'],
+            confidenceCounts['Neoplasm'],
+            confidenceCounts['Mass'],
+            confidenceCounts['Quantitative Concept']
+        ]),
+        purpleGroup: groupSemantics([
+            confidenceCounts['Pharmacologic Substance'],
+            confidenceCounts['Chemo/immuno/hormone Therapy Regimen'],
+            confidenceCounts['Intervention or Procedure'],
+            confidenceCounts['Imaging Device']
+        ]),
+        brownGroup: groupSemantics([
+            confidenceCounts['Position']
+        ]),
+        greyGroup: groupSemantics([
+            confidenceCounts['Unknown']
+        ])
+    };
+
+// Step 4: Define the series
     const series = [
-        { data: orangeGroup, stack: 'total', color: 'rgba(255, 135, 18, 0.65)'},
-        { data: yellowGroup, stack: 'total', color: 'rgba(255, 191, 0, 0.65)' },
-        { data: blueGroup, stack: 'total', color: 'rgba(173, 216, 230, 0.65)' },
-        { data: pinkGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
-        { data: greenGroup, stack: 'total', color: 'rgba(127, 206, 148, 0.65)' },
-        { data: purpleGroup, stack: 'total', color: 'rgba(179, 108, 239, 0.65)' },
-        { data: brownGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
-        { data: greyGroup, stack: 'total', color: 'rgba(128, 128, 128, 0.65)' },
-    ]
+        { data: groupedSemantics.orangeGroup, stack: 'total', color: 'rgba(255, 135, 18, 0.65)' },
+        { data: groupedSemantics.yellowGroup, stack: 'total', color: 'rgba(255, 191, 0, 0.65)' },
+        { data: groupedSemantics.blueGroup, stack: 'total', color: 'rgba(173, 216, 230, 0.65)' },
+        { data: groupedSemantics.pinkGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
+        { data: groupedSemantics.greenGroup, stack: 'total', color: 'rgba(127, 206, 148, 0.65)' },
+        { data: groupedSemantics.purpleGroup, stack: 'total', color: 'rgba(179, 108, 239, 0.65)' },
+        { data: groupedSemantics.brownGroup, stack: 'total', color: 'rgba(255, 158, 164, 0.65)' },
+        { data: groupedSemantics.greyGroup, stack: 'total', color: 'rgba(128, 128, 128, 0.65)' }
+    ];
+
 
     const chartRef = useRef(null);
 
@@ -133,7 +262,7 @@ export function ConfidenceDataViz(props) {
 
     const SliderLine = styled('div')(({ theme }) => ({
         position: 'absolute',
-        top: 19,
+        top: 62,
         bottom: 0,
         width: '4px',  // Increased thickness
         backgroundColor: theme.palette.primary.main,
@@ -165,10 +294,15 @@ export function ConfidenceDataViz(props) {
         },
     }));
 
-
-
     return (
         <GridContainer spacing={2}>
+            <GridItem xs={12}>
+                <RadioGroup row aria-label="options" name="radio-buttons-group"
+                            defaultValue={"option1"} onChange={handleRadioChange}>
+                    <FormControlLabel value="option1" control={<Radio />} label="By Concept" />
+                    <FormControlLabel value="option2" control={<Radio />} label="By Mention" />
+                </RadioGroup>
+            </GridItem>
             <GridItem xs={12} alignItems='center'>
                 <BarChart
                     ref={chartRef}
@@ -178,8 +312,8 @@ export function ConfidenceDataViz(props) {
                     margin={{ top: 20, bottom: 26, left: 40, right: 15 }}
                     yAxis={[{label: 'Occurrences',
                     labelFontSize: 17}]}
+                    animate
                     disableAxisListener={true}
-                    skipAnimation={true}
                     xAxis={[
                         {
                             scaleType: 'band',
