@@ -1,6 +1,6 @@
 import GridItem from "../Grid/GridItem";
 import React, {useRef, useState, useCallback} from "react";
-import {BarChart} from '@mui/x-charts';
+    import {BarChart} from '@mui/x-charts';
 import {styled} from '@mui/material/styles';
 import {FormLabel} from "@mui/material";
 import GridContainer from "../Grid/GridContainer";
@@ -8,6 +8,9 @@ import _ from 'lodash';
 import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import RadioGroup from '@mui/material/RadioGroup';
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
@@ -17,13 +20,14 @@ export function ConfidenceDataViz(props) {
     const [confidencePercent, setConfidencePercent] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(40);
     const onFilterChange = props.onFilterChange;
-    const [filterType, setFilterType] = useState("Concepts"); // Default to "Concepts"
+    const filterLabel = props.filterLabel;
+    const setFilterLabel = props.setFilterLabel;
 
     const handleRadioChange = (event) => {
         const value = event.target.value;
         // Call the parent handler with the new filter value
         onFilterChange(value === "option1" ? "Concepts" : "Mentions");
-        setFilterType(value === "option1" ? "Concepts" : "Mentions")
+        setFilterLabel(value === "option1" ? "Concepts" : "Mentions")
     };
 
     const getMentionsGivenMentionIds = (mentionIds) => {
@@ -56,31 +60,10 @@ export function ConfidenceDataViz(props) {
         return conceptIDList;
     }
 
-    // function getAllConceptIDs(){
-    //     let conceptIDList = [];
-    //     for(let i = 0; i < concepts.length; i++){
-    //         const concept = concepts[i].id;
-    //         conceptIDList.push(concept);
-    //     }
-    //
-    //     return conceptIDList;
-    // }
-
-    function getSemanticGroupConfidenceCount(name, filterType){
+    function getSemanticGroupConfidenceCount(name, filterLabel){
         let confidenceList = [];
-        const mentionIDs = getAllMentionIDs()
 
-        // const conceptIds = getAllConceptIDs();
-        // console.log(conceptIds);
-
-        if (filterType === "Concepts"){
-            // console.log(ids);
-            // ids.forEach(function(obj){
-            //     console.log(name, obj.dpheGroup);
-            //     if (name === obj.dpheGroup) {
-            //         confidenceList.push(obj.confidence);
-            //     }
-            // });
+        if (filterLabel === "Concepts"){
             for(let i = 0; i < concepts.length; i++){
                 if (name === concepts[i].dpheGroup) {
                     const conceptConfidence = concepts[i].confidence;
@@ -88,37 +71,16 @@ export function ConfidenceDataViz(props) {
                 }
             }
         }
-        else if (filterType === "Mentions"){
+        else if (filterLabel === "Mentions"){
             getAllMentionIDs().forEach(function (nestedArray){
-               nestedArray.forEach(function(obj) {
-                   if (name === obj.dpheGroup) {
-                       confidenceList.push(obj.confidence);
-                   }
-               });
+
+                nestedArray.forEach(function(obj) {
+                    if (name === obj.dpheGroup) {
+                        confidenceList.push(obj.confidence/100);
+                    }
+                });
             });
         }
-        // ids.forEach(function (nestedArray) {
-        //     nestedArray.forEach(function(obj) {
-        //         if (filterType === "Concepts") {
-        //             if (name === obj.dpheGroup) {
-        //                 // console.log(obj);
-        //                 // console.log(obj.preferredText, obj.id);
-        //                 confidenceList.push(obj.confidence);
-        //             }
-        //         } else if (filterType === "Mentions") {
-        //             confidenceList.push(obj.confidence);
-        //         }
-        //     });
-        // });
-        // console.log("Before", confidenceList);
-
-        // if (filterType === "Concepts") {
-        //     confidenceList = concepts
-        //         .filter(item => item.dpheGroup === name)
-        //         .map(item => item.confidence);
-        // }
-        // console.log("After", confidenceList);
-        // console.log(confidenceList);
         return percentCounter(confidenceList);
     }
 
@@ -187,7 +149,7 @@ export function ConfidenceDataViz(props) {
 
 // Step 2: Map the concepts to their confidence counts
     const confidenceCounts = semanticGroups.reduce((acc, semanticGroup) => {
-        acc[semanticGroup.name] = getSemanticGroupConfidenceCount(semanticGroup.name, filterType);
+        acc[semanticGroup.name] = getSemanticGroupConfidenceCount(semanticGroup.name, filterLabel);
         return acc;
     }, {});
 
@@ -292,7 +254,7 @@ export function ConfidenceDataViz(props) {
 
     const SliderLine = styled('div')(({ theme }) => ({
         position: 'absolute',
-        top: 62,
+        top: 67,
         bottom: 0,
         width: '4px',  // Increased thickness
         backgroundColor: theme.palette.primary.main,
@@ -324,14 +286,43 @@ export function ConfidenceDataViz(props) {
         },
     }));
 
+    // Custom styled Tooltip with a lighter background
+    const LightTooltip = styled(({ className, ...props }) => (
+        <Tooltip {...props} classes={{ popper: className }} />
+    ))(() => ({
+        [`& .MuiTooltip-tooltip`]: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',  // Light background
+            color: '#000',  // Dark text color for contrast
+            fontSize: '14px',  // Adjust font size for readability
+            border: '1px solid #ccc',  // Optional: light border for definition
+            padding: '10px',  // Optional: padding
+        },
+    }));
+
     return (
         <GridContainer spacing={2}>
-            <GridItem xs={12}>
+            <GridItem xs={11}>
                 <RadioGroup row aria-label="options" name="radio-buttons-group"
                             defaultValue={"option1"} onChange={handleRadioChange}>
-                    <FormControlLabel value="option1" control={<Radio />} label="By Concept" />
                     <FormControlLabel value="option2" control={<Radio />} label="By Mention" />
+                    <FormControlLabel value="option1" control={<Radio />} label="By Concept" />
                 </RadioGroup>
+            </GridItem>
+            <GridItem xs={1}>
+                <LightTooltip
+                    title={
+                        <div>
+                            <p><strong>Mentions: </strong>Individual text spans within a document.</p>
+                            <p><strong>Concepts: </strong>Collections of mentions across all documents.
+                                Concept confidence values are lower due to multiple factors such as
+                            mention-mention relations or conflicting values.</p>
+                        </div>
+                    }
+                >
+                    <IconButton>
+                        <HelpOutlineIcon />
+                    </IconButton>
+                </LightTooltip>
             </GridItem>
             <GridItem xs={12} alignItems='center'>
                 <BarChart

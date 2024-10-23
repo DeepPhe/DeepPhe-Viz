@@ -11,21 +11,22 @@ import {SearchPanel} from "./SearchPanel";
 import {ConceptListPanel} from "./ConceptListPanel";
 import {ConfidenceDataViz} from "./ConfidenceDataViz";
 import Divider from "@mui/material/Divider";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import GridItem from "../Grid/GridItem";
 
 export function ConceptPanel(props) {
     const concepts = props.concepts;
     const mentions = props.mentions;
     const doc = props.doc;
-    // const factBasedReports = props.factBasedReports;
-    // const reportId = props.reportId;
-    // const factId = props.factId;
     const handleSemanticGroupChange = props.handleSemanticGroupChange;
     const handleConfidenceChange = props.handleConfidenceChange;
     const semanticGroups = props.semanticGroups;
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const confidence = props.confidence;
-    const [filterLabel, setFilterLabel] = useState("Concepts");
+    const filterLabel = props.filterLabel;
+    const setFilterLabel = props.setFilterLabel;
 
     const handleFilterChange = (newFilter) => {
         setFilterLabel(newFilter);
@@ -55,10 +56,10 @@ export function ConceptPanel(props) {
                     id="mentions_container"
                 >
                     {/*not be used*/}
-                    <SearchPanel
-                        filteredConcepts={filteredConcepts}
-                        setFilteredConcepts={setFilteredConcepts
-                        }/>
+                    {/*<SearchPanel*/}
+                    {/*    filteredConcepts={filteredConcepts}*/}
+                    {/*    setFilteredConcepts={setFilteredConcepts*/}
+                    {/*    }/>*/}
                     <SemanticGroupPanel
                         semanticGroups={semanticGroups}
                         handleSemanticGroupChange={handleSemanticGroupChange}
@@ -84,6 +85,8 @@ export function ConceptPanel(props) {
                             handleConfidenceChange={handleConfidenceChange}
                             concepts={concepts}
                             doc={doc}
+                            filterLabel={filterLabel}
+                            setFilterLabel={setFilterLabel}
                             onFilterChange={handleFilterChange}
                         />
                     </GridContainer>
@@ -106,6 +109,28 @@ export function ConceptPanel(props) {
                     {/*        Example (Document count,Patient count)*/}
                     {/*    </ListItem>*/}
                     {/*</GridContainer>*/}
+
+                    <GridContainer direction="row" spacing={2}>
+                        <GridItem>
+                            <FormControlLabel
+                                control={<Checkbox defaultChecked/>}
+                                label="Document Mention Count"
+                            />
+                        </GridItem>
+                        <GridItem>
+                            <FormControlLabel
+                                control={<Checkbox defaultChecked/>}
+                                label="Patient Mention Count"
+                            />
+                        </GridItem>
+                        <GridItem>
+                            <FormControlLabel
+                                control={<Checkbox defaultChecked/>}
+                                label="Concept Confidence"
+                            />
+                        </GridItem>
+                    </GridContainer>
+
                     <ConceptListPanel
                         doc={doc}
                         concepts={concepts}

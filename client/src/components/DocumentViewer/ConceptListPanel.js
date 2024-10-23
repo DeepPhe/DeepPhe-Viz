@@ -161,7 +161,7 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {separateWords(obj.classUri)} ({getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)}):{Math.round(obj.confidence * 100)}%
+                            {separateWords(obj.classUri)} {getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)},{Math.round(obj.confidence * 100)}%
                         </ListItem>
                     );
                 })}

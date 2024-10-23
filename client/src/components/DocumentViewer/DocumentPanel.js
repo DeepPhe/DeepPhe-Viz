@@ -14,6 +14,10 @@ export function DocumentPanel(props) {
   const [filteredConceptsStartingCopy, setFilteredConceptsStartingCopy] = useState([]);
   const fontSize = props.fontSize;
   const confidence = props.confidence;
+  const filterLabel = props.filterLabel;
+
+  console.log(filterLabel);
+
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -43,15 +47,27 @@ export function DocumentPanel(props) {
     }
   }, [filteredConcepts, filteredConceptsStartingCopy]);
 
-
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
     console.log(FilteredConceptsIds);
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
           let textMentionObj = {};
+          let mentionConfidence = 0;
 
-          const mentionConfidence = Math.round(obj.confidence);
+          console.log(filterLabel);
+          if(filterLabel === "Concepts"){
+            const matchGroup = filteredConceptsStartingCopy.find(group => group.dpheGroup === obj.dpheGroup);
+            if (matchGroup) {
+              mentionConfidence = Math.round(matchGroup.confidence * 100);
+            }
+            else{
+              console.log(matchGroup.preferredText, "has no confidence");
+            }
+          }
+          else{
+            mentionConfidence = Math.round(obj.confidence);
+          }
           textMentionObj.preferredText = obj["preferredText"];
           textMentionObj.begin = obj.begin;
           textMentionObj.end = obj.end;
@@ -362,21 +378,26 @@ export function DocumentPanel(props) {
     return textFragments;
   }
 
-  function getAllConceptIDs(){
-    let conceptIDList = [];
-    for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
-        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsStartingCopy[i].id));
+  function getAllMentionsInDoc(){
+    let MentionList = [];
 
-        conceptIDList.push(mentions);
+    for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
+      const mentionIdsFromConceptId = getMentionsForConcept(filteredConceptsStartingCopy[i].id);
+      // console.log(mentionIdsFromConceptId);
+      // console.log(getMentionsGivenMentionIds(mentionIdsFromConceptId));
+        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsStartingCopy[i].id));
+      MentionList.push(mentions);
     }
-    return conceptIDList;
+    // console.log(MentionList);
+    return MentionList;
   }
 
-  const setHTML = useCallback(() => {
-    let conceptIds = getAllConceptIDs();
-    setDocText(highlightTextMentions(createMentionObj(conceptIds), doc.text));
-  }, [getAllConceptIDs, highlightTextMentions, createMentionObj, doc.text]);
 
+
+  const setHTML = useCallback(() => {
+    let mentions = getAllMentionsInDoc();
+    setDocText(highlightTextMentions(createMentionObj(mentions), doc.text));
+  }, [getAllMentionsInDoc, highlightTextMentions, createMentionObj, doc.text]);
 
 
   useEffect(() => {
@@ -385,7 +406,7 @@ export function DocumentPanel(props) {
       setDocText(props.doc.text);
       setHTML()
     }
-  },[props.doc,props.clickedTerm, props.confidence, props.semanticGroups]);
+  },[props.doc,props.clickedTerm, props.confidence, props.semanticGroups, filterLabel]);
 
 
   const getHTML = (docText) => {

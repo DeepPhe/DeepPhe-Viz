@@ -21,6 +21,7 @@ export function DocumentViewer(props) {
   const [confidence, setConfidence] = useState(0);
   // const clickedTerm = props.clickedTerm;
   const [clickedTerm, setClickedTerm] = useState("");
+  const [filterLabel, setFilterLabel] = useState("Concepts");
 
   useEffect(() => {
     if (isEmpty(semanticGroups)) { //It's something here that i need to fix
@@ -272,6 +273,8 @@ export function DocumentViewer(props) {
                           handleConfidenceChange={handleConfidenceChange}
                           confidence={confidence}
                           doc={patientDocument}
+                          filterLabel={filterLabel}
+                          setFilterLabel={setFilterLabel}
                         />
                       </GridItem>
                     </GridContainer>
@@ -288,6 +291,8 @@ export function DocumentViewer(props) {
                       fontSize={fontSize}
                       clickedTerm={clickedTerm}
                       confidence={confidence}
+                      filterLabel={filterLabel}
+                      setFilterLabel={setFilterLabel}
                     />
                   </GridItem>
                 </GridContainer>
