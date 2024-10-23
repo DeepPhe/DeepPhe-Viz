@@ -36,23 +36,23 @@ export function SemanticGroupPanel(props) {
                         <span><b className="titles">Semantic Groups:</b></span>
                     </div>
                 </GridItem>
-                <GridItem xs={5}>
-                    {isExpanded ?
-                        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Expanded </b>
-                        :
-                        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Collapsed </b>
-                    }
-                </GridItem>
-                <GridItem xs={1} >
-                    {isVisible ? (<span>
-                    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibilityandTitle}></i>
-                            {/* Show this icon when visible */}
-                </span>) : (<span>
-                    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibilityandTitle}></i>
-                            {/* Show this icon when hidden */}
-                </span>)}
-                </GridItem>
-                <Divider orientation="horizontal" flexItem />
+                {/*<GridItem xs={5}>*/}
+                {/*    {isExpanded ?*/}
+                {/*        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Expanded </b>*/}
+                {/*        :*/}
+                {/*        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Collapsed </b>*/}
+                {/*    }*/}
+                {/*</GridItem>*/}
+                {/*<GridItem xs={1} >*/}
+                {/*    {isVisible ? (<span>*/}
+                {/*    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibilityandTitle}></i>*/}
+                {/*            /!* Show this icon when visible *!/*/}
+                {/*</span>) : (<span>*/}
+                {/*    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibilityandTitle}></i>*/}
+                {/*            /!* Show this icon when hidden *!/*/}
+                {/*</span>)}*/}
+                {/*</GridItem>*/}
+                {/*<Divider orientation="horizontal" flexItem />*/}
 
                 <GridItem xs={12}>
                     <Box sx={{ mb:1, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>

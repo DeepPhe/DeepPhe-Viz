@@ -12,35 +12,35 @@ export function ConceptListPanel(props) {
     const setFilteredConcepts = props.setFilteredConcepts;
     const doc = props.doc;
 
-    const getMentionsGivenMentionIds = (mentionIds) => {
-        return doc.mentions.filter((m) => mentionIds.includes(m.id));
-    };
-    const getMentionsForConcept = (conceptId) => {
-        if(conceptId === ""){
-            return [];
-        }
-        if(conceptId !== undefined) {
-            const idx = concepts.findIndex((c) => c.id === conceptId);
-            if(idx === -1){
-                return [];
-            }
-            return concepts[idx].mentionIds.filter((mentionId) => {
-                return doc.mentions.some((m) => m.id === mentionId);
-            });
-        }
-        else{
-            return [];
-        }
-    };
+    // const getMentionsGivenMentionIds = (mentionIds) => {
+    //     return doc.mentions.filter((m) => mentionIds.includes(m.id));
+    // };
+    // const getMentionsForConcept = (conceptId) => {
+    //     if(conceptId === ""){
+    //         return [];
+    //     }
+    //     if(conceptId !== undefined) {
+    //         const idx = concepts.findIndex((c) => c.id === conceptId);
+    //         if(idx === -1){
+    //             return [];
+    //         }
+    //         return concepts[idx].mentionIds.filter((mentionId) => {
+    //             return doc.mentions.some((m) => m.id === mentionId);
+    //         });
+    //     }
+    //     else{
+    //         return [];
+    //     }
+    // };
 
-    function getAllConceptIDs(){
-        let conceptIDList = [];
-        for(let i = 0; i < concepts.length; i++){
-            const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
-            conceptIDList.push(mentions);
-        }
-        return conceptIDList;
-    }
+    // function getAllConceptIDs(){
+    //     let conceptIDList = [];
+    //     for(let i = 0; i < concepts.length; i++){
+    //         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
+    //         conceptIDList.push(mentions);
+    //     }
+    //     return conceptIDList;
+    // }
 
     // Gets mention count for concept for single document of patient
     const getDocMentionsCountForConcept = (conceptId) => {
@@ -92,9 +92,16 @@ export function ConceptListPanel(props) {
                 filteredConcepts.push(concepts[i]);
             }
         }
-        // console.log(sortConceptsByOccurrence(filteredConcepts));
-        return filteredConcepts;
+        console.log(filteredConcepts);
+        console.log(sortConceptsByDpheGroup(filteredConcepts));
+        return sortConceptsByDpheGroup(filteredConcepts);
+    }
 
+    function sortConceptsByDpheGroup(filteredConcepts){
+        filteredConcepts.sort((a, b) => {
+            return a.dpheGroup.toLowerCase().localeCompare(b.dpheGroup.toLowerCase()); // Sort by dphegroup alphabetically
+        });
+        return filteredConcepts
     }
 
     // function sortConceptsByOccurrence(filteredConcepts){
@@ -115,36 +122,16 @@ export function ConceptListPanel(props) {
             .trim();  // Remove any leading/trailing spaces
     }
 
-    // Function to check if the classUri value already exists in the array
-    // function isClassUriUnique(array, newObj) {
-    //     return !array.some(obj => obj.classUri === newObj.classUri);
-    // }
     function getConceptsList() {
-        let sortedConcepts = [];
-        let groupedMentions = [];
-        sortedConcepts = filteredConcepts;
-        if(filteredConcepts.length === 0) {
-            if(sortedConcepts.length === 0){
-                sortedConcepts = [-1];
-            }
-            setFilteredConcepts(sortedConcepts);
+        let sortedConcepts = filteredConcepts;
+        if(sortedConcepts.length === 0){
+            sortedConcepts = [-1];
         }
+        setFilteredConcepts(sortedConcepts);
+
         if(sortedConcepts[0] === -1){
             sortedConcepts = [];
         }
-
-        // const conceptIDList = getAllConceptIDs()
-        //
-        // conceptIDList.forEach(function (nestedArray) {
-        //     nestedArray.forEach(function (obj) {
-        //         if(isClassUriUnique(groupedMentions,obj)){
-        //             groupedMentions.push(obj);
-        //         }
-        //     });
-        // });
-
-        //If we want to list the concepts we will use : filterConceptsByConfidenceAndSemanticGroup(concepts)
-        //If we want to list the Mentions we will use : groupedMentions
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
