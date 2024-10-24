@@ -85,13 +85,13 @@ export function ConceptPanel(props) {
                 {/* Tabs Navigation */}
                 <Box sx={{width: '100%'}}>
                     <Tabs value={tabValue} onChange={handleTabChange} aria-label="concept panel tabs">
-                        <Tab label="Semantic Group" {...a11yProps(0)} />
-                        <Tab label="Confidence Data Viz" {...a11yProps(1)} />
-                        <Tab label="Concept List" {...a11yProps(2)} />
+                        <Tab label="Concepts" {...a11yProps(0)} />
+                        <Tab label="Group Filter" {...a11yProps(1)} />
+                        <Tab label="Confidence Filter" {...a11yProps(2)} />
                     </Tabs>
 
 
-                    <TabPanel value={tabValue} index={0}>
+                    <TabPanel value={tabValue} index={1}>
                         <CardBody style={{border: "none", boxShadow: "none"}}>
                             <SemanticGroupPanel
                                 semanticGroups={semanticGroups}
@@ -102,7 +102,7 @@ export function ConceptPanel(props) {
                         </CardBody>
                     </TabPanel>
 
-                    <TabPanel value={tabValue} index={1}>
+                    <TabPanel value={tabValue} index={2}>
                         <CardBody style={{border: "none", boxShadow: "none"}}>
                             <GridContainer>
                                 <ConfidenceDataViz
@@ -120,7 +120,7 @@ export function ConceptPanel(props) {
                         </CardBody>
                     </TabPanel>
 
-                    <TabPanel value={tabValue} index={2}>
+                    <TabPanel value={tabValue} index={0}>
                         <CardBody style={{border: "none", boxShadow: "none"}}>
                             {/*<Divider sx={{background: 'black', borderBottomWidth: 2}}/>*/}
                             {/*<GridContainer>*/}

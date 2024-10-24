@@ -16,9 +16,6 @@ export function DocumentPanel(props) {
   const confidence = props.confidence;
   const filterLabel = props.filterLabel;
 
-  console.log(filterLabel);
-
-
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
@@ -49,13 +46,11 @@ export function DocumentPanel(props) {
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
-    console.log(FilteredConceptsIds);
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
           let textMentionObj = {};
           let mentionConfidence = 0;
 
-          console.log(filterLabel);
           if(filterLabel === "Concepts"){
             const matchGroup = filteredConceptsStartingCopy.find(group => group.dpheGroup === obj.dpheGroup);
             if (matchGroup) {
@@ -160,7 +155,6 @@ export function DocumentPanel(props) {
 
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
 
-    console.log(textMentions);
     //No mentions in reportText, we return just reportText
     if(textMentions.length === 0){
       return reportText;

@@ -7,6 +7,9 @@ import React, { useEffect, useState } from "react";
 import { ConceptPanel } from "./ConceptPanel";
 import { DocumentPanel } from "./DocumentPanel";
 import $ from "jquery";
+import SplitPane from "react-split-pane";
+
+
 
 export function DocumentViewer(props) {
   const [checkboxGridVisible, setCheckboxGridVisible] = useState(true);
@@ -228,76 +231,74 @@ export function DocumentViewer(props) {
         <CardHeader className={"basicCardHeader"}>
           Documents Related to Selected Cancer/Tumor Detail
         </CardHeader>
-        <CardBody>
-          <div id="report_instance">
-            <GridItem className="report_section clearfix">
-              <GridContainer>
-                <GridItem xs={6} id="report_id">
-                  <i className="fa fa-file-o"></i>
-                  <span className="display_report_id currentReportCssClass current_displaying_report">
-                    {reportId}
-                  </span>
+        <CardBody style={{ height: '100vh', display: 'flex', flexDirection: 'column', padding: 0, margin: 0 }}>
+          <div id="report_instance" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {/*<GridItem className="report_section clearfix" style={{ flexGrow: 1 }}>*/}
+            {/*  <GridContainer style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: 0, margin: 0 }}>*/}
+                {/* Top Section (ID and Zoom Controls) */}
+                <GridItem xs={12} id="report_id" style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '10px', margin: 0 }}>
+                  <div>
+                    <i className="fa fa-file-o"></i>
+                    <span className="display_report_id currentReportCssClass current_displaying_report">
+              {reportId}
+            </span>
+                  </div>
+                  <div id="zoom_controls">
+                    <button id="zoom_in_btn" className={"zoom-in"} type="button" onClick={(e) => zoomClick(e)}>
+                      <i className="fa fa-search-plus zoom-in"></i>
+                    </button>
+                    <button id="zoom_out_btn" className={"zoom-out"} type="button" onClick={(e) => zoomClick(e)}>
+                      <i className="fa fa-search-minus zoom-out"></i>
+                    </button>
+                  </div>
                 </GridItem>
-                <GridItem xs={6} id="zoom_controls">
-                  <button id="zoom_in_btn" className={"zoom-in"} type="button" onClick={(e) => {zoomClick(e)}}>
-                    <i className="fa fa-search-plus zoom-in"></i>
-                  </button>
-                  <button id="zoom_out_btn" className={"zoom-out"} type="button" onClick={(e) => {zoomClick(e)}}>
-                    <i className="fa fa-search-minus zoom-out"></i>
-                  </button>
-                </GridItem>
-                <GridContainer id="term_and_report_container">
-                  <GridItem
-                    style={{ border: "none" }}
-                    md={4}
-                    id="mentions_container"
-                    className="mentions_container"
-                  >
-                    <GridContainer id="term_container2">
-                      <GridItem
-                        md={2}
-                        id="mentions_container2"
-                        className="mentions_container2"
-                      >
+
+                {/* SplitPane for Resizable Content */}
+                <SplitPane split="vertical" minSize={500} maxSize={-650} defaultSize="33%" style={{ flexGrow: 1, display: 'flex', height: '100%', margin: 0, padding: 0 }}>
+                  {/* Left Panel - Mentions Container */}
+                  <GridItem md={4} id="mentions_container" className="mentions_container" style={{ height: '100%', overflow: 'auto', backgroundColor: '#f0f0f0', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', maxWidth: 'none' }}>
+                    <GridContainer id="term_container2" style={{ height: '100%', margin: 0, padding: 0, flexGrow: 1 }}>
+                      <GridItem md={12} id="mentions_container2" className="mentions_container2" style={{ margin: 0, padding: 0 }}>
                         <ConceptPanel
-                          mentions={patientDocument.mentions}
-                          concepts={concepts}
-                          getCheckboxGridVisible={getCheckboxGridVisible}
-                          setCheckboxGridVisible={setCheckboxGridVisible}
-                          handleDropdownClick={handleDropdownClick}
-                          semanticGroups={semanticGroups}
-                          handleSemanticGroupChange={handleSemanticGroupChange}
-                          setFilteredConcepts={setFilteredConcepts}
-                          filteredConcepts={filteredConcepts}
-                          handleTermClick={handleTermClick}
-                          handleConfidenceChange={handleConfidenceChange}
-                          confidence={confidence}
-                          doc={patientDocument}
-                          filterLabel={filterLabel}
-                          setFilterLabel={setFilterLabel}
+                            mentions={patientDocument.mentions}
+                            concepts={concepts}
+                            getCheckboxGridVisible={getCheckboxGridVisible}
+                            setCheckboxGridVisible={setCheckboxGridVisible}
+                            handleDropdownClick={handleDropdownClick}
+                            semanticGroups={semanticGroups}
+                            handleSemanticGroupChange={handleSemanticGroupChange}
+                            setFilteredConcepts={setFilteredConcepts}
+                            filteredConcepts={filteredConcepts}
+                            handleTermClick={handleTermClick}
+                            handleConfidenceChange={handleConfidenceChange}
+                            confidence={confidence}
+                            doc={patientDocument}
+                            filterLabel={filterLabel}
+                            setFilterLabel={setFilterLabel}
                         />
                       </GridItem>
                     </GridContainer>
                   </GridItem>
 
-                  <GridItem md={8} id="report_text">
+                  {/* Right Panel - Document View */}
+                  <GridItem md={8} id="report_text" style={{ height: '100%', overflow: 'auto', backgroundColor: '#ffffff', margin: 0, padding: 0, maxWidth: 'none' }}>
                     <DocumentPanel
-                      doc={patientDocument}
-                      concepts={concepts}
-                      semanticGroups={semanticGroups}
-                      handleSemanticGroupChange={handleSemanticGroupChange}
-                      setFilteredConcepts={setFilteredConcepts}
-                      filteredConcepts={filteredConcepts}
-                      fontSize={fontSize}
-                      clickedTerm={clickedTerm}
-                      confidence={confidence}
-                      filterLabel={filterLabel}
-                      setFilterLabel={setFilterLabel}
+                        doc={patientDocument}
+                        concepts={concepts}
+                        semanticGroups={semanticGroups}
+                        handleSemanticGroupChange={handleSemanticGroupChange}
+                        setFilteredConcepts={setFilteredConcepts}
+                        filteredConcepts={filteredConcepts}
+                        fontSize={fontSize}
+                        clickedTerm={clickedTerm}
+                        confidence={confidence}
+                        filterLabel={filterLabel}
+                        setFilterLabel={setFilterLabel}
                     />
                   </GridItem>
-                </GridContainer>
-              </GridContainer>
-            </GridItem>
+                </SplitPane>
+            {/*  </GridContainer>*/}
+            {/*</GridItem>*/}
           </div>
         </CardBody>
       </Card>

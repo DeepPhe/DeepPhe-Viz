@@ -30,12 +30,13 @@ export function SemanticGroupPanel(props) {
     };
 
     const getHeader = () => {
-        return (<GridContainer>
-                <GridItem xs={6}>
-                    <div>
-                        <span><b className="titles">Semantic Groups:</b></span>
-                    </div>
-                </GridItem>
+        return (
+            <GridContainer>
+                {/*<GridItem xs={6}>*/}
+                {/*    <div>*/}
+                {/*        <span><b className="titles">Semantic Groups:</b></span>*/}
+                {/*    </div>*/}
+                {/*</GridItem>*/}
                 {/*<GridItem xs={5}>*/}
                 {/*    {isExpanded ?*/}
                 {/*        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Expanded </b>*/}
@@ -54,28 +55,58 @@ export function SemanticGroupPanel(props) {
                 {/*</GridItem>*/}
                 {/*<Divider orientation="horizontal" flexItem />*/}
 
-                <GridItem xs={12}>
-                    <Box sx={{ mb:1, mr: 2, display: 'flex', float: 'right' }} className={`${isVisible ? "visible" : "hidden"}`}>
-                        <Button
-                            sx={{fontSize:'17px', fontFamily: "Monaco, monospace", fontWeight: "bold", mr: 1}}
-                            id={"check-all-btn"}
-                            variant="contained"
-                            size="small"
-                            // startIcon={iconToggled ? <CheckBoxIcon/> : <CheckBoxOutlineBlankIcon />}
-                            onClick={checkAll}
-                        >Check All</Button>
-                        <Button
-                            sx={{fontSize:'17px', fontFamily: "Monaco, monospace", fontWeight: "bold"}}
-                            id={"uncheck-all-btn"}
-                            variant="contained"
-                            size="small"
-                            onClick={unCheckAll}
-                        >Uncheck All</Button>
+            <GridItem xs={12}>
+                <Box
+                    sx={{
+                        mb: 1,
+                        mr: 2,
+                        display: 'flex',
+                        justifyContent: 'flex-start', // Aligns buttons to the left
+                        float: 'left', // Optional: to make the box float left
+                        // paddingTop: 2, // Add top padding
+                        // paddingLeft: 2 // Add left padding
+                        // Target the specific class with a higher specificity selector
+                        '&.MuiBox-root': { // Targeting the MUI Box class
+                            padding: '0 !important', // Remove any unwanted padding
+                            margin: '0 !important', // Remove any unwanted margin
+                        },
+                    }}
+                    className={`${isVisible ? "visible" : "hidden"}`}
+                >
+                    <Button
+                        sx={{
+                            fontSize: '17px',
+                            fontFamily: "Monaco, monospace",
+                            fontWeight: "bold",
+                            mr: 1
+                        }}
+                        id={"check-all-btn"}
+                        variant="contained"
+                        size="small"
+                        // startIcon={iconToggled ? <CheckBoxIcon/> : <CheckBoxOutlineBlankIcon />}
+                        onClick={checkAll}
+                    >
+                        Check All
+                    </Button>
+                    <Button
+                        sx={{
+                            fontSize: '17px',
+                            fontFamily: "Monaco, monospace",
+                            fontWeight: "bold"
+                        }}
+                        id={"uncheck-all-btn"}
+                        variant="contained"
+                        size="small"
+                        onClick={unCheckAll}
+                    >
+                        Uncheck All
+                    </Button>
+                </Box>
+            </GridItem>
 
-                    </Box>
-                </GridItem>
 
-            </GridContainer>);
+
+        </GridContainer>);
     };
 
     const getSemanticGroupBox = (group, index, values) => {

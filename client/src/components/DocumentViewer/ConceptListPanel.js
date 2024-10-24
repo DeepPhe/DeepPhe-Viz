@@ -92,8 +92,6 @@ export function ConceptListPanel(props) {
                 filteredConcepts.push(concepts[i]);
             }
         }
-        console.log(filteredConcepts);
-        console.log(sortConceptsByDpheGroup(filteredConcepts));
         return sortConceptsByDpheGroup(filteredConcepts);
     }
 
