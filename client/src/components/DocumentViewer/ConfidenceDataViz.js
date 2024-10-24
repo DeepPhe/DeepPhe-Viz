@@ -300,15 +300,15 @@ export function ConfidenceDataViz(props) {
     }));
 
     return (
-        <GridContainer spacing={2}>
-            <GridItem xs={11}>
+        <GridContainer justifyContent="space-between" alignItems="center" spacing={2}>
+            <GridItem xs="{true}">
                 <RadioGroup row aria-label="options" name="radio-buttons-group"
                             defaultValue={"option1"} onChange={handleRadioChange}>
                     <FormControlLabel value="option2" control={<Radio />} label="By Mention" />
                     <FormControlLabel value="option1" control={<Radio />} label="By Concept" />
                 </RadioGroup>
             </GridItem>
-            <GridItem xs={1}>
+            <GridItem xs="auto">
                 <LightTooltip
                     title={
                         <div>
