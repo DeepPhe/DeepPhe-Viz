@@ -24,52 +24,22 @@ export function SemanticGroupPanel(props) {
         });
     };
 
-    const toggleVisibilityandTitle = () => {
-        setIsVisible(!isVisible);
-        setIsExpanded(!isExpanded);
-    };
+    // const toggleVisibilityandTitle = () => {
+    //     setIsVisible(!isVisible);
+    //     setIsExpanded(!isExpanded);
+    // };
 
     const getHeader = () => {
         return (
-            <GridContainer>
-                {/*<GridItem xs={6}>*/}
-                {/*    <div>*/}
-                {/*        <span><b className="titles">Semantic Groups:</b></span>*/}
-                {/*    </div>*/}
-                {/*</GridItem>*/}
-                {/*<GridItem xs={5}>*/}
-                {/*    {isExpanded ?*/}
-                {/*        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Expanded </b>*/}
-                {/*        :*/}
-                {/*        <b className="collapseTitle" onClick={toggleVisibilityandTitle}> Collapsed </b>*/}
-                {/*    }*/}
-                {/*</GridItem>*/}
-                {/*<GridItem xs={1} >*/}
-                {/*    {isVisible ? (<span>*/}
-                {/*    <i className="caret-custom fa fa-caret-down fa-2x" onClick={toggleVisibilityandTitle}></i>*/}
-                {/*            /!* Show this icon when visible *!/*/}
-                {/*</span>) : (<span>*/}
-                {/*    <i className="caret-custom fa fa-caret-up fa-2x" onClick={toggleVisibilityandTitle}></i>*/}
-                {/*            /!* Show this icon when hidden *!/*/}
-                {/*</span>)}*/}
-                {/*</GridItem>*/}
-                {/*<Divider orientation="horizontal" flexItem />*/}
-
-            <GridItem xs={12}>
+            <GridContainer className="no-padding">
+                {/*<GridItem xs={12} className="no-padding">*/}
                 <Box
                     sx={{
                         mb: 1,
-                        mr: 2,
                         display: 'flex',
                         justifyContent: 'flex-start', // Aligns buttons to the left
-                        float: 'left', // Optional: to make the box float left
-                        // paddingTop: 2, // Add top padding
-                        // paddingLeft: 2 // Add left padding
-                        // Target the specific class with a higher specificity selector
-                        '&.MuiBox-root': { // Targeting the MUI Box class
-                            padding: '0 !important', // Remove any unwanted padding
-                            margin: '0 !important', // Remove any unwanted margin
-                        },
+                        // float: 'left', // Optional: to make the box float left
+
                     }}
                     className={`${isVisible ? "visible" : "hidden"}`}
                 >
@@ -78,7 +48,8 @@ export function SemanticGroupPanel(props) {
                             fontSize: '17px',
                             fontFamily: "Monaco, monospace",
                             fontWeight: "bold",
-                            mr: 1
+                            mr: 1,
+
                         }}
                         id={"check-all-btn"}
                         variant="contained"
@@ -102,7 +73,7 @@ export function SemanticGroupPanel(props) {
                         Uncheck All
                     </Button>
                 </Box>
-            </GridItem>
+            {/*</GridItem>*/}
 
 
 
@@ -155,7 +126,7 @@ export function SemanticGroupPanel(props) {
         handleAllCheckboxChange(false);
     }
 
-    return (<GridItem xs={12}>
+    return (<GridItem xs={12} className="no-padding">
 
             {getHeader()}
             {getSemanticGroups()}

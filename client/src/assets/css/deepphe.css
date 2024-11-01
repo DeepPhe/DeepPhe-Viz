@@ -1568,13 +1568,24 @@ span.neg .icon{
     height: 100%;
 }
 
-.mentions_container, #report_text {
-    height: 100%;
-    background-color: #f0f0f0; /* Or whatever background color you want */
+/* styles.css */
+.no-padding {
+    padding: 0 !important;
 }
 
-#mentions_container {
-    flex: 1; /* Allow this to grow and fill space */
+/*.mentions_container {*/
+/*    !*height: 100%;*!*/
+/*    !*background-color: red; !* Or whatever background color you want *!*!*/
+/*    ::-webkit-scrollbar {*/
+
+/*        left: 0 !important;*/
+
+/*    }*/
+/*}*/
+
+.custom-box {
+    padding: 0 !important; /* Force padding to 0 */
+    margin: 0 !important;  /* Force margin to 0 */
 }
 
 #term_container2 {

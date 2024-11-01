@@ -1,24 +1,24 @@
 import GridContainer from "../Grid/GridContainer";
 import {SemanticGroupPanel} from "./SemanticGroupPanel";
 import React, {useState} from "react";
-import CardHeader from "../Card/CardHeader";
 import CardBody from "../Card/CardBody";
 import Card from "../Card/Card";
 
 import {ConfidencePanel} from "./ConfidencePanel";
-import {SortPanel} from "./SortPanel";
-import {SearchPanel} from "./SearchPanel";
 import {ConceptListPanel} from "./ConceptListPanel";
 import {ConfidenceDataViz} from "./ConfidenceDataViz";
-import Divider from "@mui/material/Divider";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import GridItem from "../Grid/GridItem";
-import {Box, Tab, Tabs} from '@mui/material';
+import {Box} from '@mui/material';
+import DropdownWithCheckboxes from "./DropDownCheckBoxes";
+import { styled } from '@mui/system';
+import { Tab as BaseTab, tabClasses } from '@mui/base/Tab';
+import { TabsList as BaseTabsList } from '@mui/base/TabsList';
+import { Tabs } from '@mui/base/Tabs';
+import { buttonClasses } from '@mui/base/Button';
 
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
+    const isActive = value === index;
 
     return (
         <div
@@ -28,10 +28,118 @@ function TabPanel(props) {
             aria-labelledby={`simple-tab-${index}`}
             {...other}
         >
-            {value === index && <Box sx={{p: 3}}>{children}</Box>}
+            {value === index && <Box className="custom-box" sx={{p: 3 }}>{children}</Box>}
         </div>
     );
 }
+
+const blue = {
+    50: '#F0F7FF',
+    100: '#C2E0FF',
+    200: '#80BFFF',
+    300: '#66B2FF',
+    400: '#3399FF',
+    500: '#007FFF',
+    600: '#0072E5',
+    700: '#0059B2',
+    800: '#004C99',
+    900: '#003A75',
+};
+
+const grey = {
+    50: '#F3F6F9',
+    100: '#E5EAF2',
+    200: '#DAE2ED',
+    300: '#C7D0DD',
+    400: '#B0B8C4',
+    500: '#9DA8B7',
+    600: '#6B7A90',
+    700: '#434D5B',
+    800: '#303740',
+    900: '#1C2025',
+};
+
+// const Tab = styled(BaseTab)`
+//   font-family: 'IBM Plex Sans', sans-serif;
+//   color: #fff;
+//   cursor: pointer;
+//   font-size: 0.875rem;
+//   font-weight: 600;
+//   background-color: transparent;
+//   padding: 10px 0; // Set padding for vertical space
+//   margin: 0; // Remove margin to ensure uniformity
+//   border: 1px solid transparent; // Set a default transparent border
+//   border-radius: 7px; // Rounded corners at the top
+//   flex: 1; // Allow tabs to grow equally
+//
+//   &:hover {
+//     background-color: ${blue[400]};
+//   }
+//
+//   &.${tabClasses.selected} {
+//     background-color: #fff;
+//     color: ${blue[600]};
+//     //border: 1px solid red; // Border when selected
+//     //border-bottom: 1px solid transparent; // Ensure no bottom border when selected
+//   }
+//
+//   &.${tabClasses.disabled} {
+//     opacity: 0.5;
+//     cursor: not-allowed;
+//   }
+// `;
+
+const Tab = styled(BaseTab)`
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background-color: transparent;
+  //width: 100%;
+  //padding: 10px 12px;
+  padding: 10px;
+  margin: 6px;
+  border: none;
+  border-radius: 7px;
+  display: flex;
+  justify-content: center;
+
+  &:hover {
+    background-color: ${blue[400]};
+  }
+
+  &:focus {
+    color: #fff;
+    outline: 3px solid ${blue[200]};
+  }
+
+  &.${tabClasses.selected} {
+    background-color: #fff;
+    color: ${blue[600]};
+  }
+
+  &.${buttonClasses.disabled} {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const TabsList = styled(BaseTabsList)(
+    ({ theme }) => `
+  min-width: 400px;
+  background-color: ${blue[500]};
+  border-radius: 7px;
+  display: flex;
+  margin: 20px;
+  margin-bottom: 0px;
+  align-items: stretch;
+  justify-content: center;
+  align-content: space-between;
+  box-shadow: 0px 4px 30px ${theme.palette.mode === 'dark' ? grey[900] : grey[200]};
+  `,
+);
+
 
 function a11yProps(index) {
     return {
@@ -53,6 +161,12 @@ export function ConceptPanel(props) {
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
 
+    const [selectedOptions, setSelectedOptions] = useState([]);
+
+    const handleSelectionChange = (newSelections) => {
+        setSelectedOptions(newSelections);
+    };
+
     const handleFilterChange = (newFilter) => {
         setFilterLabel(newFilter);
     };
@@ -69,98 +183,109 @@ export function ConceptPanel(props) {
             <Card
                 style={{
                     overflow: "hidden",
-                    marginTop: "0px",
+                    marginTop: "3px",
                     border: "none",
                     boxShadow: "none",
                 }}
             >
-                <CardHeader
-                    style={{border: "none", boxShadow: "none"}}
-                    id="mentions_label"
-                    className={"basicCardHeader"}
-                >
-                    Concept Filter
-                </CardHeader>
 
                 {/* Tabs Navigation */}
-                <Box sx={{width: '100%'}}>
-                    <Tabs value={tabValue} onChange={handleTabChange} aria-label="concept panel tabs">
-                        <Tab label="Concepts" {...a11yProps(0)} />
-                        <Tab label="Group Filter" {...a11yProps(1)} />
-                        <Tab label="Confidence Filter" {...a11yProps(2)} />
-                    </Tabs>
+                <Box className="custom-box">
+                    <Tabs defaultValue={0} value={tabValue}
+                          onChange={handleTabChange}
+                          aria-label="concept panel tabs">
+
+                        <TabsList>
+                            <Tab {...a11yProps(0)}> Concepts</Tab>
+                            <Tab {...a11yProps(1)}> Group Filter</Tab>
+                            <Tab {...a11yProps(2)}> Confidence Filter </Tab>
+                        </TabsList>
 
 
-                    <TabPanel value={tabValue} index={1}>
-                        <CardBody style={{border: "none", boxShadow: "none"}}>
-                            <SemanticGroupPanel
-                                semanticGroups={semanticGroups}
-                                handleSemanticGroupChange={handleSemanticGroupChange}
-                                confidence={confidence}
-                                concepts={concepts}
-                            />
-                        </CardBody>
-                    </TabPanel>
+                        {/*<TabsList value={tabValue} onChange={handleTabChange} aria-label="concept panel tabs">*/}
+                        {/*    <Tab  />*/}
+                        {/*    <Tab  />*/}
+                        {/*    <Tab  />*/}
+                        {/*</TabsList>*/}
 
-                    <TabPanel value={tabValue} index={2}>
-                        <CardBody style={{border: "none", boxShadow: "none"}}>
-                            <GridContainer>
-                                <ConfidenceDataViz
-                                    handleConfidenceChange={handleConfidenceChange}
-                                    concepts={concepts}
+                        <TabPanel value={tabValue} index={0}>
+                            <CardBody style={{border: "none", boxShadow: "none"}}>
+                                {/*<Divider sx={{background: 'black', borderBottomWidth: 2}}/>*/}
+                                {/*<GridContainer>*/}
+                                {/*    <SortPanel*/}
+                                {/*        filteredConcepts={filteredConcepts}*/}
+                                {/*        setFilteredConcepts={setFilteredConcepts}*/}
+                                {/*    />*/}
+                                {/*</GridContainer>*/}
+                                {/*<GridContainer direction="row" spacing={2}>*/}
+                                {/*    <GridItem>*/}
+                                {/*        <FormControlLabel*/}
+                                {/*            control={<Checkbox defaultChecked/>}*/}
+                                {/*            label="Document Mention Count"*/}
+                                {/*        />*/}
+                                {/*    </GridItem>*/}
+                                {/*    <GridItem>*/}
+                                {/*        <FormControlLabel*/}
+                                {/*            control={<Checkbox defaultChecked/>}*/}
+                                {/*            label="Patient Mention Count"*/}
+                                {/*        />*/}
+                                {/*    </GridItem>*/}
+                                {/*    <GridItem>*/}
+                                {/*        <FormControlLabel*/}
+                                {/*            control={<Checkbox defaultChecked/>}*/}
+                                {/*            label="Concept Confidence"*/}
+                                {/*        />*/}
+                                {/*    </GridItem>*/}
+                                {/*</GridContainer>*/}
+                                <DropdownWithCheckboxes
+                                    selectedOptions={selectedOptions}
+                                    onSelectionChange={handleSelectionChange}
+                                    />
+                                <ConceptListPanel
+                                    selectedOptions={selectedOptions}
                                     doc={doc}
-                                    filterLabel={filterLabel}
-                                    setFilterLabel={setFilterLabel}
-                                    onFilterChange={handleFilterChange}
-                                />
-                            </GridContainer>
-                            <GridContainer>
-                                <ConfidencePanel/>
-                            </GridContainer>
-                        </CardBody>
-                    </TabPanel>
+                                    concepts={concepts}
+                                    mentions={mentions}
+                                    semanticGroups={semanticGroups}
+                                    confidence={confidence}
+                                    setFilteredConcepts={setFilteredConcepts}
+                                    filteredConcepts={filteredConcepts}
+                                    handleTermClick={props.handleTermClick}
+                                    />
+                            </CardBody>
+                        </TabPanel>
 
-                    <TabPanel value={tabValue} index={0}>
-                        <CardBody style={{border: "none", boxShadow: "none"}}>
-                            {/*<Divider sx={{background: 'black', borderBottomWidth: 2}}/>*/}
-                            {/*<GridContainer>*/}
-                            {/*    <SortPanel*/}
-                            {/*        filteredConcepts={filteredConcepts}*/}
-                            {/*        setFilteredConcepts={setFilteredConcepts}*/}
-                            {/*    />*/}
-                            {/*</GridContainer>*/}
-                            <GridContainer direction="row" spacing={2}>
-                                <GridItem>
-                                    <FormControlLabel
-                                        control={<Checkbox defaultChecked/>}
-                                        label="Document Mention Count"
+                        <TabPanel value={tabValue} index={1}>
+                            <CardBody style={{border: "none", boxShadow: "none"}}>
+                                <SemanticGroupPanel
+                                    semanticGroups={semanticGroups}
+                                    handleSemanticGroupChange={handleSemanticGroupChange}
+                                    confidence={confidence}
+                                    concepts={concepts}
+                                />
+                            </CardBody>
+                        </TabPanel>
+
+                        <TabPanel value={tabValue} index={2}>
+                            <CardBody style={{border: "none", boxShadow: "none"}}>
+                                <GridContainer>
+                                    <ConfidenceDataViz
+                                        handleConfidenceChange={handleConfidenceChange}
+                                        concepts={concepts}
+                                        doc={doc}
+                                        filterLabel={filterLabel}
+                                        setFilterLabel={setFilterLabel}
+                                        onFilterChange={handleFilterChange}
                                     />
-                                </GridItem>
-                                <GridItem>
-                                    <FormControlLabel
-                                        control={<Checkbox defaultChecked/>}
-                                        label="Patient Mention Count"
-                                    />
-                                </GridItem>
-                                <GridItem>
-                                    <FormControlLabel
-                                        control={<Checkbox defaultChecked/>}
-                                        label="Concept Confidence"
-                                    />
-                                </GridItem>
-                            </GridContainer>
-                            <ConceptListPanel
-                                doc={doc}
-                                concepts={concepts}
-                                mentions={mentions}
-                                semanticGroups={semanticGroups}
-                                confidence={confidence}
-                                setFilteredConcepts={setFilteredConcepts}
-                                filteredConcepts={filteredConcepts}
-                                handleTermClick={props.handleTermClick}
-                            />
-                        </CardBody>
-                    </TabPanel>
+                                </GridContainer>
+                                <GridContainer>
+                                    <ConfidencePanel/>
+                                </GridContainer>
+                            </CardBody>
+                        </TabPanel>
+
+
+                    </Tabs>
                 </Box>
             </Card>
 

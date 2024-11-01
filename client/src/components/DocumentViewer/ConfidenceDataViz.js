@@ -228,10 +228,10 @@ export function ConfidenceDataViz(props) {
     );
 
     const handleSliderChange = (event) => {
-        const yAxisBuffer = 40
+        const yAxisBuffer = 35
         const endOfGraphBuffer = 16
         const chartRect = chartRef.current.getBoundingClientRect();
-        let newValue = event.clientX - chartRect.left;
+        let newValue = event.clientX - (chartRect.left);
         if (newValue >= yAxisBuffer && newValue <= chartRect.width-endOfGraphBuffer) {
             const graphPercent = ((chartRect.width - endOfGraphBuffer) - yAxisBuffer) / 100
             const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / graphPercent)
@@ -254,10 +254,10 @@ export function ConfidenceDataViz(props) {
 
     const SliderLine = styled('div')(({ theme }) => ({
         position: 'absolute',
-        top: 67,
+        top: 83,
         bottom: 0,
         width: '4px',  // Increased thickness
-        backgroundColor: theme.palette.primary.main,
+        backgroundColor: '#1565c0',
         cursor: 'ew-resize',
         zIndex: 10,  // Ensure it is above the chart
         height: '255px',
@@ -351,7 +351,7 @@ export function ConfidenceDataViz(props) {
                         y: 'none'
                     }}
                 />
-                <SliderLine style={{ left: `${sliderPosition}px` }} onMouseDown={handleMouseDown}/>
+                <SliderLine style={{ left: `${sliderPosition + 35}px` }} onMouseDown={handleMouseDown}/>
 
             </GridItem>
             <GridItem xs={12}>

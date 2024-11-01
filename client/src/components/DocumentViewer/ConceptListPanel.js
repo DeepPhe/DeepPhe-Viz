@@ -11,6 +11,7 @@ export function ConceptListPanel(props) {
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const doc = props.doc;
+    const selectedOptions = props.selectedOptions;
 
     // const getMentionsGivenMentionIds = (mentionIds) => {
     //     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -146,7 +147,18 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {separateWords(obj.classUri)} {getDocMentionsCountForConcept(obj.id)},{getPatientMentionsCountForConcept(obj.id)},{Math.round(obj.confidence * 100)}%
+                            {separateWords(obj.classUri)}
+                            {selectedOptions.length > 0 && ": "}
+                            
+                            {/* Dynamically render selected options with commas between them */}
+                            {selectedOptions.map((option, index) => (
+                                <React.Fragment key={option}>
+                                    {index > 0 && ", "}
+                                    {option === "Document Mention Count" && `D:${getDocMentionsCountForConcept(obj.id)}`}
+                                    {option === "Patient Mention Count" && `P:${getPatientMentionsCountForConcept(obj.id)}`}
+                                    {option === "Concept Confidence" && `${Math.round(obj.confidence * 100)}%`}
+                                </React.Fragment>
+                            ))}
                         </ListItem>
                     );
                 })}
