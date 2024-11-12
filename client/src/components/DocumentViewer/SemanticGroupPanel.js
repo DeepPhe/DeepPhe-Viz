@@ -24,11 +24,6 @@ export function SemanticGroupPanel(props) {
         });
     };
 
-    // const toggleVisibilityandTitle = () => {
-    //     setIsVisible(!isVisible);
-    //     setIsExpanded(!isExpanded);
-    // };
-
     const getHeader = () => {
         return (
             <GridContainer className="no-padding">
@@ -116,6 +111,7 @@ export function SemanticGroupPanel(props) {
                 })}
             </div>);
     };
+
 
 
     function checkAll() {

@@ -66,13 +66,10 @@ export function DocumentPanel(props) {
           textMentionObj.preferredText = obj["preferredText"];
           textMentionObj.begin = obj.begin;
           textMentionObj.end = obj.end;
-
-          // textMentionObj.color = semanticGroups[obj.dpheGroup].color; ALL UNDEFINED
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
           textMentionObj.confidence = mentionConfidence;
-
-          // console.log(semanticGroups[obj.dpheGroup]);
+          console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
           if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
             textMentionObj.backgroundColor = 'lightgrey';
           }

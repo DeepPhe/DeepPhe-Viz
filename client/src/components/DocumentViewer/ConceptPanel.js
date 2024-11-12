@@ -210,33 +210,6 @@ export function ConceptPanel(props) {
 
                         <TabPanel value={tabValue} index={0}>
                             <CardBody style={{border: "none", boxShadow: "none"}}>
-                                {/*<Divider sx={{background: 'black', borderBottomWidth: 2}}/>*/}
-                                {/*<GridContainer>*/}
-                                {/*    <SortPanel*/}
-                                {/*        filteredConcepts={filteredConcepts}*/}
-                                {/*        setFilteredConcepts={setFilteredConcepts}*/}
-                                {/*    />*/}
-                                {/*</GridContainer>*/}
-                                {/*<GridContainer direction="row" spacing={2}>*/}
-                                {/*    <GridItem>*/}
-                                {/*        <FormControlLabel*/}
-                                {/*            control={<Checkbox defaultChecked/>}*/}
-                                {/*            label="Document Mention Count"*/}
-                                {/*        />*/}
-                                {/*    </GridItem>*/}
-                                {/*    <GridItem>*/}
-                                {/*        <FormControlLabel*/}
-                                {/*            control={<Checkbox defaultChecked/>}*/}
-                                {/*            label="Patient Mention Count"*/}
-                                {/*        />*/}
-                                {/*    </GridItem>*/}
-                                {/*    <GridItem>*/}
-                                {/*        <FormControlLabel*/}
-                                {/*            control={<Checkbox defaultChecked/>}*/}
-                                {/*            label="Concept Confidence"*/}
-                                {/*        />*/}
-                                {/*    </GridItem>*/}
-                                {/*</GridContainer>*/}
                                 <DropdownWithCheckboxes
                                     selectedOptions={selectedOptions}
                                     onSelectionChange={handleSelectionChange}

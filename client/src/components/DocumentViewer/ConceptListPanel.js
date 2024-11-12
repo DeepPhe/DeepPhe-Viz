@@ -90,15 +90,18 @@ export function ConceptListPanel(props) {
         let filteredConcepts = []
         for(let i = 0; i < concepts.length; i++){
             if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
+
+                // console.log(semanticGroups[concepts[i].dpheGroup].concept);
+                concepts[i].conceptClump =semanticGroups[concepts[i].dpheGroup].conceptClump;
                 filteredConcepts.push(concepts[i]);
             }
         }
-        return sortConceptsByDpheGroup(filteredConcepts);
+        return sortConceptsByConceptClump(filteredConcepts);
     }
 
-    function sortConceptsByDpheGroup(filteredConcepts){
+    function sortConceptsByConceptClump(filteredConcepts){
         filteredConcepts.sort((a, b) => {
-            return a.dpheGroup.toLowerCase().localeCompare(b.dpheGroup.toLowerCase()); // Sort by dphegroup alphabetically
+            return a.conceptClump.toLowerCase().localeCompare(b.conceptClump.toLowerCase());
         });
         return filteredConcepts
     }
@@ -127,6 +130,7 @@ export function ConceptListPanel(props) {
             sortedConcepts = [-1];
         }
         setFilteredConcepts(sortedConcepts);
+        // console.log(semanticGroups);
 
         if(sortedConcepts[0] === -1){
             sortedConcepts = [];
@@ -134,6 +138,7 @@ export function ConceptListPanel(props) {
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
+                    // console.log("ClassURI:", obj.classUri, "backgroundColor:", semanticGroups[obj.dpheGroup].backgroundColor);
                     return (
                         <ListItem
                             style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
