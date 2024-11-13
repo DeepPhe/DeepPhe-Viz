@@ -13,35 +13,6 @@ export function ConceptListPanel(props) {
     const doc = props.doc;
     const selectedOptions = props.selectedOptions;
 
-    // const getMentionsGivenMentionIds = (mentionIds) => {
-    //     return doc.mentions.filter((m) => mentionIds.includes(m.id));
-    // };
-    // const getMentionsForConcept = (conceptId) => {
-    //     if(conceptId === ""){
-    //         return [];
-    //     }
-    //     if(conceptId !== undefined) {
-    //         const idx = concepts.findIndex((c) => c.id === conceptId);
-    //         if(idx === -1){
-    //             return [];
-    //         }
-    //         return concepts[idx].mentionIds.filter((mentionId) => {
-    //             return doc.mentions.some((m) => m.id === mentionId);
-    //         });
-    //     }
-    //     else{
-    //         return [];
-    //     }
-    // };
-
-    // function getAllConceptIDs(){
-    //     let conceptIDList = [];
-    //     for(let i = 0; i < concepts.length; i++){
-    //         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
-    //         conceptIDList.push(mentions);
-    //     }
-    //     return conceptIDList;
-    // }
 
     // Gets mention count for concept for single document of patient
     const getDocMentionsCountForConcept = (conceptId) => {
@@ -106,22 +77,15 @@ export function ConceptListPanel(props) {
         return filteredConcepts
     }
 
-    // function sortConceptsByOccurrence(filteredConcepts){
-    //     return filteredConcepts.sort((a, b) => {
-    //         // Calculate occurrence (duration) for each object
-    //         const occurrenceA = a.end - a.begin;
-    //         const occurrenceB = b.end - b.begin;
-    //
-    //         // Sort in ascending order based on the occurrence
-    //         return occurrenceA - occurrenceB;
-    //     });
-    // }
-
     function separateWords(str) {
         return str
             .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space before capital letters
             .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')  // Handle consecutive capitals like "URL"
             .trim();  // Remove any leading/trailing spaces
+    }
+
+    function isNegated(negatedArray) {
+        return negatedArray.includes(true);
     }
 
     function getConceptsList() {
@@ -130,7 +94,6 @@ export function ConceptListPanel(props) {
             sortedConcepts = [-1];
         }
         setFilteredConcepts(sortedConcepts);
-        // console.log(semanticGroups);
 
         if(sortedConcepts[0] === -1){
             sortedConcepts = [];
@@ -140,7 +103,9 @@ export function ConceptListPanel(props) {
                 {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
                     return (
                         <ListItem
-                            style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
+                            style={{fontSize: "14px", fontFamily: "Monaco, monospace",
+                                backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65),
+                                margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
                             key={obj.id}
                             class={"report_mentioned_term"}
                             data-id={obj.id}
@@ -151,16 +116,18 @@ export function ConceptListPanel(props) {
                             data-dphe-group={obj.dpheGroup}
                             onClick={props.handleTermClick}
                         >
-                            {separateWords(obj.classUri)}
+                            {/* Conditionally render the icon if negated is true */}
+                            {obj.negated && <span className="icon" style={{ marginRight: '5px', color: 'red' }}>&#8856;</span>}
+                            {obj.preferredText ? obj.preferredText : separateWords(obj.classUri)}
                             {selectedOptions.length > 0 && ": "}
                             
                             {/* Dynamically render selected options with commas between them */}
                             {selectedOptions.map((option, index) => (
                                 <React.Fragment key={option}>
                                     {index > 0 && ", "}
-                                    {option === "Document Mention Count" && `D:${getDocMentionsCountForConcept(obj.id)}`}
-                                    {option === "Patient Mention Count" && `P:${getPatientMentionsCountForConcept(obj.id)}`}
-                                    {option === "Concept Confidence" && `${Math.round(obj.confidence * 100)}%`}
+                                    {option === "Document Mention Count" && `DMC:${getDocMentionsCountForConcept(obj.id)}`}
+                                    {option === "Patient Mention Count" && `PMC:${getPatientMentionsCountForConcept(obj.id)}`}
+                                    {option === "Concept Confidence" && `CC:${Math.round(obj.confidence * 100)}%`}
                                 </React.Fragment>
                             ))}
                         </ListItem>

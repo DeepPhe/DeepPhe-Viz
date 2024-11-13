@@ -320,16 +320,6 @@ export function DocumentViewer(props) {
         }
     }
 
-    // const zoomClick = (e) => {
-    //     let value = 0;
-    //     if (e.target.classList.contains('zoom-in')) {
-    //         value = 1;
-    //     } else {
-    //         value = -1;
-    //     }
-    //     setFontSize(fontSize + value);
-    // };
-
     const getReport = () => {
         const factIdTemp = "";
         // If there are fact based reports, highlight the displaying one
@@ -407,7 +397,6 @@ export function DocumentViewer(props) {
                                     </GridItem>
                                 </GridContainer>
                             </GridItem>
-
                             {/* Right Panel - Document View */}
                             <GridItem md={8} id="report_text" style={{
                                 height: '100%',
@@ -415,7 +404,8 @@ export function DocumentViewer(props) {
                                 backgroundColor: '#ffffff',
                                 margin: 0,
                                 padding: 0,
-                                maxWidth: 'none'
+                                maxWidth: 'none',
+                                lineHeight: '1.7'
                             }}>
                                 <DocumentPanel
                                     doc={patientDocument}

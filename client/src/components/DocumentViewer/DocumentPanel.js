@@ -3,6 +3,10 @@ import parse from "html-react-parser";
 import {hexToRgba} from "./ColorUtils";
 import { useCallback } from 'react';
 
+import { getMentionsGivenMentionIds, getMentionsForConcept } from './mentionUtils';
+
+
+
 
 export function DocumentPanel(props) {
   const [doc, setDoc] = useState(props.doc);
@@ -15,27 +19,6 @@ export function DocumentPanel(props) {
   const fontSize = props.fontSize;
   const confidence = props.confidence;
   const filterLabel = props.filterLabel;
-
-  const getMentionsGivenMentionIds = (mentionIds) => {
-    return doc.mentions.filter((m) => mentionIds.includes(m.id));
-  };
-  const getMentionsForConcept = (conceptId) => {
-    if(conceptId === ""){
-      return [];
-    }
-    if(conceptId !== undefined) {
-      const idx = concepts.findIndex((c) => c.id === conceptId);
-      if(idx === -1){
-        return [];
-      }
-      return concepts[idx].mentionIds.filter((mentionId) => {
-        return doc.mentions.some((m) => m.id === mentionId);
-      });
-    }
-    else{
-      return [];
-    }
-  };
 
   useEffect(() => {
     // Only set the copy once, when the component mounts
@@ -53,16 +36,10 @@ export function DocumentPanel(props) {
           let mentionConfidence = 0;
 
           if(filterLabel === "Concepts"){
-
             const result = filteredConceptsStartingCopy.find(category =>
                 category.mentionIds && category.mentionIds.includes(obj.id)
             );
-
-            // console.log(result);
-            // const matchGroup = filteredConceptsStartingCopy.find(group => group.dpheGroup === obj.dpheGroup);
             if (result) {
-              // console.log(filteredConceptsStartingCopy);
-              // console.log(matchGroup, obj);
               mentionConfidence = Math.round(result.confidence * 100);
             }
             else{
@@ -86,15 +63,12 @@ export function DocumentPanel(props) {
             const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
             textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
           }
-          // console.log(semanticGroups[obj.dpheGroup].backgroundColor);
-          const mentionsForHighlight = getMentionsForConcept(clickedTerm);
 
+          const mentionsForHighlight = getMentionsForConcept(doc, concepts, clickedTerm);
           textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
-          // console.log(textMentionObj);
           textMentions.push(textMentionObj);
       });
     });
-    // console.log(matchingConcepts);
 
     return textMentions;
   }
@@ -114,14 +88,10 @@ export function DocumentPanel(props) {
       points.push(ranges[i].end);
     }
 
-    //MAKE SURE OUR LIST OF POINTS IS IN ORDER
-    //COMMENT THIS OUT LATER
     points.sort(function (a, b) {
       return a - b;
     });
 
-    // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
-    // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
     for (let i in points) {
       if (i === 0 || points[i] === points[i - 1]) continue;
       let includedRanges = ranges.filter(function (x) {
@@ -151,7 +121,6 @@ export function DocumentPanel(props) {
         flattened.push(flattenedRange);
       }
     }
-
     return flattened;
   }
 
@@ -195,7 +164,7 @@ export function DocumentPanel(props) {
         }
       }
 
-      let borderStyle = textMention.clickedTerm.some((element) => {return element}) ? 'border-style: solid;' : 'border-style: none;';
+      let borderColor = textMention.clickedTerm.some((element) => {return element}) ? 'border-color: black;' : 'border-color: transparent;';
 
       //We want to check what is in front of textmention without checking what is behind it, so this is a special
       //case for the first textMention
@@ -203,13 +172,20 @@ export function DocumentPanel(props) {
         if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle =
-              `background-color: ${textMention.backgroundColor}; 
-              ${borderStyle};
+              `background-color: ${textMention.backgroundColor};
+              border-style: solid; 
+              ${borderColor};
               border-radius: 5px 0 0 5px;
               padding-left: 2px;
               padding-right: 2px;`;
 
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+          //     `</span>`;
+
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -221,11 +197,17 @@ export function DocumentPanel(props) {
         else{
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderStyle};
+          border-style: solid; 
+          ${borderColor};
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+          //     `</span>`;
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -241,12 +223,18 @@ export function DocumentPanel(props) {
         if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderStyle};
+          border-style: solid; 
+          ${borderColor};
           border-radius:0 5px 5px 0;
           padding-left: 2px;
           padding-right: 2px;`;
 
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+          //     `</span>`;
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -257,11 +245,18 @@ export function DocumentPanel(props) {
         else{
           const spanClass = isNegated(textMention.negated) ? 'neg' : '';
           const spanStyle = `background-color: ${textMention.backgroundColor};
-          ${borderStyle};
+          border-style: solid; 
+          ${borderColor};
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+          //     `</span>`;
+
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -277,11 +272,17 @@ export function DocumentPanel(props) {
         const borderRadius = determineBorderRadius(textMention, textMentions, i);
         const spanClass = isNegated(textMention.negated) ? 'neg' : '';
         const spanStyle = `background-color: ${textMention.backgroundColor};
-        ${borderStyle};
+        border-style: solid; 
+        ${borderColor};
         border-radius:${borderRadius};
         padding-left: 2px;
         padding-right: 2px;`;
-        const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+        // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
+        //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
+        //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+        //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
+        //     `</span>`;
+        const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
             `${reportText.substring(textMention.begin, textMention.end).trim()}` +
             `<span class="tooltip">${textMention.confidence[0]}%</span>` +
             (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -324,7 +325,9 @@ export function DocumentPanel(props) {
     //checking future textMention only
     else if (textMention.backgroundColor && textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
       return "5px 0 0 5px";
-    } else {
+    }
+    //its by its self between two non highlighted spans
+    else {
       return "5px";
     }
   }
@@ -332,19 +335,19 @@ export function DocumentPanel(props) {
   function cleanUpTextFragments(textFragments){
     //getting correct click
     for(let i = 0; i < textFragments.length; i++){
-      if(textFragments[i].includes('border-style: solid;')){
+      if(textFragments[i].includes('border-color: black;')){
         // console.log('solid: ', textFragments[i]);
         if(textFragments[i+1].includes('</span>') && !textFragments[i-1].includes('</span>')){
           // console.log('left', textFragments[i]);
-          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderLeft: solid; borderTop: solid; borderBottom: solid;');
+          textFragments[i] = textFragments[i].replace('borderLeft: solid; borderTop: solid; borderBottom: solid;');
         }
         else if(textFragments[i-1].includes('</span>') && !textFragments[i+1].includes('border-style: solid;')){
           // console.log('right', textFragments[i]);
-          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderRight: solid; borderTop: solid; borderBottom: solid;');
+          textFragments[i] = textFragments[i].replace('borderRight: solid; borderTop: solid; borderBottom: solid;');
         }
         else if(textFragments[i+1].includes('</span>') && textFragments[i-1].includes('</span>')){
           // console.log('middle', textFragments[i]);
-          textFragments[i] = textFragments[i].replace('border-style: solid;', 'borderTop: solid; borderBottom: solid;');
+          textFragments[i] = textFragments[i].replace('borderTop: solid; borderBottom: solid;');
         }
       }
 
@@ -383,13 +386,11 @@ export function DocumentPanel(props) {
     let MentionList = [];
 
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
-      const mentionIdsFromConceptId = getMentionsForConcept(filteredConceptsStartingCopy[i].id);
-      // console.log(mentionIdsFromConceptId);
-      // console.log(getMentionsGivenMentionIds(mentionIdsFromConceptId));
-        const mentions = getMentionsGivenMentionIds(getMentionsForConcept(filteredConceptsStartingCopy[i].id));
+      const conceptId = filteredConceptsStartingCopy[i].id;
+      const mentionIdsFromConceptId = getMentionsForConcept(doc, concepts, conceptId);
+      const mentions = getMentionsGivenMentionIds(doc, mentionIdsFromConceptId);
       MentionList.push(mentions);
     }
-    // console.log(MentionList);
     return MentionList;
   }
 
