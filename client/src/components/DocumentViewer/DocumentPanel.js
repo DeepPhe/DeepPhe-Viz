@@ -48,16 +48,25 @@ export function DocumentPanel(props) {
     let textMentions = [];
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
+
           let textMentionObj = {};
           let mentionConfidence = 0;
 
           if(filterLabel === "Concepts"){
-            const matchGroup = filteredConceptsStartingCopy.find(group => group.dpheGroup === obj.dpheGroup);
-            if (matchGroup) {
-              mentionConfidence = Math.round(matchGroup.confidence * 100);
+
+            const result = filteredConceptsStartingCopy.find(category =>
+                category.mentionIds && category.mentionIds.includes(obj.id)
+            );
+
+            // console.log(result);
+            // const matchGroup = filteredConceptsStartingCopy.find(group => group.dpheGroup === obj.dpheGroup);
+            if (result) {
+              // console.log(filteredConceptsStartingCopy);
+              // console.log(matchGroup, obj);
+              mentionConfidence = Math.round(result.confidence * 100);
             }
             else{
-              console.log(matchGroup.preferredText, "has no confidence");
+              console.log(result.preferredText, "has no confidence");
             }
           }
           else{
@@ -69,7 +78,7 @@ export function DocumentPanel(props) {
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
           textMentionObj.confidence = mentionConfidence;
-          console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
+          // console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
           if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
             textMentionObj.backgroundColor = 'lightgrey';
           }
@@ -85,6 +94,7 @@ export function DocumentPanel(props) {
           textMentions.push(textMentionObj);
       });
     });
+    // console.log(matchingConcepts);
 
     return textMentions;
   }

@@ -161,7 +161,9 @@ export function ConceptPanel(props) {
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
 
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState(["Document Mention Count",
+        "Patient Mention Count",
+        "Concept Confidence"]);
 
     const handleSelectionChange = (newSelections) => {
         setSelectedOptions(newSelections);

@@ -138,7 +138,6 @@ export function ConceptListPanel(props) {
         return (
             <List id="filtered_concepts" class="filtered_concepts_list">
                 {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
-                    // console.log("ClassURI:", obj.classUri, "backgroundColor:", semanticGroups[obj.dpheGroup].backgroundColor);
                     return (
                         <ListItem
                             style={{fontSize: "14px", fontFamily: "Monaco, monospace", backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65), margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
