@@ -87,6 +87,7 @@ export function DocumentPanel(props) {
           end: obj.end,
           id: obj.id,
           negated: obj.negated,
+          classUri: obj.classUri,
           confidence: mentionConfidence,
           backgroundColor: determineBackgroundColor(obj, mentionConfidence),
           clickedTerm: getMentionsForConcept(clickedTerm).includes(obj.id),
@@ -159,7 +160,7 @@ export function DocumentPanel(props) {
     return negatedArray.includes(true);
   }
 
-  function highlightTextMentions(textMentions, reportText, term = "NONE") {
+  function highlightTextMentions(textMentions, reportText) {
     //No mentions in reportText, we return just reportText
     if(textMentions.length === 0){
       return reportText;
@@ -208,7 +209,7 @@ export function DocumentPanel(props) {
               border-radius: 5px 0 0 5px;
               padding-left: 2px;
               padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -225,7 +226,7 @@ export function DocumentPanel(props) {
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -246,7 +247,7 @@ export function DocumentPanel(props) {
           border-radius:0 5px 5px 0;
           padding-left: 2px;
           padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -262,7 +263,7 @@ export function DocumentPanel(props) {
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
+          const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
@@ -288,7 +289,7 @@ export function DocumentPanel(props) {
         //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
         //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
         //     `</span>`;
-        const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
+        const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
             `${reportText.substring(textMention.begin, textMention.end).trim()}` +
             `<span class="tooltip">${textMention.confidence[0]}%</span>` +
             (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
