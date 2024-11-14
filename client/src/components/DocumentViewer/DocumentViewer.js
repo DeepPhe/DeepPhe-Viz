@@ -268,7 +268,7 @@ export function DocumentViewer(props) {
                 </GridItem>
                 <CardBody style={{height: '100vh', display: 'flex', flexDirection: 'column', padding: 0, margin: 0}}>
                     <div id="report_instance" style={{flex: 1, display: 'flex', flexDirection: 'column'}}>
-                        <SplitPane split="vertical" minSize={500} maxSize={-650} defaultSize="33%"
+                        <SplitPane split="vertical" minSize={500} maxSize={-650} defaultSize="40%"
                                    style={{flexGrow: 1, display: 'flex', height: '100%', margin: 0, padding: 0}}>
                             {/* Left Panel - Mentions Container */}
                             <GridItem md={4} id="mentions_container" className="mentions_container" style={{

@@ -60,15 +60,11 @@ export function DocumentPanel(props) {
     else{
       mentionConfidence = Math.round(obj.confidence);
     }
-
     return mentionConfidence;
-
   }
 
   function determineBackgroundColor(obj, mentionConfidence){
-
     let backgroundColor = '';
-
     if(mentionConfidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
       backgroundColor = 'lightgrey';
     }
@@ -76,37 +72,37 @@ export function DocumentPanel(props) {
       const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
       backgroundColor = hexToRgba(hexColor, 0.65);
     }
-
     return backgroundColor;
-
   }
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
     FilteredConceptsIds.forEach(function (nestedArray) {
-        nestedArray.forEach(function(obj) {
+      nestedArray.forEach(function(obj) {
 
-          const mentionConfidence = calculateMentionConfidence(obj);
-          let textMentionObj = {};
+        const mentionConfidence = calculateMentionConfidence(obj);
+        let textMentionObj = {
+          preferredText: obj["preferredText"],
+          begin: obj.begin,
+          end: obj.end,
+          id: obj.id,
+          negated: obj.negated,
+          confidence: mentionConfidence,
+          backgroundColor: determineBackgroundColor(obj, mentionConfidence),
+          clickedTerm: getMentionsForConcept(clickedTerm).includes(obj.id),
+        };
 
-          textMentionObj.preferredText = obj["preferredText"];
-          textMentionObj.begin = obj.begin;
-          textMentionObj.end = obj.end;
-          textMentionObj.id = obj.id;
-          textMentionObj.negated = obj.negated;
-          textMentionObj.confidence = mentionConfidence;
-          textMentionObj.backgroundColor = determineBackgroundColor(obj, mentionConfidence);
-          console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
-
-
-          const mentionsForHighlight = getMentionsForConcept(clickedTerm);
-          textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
-          textMentions.push(textMentionObj);
+        textMentions.push(textMentionObj);
       });
     });
 
+    // Sort by confidence in ascending order (lower confidence first, higher last)
+    textMentions.sort((a, b) => a.confidence - b.confidence);
+    console.log(textMentions);
+
     return textMentions;
   }
+
 
 
   function flattenRanges(ranges) {
@@ -163,9 +159,7 @@ export function DocumentPanel(props) {
     return negatedArray.includes(true);
   }
 
-
   function highlightTextMentions(textMentions, reportText, term = "NONE") {
-
     //No mentions in reportText, we return just reportText
     if(textMentions.length === 0){
       return reportText;
@@ -181,6 +175,7 @@ export function DocumentPanel(props) {
     for (let i = 0; i < textMentions.length; i++) {
       let textMention = textMentions[i];
 
+      console.log(`Mention: ${textMention.preferredText}, Confidence: ${textMention.confidence}`);
       textMention.backgroundColor = textMention.backgroundColor[textMention.backgroundColor.length - 1];
 
       let lastValidTM = textMentions[lastValidTMIndex];
