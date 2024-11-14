@@ -169,58 +169,6 @@ export function DocumentViewer(props) {
     semanticRoot.addSubtopic(interventionRoot);
     semanticRoot.addSubtopic(otherRoot);
 
-    // semanticRoot.print();
-
-    // console.log(searchTreeForColor(semanticRoot, 'Gene'));
-    // console.log(searchTreeForClumpParent(semanticRoot, 'Gene'));
-
-
-
-    // const semanticGroupColorDict = (key, whichValue) => {
-    //     let colorDict = {
-    //         "Behavior": ["#ff8712", 4],
-    //         "Disease Stage Qualifier": ["#ef7c0c", 0],
-    //         "Disease Grade Qualifier": ["#ffa247", 1],
-    //         "Body Fluid or Substance": ["#add8e6", 9],
-    //         "Body Part": ["#99E6E6", 12],
-    //         "Chemo/immuno/hormone Therapy Regimen": ["#da9cf5", 26],
-    //         "Clinical Test Result": ["#ffadc1", 14],
-    //         "Clinical Course of Disease": ["#e5d815", 19],
-    //         "Disease or Disorder": ["#7fce94", 16],
-    //         "Disease Qualifier": ["#ffdb00", 21],
-    //         "Finding": ["#ffbcdd", 13],
-    //         "Gene": ["#ff9ea4", 15],
-    //         "Gene Product": ["#ff9ea4", 15.1],
-    //         "General Qualifier": ["#ffbf00", 23],
-    //         "Generic TNM Finding": ["#ff9731", 2],
-    //         "Intervention or Procedure": ["#ca99f4", 27],
-    //         "Imaging Device": ["#785ef0", 12],
-    //         "Lymph Node": ["#bfefff", 7],
-    //         "Temporal Qualifier": ["#ffab00", 24],
-    //         "Tissue": ["#b2dfee", 8],
-    //         "Mass": ["#a8ffc0", 18],
-    //         "Neoplasm": ["#96e7ac", 17],
-    //         "Pathologic Process": ["#ffef00", 20],
-    //         "Pathologic TNM Finding": ["#ff8e20", 3],
-    //         "Pharmacologic Substance": ["#b36cef", 25],
-    //         "Position": ["#CC9999", 28],
-    //         "Property or Attribute": ["#ffc700", 22],
-    //         "Quantitative Concept": ["#33991A", 29],
-    //         "Side": ["#93ccea", 10],
-    //         "Spatial Qualifier": ["#9ac0cd", 11],
-    //         "Severity": ["#ff7e00", 5],
-    //         "Unknown": ["#808080", 30]
-    //     };
-    //
-    //     if (key in colorDict && whichValue === "color") {
-    //         return colorDict[key][0];
-    //     }
-    //     if (key in colorDict && whichValue === "order") {
-    //         return colorDict[key][1];
-    //     } else {
-    //         return "Key '" + key + "' not found in the dictionary";
-    //     }
-    // }
 
     const getSemanticGroups = () => {
         let groups = {};
@@ -245,48 +193,9 @@ export function DocumentViewer(props) {
                 id: concepts.find((c) => c.dpheGroup === group).id,
             };
         });
-        // uniqueConcepts.map((group) => {
-        //     groups[group] = {
-        //         checked: true,
-        //         conceptClump: searchTreeForClumpParent(semanticRoot, group),
-        //         backgroundColor: searchTreeForColor(semanticRoot, group),
-        //         id: concepts.filter((c) => c.dpheGroup === group)[0].id,
-        //     };
-        // });
-        // console.log(groups);
         setSemanticGroups(groups);
     };
 
-    // const getSemanticGroups = () => {
-    //     let groups = {};
-    //     const uniqueConcepts = Array.from(
-    //         new Set(concepts.map((c) => c.dpheGroup))
-    //     );
-    //     uniqueConcepts.map((group, index) => {
-    //         groups[group] = {
-    //             checked: true,
-    //             backgroundColor: semanticGroupColorDict(group, "color"),
-    //             order: semanticGroupColorDict(group, "order"),
-    //             id: concepts.filter((c) => c.dpheGroup === group)[0].id,
-    //         };
-    //     });
-    //
-    //     // console.log(groups);
-    //     // Convert the map to an array of key-value pairs
-    //     const entries = Object.entries(groups);
-    //
-    //     // console.log(entries);
-    //
-    //     // Sort the array based on the "order" value
-    //     entries.sort((a, b) => a[1].order - b[1].order);
-    //
-    //     // If you want the sorted result as a map, you can convert it back
-    //     const sortedMap = new Map(entries);
-    //
-    //     const sortedObject = Object.fromEntries(sortedMap);
-    //     console.log(sortedObject);
-    //     setSemanticGroups(sortedObject);
-    // };
 
     const handleSemanticGroupChange = (group, checked) => {
         let groups = {...semanticGroups};

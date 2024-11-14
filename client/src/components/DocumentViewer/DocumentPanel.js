@@ -1,11 +1,8 @@
-import React, {useRef, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import parse from "html-react-parser";
 import {hexToRgba} from "./ColorUtils";
-import { useCallback } from 'react';
 
-import { getMentionsGivenMentionIds, getMentionsForConcept } from './mentionUtils';
-
-
+// import {getMentionsForConcept, getMentionsGivenMentionIds} from './mentionUtils';
 
 
 export function DocumentPanel(props) {
@@ -27,44 +24,82 @@ export function DocumentPanel(props) {
     }
   }, [filteredConcepts, filteredConceptsStartingCopy]);
 
+  const getMentionsGivenMentionIds = (mentionIds) => {
+    return doc.mentions.filter((m) => mentionIds.includes(m.id));
+  };
+
+  const getMentionsForConcept = (conceptId) => {
+    if (conceptId === "") return [];
+    if (conceptId !== undefined) {
+      const idx = concepts.findIndex((c) => c.id === conceptId);
+      if (idx === -1) return [];
+      return concepts[idx].mentionIds.filter((mentionId) =>
+          doc.mentions.some((m) => m.id === mentionId)
+      );
+    }
+    return [];
+  };
+
+
+
+  function calculateMentionConfidence(obj) {
+
+    let mentionConfidence = 0;
+
+    if(filterLabel === "Concepts"){
+      const result = filteredConceptsStartingCopy.find(category =>
+          category.mentionIds && category.mentionIds.includes(obj.id)
+      );
+      if (result) {
+        mentionConfidence = Math.round(result.confidence * 100);
+      }
+      else{
+        console.log(result.preferredText, "has no confidence");
+      }
+    }
+    else{
+      mentionConfidence = Math.round(obj.confidence);
+    }
+
+    return mentionConfidence;
+
+  }
+
+  function determineBackgroundColor(obj, mentionConfidence){
+
+    let backgroundColor = '';
+
+    if(mentionConfidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
+      backgroundColor = 'lightgrey';
+    }
+    else{
+      const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
+      backgroundColor = hexToRgba(hexColor, 0.65);
+    }
+
+    return backgroundColor;
+
+  }
+
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
     FilteredConceptsIds.forEach(function (nestedArray) {
         nestedArray.forEach(function(obj) {
 
+          const mentionConfidence = calculateMentionConfidence(obj);
           let textMentionObj = {};
-          let mentionConfidence = 0;
 
-          if(filterLabel === "Concepts"){
-            const result = filteredConceptsStartingCopy.find(category =>
-                category.mentionIds && category.mentionIds.includes(obj.id)
-            );
-            if (result) {
-              mentionConfidence = Math.round(result.confidence * 100);
-            }
-            else{
-              console.log(result.preferredText, "has no confidence");
-            }
-          }
-          else{
-            mentionConfidence = Math.round(obj.confidence);
-          }
           textMentionObj.preferredText = obj["preferredText"];
           textMentionObj.begin = obj.begin;
           textMentionObj.end = obj.end;
           textMentionObj.id = obj.id;
           textMentionObj.negated = obj.negated;
           textMentionObj.confidence = mentionConfidence;
-          // console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
-          if(textMentionObj.confidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
-            textMentionObj.backgroundColor = 'lightgrey';
-          }
-          else{
-            const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
-            textMentionObj.backgroundColor = hexToRgba(hexColor, 0.65);
-          }
+          textMentionObj.backgroundColor = determineBackgroundColor(obj, mentionConfidence);
+          console.log(obj["preferredText"], semanticGroups[obj.dpheGroup]);
 
-          const mentionsForHighlight = getMentionsForConcept(doc, concepts, clickedTerm);
+
+          const mentionsForHighlight = getMentionsForConcept(clickedTerm);
           textMentionObj.clickedTerm = mentionsForHighlight.includes(textMentionObj.id);
           textMentions.push(textMentionObj);
       });
@@ -178,13 +213,6 @@ export function DocumentPanel(props) {
               border-radius: 5px 0 0 5px;
               padding-left: 2px;
               padding-right: 2px;`;
-
-          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-          //     `</span>`;
-
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
@@ -202,11 +230,6 @@ export function DocumentPanel(props) {
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-          //     `</span>`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
@@ -228,12 +251,6 @@ export function DocumentPanel(props) {
           border-radius:0 5px 5px 0;
           padding-left: 2px;
           padding-right: 2px;`;
-
-          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-          //     `</span>`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
@@ -250,12 +267,6 @@ export function DocumentPanel(props) {
           border-radius: 5px;
           padding-left: 2px;
           padding-right: 2px;`;
-          // const htmlString = `<span style="${spanStyle}" class="span-info ${spanClass}">` +
-          //     `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-          //     `<span class="tooltip">${textMention.confidence[0]}%</span>` +
-          //     (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
-          //     `</span>`;
-
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.4;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
               `<span class="tooltip">${textMention.confidence[0]}%</span>` +
@@ -387,8 +398,8 @@ export function DocumentPanel(props) {
 
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
       const conceptId = filteredConceptsStartingCopy[i].id;
-      const mentionIdsFromConceptId = getMentionsForConcept(doc, concepts, conceptId);
-      const mentions = getMentionsGivenMentionIds(doc, mentionIdsFromConceptId);
+      const mentionIdsFromConceptId = getMentionsForConcept(conceptId);
+      const mentions = getMentionsGivenMentionIds(mentionIdsFromConceptId);
       MentionList.push(mentions);
     }
     return MentionList;
