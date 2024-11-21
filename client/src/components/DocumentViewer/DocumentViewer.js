@@ -21,7 +21,7 @@ export function DocumentViewer(props) {
     const [semanticGroups, setSemanticGroups] = useState({});
     const [fontSize, setFontSize] = useState(15);
     const [confidence, setConfidence] = useState(0);
-    const [clickedTerm, setClickedTerm] = useState("");
+    const [clickedTerms, setClickedTerms] = useState([]);
     const [filterLabel, setFilterLabel] = useState("Concepts");
 
     useEffect(() => {
@@ -214,20 +214,16 @@ export function DocumentViewer(props) {
 
 
     const handleTermClick = (e) => {
+        const clickedElement = e.currentTarget;
+        const clickedId = clickedElement.dataset.id;
 
-        const previouslyClickedElement = document.querySelector('.border-highlight');
-        if (previouslyClickedElement) {
-            previouslyClickedElement.classList.remove('border-highlight');
-        }
-        //Clicking the highlighted concept again will get rid of the highlight
-        if (clickedTerm === e.target.dataset.id) {
-            setClickedTerm("");
+        if (clickedTerms.includes(clickedId)) {
+            setClickedTerms((prev) => prev.filter((id) => id !== clickedId)); // Remove from state
         } else {
-            setClickedTerm(e.target.dataset.id);
-
-            e.target.classList.add('border-highlight');
+            setClickedTerms((prev) => [...prev, clickedId]); // Add to state
         }
-    }
+    };
+
 
     const getReport = () => {
         const factIdTemp = "";
@@ -296,7 +292,7 @@ export function DocumentViewer(props) {
                                             setFilteredConcepts={setFilteredConcepts}
                                             filteredConcepts={filteredConcepts}
                                             handleTermClick={handleTermClick}
-                                            clickedTerm={clickedTerm}
+                                            clickedTerms={clickedTerms}
                                             handleConfidenceChange={handleConfidenceChange}
                                             confidence={confidence}
                                             doc={patientDocument}
@@ -325,7 +321,7 @@ export function DocumentViewer(props) {
                                     setFilteredConcepts={setFilteredConcepts}
                                     filteredConcepts={filteredConcepts}
                                     fontSize={fontSize}
-                                    clickedTerm={clickedTerm}
+                                    clickedTerms={clickedTerms}
                                     confidence={confidence}
                                     filterLabel={filterLabel}
                                     setFilterLabel={setFilterLabel}

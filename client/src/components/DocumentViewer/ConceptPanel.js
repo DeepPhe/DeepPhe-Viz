@@ -159,7 +159,7 @@ export function ConceptPanel(props) {
     const setFilteredConcepts = props.setFilteredConcepts;
     const confidence = props.confidence;
     const handleTermClick = props.handleTermClick;
-    const clickedTerm = props.clickedTerm;
+    const clickedTerms = props.clickedTerms;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
     const [confidencePercent, setConfidencePercent] = useState(0);
@@ -230,7 +230,7 @@ export function ConceptPanel(props) {
                                     setFilteredConcepts={setFilteredConcepts}
                                     filteredConcepts={filteredConcepts}
                                     handleTermClick={handleTermClick}
-                                    clickedTerm={clickedTerm}
+                                    clickedTerms={clickedTerms}
                                     />
                             </CardBody>
                         </TabPanel>

@@ -11,8 +11,8 @@ export function ConceptListPanel(props) {
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const doc = props.doc;
-    const selectedOptions = props.selectedOptions;
-    const clickedTerm = props.clickedTerm;
+    // const selectedOptions = props.selectedOptions;
+    const clickedTerms = props.clickedTerms;
 
 
     // Gets mention count for concept for single document of patient
@@ -104,11 +104,17 @@ export function ConceptListPanel(props) {
                 {filterConceptsByConfidenceAndSemanticGroup(concepts).map((obj) => {
                     return (
                         <ListItem
-                            style={{fontSize: "14px", fontFamily: "Monaco, monospace",
+                            style={{
+                                fontSize: "14px",
+                                fontFamily: "Monaco, monospace",
                                 backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65),
-                                margin: "4px", borderStyle: 'solid', borderColor: clickedTerm === obj.id ? 'black' : 'transparent', fontWeight:'bold'}}
+                                margin: "4px",
+                                borderStyle: 'solid',
+                                borderColor: clickedTerms.includes(obj.id) ? 'black' : 'transparent', // Use .includes here
+                                fontWeight: 'bold'
+                            }}
                             key={obj.id}
-                            class={"report_mentioned_term"}
+                            class="report_mentioned_term"
                             data-id={obj.id}
                             data-negated={obj.negated}
                             data-confidence={obj.confidence}
@@ -124,11 +130,11 @@ export function ConceptListPanel(props) {
                                 </span>
                             )}
                             {obj.preferredText ? obj.preferredText : separateWords(obj.classUri)}
-                            {clickedTerm === obj.id && ":"}
+                            {clickedTerms.includes(obj.id) && ":"}
 
                             <br />
                             {/* Conditionally render extra information if the term is clicked */}
-                            {clickedTerm === obj.id && (
+                            {clickedTerms.includes(obj.id) && (
                                 <span style={{ display: 'block', marginLeft: '40px' }}>
                                     {`Document Mention Count: ${getDocMentionsCountForConcept(obj.id)}`}<br />
                                     {`Patient Mention Count: ${getPatientMentionsCountForConcept(obj.id)}`}<br />
@@ -136,20 +142,6 @@ export function ConceptListPanel(props) {
                                     {`DeepPhe Semantic Group: ${obj.dpheGroup}`}
                                 </span>
                             )}
-
-
-                            {/*{`DMC:${getDocMentionsCountForConcept(obj.id)} `}*/}
-                            {/*{`PMC:${getPatientMentionsCountForConcept(obj.id)} `}*/}
-                            {/*{`CC:${Math.round(obj.confidence * 100)}%`}*/}
-                            {/* Dynamically render selected options with commas between them */}
-                            {/*{selectedOptions.map((option, index) => (*/}
-                            {/*    <React.Fragment key={option}>*/}
-                            {/*        {index > 0 && ", "}*/}
-                            {/*        {option === "Document Mention Count" && `DMC:${getDocMentionsCountForConcept(obj.id)}`}*/}
-                            {/*        {option === "Patient Mention Count" && `PMC:${getPatientMentionsCountForConcept(obj.id)}`}*/}
-                            {/*        {option === "Concept Confidence" && `CC:${Math.round(obj.confidence * 100)}%`}*/}
-                            {/*    </React.Fragment>*/}
-                            {/*))}*/}
                         </ListItem>
                     );
                 })}
