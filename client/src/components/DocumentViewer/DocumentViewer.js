@@ -296,6 +296,7 @@ export function DocumentViewer(props) {
                                             setFilteredConcepts={setFilteredConcepts}
                                             filteredConcepts={filteredConcepts}
                                             handleTermClick={handleTermClick}
+                                            clickedTerm={clickedTerm}
                                             handleConfidenceChange={handleConfidenceChange}
                                             confidence={confidence}
                                             doc={patientDocument}

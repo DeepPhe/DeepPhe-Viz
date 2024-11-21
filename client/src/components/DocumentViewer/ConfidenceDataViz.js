@@ -17,8 +17,12 @@ export function ConfidenceDataViz(props) {
     const concepts = props.concepts;
     const doc = props.doc;
     // const value = props.value;
-    const [confidencePercent, setConfidencePercent] = useState(0);
-    const [sliderPosition, setSliderPosition] = useState(40);
+    // const [confidencePercent, setConfidencePercent] = useState(0);
+    const confidencePercent = props.confidencePercent;
+    const setConfidencePercent = props.setConfidencePercent;
+    const sliderPosition = props.sliderPostion;
+    const setSliderPosition = props.setSliderPostion;
+    // const [sliderPosition, setSliderPosition] = useState(40);
     const onFilterChange = props.onFilterChange;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;

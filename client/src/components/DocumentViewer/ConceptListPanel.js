@@ -12,6 +12,7 @@ export function ConceptListPanel(props) {
     const setFilteredConcepts = props.setFilteredConcepts;
     const doc = props.doc;
     const selectedOptions = props.selectedOptions;
+    const clickedTerm = props.clickedTerm;
 
 
     // Gets mention count for concept for single document of patient
@@ -105,7 +106,7 @@ export function ConceptListPanel(props) {
                         <ListItem
                             style={{fontSize: "14px", fontFamily: "Monaco, monospace",
                                 backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65),
-                                margin: "4px", borderStyle: 'solid', borderColor: 'transparent', fontWeight:'bold'}}
+                                margin: "4px", borderStyle: 'solid', borderColor: clickedTerm === obj.id ? 'black' : 'transparent', fontWeight:'bold'}}
                             key={obj.id}
                             class={"report_mentioned_term"}
                             data-id={obj.id}
@@ -119,17 +120,28 @@ export function ConceptListPanel(props) {
                             {/* Conditionally render the icon if negated is true */}
                             {obj.negated && <span className="icon" style={{ marginRight: '5px', color: 'red' }}>&#8856;</span>}
                             {obj.preferredText ? obj.preferredText : separateWords(obj.classUri)}
-                            {selectedOptions.length > 0 && ": "}
-                            
+                            {/*{selectedOptions.length > 0 && " "}*/}
+
+                            {clickedTerm === obj.id && (
+                                <span>
+                                    {`: DMC:${getDocMentionsCountForConcept(obj.id)} `}
+                                    {`PMC:${getPatientMentionsCountForConcept(obj.id)} `}
+                                    {`CC:${Math.round(obj.confidence * 100)}%`}
+                                </span>
+                            )}
+
+                            {/*{`DMC:${getDocMentionsCountForConcept(obj.id)} `}*/}
+                            {/*{`PMC:${getPatientMentionsCountForConcept(obj.id)} `}*/}
+                            {/*{`CC:${Math.round(obj.confidence * 100)}%`}*/}
                             {/* Dynamically render selected options with commas between them */}
-                            {selectedOptions.map((option, index) => (
-                                <React.Fragment key={option}>
-                                    {index > 0 && ", "}
-                                    {option === "Document Mention Count" && `DMC:${getDocMentionsCountForConcept(obj.id)}`}
-                                    {option === "Patient Mention Count" && `PMC:${getPatientMentionsCountForConcept(obj.id)}`}
-                                    {option === "Concept Confidence" && `CC:${Math.round(obj.confidence * 100)}%`}
-                                </React.Fragment>
-                            ))}
+                            {/*{selectedOptions.map((option, index) => (*/}
+                            {/*    <React.Fragment key={option}>*/}
+                            {/*        {index > 0 && ", "}*/}
+                            {/*        {option === "Document Mention Count" && `DMC:${getDocMentionsCountForConcept(obj.id)}`}*/}
+                            {/*        {option === "Patient Mention Count" && `PMC:${getPatientMentionsCountForConcept(obj.id)}`}*/}
+                            {/*        {option === "Concept Confidence" && `CC:${Math.round(obj.confidence * 100)}%`}*/}
+                            {/*    </React.Fragment>*/}
+                            {/*))}*/}
                         </ListItem>
                     );
                 })}

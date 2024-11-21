@@ -158,8 +158,12 @@ export function ConceptPanel(props) {
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
     const confidence = props.confidence;
+    const handleTermClick = props.handleTermClick;
+    const clickedTerm = props.clickedTerm;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
+    const [confidencePercent, setConfidencePercent] = useState(0);
+    const [sliderPosition, setSliderPosition] = useState(40);
 
     const [selectedOptions, setSelectedOptions] = useState(["Document Mention Count",
         "Patient Mention Count",
@@ -212,10 +216,10 @@ export function ConceptPanel(props) {
 
                         <TabPanel value={tabValue} index={0}>
                             <CardBody style={{border: "none", boxShadow: "none"}}>
-                                <DropdownWithCheckboxes
-                                    selectedOptions={selectedOptions}
-                                    onSelectionChange={handleSelectionChange}
-                                    />
+                                {/*<DropdownWithCheckboxes*/}
+                                {/*    selectedOptions={selectedOptions}*/}
+                                {/*    onSelectionChange={handleSelectionChange}*/}
+                                {/*    />*/}
                                 <ConceptListPanel
                                     selectedOptions={selectedOptions}
                                     doc={doc}
@@ -225,7 +229,8 @@ export function ConceptPanel(props) {
                                     confidence={confidence}
                                     setFilteredConcepts={setFilteredConcepts}
                                     filteredConcepts={filteredConcepts}
-                                    handleTermClick={props.handleTermClick}
+                                    handleTermClick={handleTermClick}
+                                    clickedTerm={clickedTerm}
                                     />
                             </CardBody>
                         </TabPanel>
@@ -251,6 +256,10 @@ export function ConceptPanel(props) {
                                         filterLabel={filterLabel}
                                         setFilterLabel={setFilterLabel}
                                         onFilterChange={handleFilterChange}
+                                        confidencePercent={confidencePercent}
+                                        setConfidencePercent={setConfidencePercent}
+                                        sliderPostion={sliderPosition}
+                                        setSliderPostion={setSliderPosition}
                                     />
                                 </GridContainer>
                                 <GridContainer>
