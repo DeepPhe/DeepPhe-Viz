@@ -118,17 +118,25 @@ export function ConceptListPanel(props) {
                             onClick={props.handleTermClick}
                         >
                             {/* Conditionally render the icon if negated is true */}
-                            {obj.negated && <span className="icon" style={{ marginRight: '5px', color: 'red' }}>&#8856;</span>}
-                            {obj.preferredText ? obj.preferredText : separateWords(obj.classUri)}
-                            {/*{selectedOptions.length > 0 && " "}*/}
-
-                            {clickedTerm === obj.id && (
-                                <span>
-                                    {`: DMC:${getDocMentionsCountForConcept(obj.id)} `}
-                                    {`PMC:${getPatientMentionsCountForConcept(obj.id)} `}
-                                    {`CC:${Math.round(obj.confidence * 100)}%`}
+                            {obj.negated && (
+                                <span
+                                    className="icon" style={{ marginRight: '5px', color: 'red' }}>&#8856;
                                 </span>
                             )}
+                            {obj.preferredText ? obj.preferredText : separateWords(obj.classUri)}
+                            {clickedTerm === obj.id && ":"}
+
+                            <br />
+                            {/* Conditionally render extra information if the term is clicked */}
+                            {clickedTerm === obj.id && (
+                                <span style={{ display: 'block', marginLeft: '40px' }}>
+                                    {`Document Mention Count: ${getDocMentionsCountForConcept(obj.id)}`}<br />
+                                    {`Patient Mention Count: ${getPatientMentionsCountForConcept(obj.id)}`}<br />
+                                    {`Concept Confidence: ${Math.round(obj.confidence * 100)}%`}<br />
+                                    {`DeepPhe Semantic Group: ${obj.dpheGroup}`}
+                                </span>
+                            )}
+
 
                             {/*{`DMC:${getDocMentionsCountForConcept(obj.id)} `}*/}
                             {/*{`PMC:${getPatientMentionsCountForConcept(obj.id)} `}*/}
