@@ -211,7 +211,7 @@ export function DocumentPanel(props) {
               padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>`+
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -228,7 +228,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -249,7 +249,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -265,7 +265,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -291,7 +291,7 @@ export function DocumentPanel(props) {
         //     `</span>`;
         const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
             `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-            `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+            // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
             (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
             `</span>`;
 
