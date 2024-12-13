@@ -162,6 +162,8 @@ export function ConceptPanel(props) {
     const clickedTerms = props.clickedTerms;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
+    const setRadioSelectedValue = props.setRadioSelectedValue;
+    const radioSelectedValue = props.radioSelectedValue;
     const [confidencePercent, setConfidencePercent] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(40);
 
@@ -260,6 +262,8 @@ export function ConceptPanel(props) {
                                         setConfidencePercent={setConfidencePercent}
                                         sliderPostion={sliderPosition}
                                         setSliderPostion={setSliderPosition}
+                                        radioSelectedValue={radioSelectedValue}
+                                        setRadioSelectedValue={setRadioSelectedValue}
                                     />
                                 </GridContainer>
                                 <GridContainer>

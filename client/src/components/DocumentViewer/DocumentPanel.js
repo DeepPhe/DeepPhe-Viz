@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import parse from "html-react-parser";
 import {hexToRgba} from "./ColorUtils";
 
@@ -13,7 +13,7 @@ export function DocumentPanel(props) {
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
   const [filteredConceptsStartingCopy, setFilteredConceptsStartingCopy] = useState([]);
-  const [mentionsForClickedConcepts, setMentionsForClickedConcepts] = useState(new Set());
+  // const [setMentionsForClickedConcepts] = useState(new Set());
   const fontSize = props.fontSize;
   const confidence = props.confidence;
   const filterLabel = props.filterLabel;
@@ -25,18 +25,6 @@ export function DocumentPanel(props) {
     }
   }, [filteredConcepts, filteredConceptsStartingCopy]);
 
-  // When clickedTerms change:
-  useEffect(() => {
-    const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
-    setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
-    console.log(clickedTerms);
-    console.log(mentionsForClickedConcepts);
-    console.log(props.clickedTerms);
-  }, [clickedTerms]);
-
-  const getMentionsGivenMentionIds = (mentionIds) => {
-    return doc.mentions.filter((m) => mentionIds.includes(m.id));
-  };
 
   const getMentionsForClickedConcept = (conceptIds) => {
     if (!conceptIds || conceptIds.length === 0) return [];
@@ -52,6 +40,30 @@ export function DocumentPanel(props) {
       );
     });
   };
+
+  const mentionsForClickedConcepts = useMemo(() => {
+    return new Set(getMentionsForClickedConcept(clickedTerms));
+  }, [clickedTerms, concepts, doc.mentions]);
+
+
+  // const mentionsForClickedConcepts = useMemo(() => {
+  //   return new Set(getMentionsForClickedConcept(clickedTerms));
+  // }, [clickedTerms]);
+  //
+  // // When clickedTerms change:
+  // useEffect(() => {
+  //   const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
+  //   setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
+  //   console.log(clickedTerms);
+  //   console.log(mentionsForClickedConcepts);
+  //   console.log(props.clickedTerms);
+  // }, [clickedTerms]);
+
+  const getMentionsGivenMentionIds = (mentionIds) => {
+    return doc.mentions.filter((m) => mentionIds.includes(m.id));
+  };
+
+
 
   const getMentionsForConcept = (conceptId) => {
     if (conceptId === "") return [];
@@ -238,7 +250,7 @@ export function DocumentPanel(props) {
               padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>`+
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>`+
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -255,7 +267,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -276,7 +288,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -292,7 +304,7 @@ export function DocumentPanel(props) {
           padding-right: 2px;`;
           const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
               `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-              `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+              // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
               (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
               `</span>`;
 
@@ -314,7 +326,7 @@ export function DocumentPanel(props) {
 
         const htmlString = `<span style="${spanStyle}${isNegated(textMention.negated) ? '; line-height: 1.2;' : ''}" class="span-info ${spanClass}">` +
             `${reportText.substring(textMention.begin, textMention.end).trim()}` +
-            `<span class="tooltip">${textMention.confidence[0]}%</span>` +
+            // `<span class="tooltip">${textMention.confidence[0]}%</span>` +
             (isNegated(textMention.negated) ? '<span class="icon">&#8856;</span>' : '') +
             `</span>`;
 

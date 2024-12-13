@@ -26,10 +26,13 @@ export function ConfidenceDataViz(props) {
     const onFilterChange = props.onFilterChange;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
+    const setRadioSelectedValue = props.setRadioSelectedValue;
+    const radioSelectedValue = props.radioSelectedValue;
+
 
     const handleRadioChange = (event) => {
         const value = event.target.value;
-        // Call the parent handler with the new filter value
+        setRadioSelectedValue(value);
         onFilterChange(value === "option1" ? "Concepts" : "Mentions");
         setFilterLabel(value === "option1" ? "Concepts" : "Mentions")
     };
@@ -307,7 +310,7 @@ export function ConfidenceDataViz(props) {
         <GridContainer justifyContent="space-between" alignItems="center" spacing={2}>
             <GridItem xs="{true}">
                 <RadioGroup row aria-label="options" name="radio-buttons-group"
-                            defaultValue={"option1"} onChange={handleRadioChange}>
+                            value={radioSelectedValue} onChange={handleRadioChange}>
                     <FormControlLabel value="option2" control={<Radio />} label="By Mention" />
                     <FormControlLabel value="option1" control={<Radio />} label="By Concept" />
                 </RadioGroup>

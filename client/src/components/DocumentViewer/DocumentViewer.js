@@ -23,6 +23,7 @@ export function DocumentViewer(props) {
     const [confidence, setConfidence] = useState(0);
     const [clickedTerms, setClickedTerms] = useState([]);
     const [filterLabel, setFilterLabel] = useState("Concepts");
+    const [radioSelectedValue, setRadioSelectedValue] = useState("option1");
 
     useEffect(() => {
         if (isEmpty(semanticGroups)) {
@@ -298,6 +299,8 @@ export function DocumentViewer(props) {
                                             doc={patientDocument}
                                             filterLabel={filterLabel}
                                             setFilterLabel={setFilterLabel}
+                                            radioSelectedValue={radioSelectedValue}
+                                            setRadioSelectedValue={setRadioSelectedValue}
 
                                         />
                                     </GridItem>
