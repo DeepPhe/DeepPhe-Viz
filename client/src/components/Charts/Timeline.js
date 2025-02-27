@@ -23,6 +23,7 @@ export default class Timeline extends React.Component {
     this.setReportId = this.props.setReportId;
     this.patientJson = props.patientJson;
     this.reportId = props.reportId;
+    this.svgContainerId = props.svgContainerId;
   }
 
   getUrl() {
@@ -48,7 +49,7 @@ export default class Timeline extends React.Component {
     const processTimelineResponse = (response) => {
       this.setState({ json: response });
       renderTimeline(
-        "timeline",
+        this.svgContainerId,
         response.patientInfo,
         response.reportTypes,
         response.typeCounts,
@@ -342,154 +343,6 @@ export default class Timeline extends React.Component {
         return flattened;
       }
 
-      // function getReport(reportId, factId) {
-      //     $("#docs").show();
-      //     // Must use encodeURIComponent() otherwise may have URI parsing issue
-      //     $.ajax({
-      //         url: baseUri + '/reports/' + reportId,
-      //         method: 'GET',
-      //         async: true,
-      //         dataType: 'json'
-      //     })
-      //         .done(function (response) {
-      //
-      //             let reportText = response.reportText;
-      //             // console.log(reportText);
-      //
-      //             // mentionedTerms = response.mentionedTerms;
-      //             //
-      //             // mentionedTerms.forEach(function (mention) {
-      //             //     let confidenceValue = mention.confidence;
-      //             //     console.log("Confidence Value:", confidenceValue);z
-      //             // });
-      //
-      //             // Assuming mentionedTerms is an array of mentions within the response object
-      //             mentionedTerms = response.mentionedTerms;
-      //
-      //
-      //             // Check if mentionedTerms is defined before accessing its elements
-      //             if (mentionedTerms) {
-      //                 // Check the structure of a single mention
-      //                 let sampleMention = mentionedTerms[0];
-      //
-      //                 if (sampleMention) {
-      //                     console.log("Structure of a single mention:", sampleMention);
-      //                 } else {
-      //                     console.log("Sample mention is undefined in the response.");
-      //                 }
-      //             } else {
-      //                 console.log("mentionedTerms is undefined in the response.");
-      //             }
-      //
-      //
-      //             // If there are fact based reports, highlight the displaying one
-      //             const currentReportCssClass = 'current_displaying_report';
-      //             const currentFactTermsCssClass = 'fact_based_term';
-      //             $('.fact_based_report_id').removeClass(currentReportCssClass);
-      //             $('.fact_based_term_span').removeClass(currentFactTermsCssClass);
-      //
-      //             // Highlight the curent displaying report name
-      //             $('#' + reportId + "_" + factId).addClass(currentReportCssClass);
-      //             // Also highlight all the fact-based text mentions in the fact info area
-      //             $('#terms_list_' + reportId + "_" + factId).children().find(">:first-child").addClass(currentFactTermsCssClass);
-      //
-      //             // Show report ID
-      //             $('#report_id').html('<i class="fa fa-file-o"></i><span class="display_report_id ' + currentReportCssClass + '">' + reportId + '</span>');
-      //
-      //             // Show rendered mentioned terms
-      //             // First check if this report is a fact-based report so we cna highlight the fact-related terms
-      //             let factBasedTerms = [];
-      //             if (Object.keys(factBasedReports).indexOf(reportId) !== -1 && Object.keys(factBasedReports[reportId]).indexOf(factId) !== -1) {
-      //                 factBasedTerms = factBasedReports[reportId][factId];
-      //             }
-      //
-      //             // mentionedTerms doesn't have position info, so we need to keep the posiiton info
-      //             // for highlighting and scroll to
-      //             let factBasedTermsWithPosition = [];
-      //             let renderedMentionedTerms = '<ol id="mentions" class="mentioned_terms_list">';
-      //             mentionedTerms = mentionedTerms.sort((a, b) => (parseInt(a.begin) > parseInt(b.begin)) ? 1 : -1)
-      //             let textMentions = [];
-      //             const uniqueArr = [];
-      //
-      //             // Also scroll to the first fact based term if any in the report text
-      //             if (factBasedTermsWithPosition.length > 0) {
-      //                 scrollToHighlightedTextMention(factBasedTermsWithPosition[0], reportText);
-      //             } else {
-      //                 let reportTextDiv = $("#report_text");
-      //                 //highlight all mentions
-      //                 //console.log(mentionedTerms);
-      //                 textMentions = highlightAllMentions(mentionedTerms);
-      //
-      //                 const mentionCounter = {};
-      //
-      //                 textMentions.forEach(obj => {
-      //                     if (mentionCounter[obj.text.toString()]) {
-      //                         mentionCounter[obj.text.toString()] += 1;
-      //                     } else {
-      //                         mentionCounter[obj.text.toString()] = 1;
-      //                     }
-      //                     // obj.mentionFrequency = mentionCounter[obj.text.toString()];
-      //                 });
-      //
-      //                 textMentions.forEach(obj => {
-      //                     obj.mentionFrequency = mentionCounter[obj.text.toString()]
-      //                 })
-      //
-      //                 let highlightedReportText = highlightTextMentions(textMentions, reportText);
-      //
-      //                 // Use html() for html rendering
-      //                 //show the highlightedreport instead of just reportText
-      //                 initialHighlightedDoc = highlightedReportText;
-      //                 reportTextDiv.html(highlightedReportText);
-      //                 // Scroll back to top of the report content div
-      //                 reportTextDiv.animate({scrollTop: 0}, "fast");
-      //                 reportTextRight = $("#report_text").text();
-      //             }
-      //
-      //             textMentions.forEach(function (obj) {
-      //                 //console.log(JSON.stringify(obj))
-      //                 let fact_based_term_class = '';
-      //                 let popUp = 'popUp'
-      //                 if (factBasedTerms.indexOf(obj.text) !== -1) {
-      //                     factBasedTermsWithPosition.push(obj);
-      //                     fact_based_term_class = ' fact_based_term';
-      //                 }
-      //                 // + 'highlight_terms' trying to add another class to the line, doesnt seem to work rn
-      //                 if (!uniqueArr.includes(obj.text)) {
-      //                     uniqueArr.push(obj.text);
-      //                     renderedMentionedTerms += '<li class="report_mentioned_term' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="frequency">' + '(' + obj.mentionFrequency + ')' + '</span></li>';
-      //
-      //                     // if(obj.mentionFrequency === 1){
-      //                     //     //pop-up
-      //                     //     // renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + popUp + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-      //                     //     renderedMentionedTerms += '<li class="report_mentioned_term_1 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
-      //                     //
-      //                     // }
-      //                     // else if(obj.mentionFrequency === 2){
-      //                     //     // renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-      //                     //     renderedMentionedTerms += '<li class="report_mentioned_term_2 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
-      //                     //
-      //                     // }
-      //                     // else if(obj.mentionFrequency === 3){
-      //                     //     // renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-      //                     //     renderedMentionedTerms += '<li class="report_mentioned_term_3 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
-      //                     //
-      //                     // }
-      //                     // else{
-      //                     //     // renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + popUp +'" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '<span class="popUpText">' + obj.mentionFrequency + '</span></li>';
-      //                     //     renderedMentionedTerms += '<li class="report_mentioned_term_4 ' + fact_based_term_class + '" data-begin="' + obj.beginOffset + '" data-end="' + obj.endOffset + '">' + obj.text + '(' + obj.mentionFrequency + ')' +'</li>';
-      //                     //
-      //                     // }
-      //                 }
-      //             });
-      //             renderedMentionedTerms += "</ol>";
-      //
-      //             $('#report_mentioned_terms').html(renderedMentionedTerms);
-      //         })
-      //         .fail(function () {
-      //             console.log("Ajax error - can't get report");
-      //         });
-      // }
 
       function highlightAllMentions(mentionedTerms) {
         let textMentions = [];
@@ -722,7 +575,15 @@ export default class Timeline extends React.Component {
           episodeSpansData.push(obj);
         });
 
+        // Create the container if it doesn't exist
+        if (!document.getElementById(svgContainerId)) {
+          const container = document.createElement("div");
+          container.id = svgContainerId;
+          document.body.appendChild(container); // Append to the desired parent (body, or other parent element)
+        }
+
         // SVG
+        console.log(svgContainerId)
         let svg = d3
           .select("#" + svgContainerId)
           .append("svg")
@@ -740,6 +601,8 @@ export default class Timeline extends React.Component {
               ageAreaHeight +
               margin.bottom
           );
+
+        console.log(svg)
 
         // Dynamically calculate the x posiiton of each legend rect
         let episodeLegendX = function (index) {
@@ -1442,6 +1305,6 @@ export default class Timeline extends React.Component {
   }
 
   render() {
-    return <div className="Timeline" id="timeline"></div>;
+    return <div className="Timeline" id={this.svgContainerId}></div>;
   }
 }

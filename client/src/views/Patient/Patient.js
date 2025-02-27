@@ -7,6 +7,7 @@ import CardBody from "components/Card/CardBody.js";
 import CustomTable from "../../components/CustomTables/CustomTable";
 import CancerAndTumorSummary from "../../components/Summaries/CancerAndTumorSummary";
 import Timeline from "../../components/Charts/Timeline";
+import TimelineEventsNew from "../../components/Charts/TimelineEventsNew"
 import CardHeader from "../../components/Card/CardHeader";
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
 import { DocumentViewer } from "../../components/DocumentViewer/DocumentViewer";
@@ -88,16 +89,43 @@ function Patient(props) {
         </CardHeader>
         <CardBody>
           <Timeline
-            reportId={reportId}
-            patientJson={patientJson}
-            patientId={patientId}
-            setReportId={setReportId}
-            //getReport={getReport}
+              svgContainerId="timeline1"
+              reportId={reportId}
+              patientJson={patientJson}
+              patientId={patientId}
+              setReportId={setReportId}
+              //getReport={getReport}
           ></Timeline>
+
         </CardBody>
       </Card>
     );
   };
+
+  const getComponentPatientEpisodeTimelineEventsNew= () => {
+    return (
+        <Card>
+          <CardHeader className={"basicCardHeader"}>
+            Patient Episode Timeline Copy
+          </CardHeader>
+          <CardBody>
+            <TimelineEventsNew
+                svgContainerId="timeline2"
+                reportId={reportId}
+                patientJson={patientJson}
+                patientId={patientId}
+                setReportId={setReportId}
+                //getReport={getReport}
+            ></TimelineEventsNew>
+          </CardBody>
+        </Card>
+    );
+  };
+
+
+
+
+
   const getComponentPatientIdAndDemographics = () => {
     return (
       <Card style={{ marginTop: "45px" }}>
@@ -238,6 +266,7 @@ function Patient(props) {
                 {getComponentPatientIdAndDemographics()}
                 {getComponentCancerAndTumorDetail()}
                 {getComponentPatientEpisodeTimeline()}
+                {getComponentPatientEpisodeTimelineEventsNew()}
                 {getComponentDocumentViewer()}
               </GridItem>
               <GridItem xs={12} sm={12} md={1}/>
