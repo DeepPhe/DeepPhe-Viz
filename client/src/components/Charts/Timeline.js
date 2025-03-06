@@ -48,6 +48,7 @@ export default class Timeline extends React.Component {
     let url = this.getUrl(this.props.patientId);
     const processTimelineResponse = (response) => {
       this.setState({ json: response });
+      console.log(response);
       renderTimeline(
         this.svgContainerId,
         response.patientInfo,
@@ -459,16 +460,20 @@ export default class Timeline extends React.Component {
           // Format the date to a human-readable string first, formatTime() takes Date object instead of string
           // d.origTime.slice(0, 19) returns the time string without the time zone part.
           // E.g., "2012/11/28" from "11/28/2012 01:00 AM AST"
+          // console.log(d.date)
           let formattedDateStr = formatTime(new Date(d.date));
+          // console.log(formattedDateStr)
           // Then convert a string back to a date to be used by d3
           d.formattedDate = parseTime(formattedDateStr);
         });
+        // console.log(reportData)
 
         // The earliest report date
         let xMinDate = d3.min(reportData, function (d) {
           return d.formattedDate;
         });
 
+        // console.log(xMinDate)
         // Set the start date of the x axis 10 days before the xMinDate
         let startDate = new Date(xMinDate);
         startDate.setDate(startDate.getDate() - numOfDays);
@@ -509,7 +514,7 @@ export default class Timeline extends React.Component {
           "rgb(117, 107, 177)",
           "rgb(99, 99, 99)",
         ];
-
+        // console.log(startDate, endDate)
         let color = d3.scaleOrdinal().domain(allEpisodes).range(episodeColors);
 
         // Transition used by focus/defocus episode
@@ -583,7 +588,6 @@ export default class Timeline extends React.Component {
         }
 
         // SVG
-        console.log(svgContainerId)
         let svg = d3
           .select("#" + svgContainerId)
           .append("svg")
@@ -601,8 +605,6 @@ export default class Timeline extends React.Component {
               ageAreaHeight +
               margin.bottom
           );
-
-        console.log(svg)
 
         // Dynamically calculate the x posiiton of each legend rect
         let episodeLegendX = function (index) {

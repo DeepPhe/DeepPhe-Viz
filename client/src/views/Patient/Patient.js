@@ -106,7 +106,7 @@ function Patient(props) {
     return (
         <Card>
           <CardHeader className={"basicCardHeader"}>
-            Patient Episode Timeline Copy
+            Temporal Events
           </CardHeader>
           <CardBody>
             <TimelineEventsNew
