@@ -7,6 +7,26 @@ const transitionDuration = 800; // time in ms
 let initialHighlightedDoc = "";
 let mentionedTerms = "";
 let dpheTerms = "";
+let lineDataSet = [
+    { "id": "chemotherapy", "start": "2024-01-01", "end": "2024-03-01", "color": "rgb(140, 86, 75)" },
+    { "id": "procedure", "start": "2024-02-15", "end": "2024-05-10", "color": "rgb(44, 160, 44)" },
+    { "id": "intravenous administration", "start": "2024-04-01", "end": "2024-06-30", "color": "rgb(31, 119, 180)" },
+    { "id": "reconstructions", "start": "2024-01-14", "end": "2024-02-30", "color": "rgb(31, 119, 180)" },
+    { "id": "reduction", "start": "2024-01-20", "end": "2024-02-30", "color": "rgb(31, 1, 180)" },
+    { "id": "mammoplasty", "start": "2024-03-01", "end": "2024-09-30", "color": "rgb(31, 119, 180)" },
+    { "id": "enlarged", "start": "2024-08-01", "end": "2024-09-30", "color": "rgb(31, 119, 80)" },
+    { "id": "treatment", "start": "2024-10-01", "end": "2024-12-30", "color": "rgb(49, 163, 84)" }
+];
+const episodeYMapping = {
+    "chemotherapy": 1,
+    "procedure": 3,
+    "intravenous administration": 5,
+    "reconstructions": 9,
+    "reduction": 15,
+    "mammoplasty": 19,
+    "enlarged": 21,
+    "treatment": 23
+};
 let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
@@ -61,7 +81,7 @@ export default class Timeline extends React.Component {
                     if (value) chemoSet.add(value); // Add to set if not empty
                 }
                 if (header === "tlink") {
-                    console.log(value);
+                    // console.log(value);
                     if (value) tLinkSet.add(value);
                 }
                 acc[header] = value;
@@ -469,6 +489,8 @@ export default class Timeline extends React.Component {
             return textMentions;
         }
 
+
+
         function highlightSelectedTimelineReport(reportId) {
             // Remove previous added highlighting classes
             const css = "selected_report";
@@ -490,9 +512,9 @@ export default class Timeline extends React.Component {
             $("#fact_detail").hide().html("").fadeIn("slow");
         }
 
-        function episode2CssClass(episode) {
-            return episode.replace(/\s+/g, "-").toLowerCase();
-        }
+        // function episode2CssClass(episode) {
+        //     return episode.replace(/\s+/g, "-").toLowerCase();
+        // }
 
         // Vertical count position of each report type
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
@@ -574,8 +596,10 @@ export default class Timeline extends React.Component {
             // let xMinDate = d3.min(reportData, function (d) {
             //     return d.formattedDate;
             // });
-            let startDate = parseTime("2012-04-24")
-            let endDate = parseTime("2012-07-24")
+            // let startDate = parseTime("2012-04-24")
+            // let endDate = parseTime("2012-07-24")
+            let startDate = new Date("2024-01-01");  // Make sure the start date is a Date object
+            let endDate = new Date("2024-12-31");
             // console.log(startDate, endDate)
 
             // Set the start date of the x axis 10 days before the xMinDate
@@ -627,11 +651,14 @@ export default class Timeline extends React.Component {
                 .duration(transitionDuration)
                 .ease(d3.easeLinear);
 
+            console.log('Start Date', startDate)
+            console.log('End Date', endDate)
             // Main area and overview area share the same width
             let mainX = d3
                 .scaleTime()
                 .domain([startDate, endDate])
                 .range([0, width]);
+
 
             let overviewX = d3
                 .scaleTime()
@@ -639,12 +666,14 @@ export default class Timeline extends React.Component {
                 .range([0, width]);
 
             // Y scale to handle main area
+
             let mainY = d3
                 .scaleLinear()
                 .domain([0, totalMaxVerticalCounts])
                 .range([0, height]);
 
             // Y scale to handle overview area
+            // console.log("blash", overviewHeight, height)
             let overviewY = d3
                 .scaleLinear()
                 .domain([0, totalMaxVerticalCounts])
@@ -771,19 +800,19 @@ export default class Timeline extends React.Component {
                 .style("stroke", function (d) {
                     return color(d);
                 })
-                .on("click", function (d) {
-                    // Toggle (hide/show reports of the clicked episode)
-                    let nodes = d3.selectAll("." + episode2CssClass(d));
-                    nodes.each(function () {
-                        let node = d3.select(this);
-                        node.classed("hide", !node.classed("hide"));
-                    });
-
-                    // Also toggle the episode legend look
-                    let legendCircle = d3.select(this);
-                    let cssClass = "selected_episode_legend_circle";
-                    legendCircle.classed(cssClass, !legendCircle.classed(cssClass));
-                });
+                // .on("click", function (d) {
+                //     // Toggle (hide/show reports of the clicked episode)
+                //     let nodes = d3.selectAll("." + episode2CssClass(d));
+                //     nodes.each(function () {
+                //         let node = d3.select(this);
+                //         node.classed("hide", !node.classed("hide"));
+                //     });
+                //
+                //     // Also toggle the episode legend look
+                //     let legendCircle = d3.select(this);
+                //     let cssClass = "selected_episode_legend_circle";
+                //     legendCircle.classed(cssClass, !legendCircle.classed(cssClass));
+                // });
 
             // Legend label text
             episodeLegend
@@ -828,6 +857,14 @@ export default class Timeline extends React.Component {
                 .append("rect")
                 .attr("width", width)
                 .attr("height", height + gapBetweenlegendAndMain);
+
+            setTimeout(() => {
+                d3.select("#main_area_clip rect")
+                    .attr("width", 2000)
+                    .attr("height", 2000);
+                console.log("Forced ClipPath Update:", d3.select("#main_area_clip rect").attr("height"));
+            }, 100);
+
 
             let update = function () {
                 // Update the episode bars
@@ -895,16 +932,16 @@ export default class Timeline extends React.Component {
 
             // Appending zoom rect after the main area will prevent clicking on the report circles/
             // So we need to create the zoom panel first
-            svg
-                .append("rect")
-                .attr("class", "zoom")
-                .attr("width", width)
-                .attr("height", height + gapBetweenlegendAndMain)
-                .attr(
-                    "transform",
-                    "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
-                )
-                .call(zoom);
+            // svg
+            //     .append("rect")
+            //     .attr("class", "zoom")
+            //     .attr("width", width)
+            //     .attr("height", height + gapBetweenlegendAndMain)
+            //     .attr(
+            //         "transform",
+            //         "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
+            //     )
+            //     .call(zoom);
 
             // Main area
             // Create main area after zoom panel, so we can select the report circles
@@ -919,6 +956,8 @@ export default class Timeline extends React.Component {
                     (margin.top + legendHeight + gapBetweenlegendAndMain) +
                     ")"
                 );
+
+            console.log(main);
 
             // Encounter ages
             let age = svg
@@ -1039,6 +1078,42 @@ export default class Timeline extends React.Component {
             //         .call(brush.move, [overviewX(startDate), overviewX(endDate)]);
             // };
 
+            // function dateToX(id) {
+            //     const totalDuration = endDate - startDate;
+            //     return minX + ((new Date(date) - startDate) / totalDuration) * svgWidth;
+            // }
+
+            function idToX(id, dataSet, scale) {
+                let entry = dataSet.find(d => d.id === id);
+                if (!entry) return null;
+
+                // Convert the start date to a Date object
+                const startDate = new Date(entry.start);
+
+                if (isNaN(startDate)) {
+                    console.error(`Invalid start date: ${entry.start}`);
+                    return null;
+                }
+
+                return scale(startDate); // Now using a Date object
+            }
+
+            function idToX2(id, dataSet, scale) {
+                let entry = dataSet.find(d => d.id === id);
+                if (!entry) return null;
+
+                // Convert the end date to a Date object
+                const endDate = new Date(entry.end);
+
+                if (isNaN(endDate)) {
+                    console.error(`Invalid end date: ${entry.end}`);
+                    return null;
+                }
+
+                return scale(endDate); // Now using a Date object
+            }
+
+
             // Mian report type divider lines
             // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
             // console.log(chemoText)
@@ -1083,61 +1158,68 @@ export default class Timeline extends React.Component {
             let mainReports = main
                 .append("g")
                 .attr("clip-path", "url(#main_area_clip)");
-            const that = this;
+            // const that = this;
             // Report circles in main area
             mainReports
                 .selectAll(".main_report")
-                // .data(startDate)
+                .data(lineDataSet)
                 .enter()
                 .append("g")
-                .append("circle")
+                .append("line")
                 .attr("class", function (d) {
-                    return "main_report " + episode2CssClass(d.episode);
+                    return "main_report ";
                 })
-                .attr("id", function (d) {
-                    // Prefix with "main_"
-                    return "main_" + d.id;
-                })
+                // .attr("id", function (d) {
+                //     // Prefix with "main_"
+                //     return "main_" + d.id;
+                // })
                 .attr("data-episode", function (d) {
                     // For debugging
-                    return d.episode;
+                    console.log(d);
+                    console.log(d.color);
+                    console.log(verticalPositions[d.id] * 16)
+                    return d.id;
                 })
-                .attr("r", reportMainRadius)
-                .attr("cx", function (d) {
-                    return mainX(d.formattedDate);
+                .attr("x1", function (d) {
+                    return idToX(d.id, lineDataSet, mainX); // Convert the start date to x1
                 })
-                // Vertically spread the dots with same time
-                .attr("cy", function (d) {
-                    return getReportCirclePositionY(
-                        d,
-                        mainY,
-                        mainChemoTextRowHeightPerCount
-                    );
+                .attr("x2", function (d) {
+                    return idToX2(d.id, lineDataSet, mainX); // Convert the end date to x2
                 })
-                .style("fill", function (d) {
-                    return color(d.episode);
+                .attr("y1", function (d) {
+                    const y1 = episodeYMapping[d.id] * 16 || 200;
+                    // console.log(`y1 for ${d.id}:`, y1); // Log the y1 value
+                    return y1;
                 })
-                .style("stroke", function (d) {
-                    return color(d.episode);
+                .attr("y2", function (d) {
+                    const y2 = episodeYMapping[d.id] * 16 || 200;
+                    // console.log(`y2 for ${d.id}:`, y2); // Log the y2 value
+                    return y2;
                 })
-                .on("click", function (d) {
-                    $("#docs").show();
-                    // Check to see if this report is one of the fact-based reports that are being highlighted
-                    // d.id has no prefix, just raw id
-                    if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
-                        // Remove the fact related highlighting
-                        removeFactBasedHighlighting(d.id);
-                    }
+                // .style("fill", function (d) {
+                //     return color(d.episode);
+                // })
+                .attr("stroke", d=> d.color)
+                .attr("stroke-width", 3);
+                // .on("click", function (d) {
+                //     $("#docs").show();
+                //     // Check to see if this report is one of the fact-based reports that are being highlighted
+                //     // d.id has no prefix, just raw id
+                //     if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
+                //         // Remove the fact related highlighting
+                //         removeFactBasedHighlighting(d.id);
+                //     }
+                //
+                //     // Highlight the selected report circle with solid fill and thicker stroke
+                //     highlightSelectedTimelineReport(d.id);
+                //
+                //     // And show the report content
+                //     $("#report_instance").show();
+                //     that.setReportId(d.id);
+                //     //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
+                //     //that.getReport(d.id, "", that.patientJson);
+                // });
 
-                    // Highlight the selected report circle with solid fill and thicker stroke
-                    highlightSelectedTimelineReport(d.id);
-
-                    // And show the report content
-                    $("#report_instance").show();
-                    that.setReportId(d.id);
-                    //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
-                    //that.getReport(d.id, "", that.patientJson);
-                });
 
             // Main area x axis
             // https://github.com/d3/d3-axis#axisBottom

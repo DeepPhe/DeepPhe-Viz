@@ -405,7 +405,7 @@ export default class Timeline extends React.Component {
       // to have a consistent report type order
       //console.log("reportTypes: " + reportTypes);
       //console.log("reportData: " + JSON.stringify(reportData));
-      console.log(reportTypes)
+      // console.log(reportTypes)
       if (reportTypes !== null) {
         reportTypes.forEach(function (key) {
           totalMaxVerticalCounts += maxVerticalCountsPerType[key];
@@ -895,7 +895,7 @@ export default class Timeline extends React.Component {
           );
           let numOfDays = daysDiff > 30 ? 3 : 1;
 
-          // setDate() will change the start and end dates, and we still need the origional dates to update the episode bar
+          // setDate() will change the start and end dates, and we still need the original dates to update the episode bar
           // so we clone the date objects
           let newStartDate = new Date(episode.startDate.getTime());
           let newEndDate = new Date(episode.endDate.getTime());
@@ -967,7 +967,7 @@ export default class Timeline extends React.Component {
           })
           .attr("x", -textMargin) // textMargin on the left of main area
           .attr("y", function (d, i) {
-            console.log(verticalPositions[d], maxVerticalCountsPerType[d])
+            // console.log(verticalPositions[d], maxVerticalCountsPerType[d])
             return mainY(
               verticalPositions[d] - maxVerticalCountsPerType[d] / 2
             );
