@@ -46,27 +46,44 @@ export default class Timeline extends React.Component {
         const lines = tsvText.trim().split("\n"); // Split by lines
         const headers = lines[0].split("\t").map(h => h.trim()); // Trim headers
 
+        const chemoCounts = {}; // Dictionary to track 'chemoText name' counts
+        const chemoSet = new Set(); // Set to track unique 'chemo_text' values
+        const tLinkSet = new Set();
+
         const data = lines.slice(1).map(line => {
             const values = line.split("\t"); // Split the line into columns by tab
 
-            return headers.reduce((obj, header, index) => {
-                obj[header] = values[index]?.trim(); // Map each value to its trimmed header
-                return obj;
-            }, {});
-        });
+            const obj = headers.reduce((acc, header, index) => {
+                let value = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
 
-        return data;
+                if (header === "chemo_text") {
+                    value = value?.toLowerCase(); // Ensure lowercase for 'chemo_text'
+                    if (value) chemoSet.add(value); // Add to set if not empty
+                }
+                if (header === "tlink") {
+                    console.log(value);
+                    if (value) tLinkSet.add(value);
+                }
+                acc[header] = value;
+                return acc;
+            }, {});
+
+            const chemoName = obj["chemo_text"];
+            if (chemoName) {
+                chemoCounts[chemoName] = (chemoCounts[chemoName] || 0) + 1;
+            }
+            return obj;
+        });
+        // Include chemoCounts inside the data array as an additional property
+        data.chemoTextCounts = chemoCounts;
+        data.chemoText = Array.from(chemoSet);
+        data.tLink = Array.from(tLinkSet);
+
+        return data; // Return data array with chemoCounts included
     };
 
 
-    // groupBy(data, key) {
-    //     return data.reduce((acc, obj) => {
-    //         const group = obj[key];
-    //         if (!acc[group]) acc[group] = [];
-    //         acc[group].push(obj);
-    //         return acc;
-    //     }, {});
-    // }
+
 
     getUrl() {
         return (
@@ -90,29 +107,30 @@ export default class Timeline extends React.Component {
         return {
             startDates: data.map(d => d.DCT),
             patientId: data.map(d => d.patient_id),
-            chemoText: data.map(d => d.chemo_text),
+            chemoText: data.chemoText,
+            chemoTextCounts: data.chemoTextCounts,
             chemoAnnotationId : data.map(d => d.chemo_annotation_id),
             normedTimex : data.map(d => d.normed_timex),
             timexAnnotationId : data.map(d => d.timex_annotation_id),
-            tLink : data.map(d => d.tlink),
+            tLink : data.tLink,
             tLinkInst: data.map(d => d.tlink_inst)
         };
     }
 
 // Example groupBy function (if you need one)
-    groupBy = (arr, key) => {
-        return arr.reduce((result, currentValue) => {
-            // Get the key value (in this case, 'chemo_text')
-            const groupKey = currentValue[key];
-            // If the key doesn't exist in the result object, create a new array
-            if (!result[groupKey]) {
-                result[groupKey] = [];
-            }
-            // Push the current value into the corresponding group
-            result[groupKey].push(currentValue);
-            return result;
-        }, {});
-    };
+//     groupBy = (arr, key) => {
+//         return arr.reduce((result, currentValue) => {
+//             // Get the key value (in this case, 'chemo_text')
+//             const groupKey = currentValue[key];
+//             // If the key doesn't exist in the result object, create a new array
+//             if (!result[groupKey]) {
+//                 result[groupKey] = [];
+//             }
+//             // Push the current value into the corresponding group
+//             result[groupKey].push(currentValue);
+//             return result;
+//         }, {});
+//     };
 
 
 
@@ -135,6 +153,7 @@ export default class Timeline extends React.Component {
                 transformedData.startDates,
                 transformedData.patientId,
                 transformedData.chemoText,
+                transformedData.chemoTextCounts,
                 transformedData.chemoAnnotationId,
                 transformedData.normedTimex,
                 transformedData.timexAnnotationId,
@@ -150,13 +169,13 @@ export default class Timeline extends React.Component {
         startDates,
         patientId,
         chemoText,
+        chemoTextCounts,
         chemoAnnotationId,
         normedTimex,
         timexAnnotationId,
         tLink,
         tLinkInst
     ) => {
-        // console.log(reportTypes)
 
         //next line might not belong
         let factBasedReports = {};
@@ -481,20 +500,22 @@ export default class Timeline extends React.Component {
         let verticalPositions = {};
         // Vertical max counts from top to bottom
         // This is used to decide the domain range of mainY and overviewY
-        let totalMaxVerticalCounts = 3;
+        let totalMaxVerticalCounts = 0;
 
         // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
         // to have a consistent report type order
         //console.log("reportTypes: " + reportTypes);
         //console.log("reportData: " + JSON.stringify(reportData));
-        // if (chemoText !== null) {
-        //     chemoText.forEach(function (key) {
-        //         // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
-        //         if (typeof verticalPositions[key] === "undefined") {
-        //             verticalPositions[key] = totalMaxVerticalCounts;
-        //         }
-        //     });
-        // }
+        if (chemoText !== null) {
+            chemoText.forEach(function (key) {
+                // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+                totalMaxVerticalCounts += 1;
+
+                if (typeof verticalPositions[key] === "undefined") {
+                    verticalPositions[key] = totalMaxVerticalCounts;
+                }
+            });
+        }
 
         const margin = { top: 20, right: 20, bottom: 10, left: 250 };
         const mainChemoTextRowHeightPerCount = 16;
@@ -1020,7 +1041,7 @@ export default class Timeline extends React.Component {
 
             // Mian report type divider lines
             // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
-            console.log(chemoText)
+            // console.log(chemoText)
             main
                 .append("g")
                 .selectAll(".report_type_divider")
@@ -1046,12 +1067,12 @@ export default class Timeline extends React.Component {
                 .enter()
                 .append("text")
                 .text(function (d) {
-                    return d + " ( ):";
+                    return d + " (" + chemoTextCounts[d] + "):";
                 })
                 .attr("x", -textMargin) // textMargin on the left of main area
                 .attr("y", function (d, i) {
                     return mainY(
-                        verticalPositions[d] - 3 / 2
+                        verticalPositions[d] - 1 / 2
                     );
                 })
                 .attr("dy", ".5ex")

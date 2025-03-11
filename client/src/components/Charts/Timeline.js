@@ -405,6 +405,7 @@ export default class Timeline extends React.Component {
       // to have a consistent report type order
       //console.log("reportTypes: " + reportTypes);
       //console.log("reportData: " + JSON.stringify(reportData));
+      console.log(reportTypes)
       if (reportTypes !== null) {
         reportTypes.forEach(function (key) {
           totalMaxVerticalCounts += maxVerticalCountsPerType[key];
@@ -935,7 +936,7 @@ export default class Timeline extends React.Component {
             .call(brush.move, [overviewX(startDate), overviewX(endDate)]);
         };
 
-        // Mian report type divider lines
+        // Main report type divider lines
         // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
         main
           .append("g")
@@ -966,6 +967,7 @@ export default class Timeline extends React.Component {
           })
           .attr("x", -textMargin) // textMargin on the left of main area
           .attr("y", function (d, i) {
+            console.log(verticalPositions[d], maxVerticalCountsPerType[d])
             return mainY(
               verticalPositions[d] - maxVerticalCountsPerType[d] / 2
             );
