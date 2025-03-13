@@ -1,6 +1,5 @@
 import React from "react";
 import * as d3 from "d3v4";
-import * as $ from "jquery";
 
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
@@ -17,16 +16,7 @@ let lineDataSet = [
     { "id": "enlarged", "start": "2024-08-01", "end": "2024-09-30", "color": "rgb(31, 119, 80)" },
     { "id": "treatment", "start": "2024-10-01", "end": "2024-12-30", "color": "rgb(49, 163, 84)" }
 ];
-const episodeYMapping = {
-    "chemotherapy": 1,
-    "procedure": 3,
-    "intravenous administration": 5,
-    "reconstructions": 9,
-    "reduction": 15,
-    "mammoplasty": 19,
-    "enlarged": 21,
-    "treatment": 23
-};
+
 let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
@@ -67,8 +57,8 @@ export default class Timeline extends React.Component {
         const headers = lines[0].split("\t").map(h => h.trim()); // Trim headers
 
         const chemoCounts = {}; // Dictionary to track 'chemoText name' counts
-        const chemoSet = new Set(); // Set to track unique 'chemo_text' values
-        const tLinkSet = new Set();
+        // const chemoSet = new Set(); // Set to track unique 'chemo_text' values
+        // const tLinkSet = new Set();
 
         const data = lines.slice(1).map(line => {
             const values = line.split("\t"); // Split the line into columns by tab
@@ -76,14 +66,10 @@ export default class Timeline extends React.Component {
             const obj = headers.reduce((acc, header, index) => {
                 let value = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
 
-                if (header === "chemo_text") {
-                    value = value?.toLowerCase(); // Ensure lowercase for 'chemo_text'
-                    if (value) chemoSet.add(value); // Add to set if not empty
+                if (header === "chemo_text"){
+                    value = value.toLowerCase()
                 }
-                if (header === "tlink") {
-                    // console.log(value);
-                    if (value) tLinkSet.add(value);
-                }
+
                 acc[header] = value;
                 return acc;
             }, {});
@@ -96,8 +82,6 @@ export default class Timeline extends React.Component {
         });
         // Include chemoCounts inside the data array as an additional property
         data.chemoTextCounts = chemoCounts;
-        data.chemoText = Array.from(chemoSet);
-        data.tLink = Array.from(tLinkSet);
 
         return data; // Return data array with chemoCounts included
     };
@@ -125,35 +109,15 @@ export default class Timeline extends React.Component {
 
     transformTSVData = (data) => {
         return {
-            startDates: data.map(d => d.DCT),
+            startDates: data.map(d => d.start_date),
             patientId: data.map(d => d.patient_id),
-            chemoText: data.chemoText,
+            chemoText: data.map(d => d.chemo_text),
+            endDates: data.map(d => d.end_date),
             chemoTextCounts: data.chemoTextCounts,
-            chemoAnnotationId : data.map(d => d.chemo_annotation_id),
-            normedTimex : data.map(d => d.normed_timex),
-            timexAnnotationId : data.map(d => d.timex_annotation_id),
-            tLink : data.tLink,
-            tLinkInst: data.map(d => d.tlink_inst)
+            noteName : data.map(d => d.note_name),
+            tLink : data.map(d => d.tlink)
         };
     }
-
-// Example groupBy function (if you need one)
-//     groupBy = (arr, key) => {
-//         return arr.reduce((result, currentValue) => {
-//             // Get the key value (in this case, 'chemo_text')
-//             const groupKey = currentValue[key];
-//             // If the key doesn't exist in the result object, create a new array
-//             if (!result[groupKey]) {
-//                 result[groupKey] = [];
-//             }
-//             // Push the current value into the corresponding group
-//             result[groupKey].push(currentValue);
-//             return result;
-//         }, {});
-//     };
-
-
-
 
 
     async componentDidMount() {
@@ -173,12 +137,10 @@ export default class Timeline extends React.Component {
                 transformedData.startDates,
                 transformedData.patientId,
                 transformedData.chemoText,
+                transformedData.endDates,
                 transformedData.chemoTextCounts,
-                transformedData.chemoAnnotationId,
-                transformedData.normedTimex,
-                transformedData.timexAnnotationId,
-                transformedData.tLink,
-                transformedData.tLinkInst
+                transformedData.noteName,
+                transformedData.tLink
             );
         }
     }
@@ -189,333 +151,11 @@ export default class Timeline extends React.Component {
         startDates,
         patientId,
         chemoText,
+        endDates,
         chemoTextCounts,
-        chemoAnnotationId,
-        normedTimex,
-        timexAnnotationId,
-        tLink,
-        tLinkInst
+        noteName,
+        tLink
     ) => {
-
-        //next line might not belong
-        let factBasedReports = {};
-
-        function scrollToHighlightedTextMention(obj, reportText) {
-            // Highlight the selected term in the term list
-            const cssClass = "current_mentioned_term";
-            // First remove the previously added highlighting
-            // $('.report_mentioned_term').removeClass(cssClass);
-            $(".report_mentioned_term_1").removeClass(cssClass);
-            $(".report_mentioned_term_2").removeClass(cssClass);
-            $(".report_mentioned_term_3").removeClass(cssClass);
-            $(".report_mentioned_term_4").removeClass(cssClass);
-            // Then add to this current one by selecting the attributes
-            $(
-                'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
-            ).addClass(cssClass);
-
-            let reportTextDiv = $("#report_text");
-
-            let textMentions = [];
-
-            let textMentionObj = {};
-            textMentionObj.text = obj.term;
-            textMentionObj.beginOffset = obj.begin;
-            textMentionObj.endOffset = obj.end;
-
-            textMentions.push(textMentionObj);
-
-            // Highlight this term in the report text
-            let highlightedReportText = highlightTextMentions(
-                textMentions,
-                reportText
-            );
-
-            // Use html() for html rendering
-            reportTextDiv.html(highlightedReportText);
-
-            // Scroll to that position inside the report text div
-            // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
-            // 5 is position tweak
-            reportTextDiv.scrollTop(
-                reportTextDiv.scrollTop() + $(".highlighted_term").position().top - 5
-            );
-        }
-
-        // Highlight one or multiple text mentions
-        function highlightTextMentions(textMentions, reportText, term = "NONE") {
-            const cssClass = "highlighted_term";
-            const cssClassAll = "highlight_terms";
-
-            // console.log("======sorted textMentions======");
-
-            // Flatten the ranges, this is the key to solve overlapping
-            textMentions = flattenRanges(textMentions);
-
-            let textFragments = [];
-            let lastValidTMIndex = 0;
-
-            for (let i = 0; i < textMentions.length; i++) {
-                let textMention = textMentions[i];
-                let lastValidTM = textMentions[lastValidTMIndex];
-
-                // If this is the first textmention, paste the start of the document before the first TM.
-                if (i === 0) {
-                    if (textMention.beginOffset === 0) {
-                        textFragments.push("");
-                    } else {
-                        // console.log("Upper:", reportText.substring(0, textMention.beginOffset));
-                        textFragments.push(
-                            reportText.substring(0, textMention.beginOffset)
-                        );
-                    }
-                } else {
-                    // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-
-                    if (
-                        parseInt(textMention.beginOffset) <=
-                        parseInt(lastValidTM.endOffset)
-                    ) {
-                        lastValidTMIndex = i;
-                    } else {
-                        textFragments.push(
-                            reportText.substring(
-                                lastValidTM.endOffset,
-                                textMention.beginOffset
-                            )
-                        );
-                    }
-                }
-                if (textMention.text.indexOf(term) > -1) {
-                    textFragments.push(
-                        '<span class="' +
-                        cssClass +
-                        '">' +
-                        reportText.substring(
-                            textMention.beginOffset,
-                            textMention.endOffset
-                        ) +
-                        "</span>"
-                    );
-                } else {
-                    textFragments.push(
-                        '<span class="' +
-                        cssClassAll +
-                        '">' +
-                        reportText.substring(
-                            textMention.beginOffset,
-                            textMention.endOffset
-                        ) +
-                        "</span>"
-                    );
-                }
-
-                lastValidTMIndex = i;
-            }
-            // Push end of the document
-
-            textFragments.push(
-                reportText.substring(textMentions[lastValidTMIndex].endOffset)
-            );
-
-            // Assemble the final report content with highlighted texts
-            let highlightedReportText = "";
-
-            for (let j = 0; j < textFragments.length; j++) {
-                // console.log(textFragments[j]);
-                highlightedReportText += textFragments[j];
-            }
-            const e = new Event("change");
-            const element = document.querySelector(
-                'input[type=radio][name="sort_order"]'
-            );
-            element.dispatchEvent(e);
-
-            return highlightedReportText;
-        }
-
-        const variablesObj = {
-            topography_major: {
-                visible: false,
-                value: "",
-                bgcolor: "#cfe2ff",
-                mentions: [],
-            },
-            topography_minor: {
-                visible: false,
-                value: "",
-                bgcolor: "#cfe2ff",
-                mentions: [],
-            },
-            topography: {
-                visible: true,
-                value: "",
-                bgcolor: "#cfe2ff",
-                mentions: [],
-            },
-            histology: {
-                visible: false,
-                value: "",
-                bgcolor: "#f8d7da",
-                mentions: [],
-            },
-            behavior: {
-                visible: false,
-                value: "",
-                bgcolor: "#f8d7da",
-                mentions: [],
-            },
-            morphology: {
-                visible: true,
-                value: "",
-                bgcolor: "#f8d7da",
-                mentions: [],
-            },
-            laterality: {
-                visible: true,
-                value: "",
-                bgcolor: "#ffe69c",
-                mentions: [],
-            },
-            grade: {
-                visible: true,
-                value: "",
-                bgcolor: "#a3cfbb",
-                mentions: [],
-            },
-        };
-
-        function buildColorDistribution(textMention) {
-            let colorDistribution = [];
-            let increment = (100 / textMention.count).toFixed(2);
-
-            for (let i = 0; i < textMention.count; i++) {
-                let bgcolor = "highlight_terms";
-                let start = i > 0 ? i * increment + "%" : 0;
-                let finish =
-                    i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
-                colorDistribution.push(bgcolor + " " + start);
-                colorDistribution.push(bgcolor + " " + finish);
-            }
-
-            return colorDistribution;
-        }
-
-        function flattenRanges(ranges) {
-            // console.log("======input ranges======");
-            // console.log(ranges);
-
-            let points = [];
-            let flattened = [];
-            for (let i in ranges) {
-                if (ranges[i].endOffset < ranges[i].beginOffset) {
-                    //RE-ORDER THIS ITEM (BEGIN/END)
-                    let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
-                    ranges[i].endOffset = ranges[i].beginOffset;
-                    ranges[i].beginOffset = tmp;
-                }
-
-                points.push(ranges[i].beginOffset);
-                points.push(ranges[i].endOffset);
-            }
-
-            //MAKE SURE OUR LIST OF POINTS IS IN ORDER
-            points.sort(function (a, b) {
-                return a - b;
-            });
-
-            // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
-            // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
-            for (let i in points) {
-                if (i === 0 || points[i] === points[i - 1]) continue;
-                let includedRanges = ranges.filter(function (x) {
-                    return (
-                        Math.max(x.beginOffset, points[i - 1]) <
-                        Math.min(x.endOffset, points[i])
-                    );
-                });
-
-                if (includedRanges.length > 0) {
-                    let flattenedRange = {
-                        beginOffset: points[i - 1],
-                        endOffset: points[i],
-                        count: 0,
-                    };
-
-                    for (let j in includedRanges) {
-                        let includedRange = includedRanges[j];
-
-                        for (let prop in includedRange) {
-                            if (prop !== "beginOffset" && prop !== "endOffset") {
-                                if (!flattenedRange[prop]) flattenedRange[prop] = [];
-                                flattenedRange[prop].push(includedRange[prop]);
-                            }
-                        }
-
-                        flattenedRange.count++;
-                    }
-
-                    flattened.push(flattenedRange);
-                }
-            }
-
-            // console.log("======flattened ranges======");
-            // console.log(flattened);
-
-            return flattened;
-        }
-
-
-        function highlightAllMentions(mentionedTerms) {
-            let textMentions = [];
-            mentionedTerms = mentionedTerms.sort(function (a, b) {
-                return (
-                    parseInt(a.begin) - parseInt(b.begin) ||
-                    parseInt(a.end) - parseInt(b.end)
-                );
-            });
-
-            mentionedTerms.forEach(function (obj) {
-                //grabbing mention begin and end so that I can highlight each mention at the start
-                let textMentionObj = {};
-                textMentionObj.text = obj.term;
-                textMentionObj.beginOffset = obj.begin;
-                textMentionObj.endOffset = obj.end;
-                textMentionObj.mentionFrequency = obj.frequency;
-                //console.log(textMentionObj);
-                textMentions.push(textMentionObj);
-            });
-
-            return textMentions;
-        }
-
-
-
-        function highlightSelectedTimelineReport(reportId) {
-            // Remove previous added highlighting classes
-            const css = "selected_report";
-            $(".main_report").removeClass(css);
-            $(".overview_report").removeClass(css);
-
-            // Remove previous added font awesome icon
-            $(".selected_report_icon").remove();
-
-            // Highlight the selected circle in both overview and main areas
-            $("#main_" + reportId).addClass(css);
-            $("#overview_" + reportId).addClass(css);
-        }
-
-        function removeFactBasedHighlighting(reportId) {
-            $(".fact").removeClass("highlighted_fact");
-            $(".main_report").removeClass("fact_highlighted_report");
-            // Also remove the fact detail
-            $("#fact_detail").hide().html("").fadeIn("slow");
-        }
-
-        // function episode2CssClass(episode) {
-        //     return episode.replace(/\s+/g, "-").toLowerCase();
-        // }
-
         // Vertical count position of each report type
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
         // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
@@ -524,12 +164,47 @@ export default class Timeline extends React.Component {
         // This is used to decide the domain range of mainY and overviewY
         let totalMaxVerticalCounts = 0;
 
+        function createEventData(startDates, endDates, patientIds, chemoTexts) {
+            const eventData = [];
+
+            for (let i = 0; i < startDates.length; i++) {
+                eventData.push({
+                    start: startDates[i],
+                    end: endDates[i],
+                    patient_id: patientIds[i],
+                    chemo_text: chemoTexts[i],
+                    tLink: tLink[i]
+                });
+            }
+
+            return eventData;
+        }
+
+        function removeDuplicatesFromChemoAndTlink(){
+            //REMOVING DUPLICATES from chemo_text and TLink
+            const chemoTextSet = new Set();
+            const tLinkSet = new Set();
+
+
+            for (let i = 0; i < chemoText.length; i++){
+                chemoTextSet.add(chemoText[i]);
+            }
+            for (let i = 0; i < tLink.length; i++){
+                tLinkSet.add((tLink[i]));
+
+            }
+            chemoText = Array.from(chemoTextSet);
+            tLink = Array.from(tLinkSet);
+        }
+
         // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
         // to have a consistent report type order
         //console.log("reportTypes: " + reportTypes);
         //console.log("reportData: " + JSON.stringify(reportData));
+
+
         if (chemoText !== null) {
-            chemoText.forEach(function (key) {
+            new Set(chemoText).forEach(function (key) {
                 // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
                 totalMaxVerticalCounts += 1;
 
@@ -538,6 +213,8 @@ export default class Timeline extends React.Component {
                 }
             });
         }
+
+        // function getTotalMaxVerticalCounts()
 
         const margin = { top: 20, right: 20, bottom: 10, left: 250 };
         const mainChemoTextRowHeightPerCount = 16;
@@ -576,40 +253,37 @@ export default class Timeline extends React.Component {
         const textMargin = 10;
 
         // https://github.com/d3/d3-time-format#d3-time-format
-        const formatTime = d3.timeFormat("%Y-%m-%d");
-        const parseTime = d3.timeParse("%Y-%m-%d");
+        // const formatTime = d3.timeFormat("%Y-%m-%d");
+        // const parseTime = d3.timeParse("%Y-%m-%d");
+        const eventData = createEventData(startDates, endDates, patientId, chemoText);
+
 
         // Convert string to date
-        if (startDates !== null) {
-            // startDates.forEach(function (d) {
-                // Format the date to a human-readable string first, formatTime() takes Date object instead of string
-                // d.origTime.slice(0, 19) returns the time string without the time zone part.
-                // E.g., "2012/11/28" from "11/28/2012 01:00 AM AST"
-                // let formattedDateStr = formatTime(new Date(d.date));
-                // Then convert a string back to a date to be used by d3
+        if (eventData !== null) {
 
+            const minStartDate = new Date(startDates.reduce((min, date) => (new Date(date) < new Date(min) ? date : min)));
+            const maxEndDate = new Date(endDates.reduce((max, date) => (new Date(date) > new Date(max) ? date : max)));
 
-                // d.formattedDate = parseTime(formattedDateStr);
-            // });
+            let mainX = d3
+                .scaleTime()
+                .domain([minStartDate, maxEndDate])
+                .range([0, width]);
 
-            // The earliest report date
-            // let xMinDate = d3.min(reportData, function (d) {
-            //     return d.formattedDate;
-            // });
-            // let startDate = parseTime("2012-04-24")
-            // let endDate = parseTime("2012-07-24")
-            let startDate = new Date("2024-01-01");  // Make sure the start date is a Date object
-            let endDate = new Date("2024-12-31");
-            // console.log(startDate, endDate)
+            eventData.forEach(function (d) {
+                const startDate = new Date(d.start);
+                const endDate = new Date(d.end);
+
+                d.formattedStartDate = mainX(startDate);
+                d.formattedEndDate = mainX(endDate);
+                // console.log(d.formattedStartDate, d.formattedEndDate);
+            });
+
+            removeDuplicatesFromChemoAndTlink();
+
 
             // Set the start date of the x axis 10 days before the xMinDate
             // let startDate = new Date(xMinDate);
             // startDate.setDate(startDate.getDate() - numOfDays);
-
-            // The latest report date
-            // let xMaxDate = d3.max(reportData, function (d) {
-            //     return d.formattedDate;
-            // });
 
             // Set the end date of the x axis 10 days after the xMaxDate
             // let endDate = new Date(xMaxDate);
@@ -623,6 +297,7 @@ export default class Timeline extends React.Component {
 
             // This is all the possible episodes, each patient may only have some of these
             // we'll need to render the colors consistently across patients
+            // TODO: Replace this with TLink
             let allEpisodes = [
                 "Pre-diagnostic",
                 "Diagnostic",
@@ -651,18 +326,11 @@ export default class Timeline extends React.Component {
                 .duration(transitionDuration)
                 .ease(d3.easeLinear);
 
-            console.log('Start Date', startDate)
-            console.log('End Date', endDate)
             // Main area and overview area share the same width
-            let mainX = d3
-                .scaleTime()
-                .domain([startDate, endDate])
-                .range([0, width]);
-
 
             let overviewX = d3
                 .scaleTime()
-                .domain([startDate, endDate])
+                .domain([minStartDate, maxEndDate])
                 .range([0, width]);
 
             // Y scale to handle main area
@@ -957,8 +625,6 @@ export default class Timeline extends React.Component {
                     ")"
                 );
 
-            console.log(main);
-
             // Encounter ages
             let age = svg
                 .append("g")
@@ -995,6 +661,7 @@ export default class Timeline extends React.Component {
                     ")"
                 );
 
+            // TODO: This needs to change to getReportLinePostionY
             let getReportCirclePositionY = function (
                 d,
                 yScaleCallback,
@@ -1028,6 +695,13 @@ export default class Timeline extends React.Component {
                 //     );
                 // }
             };
+
+
+
+            // let getReportLinPositionY = function (
+            //     d,
+            //
+            // )
 
             // Episode interval spans
             // let focusEpisode = function (episode) {
@@ -1083,35 +757,45 @@ export default class Timeline extends React.Component {
             //     return minX + ((new Date(date) - startDate) / totalDuration) * svgWidth;
             // }
 
-            function idToX(id, dataSet, scale) {
-                let entry = dataSet.find(d => d.id === id);
-                if (!entry) return null;
+            // function idToX(id, dataSet, scale) {
+            //     let entry = dataSet.find(d => d.id === id);
+            //     if (!entry) return null;
+            //
+            //     // Convert the start date to a Date object
+            //     const startDate = new Date(entry.start);
+            //
+            //     if (isNaN(startDate)) {
+            //         console.error(`Invalid start date: ${entry.start}`);
+            //         return null;
+            //     }
+            //
+            //     return scale(startDate); // Now using a Date object
+            // }
 
-                // Convert the start date to a Date object
-                const startDate = new Date(entry.start);
-
-                if (isNaN(startDate)) {
-                    console.error(`Invalid start date: ${entry.start}`);
-                    return null;
+            // function idToX2(id, dataSet, scale) {
+            //     let entry = dataSet.find(d => d.id === id);
+            //     if (!entry) return null;
+            //
+            //     // Convert the end date to a Date object
+            //     const endDate = new Date(entry.end);
+            //
+            //     if (isNaN(endDate)) {
+            //         console.error(`Invalid end date: ${entry.end}`);
+            //         return null;
+            //     }
+            //
+            //     return scale(endDate); // Now using a Date object
+            // }
+            function getProcedureY(label, chemoText, verticalPositions, mainY) {
+                const found = chemoText.find(d => d === label);
+                if (found) {
+                    return mainY(verticalPositions[found] - 1 /2);
                 }
-
-                return scale(startDate); // Now using a Date object
+                return null; // Return null if not found
             }
 
-            function idToX2(id, dataSet, scale) {
-                let entry = dataSet.find(d => d.id === id);
-                if (!entry) return null;
-
-                // Convert the end date to a Date object
-                const endDate = new Date(entry.end);
-
-                if (isNaN(endDate)) {
-                    console.error(`Invalid end date: ${entry.end}`);
-                    return null;
-                }
-
-                return scale(endDate); // Now using a Date object
-            }
+            const yCoord = getProcedureY("procedure", chemoText, verticalPositions, mainY);
+            console.log(yCoord);
 
 
             // Mian report type divider lines
@@ -1153,8 +837,11 @@ export default class Timeline extends React.Component {
                 .attr("dy", ".5ex")
                 .attr("class", "report_type_label");
 
+
             // Report dots in main area
             // Reference the clipping path that shows the report dots
+            const colorScale = d3.scaleOrdinal(d3.schemeCategory10); // D3 provides color schemes
+
             let mainReports = main
                 .append("g")
                 .attr("clip-path", "url(#main_area_clip)");
@@ -1162,7 +849,7 @@ export default class Timeline extends React.Component {
             // Report circles in main area
             mainReports
                 .selectAll(".main_report")
-                .data(lineDataSet)
+                .data(eventData)
                 .enter()
                 .append("g")
                 .append("line")
@@ -1175,31 +862,30 @@ export default class Timeline extends React.Component {
                 // })
                 .attr("data-episode", function (d) {
                     // For debugging
+                    // console.log(d);
+                    // console.log(d.color);
+                    // console.log(verticalPositions[d.id] * 16)
                     console.log(d);
-                    console.log(d.color);
-                    console.log(verticalPositions[d.id] * 16)
                     return d.id;
                 })
                 .attr("x1", function (d) {
-                    return idToX(d.id, lineDataSet, mainX); // Convert the start date to x1
+                    return d.formattedStartDate; // Convert the start date to x1
                 })
                 .attr("x2", function (d) {
-                    return idToX2(d.id, lineDataSet, mainX); // Convert the end date to x2
+                    return d.formattedEndDate; // Convert the end date to x2
                 })
                 .attr("y1", function (d) {
-                    const y1 = episodeYMapping[d.id] * 16 || 200;
                     // console.log(`y1 for ${d.id}:`, y1); // Log the y1 value
-                    return y1;
+                    return getProcedureY(d.chemo_text, chemoText, verticalPositions, mainY);
                 })
                 .attr("y2", function (d) {
-                    const y2 = episodeYMapping[d.id] * 16 || 200;
                     // console.log(`y2 for ${d.id}:`, y2); // Log the y2 value
-                    return y2;
+                    return getProcedureY(d.chemo_text, chemoText, verticalPositions, mainY);
                 })
                 // .style("fill", function (d) {
                 //     return color(d.episode);
                 // })
-                .attr("stroke", d=> d.color)
+                .attr("stroke", (d, i) => colorScale(i))
                 .attr("stroke-width", 3);
                 // .on("click", function (d) {
                 //     $("#docs").show();
@@ -1249,7 +935,7 @@ export default class Timeline extends React.Component {
 
             // Patient's first and last encounter dates and corresponding ages
             // We use the dates to render x position
-            let encounterDates = [startDate, endDate];
+            let encounterDates = [minStartDate, maxEndDate];
             // We use the calculated ages to render the text of age
             let encounterAges = [
                 53,
