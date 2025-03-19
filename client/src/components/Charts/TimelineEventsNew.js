@@ -173,7 +173,8 @@ export default class Timeline extends React.Component {
                     end: endDates[i],
                     patient_id: patientIds[i],
                     chemo_text: chemoTexts[i],
-                    tLink: tLink[i]
+                    tLink: tLink[i],
+                    noteName: noteName[i]
                 });
             }
 
@@ -255,7 +256,7 @@ export default class Timeline extends React.Component {
         // https://github.com/d3/d3-time-format#d3-time-format
         // const formatTime = d3.timeFormat("%Y-%m-%d");
         // const parseTime = d3.timeParse("%Y-%m-%d");
-        const eventData = createEventData(startDates, endDates, patientId, chemoText);
+        const eventData = createEventData(startDates, endDates, patientId, chemoText, noteName);
 
 
         // Convert string to date
@@ -530,7 +531,6 @@ export default class Timeline extends React.Component {
                 d3.select("#main_area_clip rect")
                     .attr("width", 2000)
                     .attr("height", 2000);
-                console.log("Forced ClipPath Update:", d3.select("#main_area_clip rect").attr("height"));
             }, 100);
 
 
@@ -795,8 +795,6 @@ export default class Timeline extends React.Component {
             }
 
             const yCoord = getProcedureY("procedure", chemoText, verticalPositions, mainY);
-            console.log(yCoord);
-
 
             // Mian report type divider lines
             // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
@@ -863,9 +861,6 @@ export default class Timeline extends React.Component {
                 .attr("data-episode", function (d) {
                     // For debugging
                     // console.log(d);
-                    // console.log(d.color);
-                    // console.log(verticalPositions[d.id] * 16)
-                    console.log(d);
                     return d.id;
                 })
                 .attr("x1", function (d) {
@@ -886,25 +881,25 @@ export default class Timeline extends React.Component {
                 //     return color(d.episode);
                 // })
                 .attr("stroke", (d, i) => colorScale(i))
-                .attr("stroke-width", 3);
-                // .on("click", function (d) {
-                //     $("#docs").show();
-                //     // Check to see if this report is one of the fact-based reports that are being highlighted
-                //     // d.id has no prefix, just raw id
-                //     if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
-                //         // Remove the fact related highlighting
-                //         removeFactBasedHighlighting(d.id);
-                //     }
-                //
-                //     // Highlight the selected report circle with solid fill and thicker stroke
-                //     highlightSelectedTimelineReport(d.id);
-                //
-                //     // And show the report content
-                //     $("#report_instance").show();
-                //     that.setReportId(d.id);
-                //     //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
-                //     //that.getReport(d.id, "", that.patientJson);
-                // });
+                .attr("stroke-width", 3)
+                .on("click", function (d) {
+                    let clickedId = d.noteName;
+                    if (clickedId) {
+                        // Find all circles with the same noteName
+                        let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+                        // Toggle the highlighted state
+                        matchingCircles.forEach(circle => {
+                            // Toggle the selected-report class
+                            if (circle.classList.contains("selected_report")) {
+                                // If the circle already has the class, remove it
+                                circle.classList.remove("selected_report");
+                            } else {
+                                // If the circle doesn't have the class, add it
+                                circle.classList.add("selected_report");
+                            }
+                        });
+                    }
+                });
 
 
             // Main area x axis
