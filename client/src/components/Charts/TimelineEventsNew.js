@@ -265,6 +265,9 @@ export default class Timeline extends React.Component {
             const minStartDate = new Date(startDates.reduce((min, date) => (new Date(date) < new Date(min) ? date : min)));
             const maxEndDate = new Date(endDates.reduce((max, date) => (new Date(date) > new Date(max) ? date : max)));
 
+            minStartDate.setDate(minStartDate.getDate() - 10);
+            maxEndDate.setDate(maxEndDate.getDate() + 10);
+
             let mainX = d3
                 .scaleTime()
                 .domain([minStartDate, maxEndDate])
@@ -276,50 +279,27 @@ export default class Timeline extends React.Component {
 
                 d.formattedStartDate = mainX(startDate);
                 d.formattedEndDate = mainX(endDate);
-                // console.log(d.formattedStartDate, d.formattedEndDate);
             });
 
             removeDuplicatesFromChemoAndTlink();
 
-
-            // Set the start date of the x axis 10 days before the xMinDate
-            // let startDate = new Date(xMinDate);
-            // startDate.setDate(startDate.getDate() - numOfDays);
-
-            // Set the end date of the x axis 10 days after the xMaxDate
-            // let endDate = new Date(xMaxDate);
-            // endDate.setDate(endDate.getDate() + numOfDays);
-
-            // Get the index position of target element in the reportTypes array
-            // Need this to position the circles in mainY
-            // let getIndex = function (element) {
-            //     return reportTypes.indexOf(element);
-            // };
-
-            // This is all the possible episodes, each patient may only have some of these
-            // we'll need to render the colors consistently across patients
-            // TODO: Replace this with TLink
-            let allEpisodes = [
-                "Pre-diagnostic",
-                "Diagnostic",
-                "Medical Decision-making",
-                "Treatment",
-                "Follow-up",
-                "Unknown",
+            let tLinkLabels = [
+                "before",
+                "after",
+                "contains",
+                "overlap",
+                "contained-by"
             ];
 
-            // Color categories for types of episodes
-            // https://bl.ocks.org/pstuffa/3393ff2711a53975040077b7453781a9
-            let episodeColors = [
+            let tLinkColors = [
                 "rgb(49, 130, 189)",
                 "rgb(230, 85, 13)",
                 "rgb(49, 163, 84)",
                 "rgb(140, 86, 75)",
-                "rgb(117, 107, 177)",
-                "rgb(99, 99, 99)",
+                "rgb(117, 107, 177)"
             ];
 
-            let color = d3.scaleOrdinal().domain(allEpisodes).range(episodeColors);
+            let color = d3.scaleOrdinal().domain(tLinkLabels).range(tLinkColors);
 
             // Transition used by focus/defocus episode
             let transt = d3
@@ -529,6 +509,8 @@ export default class Timeline extends React.Component {
 
             setTimeout(() => {
                 d3.select("#main_area_clip rect")
+                    .transition()
+                    .duration(500)
                     .attr("width", 2000)
                     .attr("height", 2000);
             }, 100);
@@ -838,8 +820,6 @@ export default class Timeline extends React.Component {
 
             // Report dots in main area
             // Reference the clipping path that shows the report dots
-            const colorScale = d3.scaleOrdinal(d3.schemeCategory10); // D3 provides color schemes
-
             let mainReports = main
                 .append("g")
                 .attr("clip-path", "url(#main_area_clip)");
@@ -860,7 +840,8 @@ export default class Timeline extends React.Component {
                 // })
                 .attr("data-episode", function (d) {
                     // For debugging
-                    // console.log(d);
+                    console.log(d);
+
                     return d.id;
                 })
                 .attr("x1", function (d) {
@@ -880,7 +861,7 @@ export default class Timeline extends React.Component {
                 // .style("fill", function (d) {
                 //     return color(d.episode);
                 // })
-                .attr("stroke", (d, i) => colorScale(i))
+                .attr("stroke", d => color(d.tLink))
                 .attr("stroke-width", 3)
                 .on("click", function (d) {
                     let clickedId = d.noteName;
