@@ -107,7 +107,7 @@ export default function Deepphe({ ...rest }) {
         ) : (
           <div className={classes.map}>{switchRoutes}</div>
         )}
-        {getRoute() ? <Footer /> : null}
+        {getRoute()}
         <FixedPlugin
           handleImageClick={handleImageClick}
           handleColorClick={handleColorClick}

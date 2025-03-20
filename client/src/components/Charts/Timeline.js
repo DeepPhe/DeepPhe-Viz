@@ -977,64 +977,121 @@ export default class Timeline extends React.Component {
 
         // Report dots in main area
         // Reference the clipping path that shows the report dots
-        let mainReports = main
-          .append("g")
-          .attr("clip-path", "url(#main_area_clip)");
-        const that = this;
+        // let mainReports = main
+        //   .append("g")
+        //   .attr("clip-path", "url(#main_area_clip)");
+        // const that = this;
+
+
+        setTimeout(() => {
+          // Your code that renders the data points or calls a function
+          let mainReports = main
+              .append("g")
+              .attr("clip-path", "url(#main_area_clip)");
+          const that = this;
+          mainReports
+              .selectAll(".main_report")
+              .data(reportData)
+              .enter()
+              .append("g")
+              .append("circle")
+              .attr("class", function (d) {
+                return "main_report " + episode2CssClass(d.episode);
+              })
+              .attr("id", function (d) {
+                return "main_" + d.id;
+              })
+              .attr("data-episode", function (d) {
+                return d.episode;
+              })
+              .attr("r", reportMainRadius)
+              .attr("cx", function (d) {
+                return mainX(d.formattedDate);
+              })
+              .attr("cy", function (d) {
+                return getReportCirclePositionY(
+                    d,
+                    mainY,
+                    mainReportTypeRowHeightPerCount
+                );
+              })
+              .style("fill", function (d) {
+                return color(d.episode);
+              })
+              .style("stroke", function (d) {
+                return color(d.episode);
+              })
+              .on("click", function (d) {
+                $("#docs").show();
+                if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
+                  removeFactBasedHighlighting(d.id);
+                }
+                highlightSelectedTimelineReport(d.id);
+                $("#report_instance").show();
+                that.setReportId(d.id);
+              });
+        }, 100); // Delay execution for 200ms
         // Report circles in main area
-        mainReports
-          .selectAll(".main_report")
-          .data(reportData)
-          .enter()
-          .append("g")
-          .append("circle")
-          .attr("class", function (d) {
-            return "main_report " + episode2CssClass(d.episode);
-          })
-          .attr("id", function (d) {
-            // Prefix with "main_"
-            return "main_" + d.id;
-          })
-          .attr("data-episode", function (d) {
-            // For debugging
-            return d.episode;
-          })
-          .attr("r", reportMainRadius)
-          .attr("cx", function (d) {
-            return mainX(d.formattedDate);
-          })
-          // Vertically spread the dots with same time
-          .attr("cy", function (d) {
-            return getReportCirclePositionY(
-              d,
-              mainY,
-              mainReportTypeRowHeightPerCount
-            );
-          })
-          .style("fill", function (d) {
-            return color(d.episode);
-          })
-          .style("stroke", function (d) {
-            return color(d.episode);
-          })
-          .on("click", function (d) {
-            $("#docs").show();
-            // Check to see if this report is one of the fact-based reports that are being highlighted
-            // d.id has no prefix, just raw id
-            if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
-              // Remove the fact related highlighting
-              removeFactBasedHighlighting(d.id);
-            }
+        // mainReports
+        //   .selectAll(".main_report")
+        //   .data(reportData)
+        //   .enter()
+        //   .append("g")
+        //   .append("circle")
+        //   .attr("class", function (d) {
+        //     return "main_report " + episode2CssClass(d.episode);
+        //   })
+        //   .attr("id", function (d) {
+        //     // Prefix with "main_"
+        //     return "main_" + d.id;
+        //   })
+        //   .attr("data-episode", function (d) {
+        //     // For debugging
+        //     return d.episode;
+        //   })
+        //   .attr("r", reportMainRadius)
+        //   .attr("cx", function (d) {
+        //     return mainX(d.formattedDate);
+        //   })
+        //   // Vertically spread the dots with same time
+        //   .attr("cy", function (d) {
+        //     return getReportCirclePositionY(
+        //       d,
+        //       mainY,
+        //       mainReportTypeRowHeightPerCount
+        //     );
+        //   })
+        //   .style("fill", function (d) {
+        //     return color(d.episode);
+        //   })
+        //   .style("stroke", function (d) {
+        //     return color(d.episode);
+        //   })
+        //   .on("click", function (d) {
+        //     $("#docs").show();
+        //     // Check to see if this report is one of the fact-based reports that are being highlighted
+        //     // d.id has no prefix, just raw id
+        //     if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
+        //       // Remove the fact related highlighting
+        //       removeFactBasedHighlighting(d.id);
+        //     }
+        //
+        //     // Highlight the selected report circle with solid fill and thicker stroke
+        //     highlightSelectedTimelineReport(d.id);
+        //
+        //     // And show the report content
+        //     $("#report_instance").show();
+        //     that.setReportId(d.id);
+        //     //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
+        //     //that.getReport(d.id, "", that.patientJson);
+        //   });
 
-            // Highlight the selected report circle with solid fill and thicker stroke
-            highlightSelectedTimelineReport(d.id);
+        // const element = d3.select("g");  // or select the specific element you want
+        //
+        // const bbox = element.node().getBoundingClientRect();
+        // console.log("Width:", bbox.width);
+        // console.log("Height:", bbox.height);
 
-            // And show the report content
-            $("#report_instance").show();
-            that.setReportId(d.id);
-            //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
-            //that.getReport(d.id, "", that.patientJson);
-          });
 
         // Main area x axis
         // https://github.com/d3/d3-axis#axisBottom
