@@ -374,6 +374,63 @@ export default class Timeline extends React.Component {
                 return episodeLegendAnchorPositionX + legendSpacing + x;
             };
 
+            const semanticGroups = [
+
+                // Severity
+                { name: 'Behavior', group: 'orange' },
+                { name: 'Disease Stage Qualifier', group: 'orange' },
+                { name: 'Disease Grade Qualifier', group: 'orange' },
+                { name: 'Temporal Qualifier', group: 'orange' },
+                { name: 'Severity', group: 'orange' },
+                { name: 'Pathologic TNM Finding', group: 'orange' },
+                { name: 'Generic TNM Finding', group: 'orange' },
+
+                // Qualifier
+                { name: 'Disease Qualifier', group: 'yellow' },
+                { name: 'Property or Attribute', group: 'yellow' },
+                { name: 'General Qualifier', group: 'yellow' },
+                { name: 'Clinical Course of Disease', group: 'yellow' },
+                { name: 'Pathologic Process', group: 'yellow' },
+                { name: 'Quantitative Concept', group: 'yellow' },
+                { name: 'Position', group: 'yellow' },
+                // search: colon
+                // Site ----- --- ----  -----
+                // colon ----     ----
+                // combine contained-by with overlap
+
+                // Site
+                { name: 'Lymph Node', group: 'blue' },
+                { name: 'Body Part', group: 'blue' },
+                { name: 'Body Fluid or Substance', group: 'blue' },
+                { name: 'Side', group: 'blue' },
+                { name: 'Spatial Qualifier', group: 'blue' },
+                { name: 'Tissue', group: 'blue' },
+
+
+                // Finding
+                { name: 'Finding', group: 'pink' },
+                { name: 'Clinical Test Result', group: 'pink' },
+                { name: 'Gene', group: 'pink' },
+                { name: 'Gene Product', group: 'pink' },
+
+                // Disease
+                { name: 'Disease or Disorder', group: 'green' },
+                { name: 'Neoplasm', group: 'green' },
+                { name: 'Mass', group: 'green' },
+
+                // Treatment
+                { name: 'Pharmacologic Substance', group: 'purple' },
+                { name: 'Chemo/immuno/hormone Therapy Regimen', group: 'purple' },
+                { name: 'Intervention or Procedure', group: 'purple' },
+                { name: 'Imaging Device', group: 'purple' },
+
+                // Postion
+
+
+                // Other
+                { name: 'Unknown', group: 'grey' },
+            ];
+
             let episodeLegendGrp = svg
                 .append("g")
                 .attr("class", "episode_legend_group")
@@ -406,19 +463,29 @@ export default class Timeline extends React.Component {
                 .attr("class", "episode_legend");
 
             episodeLegend
-                .append("circle")
-                .attr("class", "episode_legend_circle")
-                .attr("cx", function (d, i) {
-                    return episodeLegendX(i);
+                .append("path")
+                .attr("class", "episode_legend_arrow")
+                .attr("d", function (d) {
+                    if (d.includes("contains")) {
+                        return "M 3 0 L 3 12 M 9 0 L 9 12"; // Two parallel vertical lines
+                    } else if (d === "before") {
+                        return "M 12 0 L 0 6 L 12 12"; // Left arrow <
+                    } else if (d === "contained-by") {
+                        return "M 14 0 L 8 6 L 14 12 M -2 0 L 4 6 L -2 12"; // Two arrows facing each other (><)
+                    } else {
+                        return "M 0 0 L 12 6 L 0 12"; // Right arrow >
+                    }
                 })
-                .attr("cy", 6)
-                .attr("r", reportMainRadius)
+                .attr("transform", function (d, i) {
+                    return `translate(${episodeLegendX(i) - 6}, 0)`; // Adjust positioning
+                })
                 .style("fill", function (d) {
                     return color(d);
                 })
                 .style("stroke", function (d) {
                     return color(d);
                 })
+                .style("stroke-width", 2)  // Make lines a bit thicker for visibility
                 // .on("click", function (d) {
                 //     // Toggle (hide/show reports of the clicked episode)
                 //     let nodes = d3.selectAll("." + episode2CssClass(d));
