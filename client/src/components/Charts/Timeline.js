@@ -48,7 +48,7 @@ export default class Timeline extends React.Component {
     let url = this.getUrl(this.props.patientId);
     const processTimelineResponse = (response) => {
       this.setState({ json: response });
-      console.log(response);
+      // console.log(response);
       renderTimeline(
         this.svgContainerId,
         response.patientInfo,
@@ -415,7 +415,7 @@ export default class Timeline extends React.Component {
         });
       }
 
-      const margin = { top: 20, right: 20, bottom: 10, left: 250 };
+      const margin = { top: 20, right: 20, bottom: 10, left: 200 };
       const mainReportTypeRowHeightPerCount = 16;
       const overviewReportTypeRowHeightPerCount = 3;
 

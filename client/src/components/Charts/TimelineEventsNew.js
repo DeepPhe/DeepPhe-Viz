@@ -4,7 +4,6 @@ import * as d3 from "d3v4";
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
 let initialHighlightedDoc = "";
-let mentionedTerms = "";
 let dpheTerms = "";
 let lineDataSet = [
     { "id": "chemotherapy", "start": "2024-01-01", "end": "2024-03-01", "color": "rgb(140, 86, 75)" },
@@ -70,7 +69,7 @@ const chemoTextGroups = {
         'unknown': 'Other'
 };
 
-
+let mentionedTerms = "";
 let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
@@ -150,6 +149,7 @@ export default class Timeline extends React.Component {
                 tLinkCounts[tlinkValue] = (tLinkCounts[tlinkValue] || 0) + 1;
             }
 
+
             return obj;
         });
         // Include chemoCounts inside the data array as an additional property
@@ -192,6 +192,7 @@ export default class Timeline extends React.Component {
             chemoTextCounts: data.chemoTextCounts,
             tLinkCounts: data.tLinkCounts,
             noteName : data.map(d => d.note_name),
+            mentionName : data.map(d => d.mention_id),
             tLink : data.map(d => d.tlink)
         };
     }
@@ -220,6 +221,7 @@ export default class Timeline extends React.Component {
                 transformedData.chemoTextCounts,
                 transformedData.tLinkCounts,
                 transformedData.noteName,
+                transformedData.mentionName,
                 transformedData.tLink
             );
         }
@@ -237,6 +239,7 @@ export default class Timeline extends React.Component {
         chemoTextCounts,
         tLinkCounts,
         noteName,
+        mentionName,
         tLink
     ) => {
         // Vertical count position of each report type
@@ -300,14 +303,14 @@ export default class Timeline extends React.Component {
             });
         }
 
-        const margin = { top: 20, right: 20, bottom: 10, left: 250 };
+        const margin = { top: 20, right: 20, bottom: 10, left: 120 };
         const mainChemoTextRowHeightPerCount = 16;
         const overviewChemoTextRowHeightPerCount = 3;
 
         const legendHeight = 22;
         const legendSpacing = 2;
         const widthPerLetter = 12;
-        const episodeLegendAnchorPositionX = 60;
+        const episodeLegendAnchorPositionX = 40;
         const episodeLegendAnchorPositionY = 6;
 
         const gapBetweenlegendAndMain = 5;
@@ -440,19 +443,22 @@ export default class Timeline extends React.Component {
                     margin.bottom
                 );
 
-            // Dynamically calculate the x posiiton of each legend rect
+            let labelPadding = 10; // Minimum space
+            let extraPadding = 4; // Additional space per character
+
             let episodeLegendX = function (index) {
-                let x = 10;
+                let x = 30;
 
                 for (let i = 0; i < index; i++) {
-                    // Remove white spaces and hyphens, treat the string as one single word
-                    // this yeilds a better (still not perfect) calculation of the x
                     let processedEpisodeStr = tLink[i].replace(/-|\s/g, "");
-                    x += processedEpisodeStr.length * widthPerLetter + i * (reportMainRadius * 2 + legendSpacing);
+                    let textWidth = processedEpisodeStr.length * widthPerLetter;
+                    let dynamicSpacing = labelPadding + (processedEpisodeStr.length * extraPadding);
+                    x += textWidth + dynamicSpacing;
                 }
 
                 return episodeLegendAnchorPositionX + legendSpacing + x;
             };
+
 
 
 
@@ -486,7 +492,7 @@ export default class Timeline extends React.Component {
                 .enter()
                 .append("g")
                 .attr("class", "episode_legend")
-                .attr("transform", (d, i) => `translate(${i * 10}, 0)`); // Fixed spacing
+                .attr("transform", (d, i) => `translate(${episodeLegendX(i)}, 0)`);
 
             episodeLegend
                 .append("path")
@@ -507,63 +513,22 @@ export default class Timeline extends React.Component {
                         return "M 0 0 L 12 6 L 0 12"; // Right arrow >
                     }
                 })
-                .attr("transform", function (d, i) {
-                    return `translate(${episodeLegendX(i) - 6}, 0)`; // Adjust positioning
-                })
+                .attr("transform", "translate(-18, 0)") // Shift arrow left of text
                 .style("fill", function (d) {
                     return color(d);
                 })
                 .style("stroke", function (d) {
                     return color(d);
                 })
-                .style("stroke-width", 2)  // Make lines a bit thicker for visibility
-                // .on("click", function (d) {
-                //     // Toggle (hide/show reports of the clicked episode)
-                //     let nodes = d3.selectAll("." + episode2CssClass(d));
-                //     nodes.each(function () {
-                //         let node = d3.select(this);
-                //         node.classed("hide", !node.classed("hide"));
-                //     });
-                //
-                //     // Also toggle the episode legend look
-                //     let legendCircle = d3.select(this);
-                //     let cssClass = "selected_episode_legend_circle";
-                //     legendCircle.classed(cssClass, !legendCircle.classed(cssClass));
-                // });
+                .style("stroke-width", 2);
 
             // Legend label text
             episodeLegend
                 .append("text")
-                .attr("x", function (d, i) {
-                    return reportMainRadius * 2 + legendSpacing + episodeLegendX(i);
-                })
+                .attr("x", 0)
                 .attr("y", 10)
                 .attr("class", "episode_legend_text")
-                .text(function (d) {
-                    return d + "("+ tLinkCounts[d] + ")";
-                })
-                // .on("click", function (d, i) {
-                //     // Toggle
-                //     let legendText = d3.select(this);
-                //     let cssClass = "selected_episode_legend_text";
-                //
-                //     if (legendText.classed(cssClass)) {
-                //         legendText.classed(cssClass, false);
-                //
-                //         // Reset to show all
-                //         defocusEpisode();
-                //     } else {
-                //         // Remove previously added class on other legend text
-                //         $(".episode_legend_text").removeClass(cssClass);
-                //
-                //         legendText.classed(cssClass, true);
-                //
-                //         // episodeSpansData maintains the same order of episodes as the episodes array
-                //         // so we can safely use i to get the corresponding startDate and endDate
-                //         let episodeSpanObj = episodeSpansData[i];
-                //         focusEpisode(episodeSpanObj);
-                //     }
-                // });
+                .text(d => `${d} (${tLinkCounts[d]})`);
 
             // Specify a specific region of an element to display, rather than showing the complete area
             // Any parts of the drawing that lie outside of the region bounded by the currently active clipping path are not drawn.
@@ -864,32 +829,6 @@ export default class Timeline extends React.Component {
                 .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
                 .style("fill", "rgb(49, 130, 189)");
 
-            // // Invisible clickable area for right arrow (inside defs)
-            // defs.append("rect")
-            //     .attr("id", "rightArrowClickable")
-            //     .attr("refX", 0)  // Position of the clickable area
-            //     .attr("refY", 6)
-            //     .attr("width", 24)  // Width of the clickable area
-            //     .attr("height", 24)  // Height of the clickable area
-            //     .style("fill", "red")  // Make the rectangle invisible
-            //     .on("click", function(event) {
-            //         console.log("Right arrow clicked!");
-            //         // Trigger your desired logic here
-            //     });
-            //
-            // // Invisible clickable area for left arrow (inside defs)
-            // defs.append("rect")
-            //     .attr("id", "leftArrowClickable")
-            //     .attr("refX", 10)  // Position of the clickable area
-            //     .attr("refY", 6)
-            //     .attr("width", 24)  // Width of the clickable area
-            //     .attr("height", 24)  // Height of the clickable area
-            //     .style("fill", "red")  // Make the rectangle invisible
-            //     .on("click", function(event) {
-            //         console.log("Left arrow clicked!");
-            //         // Trigger your desired logic here
-            //     });
-
 
             let mainReports = main
                 .append("g")
@@ -918,7 +857,7 @@ export default class Timeline extends React.Component {
                         .attr("stroke-width", 5)
                         .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
                         .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-                        .on("click", handleClick);
+                        .on("click", (event) => handleClick(event, d));
 
                     // If start and end are the same, ensure arrow is clickable
                     if (x1 === x2) {
@@ -942,280 +881,67 @@ export default class Timeline extends React.Component {
                                 .style("cursor", "pointer")
                                 .on("click", (event) => handleClick(event, d));                         }
                     }
+
+
+                    // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
+                    if (d.tLink === "contains") {
+                        // Vertical line at x1
+                        group.append("line")
+                            .attr("class", "main_report_contains")
+                            .attr("x1", x1)
+                            .attr("x2", x1)
+                            .attr("y1", y - 10) // Extends above
+                            .attr("y2", y + 10) // Extends below
+                            .attr("stroke", color(d.tLink))
+                            .attr("stroke-width", 3)
+                            .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            .on("click", (event) => handleClick(event, d));
+
+                        // Vertical line at x2
+                        group.append("line")
+                            .attr("class", "main_report_contains")
+                            .attr("x1", x2)
+                            .attr("x2", x2)
+                            .attr("y1", y - 10) // Extends above
+                            .attr("y2", y + 10) // Extends below
+                            .attr("stroke", color(d.tLink))
+                            .attr("stroke-width", 3)
+                            .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            .on("click", (event) => handleClick(event, d));
+                    }
                 });
 
-// Click handler function
+            // Click handler function
             function handleClick(event, d) {
                 let clickedId = d.noteName;
-                console.log("hell");
-                console.log(d);
                 if (clickedId) {
                     console.log(clickedId);
                     let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+
                     matchingCircles.forEach(circle => {
-                        circle.classList.toggle("selected_report");
+                        // Toggle the class on the existing circle
+                        // circle.classList.toggle("selected_report");
+
+                        // Check if an outline circle already exists
+                        let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
+
+                        if (existingOutline) {
+                            existingOutline.remove(); // Remove it if it already exists
+                        } else {
+                            // Create a new outline circle
+                            let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
+                            outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
+                            outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6); // Slightly larger radius
+                            outlineCircle.setAttribute("class", "selected_report_temporal");
+                            outlineCircle.setAttribute("data-outline", circle.id); // Mark it to identify later
+
+                            // Insert the outline in the same SVG parent
+                            circle.parentNode.appendChild(outlineCircle);
+                        }
                     });
                 }
             }
-
-            // Now, add the vertical lines using the new markers (for "contains" tLink)
-            // let mainReports = main
-            //     .append("g")
-            //     .attr("clip-path", "url(#secondary_area_clip)");
-            //
-            // mainReports
-            //     .selectAll(".main_report")
-            //     .data(eventData)
-            //     .enter()
-            //     .append("g")
-            //     .append("line")
-            //     .attr("class", function (d) {
-            //         return "main_report ";
-            //     })
-            //     .attr("data-episode", function (d) {
-            //         return d.id;
-            //     })
-            //     .attr("x1", function (d) {
-            //         return d.formattedStartDate;
-            //     })
-            //     .attr("x2", function (d) {
-            //         return d.formattedEndDate;
-            //     })
-            //     .attr("y1", function (d) {
-            //         return getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-            //     })
-            //     .attr("y2", function (d) {
-            //         return getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-            //     })
-            //     .attr("stroke", d => color(d.tLink))
-            //     .attr("stroke-width", 3)
-            //     .attr("marker-start", d => d.tLink === "before" ? "url(#leftArrow)" : null)
-            //     .attr("marker-end", d => d.tLink === "after" ? "url(#rightArrow)" : null)
-            //     .on("click", function (d) {
-            //         let clickedId = d.noteName;
-            //         if (clickedId) {
-            //             let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
-            //             matchingCircles.forEach(circle => {
-            //                 if (circle.classList.contains("selected_report")) {
-            //                     circle.classList.remove("selected_report");
-            //                 } else {
-            //                     circle.classList.add("selected_report");
-            //                 }
-            //             });
-            //         }
-            //     })
-            //     .each(function (d) {
-            //
-            //         if (d.tLink === "contains") {
-            //             const y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-            //
-            //             // Left vertical line (marker applied to the start)
-            //             d3.select(this)
-            //                 .attr("marker-start", "url(#verticalStart)");
-            //
-            //             // Right vertical line (marker applied to the end)
-            //             d3.select(this)
-            //                 .attr("marker-end", "url(#verticalStart)");
-            //         }
-            //
-            //         const x1 = d.formattedStartDate;
-            //         const x2 = d.formattedEndDate;
-            //         const y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-            //
-            //         // Append the line
-            //         let line = d3.select(this)
-            //             .append("line")
-            //             .attr("class", "main_report")
-            //             .attr("data-episode", d.id)
-            //             .attr("x1", x1)
-            //             .attr("x2", x2)
-            //             .attr("y1", y)
-            //             .attr("y2", y)
-            //             .attr("stroke", color(d.tLink))
-            //             .attr("stroke-width", 3)
-            //             .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-            //             .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-            //             .on("click", handleClick);
-            //
-            //         // If the event is on the same day, add an invisible clickable circle at the arrow position
-            //         if (x1 === x2) {
-            //             if (d.tLink === "before") {
-            //                 d3.select(this)
-            //                     .append("circle")
-            //                     .attr("cx", x1)
-            //                     .attr("cy", y)
-            //                     .attr("r", 16) // Adjust radius for better clickability
-            //                     .style("fill", "red")
-            //                     .style("cursor", "pointer")
-            //                     .on("click", handleClick);
-            //             }
-            //             if (d.tLink === "after") {
-            //                 d3.select(this)
-            //                     .append("circle")
-            //                     .attr("cx", x2)
-            //                     .attr("cy", y)
-            //                     .attr("r", 16)
-            //                     .style("fill", "red")
-            //                     .style("cursor", "pointer")
-            //                     .on("click", handleClick);
-            //             }
-            //         }
-            //     });
-            //
-            // mainReports
-
-            // function handleClick(event, d) {
-            //     let clickedId = d.noteName;
-            //     if (clickedId) {
-            //         let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
-            //         matchingCircles.forEach(circle => {
-            //             circle.classList.toggle("selected_report");
-            //         });
-            //     }
-            // }
-
-            // Add invisible clickable rectangles for the arrows
-            // mainReports
-            //     .selectAll(".main_report")
-            //     .data(eventData)
-            //     .enter()
-            //     .append("g")
-            //     .each(function (d) {
-            //         // Add clickable area for left arrow
-            //         console.log(d.tLink);
-            //
-            //     });
-
-            // const defs = d3.select("svg").append("defs");
-            //
-            // defs.append("marker")
-            //     .attr("id", "leftArrow")
-            //     .attr("viewBox", "0 0 10 10")
-            //     .attr("refX", 10)  // Shift the arrowhead slightly left
-            //     .attr("refY", 5)
-            //     .attr("markerWidth", 4)  // Smaller arrow
-            //     .attr("markerHeight", 4)
-            //     .attr("orient", "auto")
-            //     .append("path")
-            //     .attr("d", "M 10 0 L 0 5 L 10 10")  // Left-pointing triangle
-            //     .style("fill", "black");
-            //
-            //
-            // // Right-facing arrow (for "after")
-            // defs.append("marker")
-            //     .attr("id", "rightArrow")
-            //     .attr("viewBox", "0 0 10 10")
-            //     .attr("refX", 0)  // Position at end of line
-            //     .attr("refY", 3)
-            //     .attr("markerWidth", 6)
-            //     .attr("markerHeight", 6)
-            //     .attr("orient", "auto")
-            //     .append("path")
-            //     .attr("d", "M 0 0 L 6 3 L 0 6")  // Right-facing triangle
-            //     .style("fill", "black");
-            //
-            //
-            // // Report dots in main area
-            // // Reference the clipping path that shows the report dots
-            // let mainReports = main
-            //     .append("g")
-            //     .attr("clip-path", "url(#secondary_area_clip)");
-            // // const that = this;
-            // // Report circles in main area
-            // mainReports
-            //     .selectAll(".main_report")
-            //     .data(eventData)
-            //     .enter()
-            //     .append("g")
-            //     .append("line")
-            //     .attr("class", function (d) {
-            //         return "main_report ";
-            //     })
-            //     // .attr("id", function (d) {
-            //     //     // Prefix with "main_"
-            //     //     return "main_" + d.id;
-            //     // })
-            //     .attr("data-episode", function (d) {
-            //         // For debugging
-            //         // console.log(d);
-            //
-            //         return d.id;
-            //     })
-            //     .attr("x1", function (d) {
-            //         return d.formattedStartDate; // Convert the start date to x1
-            //     })
-            //     .attr("x2", function (d) {
-            //         return d.formattedEndDate; // Convert the end date to x2
-            //     })
-            //     .attr("y1", function (d) {
-            //         return getProcedureY(d.chemo_text, chemoText, verticalPositions, mainY);
-            //     })
-            //     .attr("y2", function (d) {
-            //         return getProcedureY(d.chemo_text, chemoText, verticalPositions, mainY);
-            //     })
-            //     .attr("stroke", d => color(d.tLink))
-            //     .attr("stroke-width", 3)
-            //     .attr("marker-start", d => d.tLink === "before" ? "url(#leftArrow)" : null) // Left arrow
-            //     .attr("marker-end", d => d.tLink === "after" ? "url(#rightArrow)" : null)   // Right arrow
-            //     .on("click", function (d) {
-            //         let clickedId = d.noteName;
-            //         if (clickedId) {
-            //             // Find all circles with the same noteName
-            //
-            //             let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
-            //             // Toggle the highlighted state
-            //             matchingCircles.forEach(circle => {
-            //                 // Toggle the selected-report class
-            //                 if (circle.classList.contains("selected_report")) {
-            //                     // If the circle already has the class, remove it
-            //                     circle.classList.remove("selected_report");
-            //                 } else {
-            //                     // If the circle doesn't have the class, add it
-            //                     circle.classList.add("selected_report");
-            //                 }
-            //             });
-            //         }
-            //     });
-            //
-            // main.append("line")
-            //     .attr("x1", 100)  // Start position
-            //     .attr("x2", 200)  // End position
-            //     .attr("y1", 50)   // Y position for the line
-            //     .attr("y2", 50)   // Y position for the line
-            //     .attr("stroke", "blue")
-            //     .attr("stroke-width", 2);
-            //
-            // mainReports
-            //     .selectAll(".main_report")
-            //     .filter(d => d.tLink === "contains") // Check for 'contains' in tLink
-            //     .each(function (d) {
-            //         const y = getProcedureY(d.chemo_text, chemoText, verticalPositions, mainY);
-            //         console.log("Y Position:", y);  // Log Y to verify it's correct
-            //
-            //         // Left vertical line
-            //         d3.select(this)
-            //             .append("line")
-            //             .attr("x1", d.formattedStartDate)
-            //             .attr("x2", d.formattedStartDate)
-            //             .attr("y1", y - 10)  // Short vertical line above
-            //             .attr("y2", y + 10)  // Short vertical line below
-            //             .attr("stroke", "red") // Test with a different color (e.g., red)
-            //             .attr("stroke-width", 5) // Increase the stroke width
-            //             .style("stroke-dasharray", "5,5") // Add dashed line for visibility
-            //             .style("pointer-events", "none"); // Ensure the line is above everything else
-            //
-            //         // Right vertical line
-            //         d3.select(this)
-            //             .append("line")
-            //             .attr("x1", d.formattedEndDate)
-            //             .attr("x2", d.formattedEndDate)
-            //             .attr("y1", y - 10)  // Short vertical line above
-            //             .attr("y2", y + 10)  // Short vertical line below
-            //             .attr("stroke", "red") // Test with a different color (e.g., red)
-            //             .attr("stroke-width", 5) // Increase the stroke width
-            //             .style("stroke-dasharray", "5,5") // Add dashed line for visibility
-            //             .style("pointer-events", "none"); // Ensure the line is above everything else
-            //     });
 
             // Main area x axis
             // https://github.com/d3/d3-axis#axisBottom

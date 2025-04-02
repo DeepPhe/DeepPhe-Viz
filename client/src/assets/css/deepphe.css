@@ -1365,6 +1365,12 @@ white text with more shading
     stroke-width: 6px;
 }
 
+.selected_report_temporal {
+    fill: none !important; /* Transparent middle */
+    stroke: red !important; /* Red outline */
+    stroke-width: 2px !important;
+}
+
 
 .fact_highlighted_report {
     fill-opacity: 1 !important;
