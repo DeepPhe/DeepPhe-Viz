@@ -208,18 +208,8 @@ export function ConceptPanel(props) {
                         </TabsList>
 
 
-                        {/*<TabsList value={tabValue} onChange={handleTabChange} aria-label="concept panel tabs">*/}
-                        {/*    <Tab  />*/}
-                        {/*    <Tab  />*/}
-                        {/*    <Tab  />*/}
-                        {/*</TabsList>*/}
-
                         <TabPanel value={tabValue} index={0}>
                             <CardBody style={{border: "none", boxShadow: "none"}}>
-                                {/*<DropdownWithCheckboxes*/}
-                                {/*    selectedOptions={selectedOptions}*/}
-                                {/*    onSelectionChange={handleSelectionChange}*/}
-                                {/*    />*/}
                                 <ConceptListPanel
                                     selectedOptions={selectedOptions}
                                     doc={doc}

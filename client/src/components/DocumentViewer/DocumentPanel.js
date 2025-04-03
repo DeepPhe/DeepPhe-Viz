@@ -32,7 +32,7 @@ export function DocumentPanel(props) {
     console.log(clickedTerms);
     console.log(mentionsForClickedConcepts);
     console.log(props.clickedTerms);
-  }, [clickedTerms]);
+  }, [props.clickedTerms]);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return doc.mentions.filter((m) => mentionIds.includes(m.id));
@@ -224,7 +224,7 @@ export function DocumentPanel(props) {
 
       let borderColor = textMention.clickedTerm.some((element) => {return element}) ? 'border-color: black;' : 'border-color: transparent;';
 
-      //We want to check what is in front of textmention without checking what is behind it, so this is a special
+      //We want to check what is in front of text mention without checking what is behind it, so this is a special
       //case for the first textMention
       if(i === 0 && textMentions[i + 1]){
         if (textMention.backgroundColor === textMentions[i + 1].backgroundColor[textMentions[i + 1].backgroundColor.length - 1]) {
@@ -263,7 +263,7 @@ export function DocumentPanel(props) {
         }
       }
 
-      //We want to check what is behind the last textmention without checking what is in front it, so this is a special
+      //We want to check what is behind the last text mention without checking what is in front it, so this is a special
       //case for the last textMention
       if(i === textMentions.length - 1 && reportText.substring(textMention.begin, textMention.end).trim() !== ""){
         if(textMentions[i - 1].backgroundColor === textMention.backgroundColor) {
@@ -429,7 +429,7 @@ export function DocumentPanel(props) {
   const setHTML = useCallback(() => {
     let mentions = getAllMentionsInDoc();
     setDocText(highlightTextMentions(createMentionObj(mentions), doc.text));
-  }, [getAllMentionsInDoc, highlightTextMentions, createMentionObj, doc.text]);
+  }, [getAllMentionsInDoc, highlightTextMentions, createMentionObj, doc.text, props.clickedTerms]);
 
 
   useEffect(() => {
@@ -438,7 +438,7 @@ export function DocumentPanel(props) {
       setDocText(props.doc.text);
       setHTML()
     }
-  },[props.doc,props.clickedTerms, props.confidence, props.semanticGroups, filterLabel]);
+  },[props.doc,props.clickedTerms, props.confidence, props.semanticGroups, filterLabel, mentionsForClickedConcepts]);
 
 
   const getHTML = (docText) => {

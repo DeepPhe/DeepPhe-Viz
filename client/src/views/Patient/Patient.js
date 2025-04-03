@@ -26,6 +26,11 @@ function Patient(props) {
   const [gettingSummary, setGettingSummary] = useState(false);
   const [currDoc, setCurrDoc] = useState(-1);
   const [currPatientJson, setCurrPatientJson] = useState("");
+  const [clickedTerms, setClickedTerms] = useState([]); // Initial state set to empty array
+
+
+
+
 
   useEffect(() => {
       getNewPatientJsonFromFile().then((json) => {
@@ -110,6 +115,7 @@ function Patient(props) {
           </CardHeader>
           <CardBody>
             <TimelineEventsNew
+                setClickedTerms={setClickedTerms}
                 svgContainerId="timeline2"
                 reportId={reportId}
                 patientJson={patientJson}
@@ -188,6 +194,8 @@ function Patient(props) {
         factBasedReports={factBasedReports}
         patientDocument={patientDocument}
         concepts={conceptsInDocument}
+        clickedTerms={clickedTerms}
+        setClickedTerms={setClickedTerms}
       ></DocumentViewer>
     );
   };

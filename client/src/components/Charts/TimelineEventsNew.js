@@ -74,7 +74,7 @@ let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
 
-export default class Timeline extends React.Component {
+export default class TimelineEventsNew extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -262,7 +262,8 @@ export default class Timeline extends React.Component {
                     chemo_group: chemoTextGroups[i],
                     chemo_text_group_count: chemoTextGroupCounts[i],
                     tLink: tLink[i],
-                    noteName: noteName[i]
+                    noteName: noteName[i],
+                    mentionName: mentionName[i]
                 });
             }
 
@@ -915,7 +916,8 @@ export default class Timeline extends React.Component {
             function handleClick(event, d) {
                 let clickedId = d.noteName;
                 if (clickedId) {
-                    console.log(clickedId);
+                    console.log(d.mentionName);
+                    // setClickedTerms((prevTerms) => [...prevTerms, d.mentionName]);
                     let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
 
                     matchingCircles.forEach(circle => {

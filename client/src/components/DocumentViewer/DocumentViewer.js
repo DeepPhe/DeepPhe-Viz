@@ -3,7 +3,7 @@ import GridItem from "../Grid/GridItem";
 import Card from "../Card/Card";
 import CardHeader from "../Card/CardHeader";
 import CardBody from "../Card/CardBody";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {ConceptPanel} from "./ConceptPanel";
 import {DocumentPanel} from "./DocumentPanel";
 import $ from "jquery";
@@ -21,8 +21,10 @@ export function DocumentViewer(props) {
     const [semanticGroups, setSemanticGroups] = useState({});
     const [fontSize, setFontSize] = useState(15);
     const [confidence, setConfidence] = useState(0);
-    const [clickedTerms, setClickedTerms] = useState([]);
+    const setClickedTerms = props.setClickedTerms;
+    const clickedTerms = props.clickedTerms// Initial state set to empty array
     const [filterLabel, setFilterLabel] = useState("Concepts");
+
 
     useEffect(() => {
         if (isEmpty(semanticGroups)) {
