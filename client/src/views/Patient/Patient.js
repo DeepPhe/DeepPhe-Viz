@@ -116,6 +116,7 @@ function Patient(props) {
           <CardBody>
             <TimelineEventsNew
                 setClickedTerms={setClickedTerms}
+                clickedTerms={clickedTerms}
                 svgContainerId="timeline2"
                 reportId={reportId}
                 patientJson={patientJson}

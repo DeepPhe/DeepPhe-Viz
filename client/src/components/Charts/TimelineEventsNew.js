@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import * as d3 from "d3v4";
 
 const baseUri = "http://localhost:3001/api";
@@ -74,30 +74,24 @@ let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
 
-export default class TimelineEventsNew extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            json: null,
-            patientId: this.props.patientId,
-        };
-        this.getUrl.bind(this);
-        this.fetchData.bind(this);
-        this.setReportId = this.props.setReportId;
-        this.patientJson = props.patientJson;
-        this.reportId = props.reportId;
-        this.svgContainerId = props.svgContainerId;
-    }
+export default function TimelineEventsNew (props) {
+    const [json, setJson] = useState(undefined);
+    const [patientId, setPatientId] = useState(props.patientId);
+    const setReportId = props.setReportId;
+    const patientJson = props.patientJson;
+    const reportId = props.reportId;
+    const svgContainerId = props.svgContainerId;
+    const clickedTerms = props.clickedTerms;
+    const setClickedTerms = props.setClickedTerms;
 
 
-
-    fetchTSVData = async () => {
+    const fetchTSVData = async () => {
         try {
             const response = await fetch("/unsummarized_output.tsv"); // Fetch from public folder
             if (!response.ok) throw new Error("Failed to load file");
 
             const text = await response.text(); // Read as text
-            return this.parseTSV(text); // Convert to structured data
+            return parseTSV(text); // Convert to structured data
         } catch (error) {
             console.error("Error loading TSV:", error);
             return null;
@@ -105,7 +99,7 @@ export default class TimelineEventsNew extends React.Component {
     };
 
     // Function to parse TSV text into an object
-    parseTSV = (tsvText) => {
+    const parseTSV = (tsvText) => {
         const lines = tsvText.trim().split("\n"); // Split by lines
         const headers = lines[0].split("\t").map(h => h.trim()); // Trim headers
 
@@ -161,15 +155,13 @@ export default class TimelineEventsNew extends React.Component {
     };
 
 
-
-
-    getUrl() {
+    const getUrl = () => {
         return (
-            "http://localhost:3001/api/patient/" + this.props.patientId + "/timeline"
+            "http://localhost:3001/api/patient/" + props.patientId + "/timeline"
         );
     }
 
-    fetchData = async (url) => {
+    const fetchData = async (url) => {
         return new Promise(function (resolve, reject) {
             fetch(url).then(function (response) {
                 if (response) {
@@ -181,7 +173,7 @@ export default class TimelineEventsNew extends React.Component {
         });
     };
 
-    transformTSVData = (data) => {
+    const transformTSVData = (data) => {
         return {
             startDates: data.map(d => d.start_date),
             patientId: data.map(d => d.patient_id),
@@ -198,20 +190,20 @@ export default class TimelineEventsNew extends React.Component {
     }
 
 
-    async componentDidMount() {
-        const response = await this.fetchTSVData();  // Fetch and parse the TSV data
-        if (response) {
+    useEffect(() => {
+        fetchTSVData().then((tsvData =>  // Fetch and parse the TSV data
+        {
             // Assuming the response is an array of objects based on the TSV structure
-            this.setState({ json: response });
+            setJson(tsvData);
 
             // Example of how to transform the parsed response into the needed structure
-            const transformedData = this.transformTSVData(response);
+            const transformedData = transformTSVData(tsvData);
 
             console.log(transformedData);  // Check the structure of transformed data
 
             // Call renderTimeline with the transformed data
-            this.renderTimeline(
-                this.svgContainerId,
+            renderTimeline(
+                svgContainerId,
                 transformedData.startDates,
                 transformedData.patientId,
                 transformedData.chemoText,
@@ -224,11 +216,11 @@ export default class TimelineEventsNew extends React.Component {
                 transformedData.mentionName,
                 transformedData.tLink
             );
-        }
-    }
+        }))
+    }, []);
 
 
-    renderTimeline = (
+    const renderTimeline = (
         svgContainerId,
         startDates,
         patientId,
@@ -917,7 +909,8 @@ export default class TimelineEventsNew extends React.Component {
                 let clickedId = d.noteName;
                 if (clickedId) {
                     console.log(d.mentionName);
-                    // setClickedTerms((prevTerms) => [...prevTerms, d.mentionName]);
+                    // setClickedTerms
+                    setClickedTerms((prevTerms) => [...prevTerms, d.mentionName]);
                     let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
 
                     matchingCircles.forEach(circle => {
@@ -1217,7 +1210,6 @@ export default class TimelineEventsNew extends React.Component {
         // });
     // }
 
-    render() {
-        return <div className="Timeline" id={this.svgContainerId}></div>;
-    }
+
+    return (<div className="Timeline" id={svgContainerId}></div>);
 }
