@@ -1,5 +1,5 @@
 {
-  "name": "DeepPheVizClient",
+  "name": "client",
   "version": "1.9.0",
   "description": "DeepPhe Visualizer",
   "private": false,
