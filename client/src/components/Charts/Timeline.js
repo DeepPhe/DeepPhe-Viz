@@ -415,7 +415,7 @@ export default class Timeline extends React.Component {
         });
       }
 
-      const margin = { top: 20, right: 20, bottom: 10, left: 200 };
+      const margin = { top: 5, right: 20, bottom: 5, left: 200 };
       const mainReportTypeRowHeightPerCount = 16;
       const overviewReportTypeRowHeightPerCount = 3;
 
@@ -859,6 +859,9 @@ export default class Timeline extends React.Component {
           reportTypeRowHeightPerCount
         ) {
           let arr = reportsGroupedByDateAndTypeObj[d.date][d.type];
+
+          // console.log(arr, arr.length);
+          // console.log(reportsGroupedByDateAndTypeObj);
 
           if (arr.length > 1) {
             let index = 0;

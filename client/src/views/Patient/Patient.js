@@ -89,9 +89,9 @@ function Patient(props) {
   const getComponentPatientEpisodeTimeline = () => {
     return (
       <Card>
-        <CardHeader className={"basicCardHeader"}>
-          Patient Episode Timeline
-        </CardHeader>
+        {/*<CardHeader className={"basicCardHeader"}>*/}
+        {/*  Patient Episode Timeline*/}
+        {/*</CardHeader>*/}
         <CardBody>
           <Timeline
               svgContainerId="timeline1"
@@ -110,9 +110,9 @@ function Patient(props) {
   const getComponentPatientEpisodeTimelineEventsNew= () => {
     return (
         <Card>
-          <CardHeader className={"basicCardHeader"}>
-            Temporal Events
-          </CardHeader>
+          {/*<CardHeader className={"basicCardHeader"}>*/}
+          {/*  Temporal Events*/}
+          {/*</CardHeader>*/}
           <CardBody>
             <TimelineEventsNew
                 setClickedTerms={setClickedTerms}

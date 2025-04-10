@@ -22,7 +22,7 @@ let lineDataSet = [
 
 const chemoTextGroups = {
 
-// Severity
+        // Severity
         'behavior': 'Severity',
         'disease stage qualifier':'Severity',
         'disease grade qualifier': 'Severity',
@@ -31,7 +31,7 @@ const chemoTextGroups = {
         'pathologic tnm finding': 'Severity',
         'generic tnm finding': 'Severity',
 
-// Qualifier
+        // Qualifier
         'disease qualifier': 'Qualifier',
         'property or attribute': 'Qualifier',
         'general qualifier': 'Qualifier',
@@ -40,7 +40,7 @@ const chemoTextGroups = {
         'quantitative concept': 'Qualifier',
         'position': 'Qualifier',
 
-// Site
+        // Site
         'lymph node': 'Site',
         'body part': 'Site',
         'body fluid or substance': 'Site',
@@ -48,24 +48,24 @@ const chemoTextGroups = {
         'spatial qualifier': 'Site',
         'tissue': 'Site',
 
-// Finding
+        // Finding
         'finding': 'Finding',
         'clinical test result': 'Finding',
         'gene' : 'Finding',
         'gene product': 'Finding',
 
-// Disease
+        // Disease
         'disease or disorder': 'Disease',
         'neoplasm': 'Disease',
         'mass': 'Disease',
 
-// Treatment
+        // Treatment
         'pharmacologic substance': 'Treatment',
         'chemo/immuno/hormone therapy regimen': 'Treatment',
         'intervention or procedure': 'Treatment',
         'imaging device': 'Treatment',
 
-// Other
+        // Other
         'unknown': 'Other'
 };
 
@@ -296,7 +296,7 @@ export default function TimelineEventsNew (props) {
             });
         }
 
-        const margin = { top: 20, right: 20, bottom: 10, left: 120 };
+        const margin = { top: 5, right: 20, bottom: 5, left: 200 };
         const mainChemoTextRowHeightPerCount = 16;
         const overviewChemoTextRowHeightPerCount = 3;
 
@@ -667,6 +667,35 @@ export default function TimelineEventsNew (props) {
                 yScaleCallback,
                 chemoTextRowHeightPerCount
             ) {
+                // console.log(eventData);
+
+                // let arr = reportsGroupedByDateAndTypeObj[d.date][d.type];
+
+
+                // if (arr.length > 1) {
+                //     let index = 0;
+                //     for (let i = 0; i < arr.length; i++) {
+                //         if (arr[i].id === d.id) {
+                //             index = i;
+                //             break;
+                //         }
+                //     }
+
+                // The height of per chunk
+                //     let h = (verticalPositions[d.type] * chemoTextRowHeightPerCount);
+                //     return (
+                //         yScaleCallback(verticalPositions[d.type]) -
+                //         ((1 - (index + 1)) * h + h / 2)
+                //     );
+                // } else {
+                // Vertically center the dot if only one
+                // console.log(verticalPositions);
+                // console.log(yScaleCallback(verticalPositions[d.chemo_group]), chemoTextRowHeightPerCount * verticalPositions[d.chemo_group] / 2);
+                return (
+                    yScaleCallback(verticalPositions[d.chemo_group]) -
+                    (chemoTextRowHeightPerCount * verticalPositions[d.chemo_group]) /
+                    2
+                );
             };
 
 
@@ -759,7 +788,7 @@ export default function TimelineEventsNew (props) {
             main
                 .append("g")
                 .selectAll(".report_type_label")
-                .data(chemoTextGroups)
+                .data([...new Set(chemoTextGroups)]) // convert to Set, then back to array
                 .enter()
                 .append("text")
                 .text(function (d) {
@@ -809,7 +838,7 @@ export default function TimelineEventsNew (props) {
                 .attr("d", "M 0 0 L 12 6 L 0 12")  // Right-pointing triangle
                 .style("fill", "rgb(230, 85, 13)");
 
-// Define the left arrow marker
+            // Define the left arrow marker
             defs.append("marker")
                 .attr("id", "leftArrow")
                 .attr("viewBox", "0 0 12 12")
@@ -836,50 +865,22 @@ export default function TimelineEventsNew (props) {
                     const group = d3.select(this);
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
-                    const y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-
-                    // Append the line
-                    group.append("line")
-                        .attr("class", "main_report")
-                        .attr("data-episode", d.id)
-                        .attr("x1", x1)
-                        .attr("x2", x2)
-                        .attr("y1", y)
-                        .attr("y2", y)
-                        .attr("stroke", color(d.tLink))
-                        .attr("stroke-width", 5)
-                        .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                        .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-                        .on("click", (event) => handleClick(event, d));
-
-                    // If start and end are the same, ensure arrow is clickable
-                    if (x1 === x2) {
-                        if (d.tLink === "before") {
-                            group.append("rect")
-                                .attr("x", x1 - 10) // Align with arrow
-                                .attr("y", y - 5)
-                                .attr("width", 15)
-                                .attr("height", 10)
-                                .style("fill", "transparent")
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));
-                        }
-                        if (d.tLink === "after") {
-                            group.append("rect")
-                                .attr("x", x2 - 5) // Align with arrow
-                                .attr("y", y - 5)
-                                .attr("width", 15)
-                                .attr("height", 10)
-                                .style("fill", "transparent")
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));                         }
+                    let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
+                    if (d.tLink === "overlap") {
+                        y -= 15; // Shift up by 3 pixels — tweak as needed
                     }
 
+                    // Adjust line thickness if it's an overlap
+                    const lineThickness = d.tLink === "overlap" ? 2 : 5;
 
-                    // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
+                    // 1. Create a separate group for `contains` lines (will be drawn first)
+                    const containsGroup = group.append("g").attr("class", "contains-group");
+
+
+                    // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
                     if (d.tLink === "contains") {
                         // Vertical line at x1
-                        group.append("line")
+                        containsGroup.append("line")
                             .attr("class", "main_report_contains")
                             .attr("x1", x1)
                             .attr("x2", x1)
@@ -891,7 +892,7 @@ export default function TimelineEventsNew (props) {
                             .on("click", (event) => handleClick(event, d));
 
                         // Vertical line at x2
-                        group.append("line")
+                        containsGroup.append("line")
                             .attr("class", "main_report_contains")
                             .attr("x1", x2)
                             .attr("x2", x2)
@@ -901,6 +902,70 @@ export default function TimelineEventsNew (props) {
                             .attr("stroke-width", 3)
                             .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .on("click", (event) => handleClick(event, d));
+
+                        containsGroup.append("line")
+                            .attr("class", "main_report")
+                            .attr("data-episode", d.id)
+                            .attr("x1", x1)
+                            .attr("x2", x2)
+                            .attr("y1", y)
+                            .attr("y2", y)
+                            .attr("stroke", color(d.tLink))
+                            .attr("stroke-width", lineThickness)
+                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+                            .on("click", (event) => handleClick(event, d));
+                    }
+
+
+                    // 2. Create another group for the main lines (to be drawn on top)
+                    const mainLineGroup = group.append("g").attr("class", "main-line-group");
+
+                    if (d.tLink !== "contains") {
+                        // Append the line
+                        mainLineGroup.append("line")
+                            .attr("class", "main_report")
+                            .attr("data-episode", d.id)
+                            .attr("x1", x1)
+                            .attr("x2", x2)
+                            .attr("y1", y)
+                            .attr("y2", y)
+                            .attr("stroke", color(d.tLink))
+                            .attr("stroke-width", lineThickness)
+                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+                            .on("click", (event) => handleClick(event, d));
+
+
+                        // const mainLineElement = mainLine.node();
+                        // group.node().appendChild(mainLineElement);
+                        // Move the line to the top by re-appending it
+                        // lineElement.parentNode.appendChild(lineElement);
+                        // group.raise(); // Ensure it’s a D3 object
+
+                        // If start and end are the same, ensure arrow is clickable
+                        if (x1 === x2) {
+                            if (d.tLink === "before") {
+                                mainLineGroup.append("rect")
+                                    .attr("x", x1 - 10) // Align with arrow
+                                    .attr("y", y - 5)
+                                    .attr("width", 15)
+                                    .attr("height", 10)
+                                    .style("fill", "transparent")
+                                    .style("cursor", "pointer")
+                                    .on("click", (event) => handleClick(event, d));
+                            }
+                            if (d.tLink === "after") {
+                                mainLineGroup.append("rect")
+                                    .attr("x", x2 - 5) // Align with arrow
+                                    .attr("y", y - 5)
+                                    .attr("width", 15)
+                                    .attr("height", 10)
+                                    .style("fill", "transparent")
+                                    .style("cursor", "pointer")
+                                    .on("click", (event) => handleClick(event, d));
+                            }
+                        }
                     }
                 });
 
@@ -921,7 +986,7 @@ export default function TimelineEventsNew (props) {
                         let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
 
                         if (existingOutline) {
-                            existingOutline.remove(); // Remove it if it already exists
+                            // existingOutline.remove(); // Remove it if it already exists
                         } else {
                             // Create a new outline circle
                             let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -968,10 +1033,8 @@ export default function TimelineEventsNew (props) {
             // We use the dates to render x position
             let encounterDates = [minStartDate, maxEndDate];
             // We use the calculated ages to render the text of age
-            let encounterAges = [
-                53,
-                53,
-            ];
+            // TODO: NEED TO MAKE ENCOUNTER AGE DYNAMIC
+            let encounterAges = [53, 53];
 
             age
                 .selectAll(".encounter_age")
@@ -1018,18 +1081,18 @@ export default function TimelineEventsNew (props) {
             overview
                 .append("g")
                 .selectAll(".overview_report")
-                // .data(reportData)
+                .data(eventData)
                 .enter()
                 .append("g")
                 .append("circle")
                 .attr("id", function (d) {
                     // Prefix with "overview_"
-                    return "overview_" + d.id;
+                    return "overview_" + d.noteName;
                 })
                 .attr("class", "overview_report")
                 .attr("r", reportOverviewRadius)
                 .attr("cx", function (d) {
-                    return overviewX(d.formattedDate);
+                    return d.formattedStartDate;
                 })
                 .attr("cy", function (d) {
                     return getReportCirclePositionY(
@@ -1039,7 +1102,7 @@ export default function TimelineEventsNew (props) {
                     );
                 })
                 .style("fill", function (d) {
-                    return color(d.episode);
+                    return color("red");
                 });
 
             // Overview x axis
