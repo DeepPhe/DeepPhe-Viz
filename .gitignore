@@ -1,5 +1,4 @@
 .DS_Store
-client/DeepPheVizClient
 api/DeepPheVizApi
 api/bin/www2
 .idea/
@@ -95,3 +94,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+!client/package.json
