@@ -25,8 +25,9 @@ export function DocumentViewer(props) {
     const clickedTerms = props.clickedTerms// Initial state set to empty array
     const [filterLabel, setFilterLabel] = useState("Concepts");
 
-
+    // console.log(filteredConcepts);
     useEffect(() => {
+
         if (isEmpty(semanticGroups)) {
             getSemanticGroups();
         }
@@ -172,19 +173,33 @@ export function DocumentViewer(props) {
     semanticRoot.addSubtopic(otherRoot);
 
 
+
+
     const getSemanticGroups = () => {
         let groups = {};
         const uniqueConcepts = Array.from(
             new Set(concepts.map((c) => c.dpheGroup))
         );
 
-        // Sort alphabetically by conceptClump
-        const sortedUniqueConcepts = uniqueConcepts
-            .map((group) => ({
-                group,
-                conceptClump: searchTreeForClumpParent(semanticRoot, group)
-            }))
+        const mappedGroups = uniqueConcepts.map((group) => {
+            const conceptClump = searchTreeForClumpParent(semanticRoot, group);
+            if (conceptClump === null) {
+                console.warn(`❗️conceptClump is null for group: ${group}`);
+            }
+            return { group, conceptClump };
+        });
+
+        const sortedUniqueConcepts = mappedGroups
+            .filter(({ conceptClump }) => conceptClump !== null)
             .sort((a, b) => a.conceptClump.localeCompare(b.conceptClump));
+
+        // // Sort alphabetically by conceptClump
+        // const sortedUniqueConcepts = uniqueConcepts
+        //     .map((group) => ({
+        //         group,
+        //         conceptClump: searchTreeForClumpParent(semanticRoot, group)
+        //     }))
+        //     .sort((a, b) => a.conceptClump.localeCompare(b.conceptClump));
 
         // Step 2: Map over the sorted array to build the groups object
         sortedUniqueConcepts.forEach(({ group, conceptClump }) => {
@@ -318,6 +333,7 @@ export function DocumentViewer(props) {
                                 <DocumentPanel
                                     doc={patientDocument}
                                     concepts={concepts}
+                                    reportId={reportId}
                                     semanticGroups={semanticGroups}
                                     handleSemanticGroupChange={handleSemanticGroupChange}
                                     setFilteredConcepts={setFilteredConcepts}

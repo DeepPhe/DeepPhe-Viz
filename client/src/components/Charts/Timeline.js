@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import * as d3 from "d3v4";
 import * as $ from "jquery";
 
@@ -8,49 +8,51 @@ let initialHighlightedDoc = "";
 let mentionedTerms = "";
 let dpheTerms = "";
 let reportTextRight = "";
-export { mentionedTerms };
-export { reportTextRight };
+export {mentionedTerms};
+export {reportTextRight};
 
-export default class Timeline extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      json: null,
-      patientId: this.props.patientId,
-    };
-    this.getUrl.bind(this);
-    this.fetchData.bind(this);
-    this.setReportId = this.props.setReportId;
-    this.patientJson = props.patientJson;
-    this.reportId = props.reportId;
-    this.svgContainerId = props.svgContainerId;
-  }
 
-  getUrl() {
-    return (
-      "http://localhost:3001/api/patient/" + this.props.patientId + "/timeline"
-    );
-  }
 
-  fetchData = async (url) => {
-    return new Promise(function (resolve, reject) {
-      fetch(url).then(function (response) {
-        if (response) {
-          resolve(response);
-        } else {
-          reject("User not logged in");
-        }
-      });
+
+const Timeline = ({
+                      patientId,
+                      setReportId,
+                      patientJson,
+                      reportId,
+                      svgContainerId,
+                      setCurrDoc,
+                  }) => {
+  const [json, setJson] = useState(null);
+
+  const getUrl = () => {
+    return `http://localhost:3001/api/patient/${patientId}/timeline`;
+  };
+
+  const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+      fetch(url)
+          .then((response) => {
+            if (response) {
+              resolve(response);
+            } else {
+              reject("User not logged in");
+            }
+          })
+          .catch((err) => reject(err));
     });
   };
 
-  componentDidMount() {
-    let url = this.getUrl(this.props.patientId);
-    const processTimelineResponse = (response) => {
-      this.setState({ json: response });
-      // console.log(response);
-      renderTimeline(
-        this.svgContainerId,
+
+  useEffect(() => {
+    console.log("🔍 Props in Timeline:", { patientId, patientJson });
+  }, [patientId, patientJson]);
+
+
+  // let url = this.getUrl(patientId);
+  const processTimelineResponse = (response) => {
+    setJson(response);
+    renderTimeline(
+        svgContainerId,
         response.patientInfo,
         response.reportTypes,
         response.typeCounts,
@@ -60,9 +62,9 @@ export default class Timeline extends React.Component {
         response.episodeDates,
         response.reportData,
         response.reportsGroupedByDateAndTypeObj
-      );
-    };
-    const renderTimeline = (
+    );
+  };
+  const renderTimeline = (
       svgContainerId,
       patientInfo,
       reportTypes,
@@ -73,530 +75,530 @@ export default class Timeline extends React.Component {
       episodeDates,
       reportData,
       reportsGroupedByDateAndTypeObj
-    ) => {
-      // console.log(reportTypes)
+  ) => {
+    // console.log(reportTypes)
 
-      //next line might not belong
-      let factBasedReports = {};
+    //next line might not belong
+    let factBasedReports = {};
 
-      function scrollToHighlightedTextMention(obj, reportText) {
-        // Highlight the selected term in the term list
-        const cssClass = "current_mentioned_term";
-        // First remove the previously added highlighting
-        // $('.report_mentioned_term').removeClass(cssClass);
-        $(".report_mentioned_term_1").removeClass(cssClass);
-        $(".report_mentioned_term_2").removeClass(cssClass);
-        $(".report_mentioned_term_3").removeClass(cssClass);
-        $(".report_mentioned_term_4").removeClass(cssClass);
-        // Then add to this current one by selecting the attributes
-        $(
+    function scrollToHighlightedTextMention(obj, reportText) {
+      // Highlight the selected term in the term list
+      const cssClass = "current_mentioned_term";
+      // First remove the previously added highlighting
+      // $('.report_mentioned_term').removeClass(cssClass);
+      $(".report_mentioned_term_1").removeClass(cssClass);
+      $(".report_mentioned_term_2").removeClass(cssClass);
+      $(".report_mentioned_term_3").removeClass(cssClass);
+      $(".report_mentioned_term_4").removeClass(cssClass);
+      // Then add to this current one by selecting the attributes
+      $(
           'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
-        ).addClass(cssClass);
+      ).addClass(cssClass);
 
-        let reportTextDiv = $("#report_text");
+      let reportTextDiv = $("#report_text");
 
-        let textMentions = [];
+      let textMentions = [];
 
+      let textMentionObj = {};
+      textMentionObj.text = obj.term;
+      textMentionObj.beginOffset = obj.begin;
+      textMentionObj.endOffset = obj.end;
+
+      textMentions.push(textMentionObj);
+
+      // Highlight this term in the report text
+      let highlightedReportText = highlightTextMentions(
+          textMentions,
+          reportText
+      );
+
+      // Use html() for html rendering
+      reportTextDiv.html(highlightedReportText);
+
+      // Scroll to that position inside the report text div
+      // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
+      // 5 is position tweak
+      reportTextDiv.scrollTop(
+          reportTextDiv.scrollTop() + $(".highlighted_term").position().top - 5
+      );
+    }
+
+    // Highlight one or multiple text mentions
+    function highlightTextMentions(textMentions, reportText, term = "NONE") {
+      const cssClass = "highlighted_term";
+      const cssClassAll = "highlight_terms";
+
+      // console.log("======sorted textMentions======");
+
+      // Flatten the ranges, this is the key to solve overlapping
+      textMentions = flattenRanges(textMentions);
+
+      let textFragments = [];
+      let lastValidTMIndex = 0;
+
+      for (let i = 0; i < textMentions.length; i++) {
+        let textMention = textMentions[i];
+        let lastValidTM = textMentions[lastValidTMIndex];
+
+        // If this is the first textmention, paste the start of the document before the first TM.
+        if (i === 0) {
+          if (textMention.beginOffset === 0) {
+            textFragments.push("");
+          } else {
+            // console.log("Upper:", reportText.substring(0, textMention.beginOffset));
+            textFragments.push(
+                reportText.substring(0, textMention.beginOffset)
+            );
+          }
+        } else {
+          // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
+
+          if (
+              parseInt(textMention.beginOffset) <=
+              parseInt(lastValidTM.endOffset)
+          ) {
+            lastValidTMIndex = i;
+          } else {
+            textFragments.push(
+                reportText.substring(
+                    lastValidTM.endOffset,
+                    textMention.beginOffset
+                )
+            );
+          }
+        }
+        if (textMention.text.indexOf(term) > -1) {
+          textFragments.push(
+              '<span class="' +
+              cssClass +
+              '">' +
+              reportText.substring(
+                  textMention.beginOffset,
+                  textMention.endOffset
+              ) +
+              "</span>"
+          );
+        } else {
+          textFragments.push(
+              '<span class="' +
+              cssClassAll +
+              '">' +
+              reportText.substring(
+                  textMention.beginOffset,
+                  textMention.endOffset
+              ) +
+              "</span>"
+          );
+        }
+
+        lastValidTMIndex = i;
+      }
+      // Push end of the document
+
+      textFragments.push(
+          reportText.substring(textMentions[lastValidTMIndex].endOffset)
+      );
+
+      // Assemble the final report content with highlighted texts
+      let highlightedReportText = "";
+
+      for (let j = 0; j < textFragments.length; j++) {
+        // console.log(textFragments[j]);
+        highlightedReportText += textFragments[j];
+      }
+      const e = new Event("change");
+      const element = document.querySelector(
+          'input[type=radio][name="sort_order"]'
+      );
+      element.dispatchEvent(e);
+
+      return highlightedReportText;
+    }
+
+    const variablesObj = {
+      topography_major: {
+        visible: false,
+        value: "",
+        bgcolor: "#cfe2ff",
+        mentions: [],
+      },
+      topography_minor: {
+        visible: false,
+        value: "",
+        bgcolor: "#cfe2ff",
+        mentions: [],
+      },
+      topography: {
+        visible: true,
+        value: "",
+        bgcolor: "#cfe2ff",
+        mentions: [],
+      },
+      histology: {
+        visible: false,
+        value: "",
+        bgcolor: "#f8d7da",
+        mentions: [],
+      },
+      behavior: {
+        visible: false,
+        value: "",
+        bgcolor: "#f8d7da",
+        mentions: [],
+      },
+      morphology: {
+        visible: true,
+        value: "",
+        bgcolor: "#f8d7da",
+        mentions: [],
+      },
+      laterality: {
+        visible: true,
+        value: "",
+        bgcolor: "#ffe69c",
+        mentions: [],
+      },
+      grade: {
+        visible: true,
+        value: "",
+        bgcolor: "#a3cfbb",
+        mentions: [],
+      },
+    };
+
+    function buildColorDistribution(textMention) {
+      let colorDistribution = [];
+      let increment = (100 / textMention.count).toFixed(2);
+
+      for (let i = 0; i < textMention.count; i++) {
+        let bgcolor = "highlight_terms";
+        let start = i > 0 ? i * increment + "%" : 0;
+        let finish =
+            i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
+        colorDistribution.push(bgcolor + " " + start);
+        colorDistribution.push(bgcolor + " " + finish);
+      }
+
+      return colorDistribution;
+    }
+
+    function flattenRanges(ranges) {
+      // console.log("======input ranges======");
+      // console.log(ranges);
+
+      let points = [];
+      let flattened = [];
+      for (let i in ranges) {
+        if (ranges[i].endOffset < ranges[i].beginOffset) {
+          //RE-ORDER THIS ITEM (BEGIN/END)
+          let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
+          ranges[i].endOffset = ranges[i].beginOffset;
+          ranges[i].beginOffset = tmp;
+        }
+
+        points.push(ranges[i].beginOffset);
+        points.push(ranges[i].endOffset);
+      }
+
+      //MAKE SURE OUR LIST OF POINTS IS IN ORDER
+      points.sort(function (a, b) {
+        return a - b;
+      });
+
+      // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
+      // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
+      for (let i in points) {
+        if (i === 0 || points[i] === points[i - 1]) continue;
+        let includedRanges = ranges.filter(function (x) {
+          return (
+              Math.max(x.beginOffset, points[i - 1]) <
+              Math.min(x.endOffset, points[i])
+          );
+        });
+
+        if (includedRanges.length > 0) {
+          let flattenedRange = {
+            beginOffset: points[i - 1],
+            endOffset: points[i],
+            count: 0,
+          };
+
+          for (let j in includedRanges) {
+            let includedRange = includedRanges[j];
+
+            for (let prop in includedRange) {
+              if (prop !== "beginOffset" && prop !== "endOffset") {
+                if (!flattenedRange[prop]) flattenedRange[prop] = [];
+                flattenedRange[prop].push(includedRange[prop]);
+              }
+            }
+
+            flattenedRange.count++;
+          }
+
+          flattened.push(flattenedRange);
+        }
+      }
+
+      // console.log("======flattened ranges======");
+      // console.log(flattened);
+
+      return flattened;
+    }
+
+
+    function highlightAllMentions(mentionedTerms) {
+      let textMentions = [];
+      mentionedTerms = mentionedTerms.sort(function (a, b) {
+        return (
+            parseInt(a.begin) - parseInt(b.begin) ||
+            parseInt(a.end) - parseInt(b.end)
+        );
+      });
+
+      mentionedTerms.forEach(function (obj) {
+        //grabbing mention begin and end so that I can highlight each mention at the start
         let textMentionObj = {};
         textMentionObj.text = obj.term;
         textMentionObj.beginOffset = obj.begin;
         textMentionObj.endOffset = obj.end;
-
+        textMentionObj.mentionFrequency = obj.frequency;
+        //console.log(textMentionObj);
         textMentions.push(textMentionObj);
+      });
 
-        // Highlight this term in the report text
-        let highlightedReportText = highlightTextMentions(
-          textMentions,
-          reportText
-        );
+      return textMentions;
+    }
 
-        // Use html() for html rendering
-        reportTextDiv.html(highlightedReportText);
+    function highlightSelectedTimelineReport(reportId) {
+      // Remove previous added highlighting classes
+      const css = "selected_report";
+      $(".main_report").removeClass(css);
+      $(".overview_report").removeClass(css);
 
-        // Scroll to that position inside the report text div
-        // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
-        // 5 is position tweak
-        reportTextDiv.scrollTop(
-          reportTextDiv.scrollTop() + $(".highlighted_term").position().top - 5
-        );
-      }
+      // Remove previous added font awesome icon
+      $(".selected_report_icon").remove();
 
-      // Highlight one or multiple text mentions
-      function highlightTextMentions(textMentions, reportText, term = "NONE") {
-        const cssClass = "highlighted_term";
-        const cssClassAll = "highlight_terms";
+      // Highlight the selected circle in both overview and main areas
+      $("#main_" + reportId).addClass(css);
+      $("#overview_" + reportId).addClass(css);
+    }
 
-        // console.log("======sorted textMentions======");
+    function removeFactBasedHighlighting(reportId) {
+      $(".fact").removeClass("highlighted_fact");
+      $(".main_report").removeClass("fact_highlighted_report");
+      // Also remove the fact detail
+      $("#fact_detail").hide().html("").fadeIn("slow");
+    }
 
-        // Flatten the ranges, this is the key to solve overlapping
-        textMentions = flattenRanges(textMentions);
+    function episode2CssClass(episode) {
+      return episode.replace(/\s+/g, "-").toLowerCase();
+    }
 
-        let textFragments = [];
-        let lastValidTMIndex = 0;
+    // Vertical count position of each report type
+    // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
+    // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
+    let verticalPositions = {};
+    // Vertical max counts from top to bottom
+    // This is used to decide the domain range of mainY and overviewY
+    let totalMaxVerticalCounts = 0;
 
-        for (let i = 0; i < textMentions.length; i++) {
-          let textMention = textMentions[i];
-          let lastValidTM = textMentions[lastValidTMIndex];
-
-          // If this is the first textmention, paste the start of the document before the first TM.
-          if (i === 0) {
-            if (textMention.beginOffset === 0) {
-              textFragments.push("");
-            } else {
-              // console.log("Upper:", reportText.substring(0, textMention.beginOffset));
-              textFragments.push(
-                reportText.substring(0, textMention.beginOffset)
-              );
-            }
-          } else {
-            // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-
-            if (
-              parseInt(textMention.beginOffset) <=
-              parseInt(lastValidTM.endOffset)
-            ) {
-              lastValidTMIndex = i;
-            } else {
-              textFragments.push(
-                reportText.substring(
-                  lastValidTM.endOffset,
-                  textMention.beginOffset
-                )
-              );
-            }
-          }
-          if (textMention.text.indexOf(term) > -1) {
-            textFragments.push(
-              '<span class="' +
-                cssClass +
-                '">' +
-                reportText.substring(
-                  textMention.beginOffset,
-                  textMention.endOffset
-                ) +
-                "</span>"
-            );
-          } else {
-            textFragments.push(
-              '<span class="' +
-                cssClassAll +
-                '">' +
-                reportText.substring(
-                  textMention.beginOffset,
-                  textMention.endOffset
-                ) +
-                "</span>"
-            );
-          }
-
-          lastValidTMIndex = i;
+    // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
+    // to have a consistent report type order
+    //console.log("reportTypes: " + reportTypes);
+    //console.log("reportData: " + JSON.stringify(reportData));
+    // console.log(reportTypes)
+    if (reportTypes !== null) {
+      reportTypes.forEach(function (key) {
+        totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+        if (typeof verticalPositions[key] === "undefined") {
+          verticalPositions[key] = totalMaxVerticalCounts;
         }
-        // Push end of the document
+      });
+    }
 
-        textFragments.push(
-          reportText.substring(textMentions[lastValidTMIndex].endOffset)
-        );
+    const margin = {top: 5, right: 20, bottom: 5, left: 200};
+    const mainReportTypeRowHeightPerCount = 16;
+    const overviewReportTypeRowHeightPerCount = 3;
 
-        // Assemble the final report content with highlighted texts
-        let highlightedReportText = "";
+    const legendHeight = 22;
+    const legendSpacing = 2;
+    const widthPerLetter = 12;
+    const episodeLegendAnchorPositionX = 60;
+    const episodeLegendAnchorPositionY = 6;
 
-        for (let j = 0; j < textFragments.length; j++) {
-          // console.log(textFragments[j]);
-          highlightedReportText += textFragments[j];
-        }
-        const e = new Event("change");
-        const element = document.querySelector(
-          'input[type=radio][name="sort_order"]'
-        );
-        element.dispatchEvent(e);
+    const gapBetweenlegendAndMain = 5;
 
-        return highlightedReportText;
-      }
-
-      const variablesObj = {
-        topography_major: {
-          visible: false,
-          value: "",
-          bgcolor: "#cfe2ff",
-          mentions: [],
-        },
-        topography_minor: {
-          visible: false,
-          value: "",
-          bgcolor: "#cfe2ff",
-          mentions: [],
-        },
-        topography: {
-          visible: true,
-          value: "",
-          bgcolor: "#cfe2ff",
-          mentions: [],
-        },
-        histology: {
-          visible: false,
-          value: "",
-          bgcolor: "#f8d7da",
-          mentions: [],
-        },
-        behavior: {
-          visible: false,
-          value: "",
-          bgcolor: "#f8d7da",
-          mentions: [],
-        },
-        morphology: {
-          visible: true,
-          value: "",
-          bgcolor: "#f8d7da",
-          mentions: [],
-        },
-        laterality: {
-          visible: true,
-          value: "",
-          bgcolor: "#ffe69c",
-          mentions: [],
-        },
-        grade: {
-          visible: true,
-          value: "",
-          bgcolor: "#a3cfbb",
-          mentions: [],
-        },
-      };
-
-      function buildColorDistribution(textMention) {
-        let colorDistribution = [];
-        let increment = (100 / textMention.count).toFixed(2);
-
-        for (let i = 0; i < textMention.count; i++) {
-          let bgcolor = "highlight_terms";
-          let start = i > 0 ? i * increment + "%" : 0;
-          let finish =
-            i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
-          colorDistribution.push(bgcolor + " " + start);
-          colorDistribution.push(bgcolor + " " + finish);
-        }
-
-        return colorDistribution;
-      }
-
-      function flattenRanges(ranges) {
-        // console.log("======input ranges======");
-        // console.log(ranges);
-
-        let points = [];
-        let flattened = [];
-        for (let i in ranges) {
-          if (ranges[i].endOffset < ranges[i].beginOffset) {
-            //RE-ORDER THIS ITEM (BEGIN/END)
-            let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
-            ranges[i].endOffset = ranges[i].beginOffset;
-            ranges[i].beginOffset = tmp;
-          }
-
-          points.push(ranges[i].beginOffset);
-          points.push(ranges[i].endOffset);
-        }
-
-        //MAKE SURE OUR LIST OF POINTS IS IN ORDER
-        points.sort(function (a, b) {
-          return a - b;
-        });
-
-        // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
-        // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
-        for (let i in points) {
-          if (i === 0 || points[i] === points[i - 1]) continue;
-          let includedRanges = ranges.filter(function (x) {
-            return (
-              Math.max(x.beginOffset, points[i - 1]) <
-              Math.min(x.endOffset, points[i])
-            );
-          });
-
-          if (includedRanges.length > 0) {
-            let flattenedRange = {
-              beginOffset: points[i - 1],
-              endOffset: points[i],
-              count: 0,
-            };
-
-            for (let j in includedRanges) {
-              let includedRange = includedRanges[j];
-
-              for (let prop in includedRange) {
-                if (prop !== "beginOffset" && prop !== "endOffset") {
-                  if (!flattenedRange[prop]) flattenedRange[prop] = [];
-                  flattenedRange[prop].push(includedRange[prop]);
-                }
-              }
-
-              flattenedRange.count++;
-            }
-
-            flattened.push(flattenedRange);
-          }
-        }
-
-        // console.log("======flattened ranges======");
-        // console.log(flattened);
-
-        return flattened;
-      }
-
-
-      function highlightAllMentions(mentionedTerms) {
-        let textMentions = [];
-        mentionedTerms = mentionedTerms.sort(function (a, b) {
-          return (
-            parseInt(a.begin) - parseInt(b.begin) ||
-            parseInt(a.end) - parseInt(b.end)
-          );
-        });
-
-        mentionedTerms.forEach(function (obj) {
-          //grabbing mention begin and end so that I can highlight each mention at the start
-          let textMentionObj = {};
-          textMentionObj.text = obj.term;
-          textMentionObj.beginOffset = obj.begin;
-          textMentionObj.endOffset = obj.end;
-          textMentionObj.mentionFrequency = obj.frequency;
-          //console.log(textMentionObj);
-          textMentions.push(textMentionObj);
-        });
-
-        return textMentions;
-      }
-
-      function highlightSelectedTimelineReport(reportId) {
-        // Remove previous added highlighting classes
-        const css = "selected_report";
-        $(".main_report").removeClass(css);
-        $(".overview_report").removeClass(css);
-
-        // Remove previous added font awesome icon
-        $(".selected_report_icon").remove();
-
-        // Highlight the selected circle in both overview and main areas
-        $("#main_" + reportId).addClass(css);
-        $("#overview_" + reportId).addClass(css);
-      }
-
-      function removeFactBasedHighlighting(reportId) {
-        $(".fact").removeClass("highlighted_fact");
-        $(".main_report").removeClass("fact_highlighted_report");
-        // Also remove the fact detail
-        $("#fact_detail").hide().html("").fadeIn("slow");
-      }
-
-      function episode2CssClass(episode) {
-        return episode.replace(/\s+/g, "-").toLowerCase();
-      }
-
-      // Vertical count position of each report type
-      // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
-      // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
-      let verticalPositions = {};
-      // Vertical max counts from top to bottom
-      // This is used to decide the domain range of mainY and overviewY
-      let totalMaxVerticalCounts = 0;
-
-      // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
-      // to have a consistent report type order
-      //console.log("reportTypes: " + reportTypes);
-      //console.log("reportData: " + JSON.stringify(reportData));
-      // console.log(reportTypes)
-      if (reportTypes !== null) {
-        reportTypes.forEach(function (key) {
-          totalMaxVerticalCounts += maxVerticalCountsPerType[key];
-          if (typeof verticalPositions[key] === "undefined") {
-            verticalPositions[key] = totalMaxVerticalCounts;
-          }
-        });
-      }
-
-      const margin = { top: 5, right: 20, bottom: 5, left: 200 };
-      const mainReportTypeRowHeightPerCount = 16;
-      const overviewReportTypeRowHeightPerCount = 3;
-
-      const legendHeight = 22;
-      const legendSpacing = 2;
-      const widthPerLetter = 12;
-      const episodeLegendAnchorPositionX = 60;
-      const episodeLegendAnchorPositionY = 6;
-
-      const gapBetweenlegendAndMain = 5;
-
-      const width = 1000;
-      // Dynamic height based on vertical counts
-      const height =
+    const width = 1000;
+    // Dynamic height based on vertical counts
+    const height =
         totalMaxVerticalCounts * mainReportTypeRowHeightPerCount * 2;
 
-      const pad = 25;
+    const pad = 25;
 
-      // Dynamic height based on vertical counts
-      const overviewHeight =
+    // Dynamic height based on vertical counts
+    const overviewHeight =
         totalMaxVerticalCounts * overviewReportTypeRowHeightPerCount;
 
-      const ageAreaHeight = 16;
-      const ageAreaBottomPad = 10;
+    const ageAreaHeight = 16;
+    const ageAreaBottomPad = 10;
 
-      const reportMainRadius = 5;
-      const reportOverviewRadius = 1.5;
+    const reportMainRadius = 5;
+    const reportOverviewRadius = 1.5;
 
-      // Set the timeline start date 10 days before the min date
-      // and end date 10 days after the max date
-      const numOfDays = 100;
+    // Set the timeline start date 10 days before the min date
+    // and end date 10 days after the max date
+    const numOfDays = 100;
 
-      // Gap between texts and mian area left border
-      const textMargin = 10;
+    // Gap between texts and mian area left border
+    const textMargin = 10;
 
-      // https://github.com/d3/d3-time-format#d3-time-format
-      const formatTime = d3.timeFormat("%Y-%m-%d");
-      const parseTime = d3.timeParse("%Y-%m-%d");
+    // https://github.com/d3/d3-time-format#d3-time-format
+    const formatTime = d3.timeFormat("%Y-%m-%d");
+    const parseTime = d3.timeParse("%Y-%m-%d");
 
-      // Convert string to date
-      if (reportData !== null) {
-        reportData.forEach(function (d) {
-          // Format the date to a human-readable string first, formatTime() takes Date object instead of string
-          // d.origTime.slice(0, 19) returns the time string without the time zone part.
-          // E.g., "2012/11/28" from "11/28/2012 01:00 AM AST"
-          // console.log(d.date)
-          let formattedDateStr = formatTime(new Date(d.date));
-          // console.log(formattedDateStr)
-          // Then convert a string back to a date to be used by d3
-          d.formattedDate = parseTime(formattedDateStr);
-        });
-        // console.log(reportData)
+    // Convert string to date
+    if (reportData !== null) {
+      reportData.forEach(function (d) {
+        // Format the date to a human-readable string first, formatTime() takes Date object instead of string
+        // d.origTime.slice(0, 19) returns the time string without the time zone part.
+        // E.g., "2012/11/28" from "11/28/2012 01:00 AM AST"
+        // console.log(d.date)
+        let formattedDateStr = formatTime(new Date(d.date));
+        // console.log(formattedDateStr)
+        // Then convert a string back to a date to be used by d3
+        d.formattedDate = parseTime(formattedDateStr);
+      });
+      // console.log(reportData)
 
-        // The earliest report date
-        let xMinDate = d3.min(reportData, function (d) {
-          return d.formattedDate;
-        });
+      // The earliest report date
+      let xMinDate = d3.min(reportData, function (d) {
+        return d.formattedDate;
+      });
 
-        // console.log(xMinDate)
-        // Set the start date of the x axis 10 days before the xMinDate
-        let startDate = new Date(xMinDate);
-        startDate.setDate(startDate.getDate() - numOfDays);
+      // console.log(xMinDate)
+      // Set the start date of the x axis 10 days before the xMinDate
+      let startDate = new Date(xMinDate);
+      startDate.setDate(startDate.getDate() - numOfDays);
 
-        // The latest report date
-        let xMaxDate = d3.max(reportData, function (d) {
-          return d.formattedDate;
-        });
+      // The latest report date
+      let xMaxDate = d3.max(reportData, function (d) {
+        return d.formattedDate;
+      });
 
-        // Set the end date of the x axis 10 days after the xMaxDate
-        let endDate = new Date(xMaxDate);
-        endDate.setDate(endDate.getDate() + numOfDays);
+      // Set the end date of the x axis 10 days after the xMaxDate
+      let endDate = new Date(xMaxDate);
+      endDate.setDate(endDate.getDate() + numOfDays);
 
-        // Get the index position of target element in the reportTypes array
-        // Need this to position the circles in mainY
-        // let getIndex = function (element) {
-        //     return reportTypes.indexOf(element);
-        // };
+      // Get the index position of target element in the reportTypes array
+      // Need this to position the circles in mainY
+      // let getIndex = function (element) {
+      //     return reportTypes.indexOf(element);
+      // };
 
-        // This is all the possible episodes, each patient may only have some of these
-        // we'll need to render the colors consistently across patients
-        let allEpisodes = [
-          "Pre-diagnostic",
-          "Diagnostic",
-          "Medical Decision-making",
-          "Treatment",
-          "Follow-up",
-          "Unknown",
-        ];
+      // This is all the possible episodes, each patient may only have some of these
+      // we'll need to render the colors consistently across patients
+      let allEpisodes = [
+        "Pre-diagnostic",
+        "Diagnostic",
+        "Medical Decision-making",
+        "Treatment",
+        "Follow-up",
+        "Unknown",
+      ];
 
-        // Color categories for types of episodes
-        // https://bl.ocks.org/pstuffa/3393ff2711a53975040077b7453781a9
-        let episodeColors = [
-          "rgb(49, 130, 189)",
-          "rgb(230, 85, 13)",
-          "rgb(49, 163, 84)",
-          "rgb(140, 86, 75)",
-          "rgb(117, 107, 177)",
-          "rgb(99, 99, 99)",
-        ];
-        // console.log(startDate, endDate)
-        let color = d3.scaleOrdinal().domain(allEpisodes).range(episodeColors);
+      // Color categories for types of episodes
+      // https://bl.ocks.org/pstuffa/3393ff2711a53975040077b7453781a9
+      let episodeColors = [
+        "rgb(49, 130, 189)",
+        "rgb(230, 85, 13)",
+        "rgb(49, 163, 84)",
+        "rgb(140, 86, 75)",
+        "rgb(117, 107, 177)",
+        "rgb(99, 99, 99)",
+      ];
+      // console.log(startDate, endDate)
+      let color = d3.scaleOrdinal().domain(allEpisodes).range(episodeColors);
 
-        // Transition used by focus/defocus episode
-        let transt = d3
+      // Transition used by focus/defocus episode
+      let transt = d3
           .transition()
           .duration(transitionDuration)
           .ease(d3.easeLinear);
 
-        // Main area and overview area share the same width
-        let mainX = d3
+      // Main area and overview area share the same width
+      let mainX = d3
           .scaleTime()
           .domain([startDate, endDate])
           .range([0, width]);
 
-        let overviewX = d3
+      let overviewX = d3
           .scaleTime()
           .domain([startDate, endDate])
           .range([0, width]);
 
-        // Y scale to handle main area
-        let mainY = d3
+      // Y scale to handle main area
+      let mainY = d3
           .scaleLinear()
           .domain([0, totalMaxVerticalCounts])
           .range([0, height]);
 
-        // Y scale to handle overview area
-        let overviewY = d3
+      // Y scale to handle overview area
+      let overviewY = d3
           .scaleLinear()
           .domain([0, totalMaxVerticalCounts])
           .range([0, overviewHeight]);
 
-        // Process episode dates
-        let episodeSpansData = [];
+      // Process episode dates
+      let episodeSpansData = [];
 
-        episodes.forEach(function (episode) {
-          let obj = {};
-          let datesArr = episodeDates[episode];
-          let newDatesArr = [];
+      episodes.forEach(function (episode) {
+        let obj = {};
+        let datesArr = episodeDates[episode];
+        let newDatesArr = [];
 
-          datesArr.forEach(function (d) {
-            // Format the date to a human-readable string first, formatTime() takes Date object instead of string
-            // d.slice(0, 19) returns the time string without the time zone part.
-            // E.g., "11/28/2012 01:00 AM" from "11/28/2012 01:00 AM AST"
-            let formattedTimeStr = formatTime(new Date(d.slice(0, 19)));
-            // Then convert a string back to a date to be used by d3
-            let date = parseTime(formattedTimeStr);
+        datesArr.forEach(function (d) {
+          // Format the date to a human-readable string first, formatTime() takes Date object instead of string
+          // d.slice(0, 19) returns the time string without the time zone part.
+          // E.g., "11/28/2012 01:00 AM" from "11/28/2012 01:00 AM AST"
+          let formattedTimeStr = formatTime(new Date(d.slice(0, 19)));
+          // Then convert a string back to a date to be used by d3
+          let date = parseTime(formattedTimeStr);
 
-            newDatesArr.push(date);
-          });
-
-          let minDate = d3.min(newDatesArr, function (d) {
-            return d;
-          });
-          let maxDate = d3.max(newDatesArr, function (d) {
-            return d;
-          });
-
-          // Assemble the obj properties
-          obj.episode = episode;
-          obj.startDate = minDate;
-          obj.endDate = maxDate;
-
-          episodeSpansData.push(obj);
+          newDatesArr.push(date);
         });
 
-        // Create the container if it doesn't exist
-        if (!document.getElementById(svgContainerId)) {
-          const container = document.createElement("div");
-          container.id = svgContainerId;
-          document.body.appendChild(container); // Append to the desired parent (body, or other parent element)
-        }
+        let minDate = d3.min(newDatesArr, function (d) {
+          return d;
+        });
+        let maxDate = d3.max(newDatesArr, function (d) {
+          return d;
+        });
 
-        // SVG
-        let svg = d3
+        // Assemble the obj properties
+        obj.episode = episode;
+        obj.startDate = minDate;
+        obj.endDate = maxDate;
+
+        episodeSpansData.push(obj);
+      });
+
+      // Create the container if it doesn't exist
+      if (!document.getElementById(svgContainerId)) {
+        const container = document.createElement("div");
+        container.id = svgContainerId;
+        document.body.appendChild(container); // Append to the desired parent (body, or other parent element)
+      }
+
+      // SVG
+      let svg = d3
           .select("#" + svgContainerId)
           .append("svg")
           .attr("class", "timeline_svg")
           .attr("width", window.innerWidth)
           .attr(
-            "height",
-            margin.top +
+              "height",
+              margin.top +
               legendHeight +
               gapBetweenlegendAndMain +
               height +
@@ -607,29 +609,29 @@ export default class Timeline extends React.Component {
               margin.bottom
           );
 
-        // Dynamically calculate the x posiiton of each legend rect
-        let episodeLegendX = function (index) {
-          let x = 10;
+      // Dynamically calculate the x posiiton of each legend rect
+      let episodeLegendX = function (index) {
+        let x = 10;
 
-          for (let i = 0; i < index; i++) {
-            // Remove white spaces and hyphens, treat the string as one single word
-            // this yeilds a better (still not perfect) calculation of the x
-            let processedEpisodeStr = episodes[i].replace(/-|\s/g, "");
-            x +=
+        for (let i = 0; i < index; i++) {
+          // Remove white spaces and hyphens, treat the string as one single word
+          // this yeilds a better (still not perfect) calculation of the x
+          let processedEpisodeStr = episodes[i].replace(/-|\s/g, "");
+          x +=
               processedEpisodeStr.length * widthPerLetter +
               i * (reportMainRadius * 2 + legendSpacing);
-          }
+        }
 
-          return episodeLegendAnchorPositionX + legendSpacing + x;
-        };
+        return episodeLegendAnchorPositionX + legendSpacing + x;
+      };
 
-        let episodeLegendGrp = svg
+      let episodeLegendGrp = svg
           .append("g")
           .attr("class", "episode_legend_group")
           .attr("transform", "translate(10, " + margin.top + ")");
 
-        // Overview label text
-        episodeLegendGrp
+      // Overview label text
+      episodeLegendGrp
           .append("text")
           .attr("x", episodeLegendAnchorPositionX) // Relative to episodeLegendGrp
           .attr("y", episodeLegendAnchorPositionY)
@@ -638,8 +640,8 @@ export default class Timeline extends React.Component {
           .attr("text-anchor", "end") // the end of the text string is at the initial current text position
           .text("Episodes:");
 
-        // Bottom divider line
-        episodeLegendGrp
+      // Bottom divider line
+      episodeLegendGrp
           .append("line")
           .attr("x1", 0)
           .attr("y1", legendHeight)
@@ -647,14 +649,14 @@ export default class Timeline extends React.Component {
           .attr("y2", legendHeight)
           .attr("class", "legend_group_divider");
 
-        let episodeLegend = episodeLegendGrp
+      let episodeLegend = episodeLegendGrp
           .selectAll(".episode_legend")
           .data(episodes)
           .enter()
           .append("g")
           .attr("class", "episode_legend");
 
-        episodeLegend
+      episodeLegend
           .append("circle")
           .attr("class", "episode_legend_circle")
           .attr("cx", function (d, i) {
@@ -682,8 +684,8 @@ export default class Timeline extends React.Component {
             legendCircle.classed(cssClass, !legendCircle.classed(cssClass));
           });
 
-        // Legend label text
-        episodeLegend
+      // Legend label text
+      episodeLegend
           .append("text")
           .attr("x", function (d, i) {
             return reportMainRadius * 2 + legendSpacing + episodeLegendX(i);
@@ -716,9 +718,9 @@ export default class Timeline extends React.Component {
             }
           });
 
-        // Specify a specific region of an element to display, rather than showing the complete area
-        // Any parts of the drawing that lie outside of the region bounded by the currently active clipping path are not drawn.
-        svg
+      // Specify a specific region of an element to display, rather than showing the complete area
+      // Any parts of the drawing that lie outside of the region bounded by the currently active clipping path are not drawn.
+      svg
           .append("defs")
           .append("clipPath")
           .attr("id", "main_area_clip")
@@ -726,58 +728,58 @@ export default class Timeline extends React.Component {
           .attr("width", width)
           .attr("height", height + gapBetweenlegendAndMain);
 
-        let update = function () {
-          // Update the episode bars
-          d3.selectAll(".episode_bar")
+      let update = function () {
+        // Update the episode bars
+        d3.selectAll(".episode_bar")
             .attr("x", function (d) {
               return mainX(d.startDate) - reportMainRadius;
             })
             .attr("width", function (d) {
               return (
-                mainX(d.endDate) - mainX(d.startDate) + reportMainRadius * 2
+                  mainX(d.endDate) - mainX(d.startDate) + reportMainRadius * 2
               );
             });
 
-          // Update main area
-          d3.selectAll(".main_report").attr("cx", function (d) {
-            return mainX(d.formattedDate);
-          });
+        // Update main area
+        d3.selectAll(".main_report").attr("cx", function (d) {
+          return mainX(d.formattedDate);
+        });
 
-          // Update the main x axis
-          d3.select(".main-x-axis").call(xAxis);
-        };
+        // Update the main x axis
+        d3.select(".main-x-axis").call(xAxis);
+      };
 
-        // Function expression to handle mouse wheel zoom or drag on main area
-        // Need to define this before defining zoom since it's function expression instead of function declariation
-        let zoomed = function () {
-          // Ignore zoom-by-brush
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
-            return;
-          }
-          let transform = d3.event.transform;
+      // Function expression to handle mouse wheel zoom or drag on main area
+      // Need to define this before defining zoom since it's function expression instead of function declariation
+      let zoomed = function () {
+        // Ignore zoom-by-brush
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
+          return;
+        }
+        let transform = d3.event.transform;
 
-          mainX.domain(transform.rescaleX(overviewX).domain());
+        mainX.domain(transform.rescaleX(overviewX).domain());
 
-          // Update the report dots in main area
-          update();
+        // Update the report dots in main area
+        update();
 
-          // Update the overview as moving
-          overview
+        // Update the overview as moving
+        overview
             .select(".brush")
             .call(brush.move, mainX.range().map(transform.invertX, transform));
 
-          // Also need to update the position of custom brush handles
-          // First we need to get the current brush selection
-          // https://github.com/d3/d3-brush#brushSelection
-          // The node desired in the argument for d3.brushSelection is the g element corresponding to your brush.
-          let selection = d3.brushSelection(overviewBrush.node());
+        // Also need to update the position of custom brush handles
+        // First we need to get the current brush selection
+        // https://github.com/d3/d3-brush#brushSelection
+        // The node desired in the argument for d3.brushSelection is the g element corresponding to your brush.
+        let selection = d3.brushSelection(overviewBrush.node());
 
-          // Then translate the x of each custom brush handle
-          showAndMoveCustomBrushHandles(selection);
-        };
+        // Then translate the x of each custom brush handle
+        showAndMoveCustomBrushHandles(selection);
+      };
 
-        // Zoom rect that covers the main main area
-        let zoom = d3
+      // Zoom rect that covers the main main area
+      let zoom = d3
           .zoom()
           .scaleExtent([1, Infinity])
           .translateExtent([
@@ -790,158 +792,158 @@ export default class Timeline extends React.Component {
           ])
           .on("zoom", zoomed);
 
-        // Appending zoom rect after the main area will prevent clicking on the report circles/
-        // So we need to create the zoom panel first
-        svg
+      // Appending zoom rect after the main area will prevent clicking on the report circles/
+      // So we need to create the zoom panel first
+      svg
           .append("rect")
           .attr("class", "zoom")
           .attr("width", width)
           .attr("height", height + gapBetweenlegendAndMain)
           .attr(
-            "transform",
-            "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
+              "transform",
+              "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
           )
           .call(zoom);
 
-        // Main area
-        // Create main area after zoom panel, so we can select the report circles
-        let main = svg
+      // Main area
+      // Create main area after zoom panel, so we can select the report circles
+      let main = svg
           .append("g")
           .attr("class", "main")
           .attr(
-            "transform",
-            "translate(" +
+              "transform",
+              "translate(" +
               margin.left +
               "," +
               (margin.top + legendHeight + gapBetweenlegendAndMain) +
               ")"
           );
 
-        // Encounter ages
-        let age = svg
+      // Encounter ages
+      let age = svg
           .append("g")
           .attr("class", "age")
           .attr(
-            "transform",
-            "translate(" +
+              "transform",
+              "translate(" +
               margin.left +
               "," +
               (margin.top +
-                legendHeight +
-                gapBetweenlegendAndMain +
-                height +
-                pad) +
+                  legendHeight +
+                  gapBetweenlegendAndMain +
+                  height +
+                  pad) +
               ")"
           );
 
-        // Mini overview
-        let overview = svg
+      // Mini overview
+      let overview = svg
           .append("g")
           .attr("class", "overview")
           .attr(
-            "transform",
-            "translate(" +
+              "transform",
+              "translate(" +
               margin.left +
               "," +
               (margin.top +
-                legendHeight +
-                gapBetweenlegendAndMain +
-                height +
-                pad +
-                ageAreaHeight +
-                ageAreaBottomPad) +
+                  legendHeight +
+                  gapBetweenlegendAndMain +
+                  height +
+                  pad +
+                  ageAreaHeight +
+                  ageAreaBottomPad) +
               ")"
           );
 
-        let getReportCirclePositionY = function (
+      let getReportCirclePositionY = function (
           d,
           yScaleCallback,
           reportTypeRowHeightPerCount
-        ) {
-          let arr = reportsGroupedByDateAndTypeObj[d.date][d.type];
+      ) {
+        let arr = reportsGroupedByDateAndTypeObj[d.date][d.type];
 
-          // console.log(arr, arr.length);
-          // console.log(reportsGroupedByDateAndTypeObj);
+        // console.log(arr, arr.length);
+        // console.log(reportsGroupedByDateAndTypeObj);
 
-          if (arr.length > 1) {
-            let index = 0;
-            for (let i = 0; i < arr.length; i++) {
-              if (arr[i].id === d.id) {
-                index = i;
-                break;
-              }
+        if (arr.length > 1) {
+          let index = 0;
+          for (let i = 0; i < arr.length; i++) {
+            if (arr[i].id === d.id) {
+              index = i;
+              break;
             }
+          }
 
-            // The height of per chunk
-            let h =
+          // The height of per chunk
+          let h =
               (maxVerticalCountsPerType[d.type] * reportTypeRowHeightPerCount) /
               arr.length;
-            return (
+          return (
               yScaleCallback(verticalPositions[d.type]) -
               ((arr.length - (index + 1)) * h + h / 2)
-            );
-          } else {
-            // Vertically center the dot if only one
-            return (
+          );
+        } else {
+          // Vertically center the dot if only one
+          return (
               yScaleCallback(verticalPositions[d.type]) -
               (reportTypeRowHeightPerCount * maxVerticalCountsPerType[d.type]) /
-                2
-            );
-          }
-        };
-
-        // Episode interval spans
-        let focusEpisode = function (episode) {
-          // Here we we add extra days before the start and after the end date to have a little cushion
-          let daysDiff = Math.floor(
-            (episode.endDate - episode.startDate) / (1000 * 60 * 60 * 24)
+              2
           );
-          let numOfDays = daysDiff > 30 ? 3 : 1;
+        }
+      };
 
-          // setDate() will change the start and end dates, and we still need the original dates to update the episode bar
-          // so we clone the date objects
-          let newStartDate = new Date(episode.startDate.getTime());
-          let newEndDate = new Date(episode.endDate.getTime());
+      // Episode interval spans
+      let focusEpisode = function (episode) {
+        // Here we we add extra days before the start and after the end date to have a little cushion
+        let daysDiff = Math.floor(
+            (episode.endDate - episode.startDate) / (1000 * 60 * 60 * 24)
+        );
+        let numOfDays = daysDiff > 30 ? 3 : 1;
 
-          // The setDate() method sets the day of the month to the date object.
-          newStartDate.setDate(newStartDate.getDate() - numOfDays);
-          newEndDate.setDate(newEndDate.getDate() + numOfDays);
+        // setDate() will change the start and end dates, and we still need the original dates to update the episode bar
+        // so we clone the date objects
+        let newStartDate = new Date(episode.startDate.getTime());
+        let newEndDate = new Date(episode.endDate.getTime());
 
-          // Span the episode coverage across the whole main area using this new domain
-          mainX.domain([newStartDate, newEndDate]);
+        // The setDate() method sets the day of the month to the date object.
+        newStartDate.setDate(newStartDate.getDate() - numOfDays);
+        newEndDate.setDate(newEndDate.getDate() + numOfDays);
 
-          let transt = d3
+        // Span the episode coverage across the whole main area using this new domain
+        mainX.domain([newStartDate, newEndDate]);
+
+        let transt = d3
             .transition()
             .duration(transitionDuration)
             .ease(d3.easeLinear);
 
-          // Move the brush with transition
-          // The brush move will cause the report circles move accordingly
-          // So no need to call update() with transition
-          // https://github.com/d3/d3-selection#selection_call
-          //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
-          overview
+        // Move the brush with transition
+        // The brush move will cause the report circles move accordingly
+        // So no need to call update() with transition
+        // https://github.com/d3/d3-selection#selection_call
+        //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
+        overview
             .select(".brush")
             .transition(transt)
             .call(brush.move, [overviewX(newStartDate), overviewX(newEndDate)]);
-        };
+      };
 
-        let defocusEpisode = function () {
-          // Reset the mainX domain
-          mainX.domain([startDate, endDate]);
+      let defocusEpisode = function () {
+        // Reset the mainX domain
+        mainX.domain([startDate, endDate]);
 
-          // Move the brush with transition
-          // https://github.com/d3/d3-selection#selection_call
-          //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
-          overview
+        // Move the brush with transition
+        // https://github.com/d3/d3-selection#selection_call
+        //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
+        overview
             .select(".brush")
             .transition(transt)
             .call(brush.move, [overviewX(startDate), overviewX(endDate)]);
-        };
+      };
 
-        // Main report type divider lines
-        // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
-        main
+      // Main report type divider lines
+      // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
+      main
           .append("g")
           .selectAll(".report_type_divider")
           // Don't create line for the first type
@@ -958,8 +960,8 @@ export default class Timeline extends React.Component {
           })
           .attr("class", "report_type_divider");
 
-        // Report types texts
-        main
+      // Report types texts
+      main
           .append("g")
           .selectAll(".report_type_label")
           .data(reportTypes)
@@ -972,133 +974,149 @@ export default class Timeline extends React.Component {
           .attr("y", function (d, i) {
             // console.log(verticalPositions[d], maxVerticalCountsPerType[d])
             return mainY(
-              verticalPositions[d] - maxVerticalCountsPerType[d] / 2
+                verticalPositions[d] - maxVerticalCountsPerType[d] / 2
             );
           })
           .attr("dy", ".5ex")
           .attr("class", "report_type_label");
 
-        // Report dots in main area
-        // Reference the clipping path that shows the report dots
-        // let mainReports = main
-        //   .append("g")
-        //   .attr("clip-path", "url(#main_area_clip)");
-        // const that = this;
+      // Report dots in main area
+      // Reference the clipping path that shows the report dots
+      // let mainReports = main
+      //   .append("g")
+      //   .attr("clip-path", "url(#main_area_clip)");
+      // const that = this;
 
 
-        setTimeout(() => {
-          // Your code that renders the data points or calls a function
-          let mainReports = main
-              .append("g")
-              .attr("clip-path", "url(#main_area_clip)");
-          const that = this;
-          mainReports
-              .selectAll(".main_report")
-              .data(reportData)
-              .enter()
-              .append("g")
-              .append("circle")
-              .attr("class", function (d) {
-                return "main_report " + episode2CssClass(d.episode);
-              })
-              .attr("id", function (d) {
-                return "main_" + d.id;
-              })
-              .attr("data-episode", function (d) {
-                return d.episode;
-              })
-              .attr("r", reportMainRadius)
-              .attr("cx", function (d) {
-                return mainX(d.formattedDate);
-              })
-              .attr("cy", function (d) {
-                return getReportCirclePositionY(
-                    d,
-                    mainY,
-                    mainReportTypeRowHeightPerCount
-                );
-              })
-              .style("fill", function (d) {
-                return color(d.episode);
-              })
-              .style("stroke", function (d) {
-                return color(d.episode);
-              })
-              .on("click", function (d) {
-                $("#docs").show();
-                if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
-                  removeFactBasedHighlighting(d.id);
-                }
-                highlightSelectedTimelineReport(d.id);
-                $("#report_instance").show();
-                that.setReportId(d.id);
-              });
-        }, 100); // Delay execution for 200ms
-        // Report circles in main area
-        // mainReports
-        //   .selectAll(".main_report")
-        //   .data(reportData)
-        //   .enter()
-        //   .append("g")
-        //   .append("circle")
-        //   .attr("class", function (d) {
-        //     return "main_report " + episode2CssClass(d.episode);
-        //   })
-        //   .attr("id", function (d) {
-        //     // Prefix with "main_"
-        //     return "main_" + d.id;
-        //   })
-        //   .attr("data-episode", function (d) {
-        //     // For debugging
-        //     return d.episode;
-        //   })
-        //   .attr("r", reportMainRadius)
-        //   .attr("cx", function (d) {
-        //     return mainX(d.formattedDate);
-        //   })
-        //   // Vertically spread the dots with same time
-        //   .attr("cy", function (d) {
-        //     return getReportCirclePositionY(
-        //       d,
-        //       mainY,
-        //       mainReportTypeRowHeightPerCount
-        //     );
-        //   })
-        //   .style("fill", function (d) {
-        //     return color(d.episode);
-        //   })
-        //   .style("stroke", function (d) {
-        //     return color(d.episode);
-        //   })
-        //   .on("click", function (d) {
-        //     $("#docs").show();
-        //     // Check to see if this report is one of the fact-based reports that are being highlighted
-        //     // d.id has no prefix, just raw id
-        //     if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
-        //       // Remove the fact related highlighting
-        //       removeFactBasedHighlighting(d.id);
-        //     }
-        //
-        //     // Highlight the selected report circle with solid fill and thicker stroke
-        //     highlightSelectedTimelineReport(d.id);
-        //
-        //     // And show the report content
-        //     $("#report_instance").show();
-        //     that.setReportId(d.id);
-        //     //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
-        //     //that.getReport(d.id, "", that.patientJson);
-        //   });
+      setTimeout(() => {
+        // Your code that renders the data points or calls a function
+        let mainReports = main
+            .append("g")
+            .attr("clip-path", "url(#main_area_clip)");
+        const that = this;
+        mainReports
+            .selectAll(".main_report")
+            .data(reportData)
+            .enter()
+            .append("g")
+            .append("circle")
+            .attr("class", function (d) {
+              // console.log(d);
+              return "main_report " + episode2CssClass(d.episode);
+            })
+            .attr("id", function (d) {
+              return "main_" + d.id;
+            })
+            .attr("data-episode", function (d) {
+              return d.episode;
+            })
+            .attr("r", reportMainRadius)
+            .attr("cx", function (d) {
+              return mainX(d.formattedDate);
+            })
+            .attr("cy", function (d) {
+              return getReportCirclePositionY(
+                  d,
+                  mainY,
+                  mainReportTypeRowHeightPerCount
+              );
+            })
+            .style("fill", function (d) {
+              return color(d.episode);
+            })
+            .style("stroke", function (d) {
+              return color(d.episode);
+            })
+            .on("click", function (d) {
+              $("#docs").show();
+              if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
+                removeFactBasedHighlighting(d.id);
+              }
+              highlightSelectedTimelineReport(d.id);
+              $("#report_instance").show();
+              setReportId(d.id);
+              // console.log(patientJson.documents);
+              // console.log("🔍 Clicked ID:", d.id);
+              // console.log("📄 Document IDs:", patientJson.documents.map(doc => doc.name));
 
-        // const element = d3.select("g");  // or select the specific element you want
-        //
-        // const bbox = element.node().getBoundingClientRect();
-        // console.log("Width:", bbox.width);
-        // console.log("Height:", bbox.height);
+              const docIndex = patientJson?.documents?.findIndex(
+                  (doc) => d.id.startsWith(doc.name)
+              );
+              console.log(docIndex);
+              if (docIndex !== -1) {
+                console.log("📌 Setting currDoc to", docIndex);
+                setCurrDoc(docIndex); // <-- now this will work!
+                console.log("🔁 Switching to document index:", docIndex);
+              } else {
+                console.warn("❗Could not find document for reportId:", d.id);
+              }
+            });
+      }, 100); // Delay execution for 200ms
+      // Report circles in main area
+      // mainReports
+      //   .selectAll(".main_report")
+      //   .data(reportData)
+      //   .enter()
+      //   .append("g")
+      //   .append("circle")
+      //   .attr("class", function (d) {
+      //     return "main_report " + episode2CssClass(d.episode);
+      //   })
+      //   .attr("id", function (d) {
+      //     // Prefix with "main_"
+      //     return "main_" + d.id;
+      //   })
+      //   .attr("data-episode", function (d) {
+      //     // For debugging
+      //     return d.episode;
+      //   })
+      //   .attr("r", reportMainRadius)
+      //   .attr("cx", function (d) {
+      //     return mainX(d.formattedDate);
+      //   })
+      //   // Vertically spread the dots with same time
+      //   .attr("cy", function (d) {
+      //     return getReportCirclePositionY(
+      //       d,
+      //       mainY,
+      //       mainReportTypeRowHeightPerCount
+      //     );
+      //   })
+      //   .style("fill", function (d) {
+      //     return color(d.episode);
+      //   })
+      //   .style("stroke", function (d) {
+      //     return color(d.episode);
+      //   })
+      //   .on("click", function (d) {
+      //     $("#docs").show();
+      //     // Check to see if this report is one of the fact-based reports that are being highlighted
+      //     // d.id has no prefix, just raw id
+      //     if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
+      //       // Remove the fact related highlighting
+      //       removeFactBasedHighlighting(d.id);
+      //     }
+      //
+      //     // Highlight the selected report circle with solid fill and thicker stroke
+      //     highlightSelectedTimelineReport(d.id);
+      //
+      //     // And show the report content
+      //     $("#report_instance").show();
+      //     that.setReportId(d.id);
+      //     //that.setReportId("fake_patient1_fake_patient1_04032024_225414_fake_patient1_doc8_SP_8_04032024_225414_M_42")
+      //     //that.getReport(d.id, "", that.patientJson);
+      //   });
+
+      // const element = d3.select("g");  // or select the specific element you want
+      //
+      // const bbox = element.node().getBoundingClientRect();
+      // console.log("Width:", bbox.width);
+      // console.log("Height:", bbox.height);
 
 
-        // Main area x axis
-        // https://github.com/d3/d3-axis#axisBottom
-        let xAxis = d3
+      // Main area x axis
+      // https://github.com/d3/d3-axis#axisBottom
+      let xAxis = d3
           .axisBottom(mainX)
           // https://github.com/d3/d3-axis#axis_tickSizeInner
           .tickSizeInner(5)
@@ -1106,15 +1124,15 @@ export default class Timeline extends React.Component {
           // Abbreviated month format
           .tickFormat(d3.timeFormat("%b"));
 
-        // Append x axis to the bottom of main area
-        main
+      // Append x axis to the bottom of main area
+      main
           .append("g")
           .attr("class", "main-x-axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
 
-        // Encounter ages
-        age
+      // Encounter ages
+      age
           .append("text")
           .attr("x", -textMargin)
           .attr("y", ageAreaHeight / 2) // Relative to the overview area
@@ -1122,16 +1140,16 @@ export default class Timeline extends React.Component {
           .attr("class", "age_label")
           .text("Patient Age");
 
-        // Patient's first and last encounter dates and corresponding ages
-        // We use the dates to render x position
-        let encounterDates = [xMinDate, xMaxDate];
-        // We use the calculated ages to render the text of age
-        let encounterAges = [
-          patientInfo.firstEncounterAge,
-          patientInfo.lastEncounterAge,
-        ];
+      // Patient's first and last encounter dates and corresponding ages
+      // We use the dates to render x position
+      let encounterDates = [xMinDate, xMaxDate];
+      // We use the calculated ages to render the text of age
+      let encounterAges = [
+        patientInfo.firstEncounterAge,
+        patientInfo.lastEncounterAge,
+      ];
 
-        age
+      age
           .selectAll(".encounter_age")
           .data(encounterDates)
           .enter()
@@ -1146,8 +1164,8 @@ export default class Timeline extends React.Component {
             return encounterAges[i];
           });
 
-        // Vertical guidelines based on min and max dates (date objects)
-        age
+      // Vertical guidelines based on min and max dates (date objects)
+      age
           .selectAll(".encounter_age_guideline")
           .data(encounterDates)
           .enter()
@@ -1162,8 +1180,8 @@ export default class Timeline extends React.Component {
           .attr("y2", 25)
           .attr("class", "encounter_age_guideline");
 
-        // Overview label text
-        overview
+      // Overview label text
+      overview
           .append("text")
           .attr("x", -textMargin)
           .attr("y", overviewHeight / 2) // Relative to the overview area
@@ -1171,9 +1189,9 @@ export default class Timeline extends React.Component {
           .attr("class", "overview_label")
           .text("Timeline (" + reportData.length + " reports)");
 
-        // Report dots in overview area
-        // No need to use clipping path since the overview area contains all the report dots
-        overview
+      // Report dots in overview area
+      // No need to use clipping path since the overview area contains all the report dots
+      overview
           .append("g")
           .selectAll(".overview_report")
           .data(reportData)
@@ -1191,43 +1209,43 @@ export default class Timeline extends React.Component {
           })
           .attr("cy", function (d) {
             return getReportCirclePositionY(
-              d,
-              overviewY,
-              overviewReportTypeRowHeightPerCount
+                d,
+                overviewY,
+                overviewReportTypeRowHeightPerCount
             );
           })
           .style("fill", function (d) {
             return color(d.episode);
           });
 
-        // Overview x axis
-        let overviewXAxis = d3
+      // Overview x axis
+      let overviewXAxis = d3
           .axisBottom(overviewX)
           .tickSizeInner(5)
           .tickSizeOuter(0)
           // Abbreviated month format
           .tickFormat(d3.timeFormat("%b"));
 
-        // Append x axis to the bottom of overview area
-        overview
+      // Append x axis to the bottom of overview area
+      overview
           .append("g")
           .attr("class", "overview-x-axis")
           .attr("transform", "translate(0, " + overviewHeight + ")")
           .call(overviewXAxis);
 
-        // Add brush to overview
-        let overviewBrush = overview.append("g").attr("class", "brush");
+      // Add brush to overview
+      let overviewBrush = overview.append("g").attr("class", "brush");
 
-        // Add custom brush handles
-        let customBrushHandlesData = [{ type: "w" }, { type: "e" }];
+      // Add custom brush handles
+      let customBrushHandlesData = [{type: "w"}, {type: "e"}];
 
-        // Function expression to create custom brush handle path
-        let createCustomBrushHandle = function (d) {
-          let e = +(d.type === "e"),
+      // Function expression to create custom brush handle path
+      let createCustomBrushHandle = function (d) {
+        let e = +(d.type === "e"),
             x = e ? 1 : -1,
             y = overviewHeight / 2;
 
-          return (
+        return (
             "M" +
             0.5 * x +
             "," +
@@ -1258,11 +1276,11 @@ export default class Timeline extends React.Component {
             (y + 8) +
             "V" +
             (2 * y - 8)
-          );
-        };
+        );
+      };
 
-        // Add two custom brush handles
-        let customBrushHandle = overviewBrush
+      // Add two custom brush handles
+      let customBrushHandle = overviewBrush
           .selectAll(".handle--custom")
           .data(customBrushHandlesData)
           .enter()
@@ -1276,49 +1294,49 @@ export default class Timeline extends React.Component {
             return "translate(" + [selection[i], -overviewHeight / 4] + ")";
           });
 
-        // Function expression of updating custom handles positions
-        let showAndMoveCustomBrushHandles = function (selection) {
-          customBrushHandle
+      // Function expression of updating custom handles positions
+      let showAndMoveCustomBrushHandles = function (selection) {
+        customBrushHandle
             // First remove the "display: none" added by brushStart to show the handles
             .style("display", null)
             // Then move the handles to desired positions
             .attr("transform", function (d, i) {
               return "translate(" + [selection[i], -overviewHeight / 4] + ")";
             });
-        };
+      };
 
-        // Function expression to create brush function redraw with selection
-        // Need to define this before defining brush since it's function expression instead of function declariation
-        let brushed = function () {
-          // Ignore brush-by-zoom
-          if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
-            return;
-          }
+      // Function expression to create brush function redraw with selection
+      // Need to define this before defining brush since it's function expression instead of function declariation
+      let brushed = function () {
+        // Ignore brush-by-zoom
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
+          return;
+        }
 
-          // Can also use d3.event.selection as an alternative to d3.brushSelection(overviewBrush.node())
-          let selection = d3.brushSelection(overviewBrush.node());
+        // Can also use d3.event.selection as an alternative to d3.brushSelection(overviewBrush.node())
+        let selection = d3.brushSelection(overviewBrush.node());
 
-          // Update the position of custom brush handles
-          showAndMoveCustomBrushHandles(selection);
+        // Update the position of custom brush handles
+        showAndMoveCustomBrushHandles(selection);
 
-          // Set the domain of the main area based on brush selection
-          mainX.domain(selection.map(overviewX.invert, overviewX));
+        // Set the domain of the main area based on brush selection
+        mainX.domain(selection.map(overviewX.invert, overviewX));
 
-          update();
+        update();
 
-          // Zoom the main area
-          svg
+        // Zoom the main area
+        svg
             .select(".zoom")
             .call(
-              zoom.transform,
-              d3.zoomIdentity
-                .scale(width / (selection[1] - selection[0]))
-                .translate(-selection[0], 0)
+                zoom.transform,
+                d3.zoomIdentity
+                    .scale(width / (selection[1] - selection[0]))
+                    .translate(-selection[0], 0)
             );
-        };
+      };
 
-        // D3 brush
-        let brush = d3
+      // D3 brush
+      let brush = d3
           .brushX()
           .extent([
             [0, 0],
@@ -1327,11 +1345,11 @@ export default class Timeline extends React.Component {
           // Update the UI on brush move
           .on("brush", brushed);
 
-        // Applying brush on the overviewBrush element
-        // Don't merge this with the overviewBrush definition because
-        // brush calls brushed which uses customBrushHandle when it gets called and
-        // we can't define overviewBrush before brush if combined.
-        overviewBrush
+      // Applying brush on the overviewBrush element
+      // Don't merge this with the overviewBrush definition because
+      // brush calls brushed which uses customBrushHandle when it gets called and
+      // we can't define overviewBrush before brush if combined.
+      overviewBrush
           // For the first time of loading this page, no brush movement
           .call(brush)
           // We use overviewX.range() as the default selection
@@ -1340,35 +1358,45 @@ export default class Timeline extends React.Component {
           // https://github.com/d3/d3-brush#brush_move
           .call(brush.move, overviewX.range());
 
-        // Reset button
-        svg
+      // Reset button
+      svg
           .append("foreignObject")
           .attr("id", "reset")
           .attr(
-            "transform",
-            "translate(10, " +
+              "transform",
+              "translate(10, " +
               (margin.top +
-                pad +
-                height +
-                pad +
-                ageAreaHeight +
-                ageAreaBottomPad +
-                overviewHeight) +
+                  pad +
+                  height +
+                  pad +
+                  ageAreaHeight +
+                  ageAreaBottomPad +
+                  overviewHeight) +
               ")"
           )
           .append("xhtml:body")
           .html("<button>Reset</button>");
+    }
+  };
+
+  useEffect(() => {
+    const url = getUrl();
+
+    const fetchAndProcess = async () => {
+      try {
+        const response = await fetchData(url);
+        const jsonResponse = await response.json();
+        processTimelineResponse(jsonResponse);
+      } catch (error) {
+        console.error("Timeline fetch error:", error);
       }
     };
 
-    this.fetchData(url).then(function (response) {
-      response.json().then(function (jsonResponse) {
-        processTimelineResponse(jsonResponse);
-      });
-    });
-  }
+    fetchAndProcess();
+  }, [patientId]);
 
-  render() {
-    return <div className="Timeline" id={this.svgContainerId}></div>;
-  }
+
+  return <div className="Timeline" id={svgContainerId}></div>
 }
+
+export default Timeline;

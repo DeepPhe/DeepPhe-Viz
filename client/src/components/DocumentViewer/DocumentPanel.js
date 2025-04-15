@@ -6,7 +6,7 @@ import {hexToRgba} from "./ColorUtils";
 
 
 export function DocumentPanel(props) {
-  const [doc, setDoc] = useState(props.doc);
+  // const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.text);
   const concepts = props.concepts;
   const clickedTerms = props.clickedTerms;
@@ -17,6 +17,7 @@ export function DocumentPanel(props) {
   const fontSize = props.fontSize;
   const confidence = props.confidence;
   const filterLabel = props.filterLabel;
+  const reportId = props.reportId;
 
   useEffect(() => {
     // Only set the copy once, when the component mounts
@@ -29,13 +30,10 @@ export function DocumentPanel(props) {
   useEffect(() => {
     const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
     setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
-    console.log(clickedTerms);
-    console.log(mentionsForClickedConcepts);
-    console.log(props.clickedTerms);
   }, [props.clickedTerms]);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
-    return doc.mentions.filter((m) => mentionIds.includes(m.id));
+    return props.doc.mentions.filter((m) => mentionIds.includes(m.id));
   };
 
   const getMentionsForClickedConcept = (conceptIds) => {
@@ -48,7 +46,7 @@ export function DocumentPanel(props) {
       if (idx === -1) return [];
 
       return concepts[idx].mentionIds.filter((mentionId) =>
-          doc.mentions.some((m) => m.id === mentionId)
+          props.doc.mentions.some((m) => m.id === mentionId)
       );
     });
   };
@@ -59,7 +57,7 @@ export function DocumentPanel(props) {
       const idx = concepts.findIndex((c) => c.id === conceptId);
       if (idx === -1) return [];
       return concepts[idx].mentionIds.filter((mentionId) =>
-          doc.mentions.some((m) => m.id === mentionId)
+          props.doc.mentions.some((m) => m.id === mentionId)
       );
     }
     return [];
@@ -426,26 +424,69 @@ export function DocumentPanel(props) {
 
 
 
+  // const setHTML = useCallback(() => {
+  //   let mentions = getAllMentionsInDoc();
+  //   setDocText(highlightTextMentions(createMentionObj(mentions), doc.text));
+  // }, [
+  //   getAllMentionsInDoc,
+  //   highlightTextMentions,
+  //   createMentionObj,
+  //   doc.text,
+  //   props.clickedTerms,
+  //   props.reportId, // 👈 ensure this is included
+  // ]);
+  //
+  // useEffect(() => {
+  //   if (props.filteredConcepts.length > 0) {
+  //     setDoc(props.doc);
+  //     setDocText(props.doc.text);
+  //     setHTML(); // now this will run when reportId changes
+  //   }
+  // }, [
+  //   props.doc,
+  //   props.clickedTerms,
+  //   props.confidence,
+  //   props.semanticGroups,
+  //   filterLabel,
+  //   mentionsForClickedConcepts,
+  //   props.reportId, // 👈 add this
+  // ]);
+
   const setHTML = useCallback(() => {
-    let mentions = getAllMentionsInDoc();
-    setDocText(highlightTextMentions(createMentionObj(mentions), doc.text));
-  }, [getAllMentionsInDoc, highlightTextMentions, createMentionObj, doc.text, props.clickedTerms]);
+    const mentions = getAllMentionsInDoc();
+    const html = highlightTextMentions(createMentionObj(mentions), props.doc.text);
+    setDocText(html);
+  }, [
+    getAllMentionsInDoc,
+    highlightTextMentions,
+    createMentionObj,
+    props.doc.text,
+    props.clickedTerms,
+    props.reportId,
+  ]);
 
 
   useEffect(() => {
-    if(props.filteredConcepts.length > 0){
-      setDoc(props.doc);
+    if (props.filteredConcepts.length > 0 && props.doc?.text) {
       setDocText(props.doc.text);
-      setHTML()
+      setHTML();
     }
-  },[props.doc,props.clickedTerms, props.confidence, props.semanticGroups, filterLabel, mentionsForClickedConcepts]);
+  }, [
+    props.doc,
+    props.clickedTerms,
+    props.confidence,
+    props.semanticGroups,
+    filterLabel,
+    mentionsForClickedConcepts,
+    props.reportId,
+  ]);
 
 
   const getHTML = (docText) => {
     return parse(docText);
   };
 
-  if (doc === null) {
+  if (props.doc === null) {
     return <div>Loading...</div>;
   } else {
       return (
