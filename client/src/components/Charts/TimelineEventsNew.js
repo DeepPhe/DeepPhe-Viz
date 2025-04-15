@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import * as d3 from "d3v4";
+import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention'; // adjust path as needed
 
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
@@ -83,15 +84,24 @@ export default function TimelineEventsNew (props) {
     const svgContainerId = props.svgContainerId;
     const clickedTerms = props.clickedTerms;
     const setClickedTerms = props.setClickedTerms;
+    const conceptsPerDocument = props.conceptsPerDocument;
 
 
-    const fetchTSVData = async () => {
+    const fetchTSVData = async (conceptsPerDocument) => {
         try {
-            const response = await fetch("/unsummarized_output.tsv"); // Fetch from public folder
+            const response = await fetch("/unsummarized_output.tsv");
             if (!response.ok) throw new Error("Failed to load file");
 
-            const text = await response.text(); // Read as text
-            return parseTSV(text); // Convert to structured data
+            const text = await response.text();
+            // Only modify TSV if conceptsPerDocument is passed
+            const modifiedText = conceptsPerDocument
+                ? appendMentionsToTSV(text, conceptsPerDocument)
+                : text;
+
+            // console.log(modifiedText);
+            // console.log(typeof text);
+
+            return parseTSV(modifiedText);
         } catch (error) {
             console.error("Error loading TSV:", error);
             return null;
@@ -102,12 +112,10 @@ export default function TimelineEventsNew (props) {
     const parseTSV = (tsvText) => {
         const lines = tsvText.trim().split("\n"); // Split by lines
         const headers = lines[0].split("\t").map(h => h.trim()); // Trim headers
-
         const chemoCounts = {}; // Dictionary to track 'chemoText name' counts
         const chemoGroupCounts =   {};
         const tLinkCounts = {};
-        // const chemoSet = new Set(); // Set to track unique 'chemo_text' values
-        // const tLinkSet = new Set();
+
 
         const data = lines.slice(1).map(line => {
             const values = line.split("\t"); // Split the line into columns by tab
@@ -183,25 +191,29 @@ export default function TimelineEventsNew (props) {
             endDates: data.map(d => d.end_date),
             chemoTextCounts: data.chemoTextCounts,
             tLinkCounts: data.tLinkCounts,
-            noteName : data.map(d => d.note_name),
-            mentionName : data.map(d => d.mention_id),
+            noteId : data.map(d => d.note_id),
+            conceptId : data.map(d => d.concept_id),
             tLink : data.map(d => d.tlink)
         };
     }
 
 
     useEffect(() => {
-        fetchTSVData().then((tsvData =>  // Fetch and parse the TSV data
-        {
-            // Assuming the response is an array of objects based on the TSV structure
+        if (!conceptsPerDocument) return;
+
+        fetchTSVData(conceptsPerDocument).then(tsvData => {
+            if (!tsvData) return;
+
             setJson(tsvData);
 
-            // Example of how to transform the parsed response into the needed structure
             const transformedData = transformTSVData(tsvData);
 
-            console.log(transformedData);  // Check the structure of transformed data
+            // ✅ Clear the previous timeline if it exists
+            const container = document.getElementById(svgContainerId);
+            if (container) {
+                container.innerHTML = ""; // or use d3.select(container).selectAll("*").remove();
+            }
 
-            // Call renderTimeline with the transformed data
             renderTimeline(
                 svgContainerId,
                 transformedData.startDates,
@@ -212,12 +224,13 @@ export default function TimelineEventsNew (props) {
                 transformedData.endDates,
                 transformedData.chemoTextCounts,
                 transformedData.tLinkCounts,
-                transformedData.noteName,
-                transformedData.mentionName,
+                transformedData.noteId,
+                transformedData.conceptId,
                 transformedData.tLink
             );
-        }))
-    }, []);
+        });
+    }, [conceptsPerDocument]);
+
 
 
     const renderTimeline = (
@@ -230,8 +243,8 @@ export default function TimelineEventsNew (props) {
         endDates,
         chemoTextCounts,
         tLinkCounts,
-        noteName,
-        mentionName,
+        noteId,
+        conceptId,
         tLink
     ) => {
         // Vertical count position of each report type
@@ -254,8 +267,8 @@ export default function TimelineEventsNew (props) {
                     chemo_group: chemoTextGroups[i],
                     chemo_text_group_count: chemoTextGroupCounts[i],
                     tLink: tLink[i],
-                    noteName: noteName[i],
-                    mentionName: mentionName[i]
+                    noteId: noteId[i],
+                    conceptId: conceptId[i]
                 });
             }
 
@@ -335,7 +348,7 @@ export default function TimelineEventsNew (props) {
         // https://github.com/d3/d3-time-format#d3-time-format
         // const formatTime = d3.timeFormat("%Y-%m-%d");
         // const parseTime = d3.timeParse("%Y-%m-%d");
-        const eventData = createEventData(startDates, endDates, patientId, chemoText, noteName);
+        const eventData = createEventData(startDates, endDates, patientId, chemoText, noteId);
 
 
         // Convert string to date
@@ -971,11 +984,13 @@ export default function TimelineEventsNew (props) {
 
             // Click handler function
             function handleClick(event, d) {
-                let clickedId = d.noteName;
+                let clickedId = d.noteId;
+                console.log(d);
+                console.log(d.noteId);
                 if (clickedId) {
-                    console.log(d.mentionName);
+                    console.log(d.conceptId);
                     // setClickedTerms
-                    setClickedTerms((prevTerms) => [...prevTerms, d.mentionName]);
+                    setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
                     let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
 
                     matchingCircles.forEach(circle => {

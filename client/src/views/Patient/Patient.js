@@ -27,31 +27,6 @@ function Patient(props) {
   const [clickedTerms, setClickedTerms] = useState([]); // Initial state set to empty array
   const [processingDone, setProcessingDone] = useState(false);
 
-
-  const fs = require('fs');
-  const path = require('path');
-
-  function appendMentionsToTSV(conceptsPerDocument, filePath = 'client/public/unsummarized_output.tsv') {
-    let linesToAppend = [];
-
-    // Iterate through each document
-    Object.entries(conceptsPerDocument).forEach(([noteId, concepts]) => {
-      concepts.forEach((concept) => {
-        (concept.mentionIds || []).forEach((mentionId) => {
-          linesToAppend.push(`${noteId}\t${mentionId}`);
-        });
-      });
-    });
-
-    // Join all rows with newlines and add to file
-    const data = linesToAppend.join('\n') + '\n';
-    fs.appendFileSync(path.resolve(filePath), data);
-
-    console.log(`Appended ${linesToAppend.length} rows to ${filePath}`);
-  }
-
-
-
   const conceptsPerDocumentRef = useRef({});
 
   useEffect(() => {
@@ -69,10 +44,6 @@ function Patient(props) {
 
     conceptsPerDocumentRef.current = map;
     setProcessingDone(true);
-    appendMentionsToTSV(conceptsPerDocumentRef.current);
-
-    console.log("✅ Finished processing all documents");
-    console.log("Concepts per document:", conceptsPerDocumentRef.current);
   }, [patientJson]);
 
   useEffect(() => {
@@ -80,11 +51,6 @@ function Patient(props) {
     const safeDocIndex = Math.max(0, Math.min(currDoc, patientJson.documents.length - 1));
     setPatientDocument(patientJson.documents[safeDocIndex]);
   }, [currDoc, patientJson]);
-
-  useEffect(() => {
-    console.log("Current patientDocument:", patientDocument);
-  }, [patientDocument]);
-
 
   function getNewPatientJsonFromFile() {
     return new Promise((resolve, reject) => {
@@ -149,6 +115,7 @@ function Patient(props) {
                 patientJson={patientJson}
                 patientId={patientId}
                 setReportId={setReportId}
+                conceptsPerDocument={conceptsPerDocumentRef.current}
                 //getReport={getReport}
             ></TimelineEventsNew>
           </CardBody>
@@ -290,11 +257,9 @@ function Patient(props) {
 
   useEffect(() => {
     if (summary.length && patientId) {
-      console.log("📦 Getting patientJson for:", patientId);
       getNewPatientJsonFromFile().then((json) => {
-        console.log("📄 Raw response from file:", json);
         if (!json || Object.keys(json).length === 0) {
-          console.warn("⚠️ Empty or invalid patientJson received!");
+          console.warn("Empty or invalid patientJson received!");
         }
         setPatientJson(json);
       });
@@ -307,18 +272,14 @@ function Patient(props) {
 
   if (isEmpty(summary)) {
     if (!gettingSummary) {
-      console.log("📡 Getting summary...");
       setGettingSummary(true);
-
       getSummary(patientId).then((response) =>
           response.json().then((json) => {
-            console.log("✅ Summary fetched:", json);
             setSummary(json);
             setGettingSummary(false); // optional, useful if you want to reset
           })
       );
     }
-    console.log(patientDocument);
     return <div> Loading... </div>;
   }
 

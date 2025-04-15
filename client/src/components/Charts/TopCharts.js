@@ -55,7 +55,6 @@ const TopCharts = () => {
             return new Promise(function (resolve, reject) {
                 fetch('http://localhost:3001/api/cohortData').then(function (response) {
                     if (response) {
-                        debugger;
                         resolve(response);
                     } else {
                         reject('User not logged in');

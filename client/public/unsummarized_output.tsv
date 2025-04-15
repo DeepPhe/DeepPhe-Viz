@@ -1,15 +1,17 @@
-start_date	patient_id	chemo_text	end_date	tlink 	note_name   	mention_id
-2012-02-24	patient01	Finding	2012-02-24	before	main_fake_patient1_doc2_SP_724055880	fake_patient1_04032024_225414_C_39	fake_patient1_04032024_225414_C_39	fake_patient1_04032024_225414_C_40	fake_patient1_04032024_225414_C_41
-2012-05-18	patient01	Side	2012-05-18	after	main_fake_patient1_doc3_NOTE_-598580601	fake_patient1_04032024_225414_C_139	fake_patient1_04032024_225414_C_139
-2012-06-05	patient01	Lymph Node	2012-08-30	contains	main_fake_patient1_doc1_RAD_635380665   	fake_patient1_04032024_225414_C_69
-2012-04-07	patient01	Gene	2012-04-07	after	main_fake_patient1_doc4_NOTE_1868423759 	fake_patient1_04032024_225414_C_24
-2012-05-09	patient01	Position	2012-05-09	before	main_fake_patient1_doc5_SP_-1721054554  	fake_patient1_04032024_225414_C_28
-2012-03-24	patient01	Behavior	2012-03-24	after	main_fake_patient1_doc6_NOTE_495398390  	fake_patient1_04032024_225414_C_145
-2012-06-04	patient01	Generic TNM Finding	2012-06-04	after	main_fake_patient1_doc8_SP_-942580991   	fake_patient1_04032024_225414_C_37
-2012-04-24	patient01	Unknown	2012-04-24	after	main_fake_patient1_doc7_NOTE_-1727013889    	fake_patient1_04032024_225414_C_21
-2012-04-24	patient01	Imaging Device	2012-04-24	before	main_fake_patient1_doc10_NOTE_-1657042765   	fake_patient1_04032024_225414_C_74
-2012-07-30	patient01	Imaging Device	2012-07-30	after	main_fake_patient1_doc10_NOTE_-1657042765   	fake_patient1_04032024_225414_C_78
+start_date	patient_id	chemo_text	end_date	tlink 	note_id   	concept_id
+2012-02-24	patient01	Finding	2012-02-24	before
+2012-05-18	patient01	Side	2012-05-18	after
+2012-06-05	patient01	Lymph Node	2012-08-30	contains
+2012-04-07	patient01	Gene	2012-04-07	after
+2012-05-09	patient01	Position	2012-05-09	before
+2012-03-24	patient01	Behavior	2012-03-24	after
+2012-06-04	patient01	Generic TNM Finding	2012-06-04	after
+2012-04-24	patient01	Unknown	2012-04-24	after
+2012-04-24	patient01	Imaging Device	2012-04-24	before
+2012-07-30	patient01	Imaging Device	2012-07-30	after
 2012-02-14	patient01	Finding	2012-04-17	overlap
-2011-04-15	patient01	quantitative concept	2011-06-15	contains	main_fake_patient1_doc10_NOTE_-1657042765	fake_patient1_04032024_225414_C_185
-2011-07-05	patient01	temporal qualifier	2012-07-28	contains	main_fake_patient1_doc4_NOTE_1868423759	fake_patient1_04032024_225414_C_8
-2012-05-02	patient01	body part	2012-05-02	before	mention1
+2011-04-15	patient01	quantitative concept	2011-06-15	contains
+2011-07-05	patient01	temporal qualifier	2012-07-28	contains
+2012-04-06	patient01
+
+

@@ -42,13 +42,6 @@ const Timeline = ({
     });
   };
 
-
-  useEffect(() => {
-    console.log("🔍 Props in Timeline:", { patientId, patientJson });
-  }, [patientId, patientJson]);
-
-
-  // let url = this.getUrl(patientId);
   const processTimelineResponse = (response) => {
     setJson(response);
     renderTimeline(
