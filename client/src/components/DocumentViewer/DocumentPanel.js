@@ -454,25 +454,34 @@ export function DocumentPanel(props) {
 
   const setHTML = useCallback(() => {
     const mentions = getAllMentionsInDoc();
-    const html = highlightTextMentions(createMentionObj(mentions), props.doc.text);
-    setDocText(html);
+    const hasAtLeastOneMention = mentions.some(group => group.length > 0);
+
+    if (hasAtLeastOneMention && props.doc?.text) {
+      const html = highlightTextMentions(createMentionObj(mentions), props.doc.text);
+      setDocText(html);
+    }
   }, [
     getAllMentionsInDoc,
     highlightTextMentions,
     createMentionObj,
     props.doc.text,
-    props.clickedTerms,
-    props.reportId,
   ]);
 
+  useEffect(() => {
+    if (props.doc?.text) {
+      setDocText(props.doc.text); // Raw text shown until mentions ready
+    }
+  }, [props.doc?.text]);
 
   useEffect(() => {
-    if (props.filteredConcepts.length > 0 && props.doc?.text) {
-      setDocText(props.doc.text);
+    // Combined the checks for filteredConcepts and filteredConceptsStartingCopy
+    if ((props.filteredConcepts.length > 0 || filteredConceptsStartingCopy.length > 0) && props.doc?.text) {
       setHTML();
     }
   }, [
-    props.doc,
+    props.filteredConcepts,
+    filteredConceptsStartingCopy,
+    props.doc?.text,
     props.clickedTerms,
     props.confidence,
     props.semanticGroups,

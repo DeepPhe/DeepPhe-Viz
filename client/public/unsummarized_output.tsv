@@ -6,12 +6,56 @@ start_date	patient_id	chemo_text	end_date	tlink 	note_id   	concept_id
 2012-05-09	patient01	Position	2012-05-09	before
 2012-03-24	patient01	Behavior	2012-03-24	after
 2012-06-04	patient01	Generic TNM Finding	2012-06-04	after
-2012-04-24	patient01	Unknown	2012-04-24	after
+2012-04-24	patient01	mass	2012-04-24	after
 2012-04-24	patient01	Imaging Device	2012-04-24	before
 2012-07-30	patient01	Imaging Device	2012-07-30	after
 2012-02-14	patient01	Finding	2012-04-17	overlap
-2011-04-15	patient01	quantitative concept	2011-06-15	contains
-2011-07-05	patient01	temporal qualifier	2012-07-28	contains
-2012-04-06	patient01
-
-
+2012-04-15	patient01	quantitative concept	2012-06-15	contains
+2012-07-05	patient01	temporal qualifier	2012-07-28	contains
+2012-01-05	patient01	behavior	2012-01-05	before
+2012-01-10	patient01	disease stage qualifier	2012-01-10	after
+2012-01-01	patient01	disease grade qualifier	2012-01-15	overlap
+2012-02-03	patient01	temporal qualifier	2012-08-03	contains
+2012-03-03	patient01	severity	2012-03-03	before
+2012-04-04	patient01	pathologic tnm finding	2012-04-04	after
+2012-05-05	patient01	generic tnm finding	2012-05-05	before
+2012-06-06	patient01	disease qualifier	2012-06-06	after
+2012-07-07	patient01	property or attribute	2012-07-07	after
+2012-08-08	patient01	general qualifier	2012-08-08	before
+2012-09-09	patient01	clinical course of disease	2012-09-09	before
+2012-10-10	patient01	pathologic process	2012-10-10	after
+2012-04-20	patient01	quantitative concept	2012-06-20	contains
+2012-03-24	patient01	position	2012-04-10	overlap
+2012-05-03	patient01	lymph node	2012-08-04	overlap
+2012-09-08	patient01	body part	2013-03-02	contains
+2011-03-04	patient01	body fluid or substance	2011-03-04	after
+2011-04-06	patient01	side	2011-04-06	before
+2011-06-14	patient01	spatial qualifier	2011-06-14	before
+2011-08-18	patient01	tissue	2011-08-18	before
+2011-11-20	patient01	finding	2011-11-20	after
+2013-02-02	patient01	clinical test result	2013-02-02	after
+2014-05-15	patient01	gene	2014-05-15	after
+2013-01-15	patient01	gene product	2013-04-15	contians
+2013-02-13	patient01	disease or disorder	2013-06-28	contains
+2012-01-14	patient01	neoplasm	2013-04-14	overlap
+2011-11-11	patient01	mass	2012-04-04	overlap
+2011-12-21	patient01	pharmacologic substance	2011-12-21	before
+2014-01-15	patient01	chemo/immuno/hormone therapy regimen	2014-03-15	overlap
+2012-09-18	patient01	intervention or procedure	2013-09-19	contains
+2013-06-03	patient01	imaging device	2013-06-03	after
+2011-06-11	patient01	mass	2011-06-11	after
+2011-08-14	patient01	gene	2011-08-14	after
+2011-03-29	patient01	gene product	2011-03-29	after
+2011-12-08	patient01	finding	2011-12-08	before
+2011-09-12	patient01	tissue	2011-09-12	before
+2011-11-11	patient01	side	2012-05-11	overlap
+2012-01-01	patient01	position	2012-12-12	contains
+2014-03-15	patient01	mass	2014-03-15	after
+2014-02-23	patient01	neoplasm	2014-02-23	after
+2014-05-13	patient01	neoplasm	2014-05-13	before
+2014-01-30	patient01	disease or disorder	2014-01-30	before
+2014-02-15	patient01	mass	2014-04-14	contains
+2014-01-02	patient01	imaging device	2014-04-03	overlap
+2011-02-21	patient01	intervention or procedure	2011-02-21	before
+2011-06-15	patient01	chemo/immuno/hormone therapy regimen	2011-06-15	after
+2014-03-15	patient01	pharmacologic substance	2014-03-15	after
