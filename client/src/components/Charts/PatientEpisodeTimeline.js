@@ -14,7 +14,7 @@ export {reportTextRight};
 
 
 
-const Timeline = ({
+const PatientEpisodeTimeline = ({
                       patientId,
                       setReportId,
                       patientJson,
@@ -587,7 +587,7 @@ const Timeline = ({
       let svg = d3
           .select("#" + svgContainerId)
           .append("svg")
-          .attr("class", "timeline_svg")
+          .attr("class", "patient_episode_timeline_svg")
           .attr("width", window.innerWidth)
           .attr(
               "height",
@@ -734,18 +734,19 @@ const Timeline = ({
             });
 
         // Update main area
-        d3.selectAll(".main_report").attr("cx", function (d) {
+        d3.selectAll(".main_report_PE").attr("cx", function (d) {
           return mainX(d.formattedDate);
         });
 
         // Update the main x axis
-        d3.select(".main-x-axis").call(xAxis);
+        d3.select(".main-PE-x-axis").call(xAxis);
       };
 
       // Function expression to handle mouse wheel zoom or drag on main area
       // Need to define this before defining zoom since it's function expression instead of function declariation
       let zoomed = function () {
         // Ignore zoom-by-brush
+        console.log(d3.event.sourceEvent);
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
           return;
         }
@@ -771,7 +772,7 @@ const Timeline = ({
         showAndMoveCustomBrushHandles(selection);
       };
 
-      // Zoom rect that covers the main main area
+      // Zoom rect that covers the main area
       let zoom = d3
           .zoom()
           .scaleExtent([1, Infinity])
@@ -789,7 +790,7 @@ const Timeline = ({
       // So we need to create the zoom panel first
       svg
           .append("rect")
-          .attr("class", "zoom")
+          .attr("class", "zoom_PE")
           .attr("width", width)
           .attr("height", height + gapBetweenlegendAndMain)
           .attr(
@@ -988,14 +989,13 @@ const Timeline = ({
             .attr("clip-path", "url(#main_area_clip)");
         const that = this;
         mainReports
-            .selectAll(".main_report")
+            .selectAll(".main_report_PE")
             .data(reportData)
             .enter()
             .append("g")
             .append("circle")
             .attr("class", function (d) {
-              // console.log(d);
-              return "main_report " + episode2CssClass(d.episode);
+              return "main_report_PE " + episode2CssClass(d.episode);
             })
             .attr("id", function (d) {
               return "main_" + d.id;
@@ -1028,18 +1028,13 @@ const Timeline = ({
               highlightSelectedTimelineReport(d.id);
               $("#report_instance").show();
               setReportId(d.id);
-              // console.log(patientJson.documents);
-              // console.log("🔍 Clicked ID:", d.id);
-              // console.log("📄 Document IDs:", patientJson.documents.map(doc => doc.name));
 
               const docIndex = patientJson?.documents?.findIndex(
                   (doc) => d.id.startsWith(doc.name)
               );
               console.log(docIndex);
               if (docIndex !== -1) {
-                console.log("📌 Setting currDoc to", docIndex);
-                setCurrDoc(docIndex); // <-- now this will work!
-                console.log("🔁 Switching to document index:", docIndex);
+                setCurrDoc(docIndex);
               } else {
                 console.warn("❗Could not find document for reportId:", d.id);
               }
@@ -1180,7 +1175,7 @@ const Timeline = ({
           .attr("y", overviewHeight / 2) // Relative to the overview area
           .attr("dy", ".5ex")
           .attr("class", "overview_label")
-          .text("Timeline (" + reportData.length + " reports)");
+          .text("PatientEpisodeTimeline (" + reportData.length + " reports)");
 
       // Report dots in overview area
       // No need to use clipping path since the overview area contains all the report dots
@@ -1319,7 +1314,7 @@ const Timeline = ({
 
         // Zoom the main area
         svg
-            .select(".zoom")
+            .select(".zoom_PE")
             .call(
                 zoom.transform,
                 d3.zoomIdentity
@@ -1381,7 +1376,7 @@ const Timeline = ({
         const jsonResponse = await response.json();
         processTimelineResponse(jsonResponse);
       } catch (error) {
-        console.error("Timeline fetch error:", error);
+        console.error("PatientEpisodeTimeline fetch error:", error);
       }
     };
 
@@ -1392,4 +1387,4 @@ const Timeline = ({
   return <div className="Timeline" id={svgContainerId}></div>
 }
 
-export default Timeline;
+export default PatientEpisodeTimeline;

@@ -6,8 +6,8 @@ import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 import CustomTable from "../../components/CustomTables/CustomTable";
 import CancerAndTumorSummary from "../../components/Summaries/CancerAndTumorSummary";
-import Timeline from "../../components/Charts/Timeline";
-import TimelineEventsNew from "../../components/Charts/TimelineEventsNew"
+import PatientEpisodeTimeline from "../../components/Charts/PatientEpisodeTimeline";
+import EventRelationTimeline from "../../components/Charts/EventRelationTimeline"
 import CardHeader from "../../components/Card/CardHeader";
 import { Col, Container, Nav, Navbar, Row } from "react-bootstrap";
 import { DocumentViewer } from "../../components/DocumentViewer/DocumentViewer";
@@ -78,19 +78,19 @@ function Patient(props) {
     return (
       <Card>
         {/*<CardHeader className={"basicCardHeader"}>*/}
-        {/*  Patient Episode Timeline*/}
+        {/*  Patient Episode PatientEpisodeTimeline*/}
         {/*</CardHeader>*/}
         <CardBody>
           {patientJson && Object.keys(patientJson).length > 0 ? (
-          <Timeline
-              svgContainerId="timeline1"
+          <PatientEpisodeTimeline
+              svgContainerId="PatientEpisodeTimelineSvg"
               reportId={reportId}
               patientJson={patientJson}
               patientId={patientId}
               setReportId={setReportId}
               setCurrDoc={setCurrDoc}
               //getReport={getReport}
-          ></Timeline>
+          ></PatientEpisodeTimeline>
           ) : (
               <div>Loading timeline...</div>
           )}
@@ -100,24 +100,24 @@ function Patient(props) {
     );
   };
 
-  const getComponentPatientEpisodeTimelineEventsNew= () => {
+  const getComponentEventRelationTimeline= () => {
     return (
         <Card>
           {/*<CardHeader className={"basicCardHeader"}>*/}
           {/*  Temporal Events*/}
           {/*</CardHeader>*/}
           <CardBody>
-            <TimelineEventsNew
+            <EventRelationTimeline
                 setClickedTerms={setClickedTerms}
                 clickedTerms={clickedTerms}
-                svgContainerId="timeline2"
+                svgContainerId="EventRelationTimelineSvg"
                 reportId={reportId}
                 patientJson={patientJson}
                 patientId={patientId}
                 setReportId={setReportId}
                 conceptsPerDocument={conceptsPerDocumentRef.current}
                 //getReport={getReport}
-            ></TimelineEventsNew>
+            ></EventRelationTimeline>
           </CardBody>
         </Card>
     );
@@ -292,7 +292,7 @@ function Patient(props) {
             {getComponentPatientIdAndDemographics()}
             {getComponentCancerAndTumorDetail()}
             {getComponentPatientEpisodeTimeline()}
-            {getComponentPatientEpisodeTimelineEventsNew()}
+            {getComponentEventRelationTimeline()}
             {getComponentDocumentViewer()}
           </GridItem>
           <GridItem xs={12} sm={12} md={1}/>

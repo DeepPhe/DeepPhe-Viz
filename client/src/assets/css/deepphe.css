@@ -1338,9 +1338,9 @@ white text with more shading
 }
 
 
-/* Timeline */
+/* PatientEpisodeTimeline */
 .episode_legend_circle,
-.main_report {
+.main_report_PE {
     fill-opacity: 0.5;
 }
 
@@ -1376,7 +1376,7 @@ white text with more shading
     fill-opacity: 1 !important;
 }
 
-.main_report:hover {
+.main_report_contains:hover, .main_report_PE:hover {
     fill-opacity: 1;
     stroke-width: 6px;
 }
@@ -1385,7 +1385,13 @@ white text with more shading
     stroke: #fff;
 }
 
-.zoom {
+.faded {
+    opacity: 0.1;
+    transition: opacity 0.3s ease;
+}
+
+
+.zoom_ER, .zoom_PE {
     fill: none;
     /*
     The pointer-events attribute allows authors to control whether or when an element may be the target of a mouse event

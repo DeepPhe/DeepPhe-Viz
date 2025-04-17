@@ -35,7 +35,7 @@ start_date	patient_id	chemo_text	end_date	tlink 	note_id   	concept_id
 2011-11-20	patient01	finding	2011-11-20	after
 2013-02-02	patient01	clinical test result	2013-02-02	after
 2014-05-15	patient01	gene	2014-05-15	after
-2013-01-15	patient01	gene product	2013-04-15	contians
+2013-01-15	patient01	gene product	2013-04-15	contains
 2013-02-13	patient01	disease or disorder	2013-06-28	contains
 2012-01-14	patient01	neoplasm	2013-04-14	overlap
 2011-11-11	patient01	mass	2012-04-04	overlap

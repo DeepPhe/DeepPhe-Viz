@@ -75,7 +75,7 @@ let reportTextRight = "";
 export { mentionedTerms };
 export { reportTextRight };
 
-export default function TimelineEventsNew (props) {
+export default function EventRelationTimeline (props) {
     const [json, setJson] = useState(undefined);
     const [patientId, setPatientId] = useState(props.patientId);
     const setReportId = props.setReportId;
@@ -208,10 +208,10 @@ export default function TimelineEventsNew (props) {
 
             const transformedData = transformTSVData(tsvData);
 
-            // ✅ Clear the previous timeline if it exists
+
             const container = document.getElementById(svgContainerId);
             if (container) {
-                container.innerHTML = ""; // or use d3.select(container).selectAll("*").remove();
+                container.innerHTML = "";
             }
 
             renderTimeline(
@@ -321,7 +321,10 @@ export default function TimelineEventsNew (props) {
 
         const gapBetweenlegendAndMain = 5;
 
-        const width = 1000;
+        const container = document.getElementById(svgContainerId);
+        const containerWidth = container.offsetWidth;
+
+        const svgWidth = containerWidth - margin.left - 25;
         // Dynamic height based on vertical counts
         const height =
             totalMaxVerticalCounts * mainChemoTextRowHeightPerCount * 2;
@@ -344,10 +347,6 @@ export default function TimelineEventsNew (props) {
 
         // Gap between texts and mian area left border
         const textMargin = 10;
-
-        // https://github.com/d3/d3-time-format#d3-time-format
-        // const formatTime = d3.timeFormat("%Y-%m-%d");
-        // const parseTime = d3.timeParse("%Y-%m-%d");
         const eventData = createEventData(startDates, endDates, patientId, chemoText, noteId);
 
 
@@ -363,7 +362,7 @@ export default function TimelineEventsNew (props) {
             let mainX = d3
                 .scaleTime()
                 .domain([minStartDate, maxEndDate])
-                .range([0, width]);
+                .range([0, svgWidth]);
 
             eventData.forEach(function (d) {
                 const startDate = new Date(d.start);
@@ -403,7 +402,7 @@ export default function TimelineEventsNew (props) {
             let overviewX = d3
                 .scaleTime()
                 .domain([minStartDate, maxEndDate])
-                .range([0, width]);
+                .range([0, svgWidth]);
 
             // Y scale to handle main area
 
@@ -425,17 +424,20 @@ export default function TimelineEventsNew (props) {
 
             // Create the container if it doesn't exist
             if (!document.getElementById(svgContainerId)) {
+                console.log(svgContainerId);
                 const container = document.createElement("div");
                 container.id = svgContainerId;
                 document.body.appendChild(container); // Append to the desired parent (body, or other parent element)
             }
+
+
 
             // SVG
             let svg = d3
                 .select("#" + svgContainerId)
                 .append("svg")
                 .attr("class", "timeline_svg")
-                .attr("width", window.innerWidth)
+                .attr("width", containerWidth)
                 .attr(
                     "height",
                     margin.top +
@@ -488,7 +490,7 @@ export default function TimelineEventsNew (props) {
                 .append("line")
                 .attr("x1", 0)
                 .attr("y1", legendHeight)
-                .attr("x2", margin.left + width)
+                .attr("x2", margin.left + svgWidth)
                 .attr("y2", legendHeight)
                 .attr("class", "legend_group_divider");
 
@@ -543,7 +545,7 @@ export default function TimelineEventsNew (props) {
                 // .append("clipPath")
                 .attr("id", "secondary_area_clip")
                 .append("rect")
-                .attr("width", width)
+                .attr("width", svgWidth)
                 .attr("height", height + gapBetweenlegendAndMain);
 
 
@@ -560,18 +562,19 @@ export default function TimelineEventsNew (props) {
                     });
 
                 // Update main area
-                d3.selectAll(".main_report").attr("cx", function (d) {
+                d3.selectAll(".main_report_ER").attr("cx", function (d) {
                     return mainX(d.formattedDate);
                 });
 
                 // Update the main x axis
-                d3.select(".main-x-axis").call(xAxis);
+                d3.select(".main-ER-x-axis").call(xAxis);
             };
 
             // Function expression to handle mouse wheel zoom or drag on main area
             // Need to define this before defining zoom since it's function expression instead of function declariation
             let zoomed = function () {
                 // Ignore zoom-by-brush
+                console.log(d3.event.sourceEvent);
                 if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
                     return;
                 }
@@ -603,26 +606,26 @@ export default function TimelineEventsNew (props) {
                 .scaleExtent([1, Infinity])
                 .translateExtent([
                     [0, 0],
-                    [width, height],
+                    [svgWidth, height],
                 ])
                 .extent([
                     [0, 0],
-                    [width, height],
+                    [svgWidth, height],
                 ])
                 .on("zoom", zoomed);
 
             // Appending zoom rect after the main area will prevent clicking on the report circles/
             // So we need to create the zoom panel first
-            // svg
-            //     .append("rect")
-            //     .attr("class", "zoom")
-            //     .attr("width", width)
-            //     .attr("height", height + gapBetweenlegendAndMain)
-            //     .attr(
-            //         "transform",
-            //         "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
-            //     )
-            //     .call(zoom);
+            svg
+                .append("rect")
+                .attr("class", "zoom_ER")
+                .attr("width", svgWidth)
+                .attr("height", height + gapBetweenlegendAndMain)
+                .attr(
+                    "transform",
+                    "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
+                )
+                .call(zoom);
 
             // Main area
             // Create main area after zoom panel, so we can select the report circles
@@ -791,7 +794,7 @@ export default function TimelineEventsNew (props) {
                 .attr("y1", function (d) {
                     return mainY(verticalPositions[d]);
                 })
-                .attr("x2", width)
+                .attr("x2", svgWidth)
                 .attr("y2", function (d) {
                     return mainY(verticalPositions[d]);
                 })
@@ -842,7 +845,7 @@ export default function TimelineEventsNew (props) {
             defs.append("marker")
                 .attr("id", "rightArrow")
                 .attr("viewBox", "0 0 12 12")  // Marker size
-                .attr("refX", 0)  // Position of the marker on the line
+                .attr("refX", 2)  // Position of the marker on the line
                 .attr("refY", 6)
                 .attr("markerWidth", 4)
                 .attr("markerHeight", 4)
@@ -870,7 +873,7 @@ export default function TimelineEventsNew (props) {
                 .attr("clip-path", "url(#secondary_area_clip)");
 
             mainReports
-                .selectAll(".main_report")
+                .selectAll(".main_report_ER")
                 .data(eventData)
                 .enter()
                 .append("g")
@@ -894,7 +897,8 @@ export default function TimelineEventsNew (props) {
                     if (d.tLink === "contains") {
                         // Vertical line at x1
                         containsGroup.append("line")
-                            .attr("class", "main_report_contains")
+                            .attr("class", "main_report_contains relation-icon")
+                            .attr("data-note-id", d.id)
                             .attr("x1", x1)
                             .attr("x2", x1)
                             .attr("y1", y - 10) // Extends above
@@ -906,7 +910,8 @@ export default function TimelineEventsNew (props) {
 
                         // Vertical line at x2
                         containsGroup.append("line")
-                            .attr("class", "main_report_contains")
+                            .attr("class", "main_report_contains relation-icon")
+                            .attr("data-note-id", d.id)
                             .attr("x1", x2)
                             .attr("x2", x2)
                             .attr("y1", y - 10) // Extends above
@@ -917,8 +922,8 @@ export default function TimelineEventsNew (props) {
                             .on("click", (event) => handleClick(event, d));
 
                         containsGroup.append("line")
-                            .attr("class", "main_report")
-                            .attr("data-episode", d.id)
+                            .attr("class", "main_report_ER relation-icon")
+                            .attr("data-note-id", d.id)
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -937,8 +942,8 @@ export default function TimelineEventsNew (props) {
                     if (d.tLink !== "contains") {
                         // Append the line
                         mainLineGroup.append("line")
-                            .attr("class", "main_report")
-                            .attr("data-episode", d.id)
+                            .attr("class", "main_report_ER relation-icon")
+                            .attr("data-note-id", d.id)
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -960,6 +965,7 @@ export default function TimelineEventsNew (props) {
                         if (x1 === x2) {
                             if (d.tLink === "before") {
                                 mainLineGroup.append("rect")
+                                    .attr("data-note-id", d.id)
                                     .attr("x", x1 - 10) // Align with arrow
                                     .attr("y", y - 5)
                                     .attr("width", 15)
@@ -970,6 +976,7 @@ export default function TimelineEventsNew (props) {
                             }
                             if (d.tLink === "after") {
                                 mainLineGroup.append("rect")
+                                    .attr("data-note-id", d.id)
                                     .attr("x", x2 - 5) // Align with arrow
                                     .attr("y", y - 5)
                                     .attr("width", 15)
@@ -983,40 +990,88 @@ export default function TimelineEventsNew (props) {
                 });
 
             // Click handler function
+            // function handleClick(event, d) {
+            //     let clickedId = d.noteId;
+            //     if (clickedId) {
+            //         setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
+            //         let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+            //
+            //         matchingCircles.forEach(circle => {
+            //             // Toggle the class on the existing circle
+            //             // circle.classList.toggle("selected_report");
+            //
+            //             // Check if an outline circle already exists
+            //             let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
+            //
+            //             if (existingOutline) {
+            //                 // existingOutline.remove(); // Remove it if it already exists
+            //             } else {
+            //                 // Create a new outline circle
+            //                 let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            //                 outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
+            //                 outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
+            //                 outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6); // Slightly larger radius
+            //                 outlineCircle.setAttribute("class", "selected_report_temporal");
+            //                 outlineCircle.setAttribute("data-outline", circle.id); // Mark it to identify later
+            //
+            //                 // Insert the outline in the same SVG parent
+            //                 circle.parentNode.appendChild(outlineCircle);
+            //             }
+            //         });
+            //     }
+            // }
+
             function handleClick(event, d) {
-                let clickedId = d.noteId;
+                const clickedId = d.noteId;
                 console.log(d);
-                console.log(d.noteId);
-                if (clickedId) {
-                    console.log(d.conceptId);
-                    // setClickedTerms
-                    setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
-                    let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+                if (!clickedId) return;
 
-                    matchingCircles.forEach(circle => {
-                        // Toggle the class on the existing circle
-                        // circle.classList.toggle("selected_report");
+                setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
 
-                        // Check if an outline circle already exists
-                        let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
+                // Select all elements that should be faded
+                let allCircles = document.querySelectorAll("circle");
+                let allRelations = document.querySelectorAll(".relation-icon");
+                // let allLines = document.querySelectorAll("line.main_report_ER, line.main_report_contains");
 
-                        if (existingOutline) {
-                            // existingOutline.remove(); // Remove it if it already exists
-                        } else {
-                            // Create a new outline circle
-                            let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                            outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
-                            outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
-                            outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6); // Slightly larger radius
-                            outlineCircle.setAttribute("class", "selected_report_temporal");
-                            outlineCircle.setAttribute("data-outline", circle.id); // Mark it to identify later
+                // Select the ones related to the clicked ID
+                let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+                let matchingRelations = document.querySelectorAll(`.relation-icon[data-note-id="${clickedId}"]`);
+                // let matchingLines = document.querySelectorAll(`line[data-episode="${d.id}"]`);
 
-                            // Insert the outline in the same SVG parent
-                            circle.parentNode.appendChild(outlineCircle);
-                        }
-                    });
-                }
+                // Step 1: Fade everything
+                allCircles.forEach(el => el.classList.add("faded"));
+                allRelations.forEach(el => el.classList.add("faded"));
+                // allLines.forEach(el => el.classList.add("faded"));
+
+                // Step 2: Un-fade relevant elements
+                matchingCircles.forEach(circle => {
+                    circle.classList.remove("faded");
+
+                    let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
+                    if (!existingOutline) {
+                        let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
+                        outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
+                        outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6);
+                        outlineCircle.setAttribute("class", "selected_report_temporal");
+                        outlineCircle.setAttribute("data-outline", circle.id);
+                        circle.parentNode.appendChild(outlineCircle);
+                    }
+                });
+
+                matchingRelations.forEach(el => el.classList.remove("faded"));
+                // matchingLines.forEach(el => el.classList.remove("faded"));
+
+                // Step 3: Ensure outlines match visibility
+                document.querySelectorAll("circle[data-outline]").forEach(outline => {
+                    if (outline.getAttribute("data-outline").includes(clickedId)) {
+                        outline.classList.remove("faded");
+                    } else {
+                        outline.classList.add("faded");
+                    }
+                });
             }
+
 
             // Main area x axis
             // https://github.com/d3/d3-axis#axisBottom
@@ -1089,7 +1144,7 @@ export default function TimelineEventsNew (props) {
                 .attr("y", overviewHeight / 2) // Relative to the overview area
                 .attr("dy", ".5ex")
                 .attr("class", "overview_label")
-                .text("Timeline events");
+                .text("EventRelationTimeline events");
 
             // Report dots in overview area
             // No need to use clipping path since the overview area contains all the report dots
@@ -1192,7 +1247,7 @@ export default function TimelineEventsNew (props) {
                 .attr("d", createCustomBrushHandle)
                 .attr("transform", function (d, i) {
                     // Position the custom handles based on the default selection range
-                    let selection = [0, width];
+                    let selection = [0, svgWidth];
                     return "translate(" + [selection[i], -overviewHeight / 4] + ")";
                 });
 
@@ -1228,11 +1283,11 @@ export default function TimelineEventsNew (props) {
 
                 // Zoom the main area
                 svg
-                    .select(".zoom")
+                    .select(".zoom_ER")
                     .call(
                         zoom.transform,
                         d3.zoomIdentity
-                            .scale(width / (selection[1] - selection[0]))
+                            .scale(svgWidth / (selection[1] - selection[0]))
                             .translate(-selection[0], 0)
                     );
             };
@@ -1242,7 +1297,7 @@ export default function TimelineEventsNew (props) {
                 .brushX()
                 .extent([
                     [0, 0],
-                    [width, overviewHeight],
+                    [svgWidth, overviewHeight],
                 ])
                 // Update the UI on brush move
                 .on("brush", brushed);
