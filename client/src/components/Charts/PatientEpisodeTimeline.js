@@ -422,7 +422,11 @@ const PatientEpisodeTimeline = ({
 
     const gapBetweenlegendAndMain = 5;
 
-    const width = 1000;
+    const container = document.getElementById(svgContainerId);
+    const containerWidth = container.offsetWidth;
+
+    const svgWidth = containerWidth;
+
     // Dynamic height based on vertical counts
     const height =
         totalMaxVerticalCounts * mainReportTypeRowHeightPerCount * 2;
@@ -523,12 +527,12 @@ const PatientEpisodeTimeline = ({
       let mainX = d3
           .scaleTime()
           .domain([startDate, endDate])
-          .range([0, width]);
+          .range([0, svgWidth]);
 
       let overviewX = d3
           .scaleTime()
           .domain([startDate, endDate])
-          .range([0, width]);
+          .range([0, svgWidth]);
 
       // Y scale to handle main area
       let mainY = d3
@@ -584,23 +588,26 @@ const PatientEpisodeTimeline = ({
       }
 
       // SVG
-      let svg = d3
+      const totalHeight =
+          margin.top +
+          legendHeight +
+          gapBetweenlegendAndMain +
+          height +
+          pad +
+          overviewHeight +
+          pad +
+          ageAreaHeight +
+          margin.bottom;
+
+      const svg = d3
           .select("#" + svgContainerId)
           .append("svg")
           .attr("class", "patient_episode_timeline_svg")
-          .attr("width", window.innerWidth)
-          .attr(
-              "height",
-              margin.top +
-              legendHeight +
-              gapBetweenlegendAndMain +
-              height +
-              pad +
-              overviewHeight +
-              pad +
-              ageAreaHeight +
-              margin.bottom
-          );
+          .attr("viewBox", `0 0 ${svgWidth} ${totalHeight}`)
+          .attr("preserveAspectRatio", "xMidYMid meet") // Keeps aspect ratio on resize
+          .style("width", "100%")
+          .style("height", "auto");
+
 
       // Dynamically calculate the x posiiton of each legend rect
       let episodeLegendX = function (index) {
@@ -638,7 +645,7 @@ const PatientEpisodeTimeline = ({
           .append("line")
           .attr("x1", 0)
           .attr("y1", legendHeight)
-          .attr("x2", margin.left + width)
+          .attr("x2", margin.left + svgWidth)
           .attr("y2", legendHeight)
           .attr("class", "legend_group_divider");
 
@@ -718,7 +725,7 @@ const PatientEpisodeTimeline = ({
           .append("clipPath")
           .attr("id", "main_area_clip")
           .append("rect")
-          .attr("width", width)
+          .attr("width", svgWidth)
           .attr("height", height + gapBetweenlegendAndMain);
 
       let update = function () {
@@ -778,11 +785,11 @@ const PatientEpisodeTimeline = ({
           .scaleExtent([1, Infinity])
           .translateExtent([
             [0, 0],
-            [width, height],
+            [svgWidth, height],
           ])
           .extent([
             [0, 0],
-            [width, height],
+            [svgWidth, height],
           ])
           .on("zoom", zoomed);
 
@@ -791,7 +798,7 @@ const PatientEpisodeTimeline = ({
       svg
           .append("rect")
           .attr("class", "zoom_PE")
-          .attr("width", width)
+          .attr("width", svgWidth)
           .attr("height", height + gapBetweenlegendAndMain)
           .attr(
               "transform",
@@ -948,7 +955,7 @@ const PatientEpisodeTimeline = ({
           .attr("y1", function (d) {
             return mainY(verticalPositions[d]);
           })
-          .attr("x2", width)
+          .attr("x2", svgWidth)
           .attr("y2", function (d) {
             return mainY(verticalPositions[d]);
           })
@@ -1278,7 +1285,7 @@ const PatientEpisodeTimeline = ({
           .attr("d", createCustomBrushHandle)
           .attr("transform", function (d, i) {
             // Position the custom handles based on the default selection range
-            let selection = [0, width];
+            let selection = [0, svgWidth];
             return "translate(" + [selection[i], -overviewHeight / 4] + ")";
           });
 
@@ -1318,7 +1325,7 @@ const PatientEpisodeTimeline = ({
             .call(
                 zoom.transform,
                 d3.zoomIdentity
-                    .scale(width / (selection[1] - selection[0]))
+                    .scale(svgWidth / (selection[1] - selection[0]))
                     .translate(-selection[0], 0)
             );
       };
@@ -1328,7 +1335,7 @@ const PatientEpisodeTimeline = ({
           .brushX()
           .extent([
             [0, 0],
-            [width, overviewHeight],
+            [svgWidth, overviewHeight],
           ])
           // Update the UI on brush move
           .on("brush", brushed);

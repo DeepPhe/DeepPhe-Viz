@@ -1,6 +1,5 @@
 export function appendMentionsToTSV(tsvString, conceptsPerDocument) {
 
-
     // Split TSV text into lines
     const lines = tsvString.trim().split('\n');
 

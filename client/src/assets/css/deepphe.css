@@ -1385,10 +1385,28 @@ white text with more shading
     stroke: #fff;
 }
 
-.faded {
-    opacity: 0.1;
-    transition: opacity 0.3s ease;
+/*.faded {*/
+/*    opacity: 0.4;*/
+/*    transition: opacity 0.3s ease;*/
+/*}*/
+
+.darkened {
+    filter: brightness(0.3); /* or use fill/stroke changes if needed */
 }
+
+.timeline_svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+
+.selected_report_temporal {
+    stroke: black;
+    stroke-width: 2px;
+    fill: none;
+}
+
 
 
 .zoom_ER, .zoom_PE {

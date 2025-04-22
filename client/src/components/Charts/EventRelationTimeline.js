@@ -1,25 +1,10 @@
 import React, {useEffect, useState} from "react";
 import * as d3 from "d3v4";
-import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention'; // adjust path as needed
+import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention';
 
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
-let initialHighlightedDoc = "";
-let dpheTerms = "";
-let lineDataSet = [
-    { "id": "chemotherapy", "start": "2024-01-01", "end": "2024-03-01", "color": "rgb(140, 86, 75)" },
-    { "id": "procedure", "start": "2024-02-15", "end": "2024-05-10", "color": "rgb(44, 160, 44)" },
-    { "id": "intravenous administration", "start": "2024-04-01", "end": "2024-06-30", "color": "rgb(31, 119, 180)" },
-    { "id": "reconstructions", "start": "2024-01-14", "end": "2024-02-30", "color": "rgb(31, 119, 180)" },
-    { "id": "reduction", "start": "2024-01-20", "end": "2024-02-30", "color": "rgb(31, 1, 180)" },
-    { "id": "mammoplasty", "start": "2024-03-01", "end": "2024-09-30", "color": "rgb(31, 119, 180)" },
-    { "id": "enlarged", "start": "2024-08-01", "end": "2024-09-30", "color": "rgb(31, 119, 80)" },
-    { "id": "treatment", "start": "2024-10-01", "end": "2024-12-30", "color": "rgb(49, 163, 84)" }
-];
 
-// search: colon
-// Site ----- --- ----  -----
-// colon ----     ----
 
 const chemoTextGroups = {
 
@@ -98,9 +83,6 @@ export default function EventRelationTimeline (props) {
                 ? appendMentionsToTSV(text, conceptsPerDocument)
                 : text;
 
-            // console.log(modifiedText);
-            // console.log(typeof text);
-
             return parseTSV(modifiedText);
         } catch (error) {
             console.error("Error loading TSV:", error);
@@ -110,9 +92,9 @@ export default function EventRelationTimeline (props) {
 
     // Function to parse TSV text into an object
     const parseTSV = (tsvText) => {
-        const lines = tsvText.trim().split("\n"); // Split by lines
-        const headers = lines[0].split("\t").map(h => h.trim()); // Trim headers
-        const chemoCounts = {}; // Dictionary to track 'chemoText name' counts
+        const lines = tsvText.trim().split("\n");
+        const headers = lines[0].split("\t").map(h => h.trim());
+        const chemoCounts = {};
         const chemoGroupCounts =   {};
         const tLinkCounts = {};
 
@@ -382,14 +364,14 @@ export default function EventRelationTimeline (props) {
                 // "contained-by"
             ];
 
-            let tLinkColors = [
-                "rgb(49, 130, 189)",
-                "rgb(230, 85, 13)",
-                "rgb(49, 163, 84)",
-                "rgb(140, 86, 75)"
-            ];
+            // let tLinkColors = [
+            //     "rgb(49, 130, 189)",
+            //     "rgb(230, 85, 13)",
+            //     "rgb(49, 163, 84)",
+            //     "rgb(140, 86, 75)"
+            // ];
 
-            let color = d3.scaleOrdinal().domain(tLinkLabels).range(tLinkColors);
+            // let color = d3.scaleOrdinal().domain(tLinkLabels).range(tLinkColors);
 
             // Transition used by focus/defocus episode
             let transt = d3
@@ -433,23 +415,26 @@ export default function EventRelationTimeline (props) {
 
 
             // SVG
+            let totalHeight =
+                margin.top +
+                legendHeight +
+                gapBetweenlegendAndMain +
+                height +
+                pad +
+                overviewHeight +
+                pad +
+                ageAreaHeight +
+                margin.bottom;
+
             let svg = d3
                 .select("#" + svgContainerId)
                 .append("svg")
                 .attr("class", "timeline_svg")
-                .attr("width", containerWidth)
-                .attr(
-                    "height",
-                    margin.top +
-                    legendHeight +
-                    gapBetweenlegendAndMain +
-                    height +
-                    pad +
-                    overviewHeight +
-                    pad +
-                    ageAreaHeight +
-                    margin.bottom
-                );
+                .attr("viewBox", `0 0 ${containerWidth} ${totalHeight}`)
+                .attr("preserveAspectRatio", "xMidYMid meet") // Optional
+                .style("width", "100%")
+                .style("height", "auto");
+
 
             let labelPadding = 10; // Minimum space
             let extraPadding = 4; // Additional space per character
@@ -523,10 +508,10 @@ export default function EventRelationTimeline (props) {
                 })
                 .attr("transform", "translate(-18, 0)") // Shift arrow left of text
                 .style("fill", function (d) {
-                    return color(d);
+                    return 'rgb(49, 163, 84)'
                 })
                 .style("stroke", function (d) {
-                    return color(d);
+                    return 'rgb(49, 163, 84)';
                 })
                 .style("stroke-width", 2);
 
@@ -852,7 +837,7 @@ export default function EventRelationTimeline (props) {
                 .attr("orient", "auto")
                 .append("path")
                 .attr("d", "M 0 0 L 12 6 L 0 12")  // Right-pointing triangle
-                .style("fill", "rgb(230, 85, 13)");
+                .style("fill", "rgb(49, 163, 84)");
 
             // Define the left arrow marker
             defs.append("marker")
@@ -865,7 +850,7 @@ export default function EventRelationTimeline (props) {
                 .attr("orient", "auto")
                 .append("path")
                 .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
-                .style("fill", "rgb(49, 130, 189)");
+                .style("fill", "rgb(49, 163, 84)");
 
 
             let mainReports = main
@@ -882,12 +867,12 @@ export default function EventRelationTimeline (props) {
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
                     let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-                    if (d.tLink === "overlap") {
-                        y -= 15; // Shift up by 3 pixels — tweak as needed
-                    }
+                    // if (d.tLink === "overlap") {
+                    //     y -= 15; // Shift up by 3 pixels — tweak as needed
+                    // }
 
                     // Adjust line thickness if it's an overlap
-                    const lineThickness = d.tLink === "overlap" ? 2 : 5;
+                    const lineThickness = d.tLink === "overlap" ? 5 : 5;
 
                     // 1. Create a separate group for `contains` lines (will be drawn first)
                     const containsGroup = group.append("g").attr("class", "contains-group");
@@ -903,7 +888,7 @@ export default function EventRelationTimeline (props) {
                             .attr("x2", x1)
                             .attr("y1", y - 10) // Extends above
                             .attr("y2", y + 10) // Extends below
-                            .attr("stroke", color(d.tLink))
+                            .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
                             .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .on("click", (event) => handleClick(event, d));
@@ -916,7 +901,7 @@ export default function EventRelationTimeline (props) {
                             .attr("x2", x2)
                             .attr("y1", y - 10) // Extends above
                             .attr("y2", y + 10) // Extends below
-                            .attr("stroke", color(d.tLink))
+                            .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
                             .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .on("click", (event) => handleClick(event, d));
@@ -928,7 +913,7 @@ export default function EventRelationTimeline (props) {
                             .attr("x2", x2)
                             .attr("y1", y)
                             .attr("y2", y)
-                            .attr("stroke", color(d.tLink))
+                            .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
                             .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
@@ -948,18 +933,11 @@ export default function EventRelationTimeline (props) {
                             .attr("x2", x2)
                             .attr("y1", y)
                             .attr("y2", y)
-                            .attr("stroke", color(d.tLink))
+                            .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
                             .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
                             .on("click", (event) => handleClick(event, d));
-
-
-                        // const mainLineElement = mainLine.node();
-                        // group.node().appendChild(mainLineElement);
-                        // Move the line to the top by re-appending it
-                        // lineElement.parentNode.appendChild(lineElement);
-                        // group.raise(); // Ensure it’s a D3 object
 
                         // If start and end are the same, ensure arrow is clickable
                         if (x1 === x2) {
@@ -1023,54 +1001,33 @@ export default function EventRelationTimeline (props) {
 
             function handleClick(event, d) {
                 const clickedId = d.noteId;
-                console.log(d);
                 if (!clickedId) return;
 
+                console.log(d);
                 setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
 
-                // Select all elements that should be faded
-                let allCircles = document.querySelectorAll("circle");
-                let allRelations = document.querySelectorAll(".relation-icon");
-                // let allLines = document.querySelectorAll("line.main_report_ER, line.main_report_contains");
+                // Get all selectable elements
+                const allCircles = document.querySelectorAll("circle");
+                const allRelations = document.querySelectorAll(".relation-icon");
 
-                // Select the ones related to the clicked ID
-                let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
-                let matchingRelations = document.querySelectorAll(`.relation-icon[data-note-id="${clickedId}"]`);
-                // let matchingLines = document.querySelectorAll(`line[data-episode="${d.id}"]`);
+                // Clear previous darken effects
+                allCircles.forEach(el => el.classList.remove("darkened"));
+                allRelations.forEach(el => el.classList.remove("darkened"));
 
-                // Step 1: Fade everything
-                allCircles.forEach(el => el.classList.add("faded"));
-                allRelations.forEach(el => el.classList.add("faded"));
-                // allLines.forEach(el => el.classList.add("faded"));
+                // Select matching elements
+                const matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
+                const matchingRelations = document.querySelectorAll(`.relation-icon[data-note-id="${clickedId}"]`);
 
-                // Step 2: Un-fade relevant elements
+                // Apply darkening effect to the selected elements
                 matchingCircles.forEach(circle => {
-                    circle.classList.remove("faded");
-
-                    let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
-                    if (!existingOutline) {
-                        let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                        outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
-                        outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
-                        outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6);
-                        outlineCircle.setAttribute("class", "selected_report_temporal");
-                        outlineCircle.setAttribute("data-outline", circle.id);
-                        circle.parentNode.appendChild(outlineCircle);
-                    }
+                    circle.classList.add("darkened");
                 });
 
-                matchingRelations.forEach(el => el.classList.remove("faded"));
-                // matchingLines.forEach(el => el.classList.remove("faded"));
-
-                // Step 3: Ensure outlines match visibility
-                document.querySelectorAll("circle[data-outline]").forEach(outline => {
-                    if (outline.getAttribute("data-outline").includes(clickedId)) {
-                        outline.classList.remove("faded");
-                    } else {
-                        outline.classList.add("faded");
-                    }
+                matchingRelations.forEach(el => {
+                    el.classList.add("darkened");
                 });
             }
+
 
 
             // Main area x axis
@@ -1172,7 +1129,7 @@ export default function EventRelationTimeline (props) {
                     );
                 })
                 .style("fill", function (d) {
-                    return color("red");
+                    return 'rgb(49, 163, 84)';
                 });
 
             // Overview x axis
