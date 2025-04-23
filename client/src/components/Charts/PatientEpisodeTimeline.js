@@ -425,7 +425,7 @@ const PatientEpisodeTimeline = ({
     const container = document.getElementById(svgContainerId);
     const containerWidth = container.offsetWidth;
 
-    const svgWidth = containerWidth;
+    const svgWidth = containerWidth + 100;
 
     // Dynamic height based on vertical counts
     const height =
@@ -645,7 +645,7 @@ const PatientEpisodeTimeline = ({
           .append("line")
           .attr("x1", 0)
           .attr("y1", legendHeight)
-          .attr("x2", margin.left + svgWidth)
+          .attr("x2", "100%")
           .attr("y2", legendHeight)
           .attr("class", "legend_group_divider");
 
@@ -725,7 +725,7 @@ const PatientEpisodeTimeline = ({
           .append("clipPath")
           .attr("id", "main_area_clip")
           .append("rect")
-          .attr("width", svgWidth)
+          .attr("width", "100%")
           .attr("height", height + gapBetweenlegendAndMain);
 
       let update = function () {

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import * as d3 from "d3v4";
 import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention';
+import {sum} from "lodash";
 
 const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
@@ -307,9 +308,7 @@ export default function EventRelationTimeline (props) {
         const containerWidth = container.offsetWidth;
 
         const svgWidth = containerWidth - margin.left - 25;
-        // Dynamic height based on vertical counts
-        const height =
-            totalMaxVerticalCounts * mainChemoTextRowHeightPerCount * 2;
+
 
         const pad = 25;
 
@@ -356,6 +355,65 @@ export default function EventRelationTimeline (props) {
 
             removeDuplicatesFromChemoAndTlink();
 
+
+            const groupLaneHeights = {}; // e.g., { 'AC': 2, 'Taxol': 3, ... }
+
+            chemoTextGroups.forEach(group => {
+                // console.log(group);
+                const eventsInGroup = eventData.filter(d => d.chemo_group === group);
+                // console.log(eventsInGroup);
+                const slots = [];
+                const isPoint = ([start, end]) => start === end;
+
+
+                const checkOverlap = (a, b) => {
+                    if (isPoint(a) && isPoint(b)) {
+                        return a[0] === b[0];
+                    } else if (isPoint(a)) {
+                        return b[0] <= a[0] && a[0] <= b[1];
+                    } else if (isPoint(b)) {
+                        return a[0] <= b[0] && b[0] <= a[1];
+                    } else {
+                        return Math.max(a[0], b[0]) < Math.min(a[1], b[1]);
+                    }
+                };
+
+                eventsInGroup.forEach(d => {
+
+                    const x1 = +d.formattedStartDate;
+                    const x2 = +d.formattedEndDate;
+                    let row = 0;
+
+                    while (true) {
+                        if (!slots[row]) slots[row] = [];
+
+                        const hasOverlap = slots[row].some(slot => checkOverlap([x1, x2], slot));
+
+                        if (!hasOverlap) {
+                            slots[row].push([x1, x2]);
+                            break;
+                        }
+                        row += 1;
+                    }
+                });
+
+                // Now store the number of rows
+                groupLaneHeights[group] = slots.length;
+
+            });
+
+            console.log(groupLaneHeights);
+
+
+            // Dynamic height based on vertical counts
+            const totalGroupLaneHeights = Object.values(groupLaneHeights).reduce((acc, val) => acc + val, 0);
+
+            console.log(totalGroupLaneHeights);
+
+
+            const height =
+                totalGroupLaneHeights * mainChemoTextRowHeightPerCount * 2;
+
             let tLinkLabels = [
                 "before",
                 "after",
@@ -388,16 +446,17 @@ export default function EventRelationTimeline (props) {
 
             // Y scale to handle main area
 
+            console.log(totalMaxVerticalCounts);
             let mainY = d3
                 .scaleLinear()
-                .domain([0, totalMaxVerticalCounts])
+                .domain([0, totalGroupLaneHeights])
                 .range([0, height]);
 
             // Y scale to handle overview area
             // console.log("blash", overviewHeight, height)
             let overviewY = d3
                 .scaleLinear()
-                .domain([0, totalMaxVerticalCounts])
+                .domain([0, totalGroupLaneHeights])
                 .range([0, overviewHeight]);
 
             // Process episode dates
@@ -415,7 +474,7 @@ export default function EventRelationTimeline (props) {
 
 
             // SVG
-            let totalHeight =
+            let svgTotalHeight =
                 margin.top +
                 legendHeight +
                 gapBetweenlegendAndMain +
@@ -430,7 +489,7 @@ export default function EventRelationTimeline (props) {
                 .select("#" + svgContainerId)
                 .append("svg")
                 .attr("class", "timeline_svg")
-                .attr("viewBox", `0 0 ${containerWidth} ${totalHeight}`)
+                .attr("viewBox", `0 0 ${containerWidth} ${svgTotalHeight}`)
                 .attr("preserveAspectRatio", "xMidYMid meet") // Optional
                 .style("width", "100%")
                 .style("height", "auto");
@@ -455,29 +514,28 @@ export default function EventRelationTimeline (props) {
 
 
 
+            // Add label first in its own position
+            svg.append("text")
+                .attr("x", 10) // or whatever left margin you want
+                .attr("y", margin.top + episodeLegendAnchorPositionY)
+                .attr("dy", ".5ex")
+                .attr("class", "episode_legend_text")
+                .attr("text-anchor", "start")
+                .text("Time Relation:");
+
+            svg.append("line")
+                .attr("x1", 10) // match the x of "Time Relation:"
+                .attr("y1", margin.top + legendHeight)
+                .attr("x2", margin.left + svgWidth)
+                .attr("y2", margin.top + legendHeight)
+                .attr("class", "legend_group_divider");
+
+            // Now episodeLegendGrp only contains the icons and labels
             let episodeLegendGrp = svg
                 .append("g")
                 .attr("class", "episode_legend_group")
-                .attr("transform", "translate(10, " + margin.top + ")");
+                .attr("transform", `translate(60, ${margin.top})`); // shift it right to make room for "Time Relation:"
 
-            // Overview label text
-            episodeLegendGrp
-                .append("text")
-                .attr("x", episodeLegendAnchorPositionX) // Relative to episodeLegendGrp
-                .attr("y", episodeLegendAnchorPositionY)
-                .attr("dy", ".5ex")
-                .attr("class", "episode_legend_text")
-                .attr("text-anchor", "end") // the end of the text string is at the initial current text position
-                .text("TLink:");
-
-            // Bottom divider line
-            episodeLegendGrp
-                .append("line")
-                .attr("x1", 0)
-                .attr("y1", legendHeight)
-                .attr("x2", margin.left + svgWidth)
-                .attr("y2", legendHeight)
-                .attr("class", "legend_group_divider");
 
             let episodeLegend = episodeLegendGrp
                 .selectAll(".episode_legend")
@@ -487,41 +545,34 @@ export default function EventRelationTimeline (props) {
                 .attr("class", "episode_legend")
                 .attr("transform", (d, i) => `translate(${episodeLegendX(i)}, 0)`);
 
+            // Arrow paths
             episodeLegend
                 .append("path")
                 .attr("class", "episode_legend_arrow")
                 .attr("d", function (d) {
                     if (d.includes("contains")) {
-                        return "M 3 0 L 3 12 M 9 0 L 9 12"; // Two parallel vertical lines
+                        return "M 3 0 L 3 12 M 9 0 L 9 12";
                     } else if (d === "before") {
-                        return "M 12 0 L 0 6 L 12 12"; // Left arrow <
+                        return "M 12 0 L 0 6 L 12 12";
                     } else if (d === "overlap") {
-                        return "M 0 6 L 12 6"; // Horizontal line
-                    }
-
-                    // else if (d === "contained-by") {
-                    //     return "M 14 0 L 8 6 L 14 12 M -2 0 L 4 6 L -2 12"; // Two arrows facing each other (><)
-                    // }
-                    else {
-                        return "M 0 0 L 12 6 L 0 12"; // Right arrow >
+                        return "M 0 6 L 12 6";
+                    } else {
+                        return "M 0 0 L 12 6 L 0 12";
                     }
                 })
-                .attr("transform", "translate(-18, 0)") // Shift arrow left of text
-                .style("fill", function (d) {
-                    return 'rgb(49, 163, 84)'
-                })
-                .style("stroke", function (d) {
-                    return 'rgb(49, 163, 84)';
-                })
+                .attr("transform", "translate(-18, 0)")
+                .style("fill", 'rgb(49, 163, 84)')
+                .style("stroke", 'rgb(49, 163, 84)')
                 .style("stroke-width", 2);
 
-            // Legend label text
+            // Legend labels
             episodeLegend
                 .append("text")
                 .attr("x", 0)
                 .attr("y", 10)
                 .attr("class", "episode_legend_text")
                 .text(d => `${d} (${tLinkCounts[d]})`);
+
 
             // Specify a specific region of an element to display, rather than showing the complete area
             // Any parts of the drawing that lie outside of the region bounded by the currently active clipping path are not drawn.
@@ -559,7 +610,7 @@ export default function EventRelationTimeline (props) {
             // Need to define this before defining zoom since it's function expression instead of function declariation
             let zoomed = function () {
                 // Ignore zoom-by-brush
-                console.log(d3.event.sourceEvent);
+                // console.log(d3.event.sourceEvent);
                 if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
                     return;
                 }
@@ -668,30 +719,6 @@ export default function EventRelationTimeline (props) {
                 yScaleCallback,
                 chemoTextRowHeightPerCount
             ) {
-                // console.log(eventData);
-
-                // let arr = reportsGroupedByDateAndTypeObj[d.date][d.type];
-
-
-                // if (arr.length > 1) {
-                //     let index = 0;
-                //     for (let i = 0; i < arr.length; i++) {
-                //         if (arr[i].id === d.id) {
-                //             index = i;
-                //             break;
-                //         }
-                //     }
-
-                // The height of per chunk
-                //     let h = (verticalPositions[d.type] * chemoTextRowHeightPerCount);
-                //     return (
-                //         yScaleCallback(verticalPositions[d.type]) -
-                //         ((1 - (index + 1)) * h + h / 2)
-                //     );
-                // } else {
-                // Vertically center the dot if only one
-                // console.log(verticalPositions);
-                // console.log(yScaleCallback(verticalPositions[d.chemo_group]), chemoTextRowHeightPerCount * verticalPositions[d.chemo_group] / 2);
                 return (
                     yScaleCallback(verticalPositions[d.chemo_group]) -
                     (chemoTextRowHeightPerCount * verticalPositions[d.chemo_group]) /
@@ -699,69 +726,28 @@ export default function EventRelationTimeline (props) {
                 );
             };
 
-
-
-            // let getReportLinPositionY = function (
-            //     d,
-            //
-            // )
-
-            // Episode interval spans
-            // let focusEpisode = function (episode) {
-            //     // Here we we add extra days before the start and after the end date to have a little cushion
-            //     let daysDiff = Math.floor(
-            //         (episode.endDate - episode.startDate) / (1000 * 60 * 60 * 24)
-            //     );
-            //     let numOfDays = daysDiff > 30 ? 3 : 1;
-            //
-            //     // setDate() will change the start and end dates, and we still need the origional dates to update the episode bar
-            //     // so we clone the date objects
-            //     let newStartDate = new Date(episode.startDate.getTime());
-            //     let newEndDate = new Date(episode.endDate.getTime());
-            //
-            //     // The setDate() method sets the day of the month to the date object.
-            //     newStartDate.setDate(newStartDate.getDate() - numOfDays);
-            //     newEndDate.setDate(newEndDate.getDate() + numOfDays);
-            //
-            //     // Span the episode coverage across the whole main area using this new domain
-            //     mainX.domain([newStartDate, newEndDate]);
-            //
-            //     let transt = d3
-            //         .transition()
-            //         .duration(transitionDuration)
-            //         .ease(d3.easeLinear);
-            //
-            //     // Move the brush with transition
-            //     // The brush move will cause the report circles move accordingly
-            //     // So no need to call update() with transition
-            //     // https://github.com/d3/d3-selection#selection_call
-            //     //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
-            //     overview
-            //         .select(".brush")
-            //         .transition(transt)
-            //         .call(brush.move, [overviewX(newStartDate), overviewX(newEndDate)]);
-            // };
-
-            // let defocusEpisode = function () {
-            //     // Reset the mainX domain
-            //     mainX.domain([startDate, endDate]);
-            //
-            //     // Move the brush with transition
-            //     // https://github.com/d3/d3-selection#selection_call
-            //     //Can also use brush.move(d3.select(".brush"), [overviewX(newStartDate), overviewX(newEndDate)]);
-            //     overview
-            //         .select(".brush")
-            //         .transition(transt)
-            //         .call(brush.move, [overviewX(startDate), overviewX(endDate)]);
-            // };
-
-            function getProcedureY(label, chemoText, verticalPositions, mainY) {
+            function getProcedureY(label, chemoText, verticalPositions, groupLaneHeights) {
                 const found = chemoText.find(d => d === label);
-                if (found) {
-                    return mainY(verticalPositions[found] - 1 /2);
+                // console.log(found);
+                if (found != null) {
+                    return mainY(verticalPositions[found] * groupLaneHeights[found]);
                 }
-                return null; // Return null if not found
+                return null;
             }
+
+
+
+
+
+            // const verticalPositions = {};
+            // let currentY = 0;
+            // const rowHeight = 30; // Or whatever spacing you want between stacked lines
+            //
+            // chemoTextGroups.forEach(group => {
+            //     // console.log(verticalPositions[group]);
+            //     verticalPositions[group] = currentY;
+            //     currentY += groupLaneHeights[group] * rowHeight;
+            // });
 
             // const yCoord = getProcedureY("procedure", chemoText, verticalPositions, mainY);
 
@@ -777,14 +763,18 @@ export default function EventRelationTimeline (props) {
                 .append("line")
                 .attr("x1", 0) // relative to main area
                 .attr("y1", function (d) {
-                    return mainY(verticalPositions[d]);
+                    // console.log(d);
+                    // console.log(verticalPositions[d]);
+                    return mainY(groupLaneHeights[d] * verticalPositions[d]);
                 })
                 .attr("x2", svgWidth)
                 .attr("y2", function (d) {
-                    return mainY(verticalPositions[d]);
+                    return mainY(groupLaneHeights[d] * verticalPositions[d]);
                 })
                 .attr("class", "report_type_divider");
 
+
+            let laneOffset = 0;
             // Report types texts
             main
                 .append("g")
@@ -796,11 +786,21 @@ export default function EventRelationTimeline (props) {
                     return d + " (" + chemoTextGroupCounts[d] + "):";
                 })
                 .attr("x", -textMargin) // textMargin on the left of main area
-                .attr("y", function (d, i) {
-                    return mainY(
-                        verticalPositions[d] - 1 / 2
-                    );
+                // .attr("y", function (d) {
+                //     console.log(d);
+                //     console.log(verticalPositions[d], groupLaneHeights[d]);
+                //     // return mainY(verticalPositions[d] * groupLaneHeights[d]) - (16 * groupLaneHeights[d]);
+                //     return (groupLaneHeights[d] * 16);
+                // })
+                .attr("y", function (d) {
+                    console.log("before:", laneOffset);
+                    console.log(groupLaneHeights[d], groupLaneHeights[d] * 16);
+                    const y = laneOffset + (groupLaneHeights[d] * 16); // center in the block
+                    laneOffset += groupLaneHeights[d] * 16 * 2;
+                    console.log("after:", laneOffset);
+                    return y;
                 })
+                // .attr("y", d => verticalPositions[d] + mainY(groupLaneHeights[d] / 2))
                 .attr("dy", ".5ex")
                 .attr("class", "report_type_label");
 
@@ -857,6 +857,17 @@ export default function EventRelationTimeline (props) {
                 .append("g")
                 .attr("clip-path", "url(#secondary_area_clip)");
 
+
+            const occupiedSlots = new Map(); // Key: base Y, Value: array of [x1, x2] pairs
+            laneOffset = 0;
+            let groupBaseYMap = {};
+
+            [...new Set(chemoTextGroups)].forEach(group => {
+                groupBaseYMap[group] = laneOffset + (groupLaneHeights[group] * 16); // center within the block if needed
+                laneOffset += groupLaneHeights[group] * 16 * 2; // double it if each lane is that tall
+            });
+
+
             mainReports
                 .selectAll(".main_report_ER")
                 .data(eventData)
@@ -866,10 +877,24 @@ export default function EventRelationTimeline (props) {
                     const group = d3.select(this);
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
-                    let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-                    // if (d.tLink === "overlap") {
-                    //     y -= 15; // Shift up by 3 pixels — tweak as needed
-                    // }
+                    // let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
+                    const baseY = groupBaseYMap[d.chemo_group];
+                    let y = baseY;
+                    let yOffset = 0;
+                    const buffer = 15;
+
+                    const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
+                    let slotList = occupiedSlots.get(baseY) || [];
+
+                    while (slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                        yOffset += buffer;
+                        y = baseY + yOffset;
+                        slotList = occupiedSlots.get(y) || [];
+                    }
+
+                    // Now reserve this slot
+                    slotList.push([d.formattedStartDate, d.formattedEndDate]);
+                    occupiedSlots.set(y, slotList);
 
                     // Adjust line thickness if it's an overlap
                     const lineThickness = d.tLink === "overlap" ? 5 : 5;
@@ -967,37 +992,6 @@ export default function EventRelationTimeline (props) {
                     }
                 });
 
-            // Click handler function
-            // function handleClick(event, d) {
-            //     let clickedId = d.noteId;
-            //     if (clickedId) {
-            //         setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
-            //         let matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
-            //
-            //         matchingCircles.forEach(circle => {
-            //             // Toggle the class on the existing circle
-            //             // circle.classList.toggle("selected_report");
-            //
-            //             // Check if an outline circle already exists
-            //             let existingOutline = document.querySelector(`circle[data-outline="${circle.id}"]`);
-            //
-            //             if (existingOutline) {
-            //                 // existingOutline.remove(); // Remove it if it already exists
-            //             } else {
-            //                 // Create a new outline circle
-            //                 let outlineCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-            //                 outlineCircle.setAttribute("cx", circle.getAttribute("cx"));
-            //                 outlineCircle.setAttribute("cy", circle.getAttribute("cy"));
-            //                 outlineCircle.setAttribute("r", parseFloat(circle.getAttribute("r")) + 6); // Slightly larger radius
-            //                 outlineCircle.setAttribute("class", "selected_report_temporal");
-            //                 outlineCircle.setAttribute("data-outline", circle.id); // Mark it to identify later
-            //
-            //                 // Insert the outline in the same SVG parent
-            //                 circle.parentNode.appendChild(outlineCircle);
-            //             }
-            //         });
-            //     }
-            // }
 
             function handleClick(event, d) {
                 const clickedId = d.noteId;
@@ -1038,7 +1032,7 @@ export default function EventRelationTimeline (props) {
                 .tickSizeInner(5)
                 .tickSizeOuter(0)
                 // Abbreviated month format
-                .tickFormat(d3.timeFormat("%b"));
+                // .tickFormat(d3.timeFormat("%b"));
 
             // Append x axis to the bottom of main area
             main
@@ -1061,7 +1055,7 @@ export default function EventRelationTimeline (props) {
             let encounterDates = [minStartDate, maxEndDate];
             // We use the calculated ages to render the text of age
             // TODO: NEED TO MAKE ENCOUNTER AGE DYNAMIC
-            let encounterAges = [53, 53];
+            let encounterAges = [53, 56];
 
             age
                 .selectAll(".encounter_age")
@@ -1105,32 +1099,32 @@ export default function EventRelationTimeline (props) {
 
             // Report dots in overview area
             // No need to use clipping path since the overview area contains all the report dots
-            overview
-                .append("g")
-                .selectAll(".overview_report")
-                .data(eventData)
-                .enter()
-                .append("g")
-                .append("circle")
-                .attr("id", function (d) {
-                    // Prefix with "overview_"
-                    return "overview_" + d.noteName;
-                })
-                .attr("class", "overview_report")
-                .attr("r", reportOverviewRadius)
-                .attr("cx", function (d) {
-                    return d.formattedStartDate;
-                })
-                .attr("cy", function (d) {
-                    return getReportCirclePositionY(
-                        d,
-                        overviewY,
-                        overviewChemoTextRowHeightPerCount
-                    );
-                })
-                .style("fill", function (d) {
-                    return 'rgb(49, 163, 84)';
-                });
+            // overview
+            //     .append("g")
+            //     .selectAll(".overview_report")
+            //     .data(eventData)
+            //     .enter()
+            //     .append("g")
+            //     .append("circle")
+            //     .attr("id", function (d) {
+            //         // Prefix with "overview_"
+            //         return "overview_" + d.noteName;
+            //     })
+            //     .attr("class", "overview_report")
+            //     .attr("r", reportOverviewRadius)
+            //     .attr("cx", function (d) {
+            //         return d.formattedStartDate;
+            //     })
+            //     .attr("cy", function (d) {
+            //         return getReportCirclePositionY(
+            //             d,
+            //             overviewY,
+            //             overviewChemoTextRowHeightPerCount
+            //         );
+            //     })
+            //     .style("fill", function (d) {
+            //         return 'rgb(49, 163, 84)';
+            //     });
 
             // Overview x axis
             let overviewXAxis = d3
@@ -1220,7 +1214,7 @@ export default function EventRelationTimeline (props) {
             };
 
             // Function expression to create brush function redraw with selection
-            // Need to define this before defining brush since it's function expression instead of function declariation
+            // Need to define this before defining brush since it's function expression instead of function declaration
             let brushed = function () {
                 // Ignore brush-by-zoom
                 if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {

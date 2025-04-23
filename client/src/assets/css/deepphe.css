@@ -1400,6 +1400,11 @@ white text with more shading
     height: auto;
 }
 
+.patient_episode_timeline_svg {
+    width: 100%;
+    overflow-x: auto;
+}
+
 
 .selected_report_temporal {
     stroke: black;
@@ -1459,8 +1464,8 @@ white text with more shading
 .report_type_divider {
     stroke-width: 1px;
     shape-rendering: crispEdges;
-    stroke: #dbdbdb;
-    stroke-dasharray: 2, 2;
+    stroke: #666;
+    stroke-dasharray: 1.5, 1.5;
 }
 
 .encounter_age_guideline {
