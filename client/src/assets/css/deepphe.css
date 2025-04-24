@@ -1341,7 +1341,7 @@ white text with more shading
 /* PatientEpisodeTimeline */
 .episode_legend_circle,
 .main_report_PE {
-    fill-opacity: 0.5;
+    fill-opacity: 0.3;
 }
 
 .episode_legend_text {
@@ -1378,7 +1378,7 @@ white text with more shading
 
 .main_report_contains:hover, .main_report_PE:hover {
     fill-opacity: 1;
-    stroke-width: 6px;
+    /*stroke-width: 6px;*/
 }
 
 .overview_report {
@@ -1390,9 +1390,9 @@ white text with more shading
 /*    transition: opacity 0.3s ease;*/
 /*}*/
 
-.darkened {
-    filter: brightness(0.3); /* or use fill/stroke changes if needed */
-}
+/*.darkened {*/
+/*    filter: brightness(0.3); !* or use fill/stroke changes if needed *!*/
+/*}*/
 
 .timeline_svg {
     display: block;

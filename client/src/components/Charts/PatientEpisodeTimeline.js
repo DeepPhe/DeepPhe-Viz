@@ -1182,7 +1182,7 @@ const PatientEpisodeTimeline = ({
           .attr("y", overviewHeight / 2) // Relative to the overview area
           .attr("dy", ".5ex")
           .attr("class", "overview_label")
-          .text("PatientEpisodeTimeline (" + reportData.length + " reports)");
+          .text("P_E Timeline (" + reportData.length + " reports)");
 
       // Report dots in overview area
       // No need to use clipping path since the overview area contains all the report dots
