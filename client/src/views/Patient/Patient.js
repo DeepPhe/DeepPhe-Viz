@@ -14,6 +14,9 @@ import { DocumentViewer } from "../../components/DocumentViewer/DocumentViewer";
 import { isEmpty } from "../../utils/JsObjectHelper";
 import { setEventHandlers } from "./patientEventHandlers";
 import { factBasedReports } from "./FactUtils";
+import IconButton from "@material-ui/core/IconButton";
+import {ExpandLess, ExpandMore} from "@material-ui/icons";
+import Box from "@mui/material/Box";
 
 function Patient(props) {
   const { patientId } = useParams();
@@ -26,6 +29,12 @@ function Patient(props) {
   const [currDoc, setCurrDoc] = useState(0);
   const [clickedTerms, setClickedTerms] = useState([]); // Initial state set to empty array
   const [processingDone, setProcessingDone] = useState(false);
+  const [expandedPatientEpisode, setExpandedPatientEpisode] = useState(true); // initially open
+  const [expandedEventRelation, setExpandedEventRelation] = useState(true); // initially open
+  const [expandedPatientID, setExpandedPatientID] = useState(true); // initially open
+  const [expandedCancerDetail, setExpandedCancerDetail] = useState(true); // initially open
+
+
 
   const conceptsPerDocumentRef = useRef({});
 
@@ -77,9 +86,21 @@ function Patient(props) {
   const getComponentPatientEpisodeTimeline = () => {
     return (
       <Card>
-        {/*<CardHeader className={"basicCardHeader"}>*/}
-        {/*  Patient Episode PatientEpisodeTimeline*/}
-        {/*</CardHeader>*/}
+        <CardHeader className={"basicCardHeader"}>
+          <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              width="100%"
+          >
+            <span>Patient Episode Timeline</span>
+            <IconButton onClick={() => setExpandedPatientEpisode((prev) => !prev)} size="small">
+              {expandedPatientEpisode ? <ExpandLess /> : <ExpandMore />}
+            </IconButton>
+          </Box>
+        </CardHeader>
+
+        {expandedPatientEpisode && (
         <CardBody>
           {patientJson && Object.keys(patientJson).length > 0 ? (
           <PatientEpisodeTimeline
@@ -96,6 +117,7 @@ function Patient(props) {
           )}
 
         </CardBody>
+            )}
       </Card>
     );
   };
@@ -103,22 +125,34 @@ function Patient(props) {
   const getComponentEventRelationTimeline= () => {
     return (
         <Card>
-          {/*<CardHeader className={"basicCardHeader"}>*/}
-          {/*  Temporal Events*/}
-          {/*</CardHeader>*/}
-          <CardBody>
-            <EventRelationTimeline
-                setClickedTerms={setClickedTerms}
-                clickedTerms={clickedTerms}
-                svgContainerId="EventRelationTimelineSvg"
-                reportId={reportId}
-                patientJson={patientJson}
-                patientId={patientId}
-                setReportId={setReportId}
-                conceptsPerDocument={conceptsPerDocumentRef.current}
-                //getReport={getReport}
-            ></EventRelationTimeline>
-          </CardBody>
+          <CardHeader className={"basicCardHeader"}>
+            <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
+            >
+              <span>Temporal Events</span>
+              <IconButton onClick={() => setExpandedEventRelation((prev) => !prev)} size="small">
+                {expandedEventRelation ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+          </CardHeader>
+
+          {expandedEventRelation && (
+              <CardBody>
+                <EventRelationTimeline
+                    setClickedTerms={setClickedTerms}
+                    clickedTerms={clickedTerms}
+                    svgContainerId="EventRelationTimelineSvg"
+                    reportId={reportId}
+                    patientJson={patientJson}
+                    patientId={patientId}
+                    setReportId={setReportId}
+                    conceptsPerDocument={conceptsPerDocumentRef.current}
+                />
+              </CardBody>
+          )}
         </Card>
     );
   };
@@ -129,14 +163,27 @@ function Patient(props) {
 
   const getComponentPatientIdAndDemographics = () => {
     return (
-      <Card style={{ marginTop: "45px" }}>
-        <CardHeader className={"basicCardHeader"}>
-          Patient ID and Demographics
-        </CardHeader>
-        <CardBody>
-          <CustomTable></CustomTable>
-        </CardBody>
-      </Card>
+        <Card style={{ marginTop: "45px" }}>
+          <CardHeader className={"basicCardHeader"}>
+            <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                width="100%"
+            >
+              <span>Patient ID and Demographics</span>
+              <IconButton onClick={() => setExpandedPatientID((prev) => !prev)} size="small">
+                {expandedPatientID ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+          </CardHeader>
+
+          {expandedPatientID && (
+              <CardBody>
+                <CustomTable />
+              </CardBody>
+          )}
+        </Card>
     );
   };
   const getComponentFooter = () => {
@@ -199,18 +246,31 @@ function Patient(props) {
 
   const getComponentCancerAndTumorDetail = () => {
     return (
-      <React.Fragment>
-        <Card>
-          <CardHeader className={"basicCardHeader"}>
-            Cancer and Tumor Detail
-          </CardHeader>
-          <CardBody>
-            <div id="summary">
-              <CancerAndTumorSummary cancers={summary}></CancerAndTumorSummary>
-            </div>
-          </CardBody>
-        </Card>
-      </React.Fragment>
+        <React.Fragment>
+          <Card>
+            <CardHeader className={"basicCardHeader"}>
+              <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  width="100%"
+              >
+                <span>Cancer and Tumor Detail</span>
+                <IconButton onClick={() => setExpandedCancerDetail((prev) => !prev)} size="small">
+                  {expandedCancerDetail ? <ExpandLess /> : <ExpandMore />}
+                </IconButton>
+              </Box>
+            </CardHeader>
+
+            {expandedCancerDetail && (
+                <CardBody>
+                  <div id="summary">
+                    <CancerAndTumorSummary cancers={summary} />
+                  </div>
+                </CardBody>
+            )}
+          </Card>
+        </React.Fragment>
     );
   };
 

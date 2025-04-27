@@ -521,7 +521,7 @@ export default function EventRelationTimeline (props) {
                 .attr("dy", ".5ex")
                 .attr("class", "episode_legend_text")
                 .attr("text-anchor", "start")
-                .text("Time Relation:");
+                .text("Event Occurrence:");
 
             svg.append("line")
                 .attr("x1", 10) // match the x of "Time Relation:"
@@ -534,7 +534,7 @@ export default function EventRelationTimeline (props) {
             let episodeLegendGrp = svg
                 .append("g")
                 .attr("class", "episode_legend_group")
-                .attr("transform", `translate(60, ${margin.top})`); // shift it right to make room for "Time Relation:"
+                .attr("transform", `translate(80, ${margin.top})`); // shift it right to make room for "Time Relation:"
 
 
             let episodeLegend = episodeLegendGrp
@@ -585,41 +585,45 @@ export default function EventRelationTimeline (props) {
                 .attr("height", height + gapBetweenlegendAndMain);
 
 
-            let update = function () {
-                // Update the episode bars
-                d3.selectAll(".episode_bar")
-                    .attr("x", function (d) {
-                        return mainX(d.startDate) - reportMainRadius;
-                    })
-                    .attr("width", function (d) {
-                        return (
-                            mainX(d.endDate) - mainX(d.startDate) + reportMainRadius * 2
-                        );
-                    });
+            function updateMainReports(eventData) {
+                // Bind the data to the existing elements
+                const reportGroups = mainReports
+                    .selectAll(".main_report_group")
+                    .data(eventData, (d) => d.id); // Use a key function for efficient data binding
 
-                // Update main area
-                d3.selectAll(".main_report_ER").attr("cx", function (d) {
-                    return mainX(d.formattedDate);
+                // Handle 'enter' (new data points)
+                const enterGroups = reportGroups
+                    .enter().append("g")
+                    .attr("class", "main_report_group");
+
+                // Merge enter and update selections for common operations
+                const allGroups = enterGroups.merge(reportGroups);
+
+                // Call the helper function for both enter and update
+                allGroups.each(function(d) {
+                    const group = d3.select(this);
+                    drawMainReportGroup(group, d); // Draw or update with data
                 });
 
-                // Update the main x axis
-                d3.select(".main-ER-x-axis").call(xAxis);
-            };
+                // Handle 'exit' (removed data points)
+                reportGroups
+                    .exit().remove(); // Remove elements that no longer have corresponding data
+            }
 
             // Function expression to handle mouse wheel zoom or drag on main area
-            // Need to define this before defining zoom since it's function expression instead of function declariation
             let zoomed = function () {
                 // Ignore zoom-by-brush
-                // console.log(d3.event.sourceEvent);
                 if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
                     return;
                 }
+
                 let transform = d3.event.transform;
 
+                // Rescale the main X-axis based on zoom transform
                 mainX.domain(transform.rescaleX(overviewX).domain());
 
-                // Update the report dots in main area
-                update();
+                // Apply zoom transform to the main report container
+                mainReports.attr("transform", transform);
 
                 // Update the overview as moving
                 overview
@@ -627,16 +631,11 @@ export default function EventRelationTimeline (props) {
                     .call(brush.move, mainX.range().map(transform.invertX, transform));
 
                 // Also need to update the position of custom brush handles
-                // First we need to get the current brush selection
-                // https://github.com/d3/d3-brush#brushSelection
-                // The node desired in the argument for d3.brushSelection is the g element corresponding to your brush.
                 let selection = d3.brushSelection(overviewBrush.node());
-
-                // Then translate the x of each custom brush handle
                 showAndMoveCustomBrushHandles(selection);
             };
 
-            // Zoom rect that covers the main main area
+            // Zoom rect that covers the main area
             let zoom = d3
                 .zoom()
                 .scaleExtent([1, Infinity])
@@ -650,17 +649,13 @@ export default function EventRelationTimeline (props) {
                 ])
                 .on("zoom", zoomed);
 
-            // Appending zoom rect after the main area will prevent clicking on the report circles/
-            // So we need to create the zoom panel first
+            // Appending zoom rect after the main area will prevent clicking on the report circles
             svg
                 .append("rect")
                 .attr("class", "zoom_ER")
                 .attr("width", svgWidth)
                 .attr("height", height + gapBetweenlegendAndMain)
-                .attr(
-                    "transform",
-                    "translate(" + margin.left + "," + (margin.top + legendHeight) + ")"
-                )
+                .attr("transform", "translate(" + margin.left + "," + (margin.top + legendHeight) + ")")
                 .call(zoom);
 
             // Main area
@@ -884,6 +879,164 @@ export default function EventRelationTimeline (props) {
                 .style("fill", "rgb(49, 163, 84)");
 
 
+            function drawMainReportGroup(group, d) {
+                const x1 = d.formattedStartDate;
+                const x2 = d.formattedEndDate;
+                const baseY = groupBaseYMap[d.chemo_group];
+                let y = baseY;
+                let yOffset = 0;
+                const buffer = 15;
+
+                const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
+                let slotList = occupiedSlots.get(baseY) || [];
+
+                while (slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                    yOffset += buffer;
+                    y = baseY + yOffset;
+                    slotList = occupiedSlots.get(y) || [];
+                }
+
+                // Now reserve this slot
+                slotList.push([d.formattedStartDate, d.formattedEndDate]);
+                occupiedSlots.set(y, slotList);
+
+                const lineThickness = d.tLink === "overlap" ? 5 : 5;
+
+                // 1. Create a separate group for `contains` lines (will be drawn first)
+                const containsGroup = group.append("g").attr("class", "contains-group");
+
+                // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
+                if (d.tLink === "contains") {
+                    containsGroup.append("line")
+                        .attr("class", "main_report_contains relation-icon-outline")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x1)
+                        .attr("x2", x1)
+                        .attr("y1", y - 10)
+                        .attr("y2", y + 10)
+                        .attr("stroke", 'black')
+                        .attr("stroke-width", 4)
+                        .style("cursor", "pointer");
+
+                    containsGroup.append("line")
+                        .attr("class", "main_report_contains relation-icon")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x1)
+                        .attr("x2", x1)
+                        .attr("y1", y - 10)
+                        .attr("y2", y + 10)
+                        .attr("stroke", 'rgb(49, 163, 84)')
+                        .attr("stroke-width", 3)
+                        .style("cursor", "pointer")
+                        .on("click", (event) => handleClick(event, d));
+
+                    containsGroup.append("line")
+                        .attr("class", "main_report_contains relation-icon-outline")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x2)
+                        .attr("x2", x2)
+                        .attr("y1", y - 10)
+                        .attr("y2", y + 10)
+                        .attr("stroke", 'black')
+                        .attr("stroke-width", 4)
+                        .style("cursor", "pointer");
+
+                    containsGroup.append("line")
+                        .attr("class", "main_report_contains relation-icon")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x2)
+                        .attr("x2", x2)
+                        .attr("y1", y - 10)
+                        .attr("y2", y + 10)
+                        .attr("stroke", 'rgb(49, 163, 84)')
+                        .attr("stroke-width", 3)
+                        .style("cursor", "pointer")
+                        .on("click", (event) => handleClick(event, d));
+
+                    containsGroup.append("line")
+                        .attr("class", "main_report_ER relation-icon-outline")
+                        .attr("x1", x1)
+                        .attr("x2", x2)
+                        .attr("y1", y)
+                        .attr("y2", y)
+                        .attr("stroke", "black")
+                        .attr("stroke-width", lineThickness + 0.75)
+                        .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                        .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null);
+
+                    containsGroup.append("line")
+                        .attr("class", "main_report_ER relation-icon")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x1)
+                        .attr("x2", x2)
+                        .attr("y1", y)
+                        .attr("y2", y)
+                        .attr("stroke", 'rgb(49, 163, 84)')
+                        .attr("stroke-width", lineThickness)
+                        .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                        .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+                        .style("cursor", "pointer")
+                        .on("click", (event) => handleClick(event, d));
+                }
+
+                // 2. Create another group for the main lines (to be drawn on top)
+                const mainLineGroup = group.append("g").attr("class", "main-line-group");
+
+                if (d.tLink !== "contains") {
+                    mainLineGroup.append("line")
+                        .attr("class", "main_report_ER relation-icon-outline")
+                        .attr("x1", x1)
+                        .attr("x2", x2)
+                        .attr("y1", y)
+                        .attr("y2", y)
+                        .attr("stroke", 'black')
+                        .attr("stroke-width", lineThickness + 0.75)
+                        .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                        .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null);
+
+                    mainLineGroup.append("line")
+                        .attr("class", "main_report_ER relation-icon")
+                        .attr("data-note-id", d.id)
+                        .attr("x1", x1)
+                        .attr("x2", x2)
+                        .attr("y1", y)
+                        .attr("y2", y)
+                        .attr("stroke", 'rgb(49, 163, 84)')
+                        .attr("stroke-width", lineThickness)
+                        .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+                        .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+                        .style("cursor", "pointer")
+                        .on("click", (event) => handleClick(event, d));
+
+                    if (x1 === x2) {
+                        if (d.tLink === "before") {
+                            mainLineGroup.append("rect")
+                                .attr("data-note-id", d.id)
+                                .attr("x", x1 - 10)
+                                .attr("y", y - 5)
+                                .attr("width", 15)
+                                .attr("height", 10)
+                                .style("fill", "transparent")
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
+                        }
+                        if (d.tLink === "after") {
+                            mainLineGroup.append("rect")
+                                .attr("data-note-id", d.id)
+                                .attr("x", x2 - 5)
+                                .attr("y", y - 5)
+                                .attr("width", 15)
+                                .attr("height", 10)
+                                .style("fill", "transparent")
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
+                        }
+                    }
+                }
+            }
+
+
+
             let mainReports = main
                 .append("g")
                 .attr("clip-path", "url(#secondary_area_clip)");
@@ -898,189 +1051,190 @@ export default function EventRelationTimeline (props) {
                 laneOffset += groupLaneHeights[group] * 16 * 2; // double it if each lane is that tall
             });
 
-
-            mainReports
-                .selectAll(".main_report_ER")
-                .data(eventData)
-                .enter()
-                .append("g")
-                .each(function (d) {
-                    const group = d3.select(this);
-                    const x1 = d.formattedStartDate;
-                    const x2 = d.formattedEndDate;
-                    // let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
-                    const baseY = groupBaseYMap[d.chemo_group];
-                    let y = baseY;
-                    let yOffset = 0;
-                    const buffer = 15;
-
-                    const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
-                    let slotList = occupiedSlots.get(baseY) || [];
-
-                    while (slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
-                        yOffset += buffer;
-                        y = baseY + yOffset;
-                        slotList = occupiedSlots.get(y) || [];
-                    }
-
-                    // Now reserve this slot
-                    slotList.push([d.formattedStartDate, d.formattedEndDate]);
-                    occupiedSlots.set(y, slotList);
-
-                    // Adjust line thickness if it's an overlap
-                    const lineThickness = d.tLink === "overlap" ? 5 : 5;
-
-                    // 1. Create a separate group for `contains` lines (will be drawn first)
-                    const containsGroup = group.append("g").attr("class", "contains-group");
-
-
-                    // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
-                    if (d.tLink === "contains") {
-
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon-outline")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x1)
-                            .attr("x2", x1)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
-                            .attr("stroke", 'black')
-                            .attr("stroke-width", 4)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            // .on("click", (event) => handleClick(event, d));
-
-                        // Vertical line at x1
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x1)
-                            .attr("x2", x1)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon-outline")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x2)
-                            .attr("x2", x2)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
-                            .attr("stroke", 'black')
-                            .attr("stroke-width", 4)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            // .on("click", (event) => handleClick(event, d));
-
-                        // Vertical line at x2
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x2)
-                            .attr("x2", x2)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-                        // Black outline line (drawn first, thicker)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon-outline")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", lineThickness + 0.75) // Slightly thicker than the green line
-                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null);
-
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-                    }
-
-
-                    // 2. Create another group for the main lines (to be drawn on top)
-                    const mainLineGroup = group.append("g").attr("class", "main-line-group");
-
-                    if (d.tLink !== "contains") {
-
-                        mainLineGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon-outline")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'black')
-                            .attr("stroke-width", lineThickness + 0.75)
-                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-
-                        // Append the line
-                        mainLineGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-note-id", d.id)
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-                        // If start and end are the same, ensure arrow is clickable
-                        if (x1 === x2) {
-                            if (d.tLink === "before") {
-                                mainLineGroup.append("rect")
-                                    .attr("data-note-id", d.id)
-                                    .attr("x", x1 - 10) // Align with arrow
-                                    .attr("y", y - 5)
-                                    .attr("width", 15)
-                                    .attr("height", 10)
-                                    .style("fill", "transparent")
-                                    .style("cursor", "pointer")
-                                    .on("click", (event) => handleClick(event, d));
-                            }
-                            if (d.tLink === "after") {
-                                mainLineGroup.append("rect")
-                                    .attr("data-note-id", d.id)
-                                    .attr("x", x2 - 5) // Align with arrow
-                                    .attr("y", y - 5)
-                                    .attr("width", 15)
-                                    .attr("height", 10)
-                                    .style("fill", "transparent")
-                                    .style("cursor", "pointer")
-                                    .on("click", (event) => handleClick(event, d));
-                            }
-                        }
-                    }
-                });
+            //
+            // mainReports
+            //     .selectAll(".main_report_ER")
+            //     .data(eventData)
+            //     .enter()
+            //     .append("g")
+            //     .attr("class", "main_report_group")
+            //     .each(function (d) {
+            //         const group = d3.select(this);
+            //         const x1 = d.formattedStartDate;
+            //         const x2 = d.formattedEndDate;
+            //         // let y = getProcedureY(d.chemo_group, chemoTextGroups, verticalPositions, mainY);
+            //         const baseY = groupBaseYMap[d.chemo_group];
+            //         let y = baseY;
+            //         let yOffset = 0;
+            //         const buffer = 15;
+            //
+            //         const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
+            //         let slotList = occupiedSlots.get(baseY) || [];
+            //
+            //         while (slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+            //             yOffset += buffer;
+            //             y = baseY + yOffset;
+            //             slotList = occupiedSlots.get(y) || [];
+            //         }
+            //
+            //         // Now reserve this slot
+            //         slotList.push([d.formattedStartDate, d.formattedEndDate]);
+            //         occupiedSlots.set(y, slotList);
+            //
+            //         // Adjust line thickness if it's an overlap
+            //         const lineThickness = d.tLink === "overlap" ? 5 : 5;
+            //
+            //         // 1. Create a separate group for `contains` lines (will be drawn first)
+            //         const containsGroup = group.append("g").attr("class", "contains-group");
+            //
+            //
+            //         // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
+            //         if (d.tLink === "contains") {
+            //
+            //
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_contains relation-icon-outline")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x1)
+            //                 .attr("y1", y - 10) // Extends above
+            //                 .attr("y2", y + 10) // Extends below
+            //                 .attr("stroke", 'black')
+            //                 .attr("stroke-width", 4)
+            //                 .attr("stroke-solid", "4 2") // Dashed line for clarity
+            //                 .style("cursor", "pointer")
+            //                 // .on("click", (event) => handleClick(event, d));
+            //
+            //             // Vertical line at x1
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_contains relation-icon")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x1)
+            //                 .attr("y1", y - 10) // Extends above
+            //                 .attr("y2", y + 10) // Extends below
+            //                 .attr("stroke", 'rgb(49, 163, 84)')
+            //                 .attr("stroke-width", 3)
+            //                 .attr("stroke-solid", "4 2") // Dashed line for clarity
+            //                 .style("cursor", "pointer")
+            //                 .on("click", (event) => handleClick(event, d));
+            //
+            //
+            //
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_contains relation-icon-outline")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x2)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y - 10) // Extends above
+            //                 .attr("y2", y + 10) // Extends below
+            //                 .attr("stroke", 'black')
+            //                 .attr("stroke-width", 4)
+            //                 .attr("stroke-solid", "4 2") // Dashed line for clarity
+            //                 .style("cursor", "pointer")
+            //                 // .on("click", (event) => handleClick(event, d));
+            //
+            //             // Vertical line at x2
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_contains relation-icon")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x2)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y - 10) // Extends above
+            //                 .attr("y2", y + 10) // Extends below
+            //                 .attr("stroke", 'rgb(49, 163, 84)')
+            //                 .attr("stroke-width", 3)
+            //                 .attr("stroke-solid", "4 2") // Dashed line for clarity
+            //                 .style("cursor", "pointer")
+            //                 .on("click", (event) => handleClick(event, d));
+            //
+            //             // Black outline line (drawn first, thicker)
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_ER relation-icon-outline")
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y)
+            //                 .attr("y2", y)
+            //                 .attr("stroke", "black")
+            //                 .attr("stroke-width", lineThickness + 0.75) // Slightly thicker than the green line
+            //                 .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+            //                 .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null);
+            //
+            //             // Green visible line (drawn second, on top)
+            //             containsGroup.append("line")
+            //                 .attr("class", "main_report_ER relation-icon")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y)
+            //                 .attr("y2", y)
+            //                 .attr("stroke", 'rgb(49, 163, 84)')
+            //                 .attr("stroke-width", lineThickness)
+            //                 .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+            //                 .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+            //                 .style("cursor", "pointer")
+            //                 .on("click", (event) => handleClick(event, d));
+            //         }
+            //
+            //
+            //         // 2. Create another group for the main lines (to be drawn on top)
+            //         const mainLineGroup = group.append("g").attr("class", "main-line-group");
+            //
+            //         if (d.tLink !== "contains") {
+            //
+            //             mainLineGroup.append("line")
+            //                 .attr("class", "main_report_ER relation-icon-outline")
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y)
+            //                 .attr("y2", y)
+            //                 .attr("stroke", 'black')
+            //                 .attr("stroke-width", lineThickness + 0.75)
+            //                 .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+            //                 .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+            //
+            //             // Append the line
+            //             mainLineGroup.append("line")
+            //                 .attr("class", "main_report_ER relation-icon")
+            //                 .attr("data-note-id", d.id)
+            //                 .attr("x1", x1)
+            //                 .attr("x2", x2)
+            //                 .attr("y1", y)
+            //                 .attr("y2", y)
+            //                 .attr("stroke", 'rgb(49, 163, 84)')
+            //                 .attr("stroke-width", lineThickness)
+            //                 .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
+            //                 .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+            //                 .style("cursor", "pointer")
+            //                 .on("click", (event) => handleClick(event, d));
+            //
+            //             // If start and end are the same, ensure arrow is clickable
+            //             if (x1 === x2) {
+            //                 if (d.tLink === "before") {
+            //                     mainLineGroup.append("rect")
+            //                         .attr("data-note-id", d.id)
+            //                         .attr("x", x1 - 10) // Align with arrow
+            //                         .attr("y", y - 5)
+            //                         .attr("width", 15)
+            //                         .attr("height", 10)
+            //                         .style("fill", "transparent")
+            //                         .style("cursor", "pointer")
+            //                         .on("click", (event) => handleClick(event, d));
+            //                 }
+            //                 if (d.tLink === "after") {
+            //                     mainLineGroup.append("rect")
+            //                         .attr("data-note-id", d.id)
+            //                         .attr("x", x2 - 5) // Align with arrow
+            //                         .attr("y", y - 5)
+            //                         .attr("width", 15)
+            //                         .attr("height", 10)
+            //                         .style("fill", "transparent")
+            //                         .style("cursor", "pointer")
+            //                         .on("click", (event) => handleClick(event, d));
+            //                 }
+            //             }
+            //         }
+            //     });
 
 
             function handleClick(event, d) {
@@ -1185,10 +1339,10 @@ export default function EventRelationTimeline (props) {
             overview
                 .append("text")
                 .attr("x", -textMargin)
-                .attr("y", overviewHeight / 2) // Relative to the overview area
+                .attr("y", overviewHeight + 10 ) // Relative to the overview area
                 .attr("dy", ".5ex")
                 .attr("class", "overview_label")
-                .text("EventRelationTimeline events");
+                .text("Date");
 
             // Report dots in overview area
             // No need to use clipping path since the overview area contains all the report dots
@@ -1323,7 +1477,7 @@ export default function EventRelationTimeline (props) {
                 // Set the domain of the main area based on brush selection
                 mainX.domain(selection.map(overviewX.invert, overviewX));
 
-                update();
+                updateMainReports(eventData);
 
                 // Zoom the main area
                 svg

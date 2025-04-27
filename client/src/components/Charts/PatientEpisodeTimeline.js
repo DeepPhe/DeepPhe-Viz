@@ -625,29 +625,27 @@ const PatientEpisodeTimeline = ({
         return episodeLegendAnchorPositionX + legendSpacing + x;
       };
 
+
+
+      svg.append("text")
+          .attr("x", 10) // or whatever left margin you want
+          .attr("y", margin.top + episodeLegendAnchorPositionY)
+          .attr("dy", ".5ex")
+          .attr("class", "episode_legend_text")
+          .attr("text-anchor", "start")
+          .text("Document Episode Type:");
+
+      svg.append("line")
+          .attr("x1", 10) // match the x of "Time Relation:"
+          .attr("y1", margin.top + legendHeight)
+          .attr("x2", margin.left + svgWidth)
+          .attr("y2", margin.top + legendHeight)
+          .attr("class", "legend_group_divider");
+
       let episodeLegendGrp = svg
           .append("g")
           .attr("class", "episode_legend_group")
-          .attr("transform", "translate(10, " + margin.top + ")");
-
-      // Overview label text
-      episodeLegendGrp
-          .append("text")
-          .attr("x", episodeLegendAnchorPositionX) // Relative to episodeLegendGrp
-          .attr("y", episodeLegendAnchorPositionY)
-          .attr("dy", ".5ex")
-          .attr("class", "episode_legend_text")
-          .attr("text-anchor", "end") // the end of the text string is at the initial current text position
-          .text("Episodes:");
-
-      // Bottom divider line
-      episodeLegendGrp
-          .append("line")
-          .attr("x1", 0)
-          .attr("y1", legendHeight)
-          .attr("x2", "100%")
-          .attr("y2", legendHeight)
-          .attr("class", "legend_group_divider");
+          .attr("transform", "translate(110, " + margin.top + ")");
 
       let episodeLegend = episodeLegendGrp
           .selectAll(".episode_legend")
@@ -729,6 +727,8 @@ const PatientEpisodeTimeline = ({
           .attr("height", height + gapBetweenlegendAndMain);
 
       let update = function () {
+        console.log("Bars found:", d3.selectAll(".episode_bar").size());
+        console.log("Points found:", d3.selectAll(".main_report_ER").size());
         // Update the episode bars
         d3.selectAll(".episode_bar")
             .attr("x", function (d) {
@@ -758,6 +758,8 @@ const PatientEpisodeTimeline = ({
           return;
         }
         let transform = d3.event.transform;
+
+        console.log(transform);
 
         mainX.domain(transform.rescaleX(overviewX).domain());
 
@@ -1179,10 +1181,10 @@ const PatientEpisodeTimeline = ({
       overview
           .append("text")
           .attr("x", -textMargin)
-          .attr("y", overviewHeight / 2) // Relative to the overview area
+          .attr("y", overviewHeight + 10) // Relative to the overview area
           .attr("dy", ".5ex")
           .attr("class", "overview_label")
-          .text("P_E Timeline (" + reportData.length + " reports)");
+          .text("Date");
 
       // Report dots in overview area
       // No need to use clipping path since the overview area contains all the report dots
