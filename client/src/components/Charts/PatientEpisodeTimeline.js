@@ -727,18 +727,16 @@ const PatientEpisodeTimeline = ({
           .attr("height", height + gapBetweenlegendAndMain);
 
       let update = function () {
-        console.log("Bars found:", d3.selectAll(".episode_bar").size());
-        console.log("Points found:", d3.selectAll(".main_report_ER").size());
         // Update the episode bars
-        d3.selectAll(".episode_bar")
-            .attr("x", function (d) {
-              return mainX(d.startDate) - reportMainRadius;
-            })
-            .attr("width", function (d) {
-              return (
-                  mainX(d.endDate) - mainX(d.startDate) + reportMainRadius * 2
-              );
-            });
+        // d3.selectAll(".episode_bar")
+        //     .attr("x", function (d) {
+        //       return mainX(d.startDate) - reportMainRadius;
+        //     })
+        //     .attr("width", function (d) {
+        //       return (
+        //           mainX(d.endDate) - mainX(d.startDate) + reportMainRadius * 2
+        //       );
+        //     });
 
         // Update main area
         d3.selectAll(".main_report_PE").attr("cx", function (d) {
@@ -753,13 +751,10 @@ const PatientEpisodeTimeline = ({
       // Need to define this before defining zoom since it's function expression instead of function declariation
       let zoomed = function () {
         // Ignore zoom-by-brush
-        console.log(d3.event.sourceEvent);
         if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") {
           return;
         }
         let transform = d3.event.transform;
-
-        console.log(transform);
 
         mainX.domain(transform.rescaleX(overviewX).domain());
 
@@ -1113,18 +1108,25 @@ const PatientEpisodeTimeline = ({
 
       // Main area x axis
       // https://github.com/d3/d3-axis#axisBottom
-      let xAxis = d3
-          .axisBottom(mainX)
-          // https://github.com/d3/d3-axis#axis_tickSizeInner
+      let xAxis = d3.axisBottom(mainX)
           .tickSizeInner(5)
           .tickSizeOuter(0)
-          // Abbreviated month format
-          .tickFormat(d3.timeFormat("%b"));
+          .tickFormat(function (d) {
+            const diff = mainX.domain()[1] - mainX.domain()[0]; // time range in ms
+
+            if (diff < 1000 * 60 * 60 * 24 * 31 * 4.5) {
+              // Less than ~2 months: show day + month
+              return d3.timeFormat("%b %d")(d); // e.g., "Jan 12"
+            } else {
+              // Show month only
+              return d3.timeFormat("%b")(d); // e.g., "Jan"
+            }
+          });
 
       // Append x axis to the bottom of main area
       main
           .append("g")
-          .attr("class", "main-x-axis")
+          .attr("class", "main-PE-x-axis")
           .attr("transform", "translate(0," + height + ")")
           .call(xAxis);
 

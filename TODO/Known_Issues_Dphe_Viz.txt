@@ -1,98 +1,36 @@
 
-Let's do a prio list:
+Priority Tasks
+- Event relation timeline needs working zoom
+- Patient episode timeline needs x-axis adjusted to move with zoom ✅
+- Implement forward and backward clicking between Event Timeline Component and Document and episode timeline component
 
-- Organize the new data given in the tsv ✅
-- find another way to highlight the document in the PET (patient episode TImeline) ✅
-- fix mention highlight in doc viewer ✅
-- if the doc in the PET is clicked again, the mention_id that is associated with the Temporal Event should be highlighted on the doc and mention list ✅
-- get dots working on overview ✅
-- Create mock dates and relations for patient concepts in anticipation of real data being available.  (10 per group) ✅
-- FilteredConcepts has 83 concepts. We want to get every ID from this list and add it to unsum_output.tsv ✅
-- Change 'Episode' to 'Document Episode Type:' ✅
-- chagne time relation to Event occurrence in patient Timeline ✅
-- get rid of overview label names (include date inline with months of overview) ✅
-- Zoom bug fix
-- expand and collapse of all components ✅
-- Implement forward and backward clicking between Event Timeline Component and Document and episode timeline component 
-
-
-
-SubTasks:
-- P_E x-axis fix for zoom
-
-easy:
-- figure out where the right arrow contains is in the data and fix that ✅
-- change colors to green, negated is red ✅
-- change overlap back to middle line of normal width ✅
-- change patient notes to be darker color of itself when selected (the color we are looking for is the same color it is when hovered)
-
-medium:
-- make both svg timelines web responsive ✅
-- Work on Zoom for bottom timeline
-- Implement forward and backward clicking between Event Timeline Component, Documents, and Episode Timeline Component
+Sub-Tasks:
 - date anchor points
-
-hard:
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
-
-
 - add more to overview (month/year)
 - get rid of ticks underneath main view
-- get rid of points in overview ✅
-- change tLink to Time Relation ✅
-- change data points from just 10
-- comment out site and qual ✅
 - revisit collision to account for size of mention on timeline
+- add hover definitions to labels (see below)
 
 
 Dphe meeting: 
 - look to make changes to name 'severity' and 'finding'
 - hover to give more info on y-axis names
-
 - try to show better connection between clicked mention and note
-- 
-
-
 
 What can the user see when hovering label of event mention:
 - definition in way of examples 
 - Finding (symptoms, test results)
 - Severity (stage, grade, tnm)
 - Disease (neoplasm, disease, disorder)
-- Treatment (procedure, medication) 
-
-
+- Treatment (procedure, medication)
 - before ( Event occurs *before* time/date)
 - after ( Event occurs *after* time/date)
 - within (Event occurs *within* time span)
 - overlap (Event overlaps time span)
 
-
-
-
-
-
-Issue List:
-
-- If I click one temporal symbol that has the note_name = 'doc1_note10' and I click another temporal symbol with the same note_name. Then the
-red circle around it will disappear. It should probably stay in that case, need to figure out best course of action.
- (Going with, i'm getting rid of the option to click again and get rid of the red circle) ✅
-
-- Docviewer is not updating correctly when already open and different doc is clicked in timeline ✅
-
-- first load is not highlighting ✅
-
+Issues/Bugs:
 - fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main)
-
 - 'Unknown' semantic group is not showing up in concept list correctly
-
-
-Side Quests:
-
-- left margin for both timelines need to match up ✅
-- look to close things in together ✅
-- change tlink to something else 
-- font size smaller on y-axis
-- fix overwritten y-xis fonts ✅
 
