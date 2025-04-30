@@ -425,7 +425,7 @@ const PatientEpisodeTimeline = ({
     const container = document.getElementById(svgContainerId);
     const containerWidth = container.offsetWidth;
 
-    const svgWidth = containerWidth + 100;
+    const svgWidth = containerWidth - margin.left - 25;
 
     // Dynamic height based on vertical counts
     const height =
@@ -603,7 +603,7 @@ const PatientEpisodeTimeline = ({
           .select("#" + svgContainerId)
           .append("svg")
           .attr("class", "patient_episode_timeline_svg")
-          .attr("viewBox", `0 0 ${svgWidth} ${totalHeight}`)
+          .attr("viewBox", `0 0 ${containerWidth} ${totalHeight}`)
           .attr("preserveAspectRatio", "xMidYMid meet") // Keeps aspect ratio on resize
           .style("width", "100%")
           .style("height", "auto");

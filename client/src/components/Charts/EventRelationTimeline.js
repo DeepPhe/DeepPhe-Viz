@@ -584,34 +584,54 @@ export default function EventRelationTimeline (props) {
 
 
             function updateMainReports() {
-                // Debugging the data
-                // Select all existing lines inside the group
-                const groups = d3.selectAll(".main_report_group")
-                    .data(eventData, (d) => d.id);
+                // Re-bind data to existing groups
+                const groups = d3.selectAll('g[clip-path="url(#secondary_area_clip)"]')
+                    .selectAll('.main_report_group');
 
-                groups.each(function(d) {
+
+                // ENTER + UPDATE
+                groups.each(function(d, i) {
                     const group = d3.select(this);
-                    // Your logic for updating the lines goes here
-                    const x1 = mainX(d.formattedStartDate);
-                    const x2 = mainX(d.formattedEndDate);
-                    const y = groupBaseYMap[d.chemo_group];  // Assume you already have a function for this
+                    // Debug key properties
+                    // console.log(`📊 Group ${i} — ID: ${d.id}, Chemo Group: ${d.chemo_group}`);
+                    // console.log("   Start:", d.formattedStartDate, "→", mainX(d.formattedStartDate));
+                    // console.log("   End:  ", d.formattedEndDate, "→", mainX(d.formattedEndDate));
 
-                    // Select the lines inside this group and update them
-                    group.selectAll("line")
+                    const startDate = new Date(d.start);
+                    const endDate = new Date(d.end);
+
+                    d.formattedStartDate = mainX(startDate);
+                    d.formattedEndDate = mainX(endDate);
+                    const x1 = d.formattedStartDate;
+                    const x2 = d.formattedEndDate;
+
+                    console.log(group);
+
+                    // Update report lines
+                    group.selectAll('line[data-line-type="x1-only"]')
                         .attr("x1", x1)
-                        .attr("x2", x2)
-                        .attr("y1", y)
-                        .attr("y2", y);
+                        .attr("x2", x1);
 
-                    // Also update any line attributes like stroke color, width, etc., if needed
-                    group.selectAll(".main_report_ER.relation-icon")
-                        .attr("stroke", 'rgb(49, 163, 84)')  // Example for line color
-                        .attr("stroke-width", d.tLink === "overlap" ? 6 : 3);
+                    group.selectAll('line[data-line-type="x2-only"]')
+                        .attr("x1", x2)
+                        .attr("x2", x2);
+
+                    group.selectAll('line[data-line-type="range"]')
+                        .attr("x1", x1)
+                        .attr("x2", x2);
+
+                    group.selectAll('rect[data-rect-type="before"]')
+                        .attr("x", x1)
+
+                    group.selectAll('rect[data-rect-type="after"]')
+                        .attr("x", x2)
+
                 });
 
+                // Update x-axis
                 d3.select(".main-ER-x-axis").call(xAxis);
-
             }
+
 
             // Function expression to handle mouse wheel zoom or drag on main area
             let zoomed = function () {
@@ -998,7 +1018,7 @@ export default function EventRelationTimeline (props) {
 
             mainReports
                 .selectAll(".main_report_ER")
-                .data(eventData, (d) => d.id)  // Use a key function for data binding
+                .data(eventData)  // Use a key function for data binding
                 .enter()
                 .append("g")
                 .attr("class", "main_report_group")
@@ -1038,7 +1058,7 @@ export default function EventRelationTimeline (props) {
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon-outline")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "x1-only")
                             .attr("x1", x1)
                             .attr("x2", x1)
                             .attr("y1", y - 10) // Extends above
@@ -1052,7 +1072,7 @@ export default function EventRelationTimeline (props) {
                         // Vertical line at x1
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "x1-only")
                             .attr("x1", x1)
                             .attr("x2", x1)
                             .attr("y1", y - 10) // Extends above
@@ -1067,7 +1087,7 @@ export default function EventRelationTimeline (props) {
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon-outline")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "x2-only")
                             .attr("x1", x2)
                             .attr("x2", x2)
                             .attr("y1", y - 10) // Extends above
@@ -1081,7 +1101,7 @@ export default function EventRelationTimeline (props) {
                         // Vertical line at x2
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "x2-only")
                             .attr("x1", x2)
                             .attr("x2", x2)
                             .attr("y1", y - 10) // Extends above
@@ -1095,6 +1115,7 @@ export default function EventRelationTimeline (props) {
                         // Black outline line (drawn first, thicker)
                         containsGroup.append("line")
                             .attr("class", "main_report_ER relation-icon-outline")
+                            .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -1107,7 +1128,7 @@ export default function EventRelationTimeline (props) {
                         // Green visible line (drawn second, on top)
                         containsGroup.append("line")
                             .attr("class", "main_report_ER relation-icon")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -1128,6 +1149,7 @@ export default function EventRelationTimeline (props) {
 
                         mainLineGroup.append("line")
                             .attr("class", "main_report_ER relation-icon-outline")
+                            .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -1140,7 +1162,7 @@ export default function EventRelationTimeline (props) {
                         // Append the line
                         mainLineGroup.append("line")
                             .attr("class", "main_report_ER relation-icon")
-                            .attr("data-note-id", d.id)
+                            .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
                             .attr("y1", y)
@@ -1156,7 +1178,7 @@ export default function EventRelationTimeline (props) {
                         if (x1 === x2) {
                             if (d.tLink === "before") {
                                 mainLineGroup.append("rect")
-                                    .attr("data-note-id", d.id)
+                                    .attr("data-rect-type", "before")
                                     .attr("x", x1 - 10) // Align with arrow
                                     .attr("y", y - 5)
                                     .attr("width", 15)
@@ -1167,7 +1189,7 @@ export default function EventRelationTimeline (props) {
                             }
                             if (d.tLink === "after") {
                                 mainLineGroup.append("rect")
-                                    .attr("data-note-id", d.id)
+                                    .attr("data-rect-type", "after")
                                     .attr("x", x2 - 5) // Align with arrow
                                     .attr("y", y - 5)
                                     .attr("width", 15)

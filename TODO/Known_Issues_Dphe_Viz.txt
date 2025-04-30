@@ -1,6 +1,6 @@
 
 Priority Tasks
-- Event relation timeline needs working zoom
+- Event relation timeline needs working zoom ✅
 - Patient episode timeline needs x-axis adjusted to move with zoom ✅
 - Implement forward and backward clicking between Event Timeline Component and Document and episode timeline component
 
@@ -32,5 +32,8 @@ What can the user see when hovering label of event mention:
 
 Issues/Bugs:
 - fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main)
+- fix width of Event Relation Timeline zoom, when zooming the relations fall out of the timeline view into the label
+area.
+- rect needs to follow along ✅
 - 'Unknown' semantic group is not showing up in concept list correctly
 
