@@ -337,8 +337,8 @@ export default function EventRelationTimeline (props) {
             const minStartDate = new Date(startDates.reduce((min, date) => (new Date(date) < new Date(min) ? date : min)));
             const maxEndDate = new Date(endDates.reduce((max, date) => (new Date(date) > new Date(max) ? date : max)));
 
-            minStartDate.setDate(minStartDate.getDate() - 10);
-            maxEndDate.setDate(maxEndDate.getDate() + 10);
+            minStartDate.setDate(minStartDate.getDate() - 50);
+            maxEndDate.setDate(maxEndDate.getDate() + 50);
 
             let mainX = d3
                 .scaleTime()
@@ -574,9 +574,8 @@ export default function EventRelationTimeline (props) {
 
             // Specify a specific region of an element to display, rather than showing the complete area
             // Any parts of the drawing that lie outside of the region bounded by the currently active clipping path are not drawn.
-            svg
-                .append("defs")
-                // .append("clipPath")
+            svg.append("defs")
+                .append("clipPath")
                 .attr("id", "secondary_area_clip")
                 .append("rect")
                 .attr("width", svgWidth)
@@ -592,11 +591,6 @@ export default function EventRelationTimeline (props) {
                 // ENTER + UPDATE
                 groups.each(function(d, i) {
                     const group = d3.select(this);
-                    // Debug key properties
-                    // console.log(`📊 Group ${i} — ID: ${d.id}, Chemo Group: ${d.chemo_group}`);
-                    // console.log("   Start:", d.formattedStartDate, "→", mainX(d.formattedStartDate));
-                    // console.log("   End:  ", d.formattedEndDate, "→", mainX(d.formattedEndDate));
-
                     const startDate = new Date(d.start);
                     const endDate = new Date(d.end);
 

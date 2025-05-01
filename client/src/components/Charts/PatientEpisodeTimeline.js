@@ -74,140 +74,6 @@ const PatientEpisodeTimeline = ({
     //next line might not belong
     let factBasedReports = {};
 
-    function scrollToHighlightedTextMention(obj, reportText) {
-      // Highlight the selected term in the term list
-      const cssClass = "current_mentioned_term";
-      // First remove the previously added highlighting
-      // $('.report_mentioned_term').removeClass(cssClass);
-      $(".report_mentioned_term_1").removeClass(cssClass);
-      $(".report_mentioned_term_2").removeClass(cssClass);
-      $(".report_mentioned_term_3").removeClass(cssClass);
-      $(".report_mentioned_term_4").removeClass(cssClass);
-      // Then add to this current one by selecting the attributes
-      $(
-          'li[data-begin="' + obj.begin + '"][data-end="' + obj.end + '"]'
-      ).addClass(cssClass);
-
-      let reportTextDiv = $("#report_text");
-
-      let textMentions = [];
-
-      let textMentionObj = {};
-      textMentionObj.text = obj.term;
-      textMentionObj.beginOffset = obj.begin;
-      textMentionObj.endOffset = obj.end;
-
-      textMentions.push(textMentionObj);
-
-      // Highlight this term in the report text
-      let highlightedReportText = highlightTextMentions(
-          textMentions,
-          reportText
-      );
-
-      // Use html() for html rendering
-      reportTextDiv.html(highlightedReportText);
-
-      // Scroll to that position inside the report text div
-      // https://stackoverflow.com/questions/2346011/how-do-i-scroll-to-an-element-within-an-overflowed-div
-      // 5 is position tweak
-      reportTextDiv.scrollTop(
-          reportTextDiv.scrollTop() + $(".highlighted_term").position().top - 5
-      );
-    }
-
-    // Highlight one or multiple text mentions
-    function highlightTextMentions(textMentions, reportText, term = "NONE") {
-      const cssClass = "highlighted_term";
-      const cssClassAll = "highlight_terms";
-
-      // console.log("======sorted textMentions======");
-
-      // Flatten the ranges, this is the key to solve overlapping
-      textMentions = flattenRanges(textMentions);
-
-      let textFragments = [];
-      let lastValidTMIndex = 0;
-
-      for (let i = 0; i < textMentions.length; i++) {
-        let textMention = textMentions[i];
-        let lastValidTM = textMentions[lastValidTMIndex];
-
-        // If this is the first textmention, paste the start of the document before the first TM.
-        if (i === 0) {
-          if (textMention.beginOffset === 0) {
-            textFragments.push("");
-          } else {
-            // console.log("Upper:", reportText.substring(0, textMention.beginOffset));
-            textFragments.push(
-                reportText.substring(0, textMention.beginOffset)
-            );
-          }
-        } else {
-          // Otherwise, check if this text mention is valid. if it is, paste the text from last valid TM to this one.
-
-          if (
-              parseInt(textMention.beginOffset) <=
-              parseInt(lastValidTM.endOffset)
-          ) {
-            lastValidTMIndex = i;
-          } else {
-            textFragments.push(
-                reportText.substring(
-                    lastValidTM.endOffset,
-                    textMention.beginOffset
-                )
-            );
-          }
-        }
-        if (textMention.text.indexOf(term) > -1) {
-          textFragments.push(
-              '<span class="' +
-              cssClass +
-              '">' +
-              reportText.substring(
-                  textMention.beginOffset,
-                  textMention.endOffset
-              ) +
-              "</span>"
-          );
-        } else {
-          textFragments.push(
-              '<span class="' +
-              cssClassAll +
-              '">' +
-              reportText.substring(
-                  textMention.beginOffset,
-                  textMention.endOffset
-              ) +
-              "</span>"
-          );
-        }
-
-        lastValidTMIndex = i;
-      }
-      // Push end of the document
-
-      textFragments.push(
-          reportText.substring(textMentions[lastValidTMIndex].endOffset)
-      );
-
-      // Assemble the final report content with highlighted texts
-      let highlightedReportText = "";
-
-      for (let j = 0; j < textFragments.length; j++) {
-        // console.log(textFragments[j]);
-        highlightedReportText += textFragments[j];
-      }
-      const e = new Event("change");
-      const element = document.querySelector(
-          'input[type=radio][name="sort_order"]'
-      );
-      element.dispatchEvent(e);
-
-      return highlightedReportText;
-    }
-
     const variablesObj = {
       topography_major: {
         visible: false,
@@ -259,109 +125,21 @@ const PatientEpisodeTimeline = ({
       },
     };
 
-    function buildColorDistribution(textMention) {
-      let colorDistribution = [];
-      let increment = (100 / textMention.count).toFixed(2);
-
-      for (let i = 0; i < textMention.count; i++) {
-        let bgcolor = "highlight_terms";
-        let start = i > 0 ? i * increment + "%" : 0;
-        let finish =
-            i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
-        colorDistribution.push(bgcolor + " " + start);
-        colorDistribution.push(bgcolor + " " + finish);
-      }
-
-      return colorDistribution;
-    }
-
-    function flattenRanges(ranges) {
-      // console.log("======input ranges======");
-      // console.log(ranges);
-
-      let points = [];
-      let flattened = [];
-      for (let i in ranges) {
-        if (ranges[i].endOffset < ranges[i].beginOffset) {
-          //RE-ORDER THIS ITEM (BEGIN/END)
-          let tmp = ranges[i].endOffset; //RE-ORDER BY SWAPPING
-          ranges[i].endOffset = ranges[i].beginOffset;
-          ranges[i].beginOffset = tmp;
-        }
-
-        points.push(ranges[i].beginOffset);
-        points.push(ranges[i].endOffset);
-      }
-
-      //MAKE SURE OUR LIST OF POINTS IS IN ORDER
-      points.sort(function (a, b) {
-        return a - b;
-      });
-
-      // FIND THE INTERSECTING SPANS FOR EACH PAIR OF POINTS (IF ANY)
-      // ALSO MERGE THE ATTRIBUTES OF EACH INTERSECTING SPAN, AND INCREASE THE COUNT FOR EACH INTERSECTION
-      for (let i in points) {
-        if (i === 0 || points[i] === points[i - 1]) continue;
-        let includedRanges = ranges.filter(function (x) {
-          return (
-              Math.max(x.beginOffset, points[i - 1]) <
-              Math.min(x.endOffset, points[i])
-          );
-        });
-
-        if (includedRanges.length > 0) {
-          let flattenedRange = {
-            beginOffset: points[i - 1],
-            endOffset: points[i],
-            count: 0,
-          };
-
-          for (let j in includedRanges) {
-            let includedRange = includedRanges[j];
-
-            for (let prop in includedRange) {
-              if (prop !== "beginOffset" && prop !== "endOffset") {
-                if (!flattenedRange[prop]) flattenedRange[prop] = [];
-                flattenedRange[prop].push(includedRange[prop]);
-              }
-            }
-
-            flattenedRange.count++;
-          }
-
-          flattened.push(flattenedRange);
-        }
-      }
-
-      // console.log("======flattened ranges======");
-      // console.log(flattened);
-
-      return flattened;
-    }
-
-
-    function highlightAllMentions(mentionedTerms) {
-      let textMentions = [];
-      mentionedTerms = mentionedTerms.sort(function (a, b) {
-        return (
-            parseInt(a.begin) - parseInt(b.begin) ||
-            parseInt(a.end) - parseInt(b.end)
-        );
-      });
-
-      mentionedTerms.forEach(function (obj) {
-        //grabbing mention begin and end so that I can highlight each mention at the start
-        let textMentionObj = {};
-        textMentionObj.text = obj.term;
-        textMentionObj.beginOffset = obj.begin;
-        textMentionObj.endOffset = obj.end;
-        textMentionObj.mentionFrequency = obj.frequency;
-        //console.log(textMentionObj);
-        textMentions.push(textMentionObj);
-      });
-
-      return textMentions;
-    }
+    // function buildColorDistribution(textMention) {
+    //   let colorDistribution = [];
+    //   let increment = (100 / textMention.count).toFixed(2);
+    //
+    //   for (let i = 0; i < textMention.count; i++) {
+    //     let bgcolor = "highlight_terms";
+    //     let start = i > 0 ? i * increment + "%" : 0;
+    //     let finish =
+    //         i < textMention.count - 1 ? (i + 1) * increment + "%" : "100%";
+    //     colorDistribution.push(bgcolor + " " + start);
+    //     colorDistribution.push(bgcolor + " " + finish);
+    //   }
+    //
+    //   return colorDistribution;
+    // }
 
     function highlightSelectedTimelineReport(reportId) {
       // Remove previous added highlighting classes
@@ -445,7 +223,7 @@ const PatientEpisodeTimeline = ({
 
     // Set the timeline start date 10 days before the min date
     // and end date 10 days after the max date
-    const numOfDays = 100;
+    const numOfDays = 50;
 
     // Gap between texts and mian area left border
     const textMargin = 10;
@@ -723,7 +501,7 @@ const PatientEpisodeTimeline = ({
           .append("clipPath")
           .attr("id", "main_area_clip")
           .append("rect")
-          .attr("width", "100%")
+          .attr("width", svgWidth)
           .attr("height", height + gapBetweenlegendAndMain);
 
       let update = function () {

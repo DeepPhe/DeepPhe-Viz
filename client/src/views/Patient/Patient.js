@@ -88,10 +88,10 @@ function Patient(props) {
       <Card>
         <CardHeader className={"basicCardHeader"}>
           <Box
-              display="flex"
+              // display="flex"
               alignItems="center"
-              justifyContent="space-between"
-              width="100%"
+              // justifyContent="space-between"
+              // width="100%"
           >
             <span>Patient Episode Timeline</span>
             <IconButton onClick={() => setExpandedPatientEpisode((prev) => !prev)} size="small">
@@ -127,10 +127,10 @@ function Patient(props) {
         <Card>
           <CardHeader className={"basicCardHeader"}>
             <Box
-                display="flex"
+                // display="flex"
                 alignItems="center"
-                justifyContent="space-between"
-                width="100%"
+                // justifyContent="space-between"
+                // width="100%"
             >
               <span>Temporal Events</span>
               <IconButton onClick={() => setExpandedEventRelation((prev) => !prev)} size="small">
@@ -166,10 +166,10 @@ function Patient(props) {
         <Card style={{ marginTop: "45px" }}>
           <CardHeader className={"basicCardHeader"}>
             <Box
-                display="flex"
+                // display="flex"
                 alignItems="center"
-                justifyContent="space-between"
-                width="100%"
+                // justifyContent="space-between"
+                // width="100%"
             >
               <span>Patient ID and Demographics</span>
               <IconButton onClick={() => setExpandedPatientID((prev) => !prev)} size="small">
@@ -250,10 +250,10 @@ function Patient(props) {
           <Card>
             <CardHeader className={"basicCardHeader"}>
               <Box
-                  display="flex"
+                  // display="flex"
                   alignItems="center"
-                  justifyContent="space-between"
-                  width="100%"
+                  // justifyContent="space-between"
+                  // width="100%"
               >
                 <span>Cancer and Tumor Detail</span>
                 <IconButton onClick={() => setExpandedCancerDetail((prev) => !prev)} size="small">

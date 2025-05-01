@@ -401,7 +401,12 @@ svg .tick text {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
 
+.basicCardHeader .MuiIconButton-root {
+    position: absolute;
+    left: 0;
+    top: 5px;
 }
 
 
