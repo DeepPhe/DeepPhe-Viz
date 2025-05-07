@@ -6,18 +6,17 @@ Priority Tasks
 and Document and episode timeline component
 
 Sub-Tasks:
-
 - move collapse arrows to left ✅
 - move label back to center ✅
 - move arrow and componenet label to left ✅
 - add more to overview (month/year) ✅
+- add hover definitions to labels (see below) ✅
+- revisit clickable part of Relation (look to make whole arrow clickable)
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
+- look to add clickability in document, i.e. click 'right' in documentView and 'right' in conceptList will highlight
 - date anchor points
 - revisit collision to account for size of mention on timeline
-- add hover definitions to labels (see below)
-- revisit clickable part of Relation
-
 
 Dphe meeting:
 - hover to give more info on y-axis names ✅
