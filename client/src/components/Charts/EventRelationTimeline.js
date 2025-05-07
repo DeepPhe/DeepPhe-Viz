@@ -414,23 +414,6 @@ export default function EventRelationTimeline (props) {
             const height =
                 totalGroupLaneHeights * mainChemoTextRowHeightPerCount * 2;
 
-            let tLinkLabels = [
-                "before",
-                "after",
-                "contains",
-                "overlap",
-                // "contained-by"
-            ];
-
-            // let tLinkColors = [
-            //     "rgb(49, 130, 189)",
-            //     "rgb(230, 85, 13)",
-            //     "rgb(49, 163, 84)",
-            //     "rgb(140, 86, 75)"
-            // ];
-
-            // let color = d3.scaleOrdinal().domain(tLinkLabels).range(tLinkColors);
-
             // Transition used by focus/defocus episode
             let transt = d3
                 .transition()
@@ -569,7 +552,20 @@ export default function EventRelationTimeline (props) {
                 .attr("x", 0)
                 .attr("y", 10)
                 .attr("class", "episode_legend_text")
-                .text(d => `${d} (${tLinkCounts[d]})`);
+                .text(d => `${d} (${tLinkCounts[d]})`)
+                .each(function (d) {
+                    // Append a <title> tag to each <text> for the tooltip
+                    d3.select(this)
+                        .append("title")
+                        .text(() => {
+                            // Customize definitions here
+                            if (d === "before") return "Event occurs *before* time/date";
+                            if (d === "contains") return "Event occurs *within* time span";
+                            if (d === "overlap") return "Event *overlaps* time span";
+                            if (d === "after") return "Event occurs *after* time/date";
+                            return "Unspecified temporal relation.";
+                        });
+                });
 
 
             // Specify a specific region of an element to display, rather than showing the complete area
@@ -728,27 +724,6 @@ export default function EventRelationTimeline (props) {
                     ")"
                 );
 
-            // let getReportCirclePositionY = function (
-            //     d,
-            //     yScaleCallback,
-            //     chemoTextRowHeightPerCount
-            // ) {
-            //     return (
-            //         yScaleCallback(verticalPositions[d.chemo_group]) -
-            //         (chemoTextRowHeightPerCount * verticalPositions[d.chemo_group]) /
-            //         2
-            //     );
-            // };
-            //
-            // function getProcedureY(label, chemoText, verticalPositions, groupLaneHeights) {
-            //     const found = chemoText.find(d => d === label);
-            //     // console.log(found);
-            //     if (found != null) {
-            //         return mainY(verticalPositions[found] * groupLaneHeights[found]);
-            //     }
-            //     return null;
-            // }
-
             // Main report type divider lines
             // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
             main_ER_svg
@@ -771,27 +746,54 @@ export default function EventRelationTimeline (props) {
 
             let laneOffset = 0;
             // Report types texts
-            main_ER_svg
+            const labelGroup = main_ER_svg
                 .append("g")
-                .selectAll(".report_type_label")
-                .data([...new Set(chemoTextGroups)]) // convert to Set, then back to array
+                .selectAll(".report_type_label_group")
+                .data([...new Set(chemoTextGroups)])
                 .enter()
-                .append("text")
-                .text(function (d) {
-                    return d + " (" + chemoTextGroupCounts[d] + "):";
-                })
-                .attr("x", -textMargin) // textMargin on the left of main area
-                .attr("y", function (d) {
-                    // console.log("before:", laneOffset);
-                    // console.log(groupLaneHeights[d], groupLaneHeights[d] * 16);
-                    const y = laneOffset + (groupLaneHeights[d] * 16); // center in the block
+                .append("g")
+                .attr("class", "report_type_label_group")
+                .attr("transform", function (d) {
+                    const y = laneOffset + groupLaneHeights[d] * 16;
+                    const transform = `translate(0, ${y})`;
                     laneOffset += groupLaneHeights[d] * 16 * 2;
-                    // console.log("after:", laneOffset);
-                    return y;
-                })
-                // .attr("y", d => verticalPositions[d] + mainY(groupLaneHeights[d] / 2))
+                    return transform;
+                });
+
+            // Add the main text label
+            labelGroup
+                .append("text")
+                .attr("class", "report_type_label")
                 .attr("dy", ".5ex")
-                .attr("class", "report_type_label");
+                .attr("x", -textMargin)
+                .text(d => `${d} (${chemoTextGroupCounts[d]}):`);
+
+            // Add a small "i" icon next to it
+            labelGroup.each(function (d) {
+                const group = d3.select(this);
+                const label = group.select(".report_type_label");
+                const labelNode = label.node();
+                const labelWidth = labelNode.getComputedTextLength();
+
+                group
+                    .append("text")
+                    .attr("class", "info_icon")
+                    .attr("dy", "0ex")
+                    .attr("x", -textMargin - labelWidth - 12) // 6px gap between icon and text
+                    .style("cursor", "pointer")
+                    .text("ⓘ")
+                    .append("title")
+                    .text(() => {
+                        const definitions = {
+                            "Finding": "(symptoms, test results)",
+                            "Severity": "(stage, grade, tnm)",
+                            "Disease": "(neoplasm, disease, disorder)",
+                            "Treatment": "(procedure, medication)",
+
+                        };
+                        return definitions[d] || "No definition available.";
+                    });
+            });
 
             const defs = d3.select("svg").append("defs");
 
@@ -1052,6 +1054,7 @@ export default function EventRelationTimeline (props) {
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon-outline")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "x1-only")
                             .attr("x1", x1)
                             .attr("x2", x1)
@@ -1066,6 +1069,7 @@ export default function EventRelationTimeline (props) {
                         // Vertical line at x1
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "x1-only")
                             .attr("x1", x1)
                             .attr("x2", x1)
@@ -1081,6 +1085,7 @@ export default function EventRelationTimeline (props) {
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon-outline")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "x2-only")
                             .attr("x1", x2)
                             .attr("x2", x2)
@@ -1095,6 +1100,7 @@ export default function EventRelationTimeline (props) {
                         // Vertical line at x2
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "x2-only")
                             .attr("x1", x2)
                             .attr("x2", x2)
@@ -1109,6 +1115,7 @@ export default function EventRelationTimeline (props) {
                         // Black outline line (drawn first, thicker)
                         containsGroup.append("line")
                             .attr("class", "main_report_ER relation-icon-outline")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
@@ -1122,6 +1129,7 @@ export default function EventRelationTimeline (props) {
                         // Green visible line (drawn second, on top)
                         containsGroup.append("line")
                             .attr("class", "main_report_ER relation-icon")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
@@ -1143,6 +1151,7 @@ export default function EventRelationTimeline (props) {
 
                         mainLineGroup.append("line")
                             .attr("class", "main_report_ER relation-icon-outline")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
@@ -1156,6 +1165,7 @@ export default function EventRelationTimeline (props) {
                         // Append the line
                         mainLineGroup.append("line")
                             .attr("class", "main_report_ER relation-icon")
+                            .attr("data-note-id", d.noteId)
                             .attr("data-line-type", "range")
                             .attr("x1", x1)
                             .attr("x2", x2)
@@ -1172,6 +1182,7 @@ export default function EventRelationTimeline (props) {
                         if (x1 === x2) {
                             if (d.tLink === "before") {
                                 mainLineGroup.append("rect")
+                                    .attr("data-note-id", d.noteId)
                                     .attr("data-rect-type", "before")
                                     .attr("x", x1 - 10) // Align with arrow
                                     .attr("y", y - 5)
@@ -1183,6 +1194,7 @@ export default function EventRelationTimeline (props) {
                             }
                             if (d.tLink === "after") {
                                 mainLineGroup.append("rect")
+                                    .attr("data-note-id", d.noteId)
                                     .attr("data-rect-type", "after")
                                     .attr("x", x2 - 5) // Align with arrow
                                     .attr("y", y - 5)
@@ -1210,9 +1222,15 @@ export default function EventRelationTimeline (props) {
                     circle.style.fillOpacity = "0.3"; // or your default
                 });
 
-                // Reset all relation lines: remove darkened class
                 const allRelations = document.querySelectorAll(".relation-icon");
-                allRelations.forEach(el => el.classList.remove("darkened"));
+                allRelations.forEach(el => {
+                    el.style.strokeOpacity = "0.2"; // or whatever "dimmed" you prefer
+                });
+
+                const matchingRelations = document.querySelectorAll(`.relation-icon[data-note-id="${clickedId}"]`);
+                matchingRelations.forEach(el => {
+                    el.style.strokeOpacity = "1";
+                });
 
                 // Highlight matching circles
                 const matchingCircles = document.querySelectorAll(`circle[id*="${clickedId}"]`);
@@ -1221,11 +1239,6 @@ export default function EventRelationTimeline (props) {
                     circle.style.fillOpacity = "1";
                 });
 
-                // Highlight matching relations
-                const matchingRelations = document.querySelectorAll(`.relation-icon[data-note-id="${clickedId}"]`);
-                matchingRelations.forEach(el => {
-                    el.classList.add("darkened");
-                });
             }
 
 

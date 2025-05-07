@@ -802,6 +802,7 @@ const PatientEpisodeTimeline = ({
             .style("stroke", function (d) {
               return color(d.episode);
             })
+            .style("cursor", "pointer")
             .on("click", function (d) {
               $("#docs").show();
               if (Object.keys(factBasedReports).indexOf(d.id) === -1) {

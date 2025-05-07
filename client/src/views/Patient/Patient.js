@@ -93,7 +93,7 @@ function Patient(props) {
               // justifyContent="space-between"
               // width="100%"
           >
-            <span>Patient Episode Timeline</span>
+            <span style={{ paddingLeft: '14px' }}><b>Patient Episode Timeline</b></span>
             <IconButton onClick={() => setExpandedPatientEpisode((prev) => !prev)} size="small">
               {expandedPatientEpisode ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
@@ -128,11 +128,11 @@ function Patient(props) {
           <CardHeader className={"basicCardHeader"}>
             <Box
                 // display="flex"
-                alignItems="center"
+                // alignItems="center"
                 // justifyContent="space-between"
                 // width="100%"
             >
-              <span>Temporal Events</span>
+              <span style={{ paddingLeft: '14px' }}><b>Event Timeline</b></span>
               <IconButton onClick={() => setExpandedEventRelation((prev) => !prev)} size="small">
                 {expandedEventRelation ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
@@ -171,7 +171,7 @@ function Patient(props) {
                 // justifyContent="space-between"
                 // width="100%"
             >
-              <span>Patient ID and Demographics</span>
+              <span style={{ paddingLeft: '14px' }}><b>Patient ID and Demographics</b></span>
               <IconButton onClick={() => setExpandedPatientID((prev) => !prev)} size="small">
                 {expandedPatientID ? <ExpandLess /> : <ExpandMore />}
               </IconButton>
@@ -255,7 +255,7 @@ function Patient(props) {
                   // justifyContent="space-between"
                   // width="100%"
               >
-                <span>Cancer and Tumor Detail</span>
+                <span style={{ paddingLeft: '14px' }}><b>Cancer and Tumor Detail</b></span>
                 <IconButton onClick={() => setExpandedCancerDetail((prev) => !prev)} size="small">
                   {expandedCancerDetail ? <ExpandLess /> : <ExpandMore />}
                 </IconButton>

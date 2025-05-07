@@ -6,31 +6,23 @@ Priority Tasks
 and Document and episode timeline component
 
 Sub-Tasks:
-- date anchor points
+
 - move collapse arrows to left ✅
 - move label back to center ✅
+- move arrow and componenet label to left ✅
+- add more to overview (month/year) ✅
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
-- add more to overview (month/year) ✅
+- date anchor points
 - revisit collision to account for size of mention on timeline
 - add hover definitions to labels (see below)
+- revisit clickable part of Relation
 
 
-Dphe meeting: 
-- look to make changes to name 'severity' and 'finding'
-- hover to give more info on y-axis names
+Dphe meeting:
+- hover to give more info on y-axis names ✅
 - try to show better connection between clicked mention and note
-
-What can the user see when hovering label of event mention:
-- definition in way of examples 
-- Finding (symptoms, test results)
-- Severity (stage, grade, tnm)
-- Disease (neoplasm, disease, disorder)
-- Treatment (procedure, medication)
-- before ( Event occurs *before* time/date)
-- after ( Event occurs *after* time/date)
-- within (Event occurs *within* time span)
-- overlap (Event overlaps time span)
+- look to make changes to name 'severity' and 'finding'
 
 Issues/Bugs:
 - fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main) ✅
