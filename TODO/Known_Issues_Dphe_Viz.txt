@@ -3,7 +3,8 @@ Priority Tasks
 - Event relation timeline needs working zoom ✅
 - Patient episode timeline needs x-axis adjusted to move with zoom ✅
 - Implement forward and backward clicking between Event Timeline Component
-and Document and episode timeline component
+and Document and episode timeline component ✅
+- Check for bugs and unclear actions
 
 Sub-Tasks:
 - move collapse arrows to left ✅
@@ -29,3 +30,6 @@ Issues/Bugs:
 - rect needs to follow along ✅
 - 'Unknown' semantic group is not showing up in concept list correctly
 
+
+Tasks For Today:
+-

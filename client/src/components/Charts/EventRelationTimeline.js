@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import * as d3 from "d3v4";
 import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention';
 import {sum} from "lodash";
@@ -181,6 +181,8 @@ export default function EventRelationTimeline (props) {
     }
 
 
+    const skipNextEffect = useRef(false);
+
     useEffect(() => {
         if (!conceptsPerDocument) return;
 
@@ -216,20 +218,55 @@ export default function EventRelationTimeline (props) {
 
 
     useEffect(() => {
+
+        if (skipNextEffect.current) {
+            skipNextEffect.current = false; // reset for next time
+            return;
+        }
         if (!clickedTerms || clickedTerms.length === 0) return;
 
-        console.log("updating!");
-
         document.querySelectorAll(".relation-icon").forEach(el => {
-            // el.style.fillOpacity = "0.65";
-            // el.style.strokeOpacity = "0.65";
-            el.style.filter = "";
+            if (!el.classList.contains("selected")) {
+                el.classList.add("unselected");
+            }
         });
 
-        clickedTerms.forEach(conceptId => {
-            document.querySelectorAll(`.relation-icon[data-concept-id="${conceptId}"]`).forEach(el => {
-                el.style.strokeOpacity = "1.5";
-                el.style.filter = "drop-shadow(0 0 2px green)";
+
+        const lastClicked = clickedTerms[clickedTerms.length - 1];
+
+        // Emphasize matching relations
+        clickedTerms.forEach(clickedConceptId => {
+            document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
+
+                console.log("clickedTerms updated:", clickedTerms);
+
+                if (el.hasAttribute("marker-end")) {
+                    const currentMarker = el.getAttribute("marker-end");
+                    if (currentMarker === "url(#selectedRightArrow)"){
+                        el.setAttribute("marker-end", "url(#rightArrow)");
+                    }
+                    else{
+                        el.setAttribute("marker-end", "url(#selectedRightArrow)");
+                    }
+                }
+                else if (el.hasAttribute("marker-start")){
+                    const currentMarker = el.getAttribute("marker-start");
+                    if (currentMarker === "url(#selectedLeftArrow)"){
+                        el.setAttribute("marker-start", "url(#leftArrow)");
+                    }
+                    else{
+                        el.setAttribute("marker-start", "url(#selectedLeftArrow)");
+                    }
+                }
+                else{
+                    if (el.classList.contains("selected")){
+                        el.classList.remove("selected");
+                    }
+                    else {
+                        el.classList.remove("unselected");
+                        el.classList.add("selected");
+                    }
+                }
             });
         });
     }, [clickedTerms]);
@@ -873,6 +910,23 @@ export default function EventRelationTimeline (props) {
                 .attr("d", "M 0 0 L 12 6 L 0 12 Z")
                 .style("fill", "rgb(49, 163, 84)");
 
+
+
+
+            const selectedRightArrow = defs.append("marker")
+                .attr("id", "selectedRightArrow")
+                // .attr("class", "relation-icon")
+                .attr("viewBox", "0 0 12 12")
+                .attr("refX", 0)
+                .attr("refY", 6)
+                .attr("markerWidth", 4)
+                .attr("markerHeight", 4)
+                .attr("orient", "auto");
+
+            selectedRightArrow.append("path")
+                .attr("d", "M 0 0 L 12 6 L 0 12 Z")
+                .style("fill", "rgb(49, 163, 84)");
+
             // Define the left arrow marker
             const leftArrow = defs.append("marker")
                 .attr("id", "leftArrow")
@@ -896,6 +950,32 @@ export default function EventRelationTimeline (props) {
                 .attr("class", "relation-icon")
                 .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
                 .style("fill", "rgb(49, 163, 84)");
+
+
+
+            const selectedLeftArrow = defs.append("marker")
+                .attr("id", "selectedLeftArrow")
+                // .attr("class", "relation-icon")
+                .attr("viewBox", "0 0 12 12")
+                .attr("refX", 4)  // Shift the arrowhead slightly left
+                .attr("refY", 6)
+                .attr("markerWidth", 4)
+                .attr("markerHeight", 4)
+                .attr("orient", "auto")
+
+
+            // leftArrow.append("path")
+            //     .attr("d", "M 12 0 L 0 6 L 12 12")
+            //     .attr("transform", "translate(1.5, 0)") // Shift just slightly left
+            //     .style("fill", "black")
+            //     .style("stroke", "black")
+            //     .style("stroke-width", 1.7);
+
+            selectedLeftArrow.append("path")
+                // .attr("class", "relation-icon")
+                .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
+                .style("fill", "rgb(49, 163, 84)");
+
 
 
             let mainReports = main_ER_svg
@@ -1120,20 +1200,45 @@ export default function EventRelationTimeline (props) {
                 });
 
                 document.querySelectorAll(".relation-icon").forEach(el => {
-                    // el.style.stroke = "red";
-                    el.style.fillOpacity = "0.65";
-                    el.style.strokeOpacity = "0.65";
-                    // el.style.strokeOpacity = "0.68";  // light stroke to start
-                    // el.style.stroke = "#bbb";         // optionally change color to something light
+                    if (!el.classList.contains("selected")) {
+                        el.classList.add("unselected");
+                    }
                 });
 
                 // Emphasize matching relations
                 document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
-                    el.style.strokeOpacity = "1";
-                    el.style.fillOpacity = "1";
-                    el.style.fill = "red";
-                    // el.style.strokeWidth = "4px";
-                    el.style.filter = "drop-shadow(0 0 2px green)";
+                    skipNextEffect.current = true;
+                    if (el.hasAttribute("marker-end")) {
+                        const currentMarker = el.getAttribute("marker-end");
+                        console.log(currentMarker);
+                        if (currentMarker === "url(#selectedRightArrow)"){
+                            el.setAttribute("marker-end", "url(#rightArrow)");
+                        }
+                        else{
+                            el.setAttribute("marker-end", "url(#selectedRightArrow)");
+                        }
+                    }
+                    else if (el.hasAttribute("marker-start")){
+                        const currentMarker = el.getAttribute("marker-start");
+                        if (currentMarker === "url(#selectedLeftArrow)"){
+                            el.setAttribute("marker-start", "url(#leftArrow)");
+                        }
+                        else{
+                            el.setAttribute("marker-start", "url(#selectedLeftArrow)");
+                        }
+                    }
+                    else{
+                        if (el.classList.contains("selected")) {
+                            el.classList.remove("selected");
+                            el.classList.add("unselected");
+                        } else {
+                            el.classList.remove("unselected");
+                            el.classList.add("selected");
+                        }
+                    }
+
+                    console.log(el.getAttribute("marker-end"));
+
                 });
 
                 // Emphasize matching circles

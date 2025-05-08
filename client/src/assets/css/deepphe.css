@@ -1528,6 +1528,16 @@ white text with more shading
     color: orange;
 }
 
+.relation-icon.selected {
+    stroke-opacity: 1;
+    fill-opacity: 1;
+}
+
+.relation-icon.unselected {
+    stroke-opacity: 0.65;
+    fill-opacity: 0.65;
+}
+
 
 /* Tumor Summary */
 .tumor_summary_title,
