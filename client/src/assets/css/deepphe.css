@@ -1398,7 +1398,7 @@ white text with more shading
     fill-opacity: 1 !important;
 }
 
-.main_report_contains:hover, .main_report_PE:hover {
+.main_report_PE:hover {
     fill-opacity: 1;
     /*stroke-width: 6px;*/
 }
@@ -1529,14 +1529,18 @@ white text with more shading
 }
 
 .relation-icon.selected {
-    stroke-opacity: 1;
-    fill-opacity: 1;
+    fill: rgb(49, 163, 84);  /* or your intended fill color */
+    /*fill-opacity: 1;*/
 
+    /*stroke: black;*/
+    /*stroke-width: 5px;*/
+    stroke-opacity: 1;
 }
 
+
 .relation-icon.unselected {
-    stroke-opacity: 0.75;
-    fill-opacity: 0.75;
+    /*stroke-opacity: 0.75;*/
+    /*fill-opacity: 0.75;*/
 }
 
 

@@ -14,12 +14,10 @@ Sub-Tasks:
 - add hover definitions to labels (see below) ✅
 - make vertical contains lines, 3/4 of og size as well as the arrows ✅
 - make hover definition on the labels and get rid of the I symbol ✅
-- revisit clickable part of Relation (look to make whole arrow clickable)
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
 - look to add clickability in document, i.e. click 'right' in documentView and 'right' in conceptList will highlight
 - date anchor points
-- revisit collision to account for size of mention on timeline
 
 Dphe meeting:
 - hover to give more info on y-axis names ✅
@@ -30,8 +28,9 @@ Issues/Bugs:
 - fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main) ✅
 - fix width of Event Relation Timeline zoom. ✅
 - rect needs to follow along ✅
+- click of
 - 'Unknown' semantic group is not showing up in concept list correctly
 
 
 Tasks For Today:
--
+-df

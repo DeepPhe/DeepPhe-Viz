@@ -844,22 +844,22 @@ export default function EventRelationTimeline (props) {
 
 
             // Define the vertical line markers
-            defs.append("marker")
-                .attr("id", "verticalStart")
-                .attr("viewBox", "0 0 10 10")
-                .attr("refX", 1)  // Position at the middle of the line
-                .attr("refY", 5)  // Position at the middle of the line
-                .attr("markerWidth", 4)
-                .attr("markerHeight", 8)
-                .attr("orient", "auto")
-                .append("line")
-                .attr("x1", 0)
-                .attr("x2", 0)
-                .attr("y1", 0)
-                .attr("y2", 15)
-                .style("stroke", "rgb(49, 163, 84)")
-                .style("stroke-width", 10)
-                .style("pointer-events", "none"); // Ensure the line is above everything else
+            // defs.append("marker")
+            //     .attr("id", "verticalStart")
+            //     .attr("viewBox", "0 0 10 10")
+            //     .attr("refX", 10)  // Position at the middle of the line
+            //     .attr("refY", 5)  // Position at the middle of the line
+            //     .attr("markerWidth", 4)
+            //     .attr("markerHeight", 8)
+            //     .attr("orient", "auto")
+            //     .append("line")
+            //     .attr("x1", 0)
+            //     .attr("x2", 0)
+            //     .attr("y1", 0)
+            //     .attr("y2", 15)
+            //     .style("stroke", "rgb(49, 163, 84)")
+            //     .style("stroke-width", 10)
+            //     .style("pointer-events", "none"); // Ensure the line is above everything else
 
 
             // Define the right arrow marker
@@ -885,16 +885,6 @@ export default function EventRelationTimeline (props) {
                 .attr("fill-opacity", 0.75)
                 .attr("orient", "auto");
 
-            // black "background" arrow (slightly bigger)
-            // rightArrow.append("path")
-            //     .attr("class", "relation-icon")
-            //     .attr("d", "M 0 0 L 12 6 L 0 12 Z")
-            //     .attr("transform", "translate(-1.5, 0)") // Shift just slightly left
-            //     .style("fill", "black")
-            //     .style("stroke", "black")
-            //     .style("stroke-width", 1.7);
-
-
             // Green "top" arrow (normal size)
             rightArrow.append("path")
                 .attr("class", "relation-icon")
@@ -906,24 +896,26 @@ export default function EventRelationTimeline (props) {
 
             const selectedRightArrow = defs.append("marker")
                 .attr("id", "selectedRightArrow")
-                // .attr("class", "relation-icon")
                 .attr("viewBox", "0 0 12 12")
                 .attr("refX", 0)
                 .attr("refY", 6)
-                .attr("markerWidth", 4)
-                .attr("markerHeight", 4)
+                .attr("markerWidth", 3.2)
+                .attr("markerHeight", 3.2)
                 .attr("orient", "auto");
 
             selectedRightArrow.append("path")
                 .attr("d", "M 0 0 L 12 6 L 0 12 Z")
-                .style("fill", "rgb(49, 163, 84)");
+                .style("fill", "rgb(49, 163, 84)")
+                .style("stroke", "black")
+                .style("stroke-width", 1);
+
 
             // Define the left arrow marker
             const leftArrow = defs.append("marker")
                 .attr("id", "leftArrow")
                 .attr("class", "relation-icon")
                 .attr("viewBox", "0 0 12 12")
-                .attr("refX", 4)  // Shift the arrowhead slightly left
+                .attr("refX", 8)  // Shift the arrowhead slightly left
                 .attr("refY", 6)
                 .attr("markerWidth", 3.2)
                 .attr("fill-opacity", 0.75)
@@ -945,14 +937,15 @@ export default function EventRelationTimeline (props) {
 
 
 
+
             const selectedLeftArrow = defs.append("marker")
                 .attr("id", "selectedLeftArrow")
                 // .attr("class", "relation-icon")
                 .attr("viewBox", "0 0 12 12")
-                .attr("refX", 4)  // Shift the arrowhead slightly left
+                .attr("refX", 6)  // Shift the arrowhead slightly left
                 .attr("refY", 6)
-                .attr("markerWidth", 4)
-                .attr("markerHeight", 4)
+                .attr("markerWidth", 3.2)
+                .attr("markerHeight", 3.2)
                 .attr("orient", "auto")
 
 
@@ -964,9 +957,11 @@ export default function EventRelationTimeline (props) {
             //     .style("stroke-width", 1.7);
 
             selectedLeftArrow.append("path")
-                // .attr("class", "relation-icon")
-                .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
-                .style("fill", "rgb(49, 163, 84)");
+                .attr("d", "M 12 0 L 0 6 L 12 12 Z")  // Close the triangle
+                .style("fill", "rgb(49, 163, 84)")
+                .style("stroke", "black")
+                .style("stroke-width", 1);
+
 
 
 
@@ -1023,19 +1018,16 @@ export default function EventRelationTimeline (props) {
                     // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
                     if (d.tLink === "contains") {
 
-                        // Vertical line at x1
-                        // containsGroup.append("line")
-                        //     .attr("class", "main_report_contains relation-icon-outline")
-                        //     .attr("data-line-type", "x1-only")
-                        //     .attr("x1", x1)
-                        //     .attr("x2", x1)
-                        //     .attr("y1", y - 10) // Extends above
-                        //     .attr("y2", y + 10) // Extends below
-                        //     .attr("stroke", 'black')
-                        //     .attr("stroke-width", 4)
-                        //     .attr("stroke-solid", "4 2")
-                        //     .style("cursor", "pointer")
-                        //     .on("click", (event) => handleClick(event, d));
+                        containsGroup.append("line")
+                            .attr("class", "relation-outline")
+                            .attr("x1", x1)
+                            .attr("y1", y - 7)
+                            .attr("x2", x1)
+                            .attr("y2", y + 7)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 4)
+                            .style("cursor", "pointer")
+                            .attr("stroke-opacity", 0);
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
@@ -1048,24 +1040,20 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
                             .attr("stroke-opacity", 0.75)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
-
-                        // Vertical line at x2
-                        // containsGroup.append("line")
-                        //     .attr("class", "main_report_contains relation-icon-outline")
-                        //     .attr("data-line-type", "x2-only")
-                        //     .attr("x1", x2)
-                        //     .attr("x2", x2)
-                        //     .attr("y1", y - 10) // Extends above
-                        //     .attr("y2", y + 10) // Extends below
-                        //     .attr("stroke", 'black')
-                        //     .attr("stroke-width", 4)
-                        //     .attr("stroke-solid", "4 2") // Dashed line for clarity
-                        //     .style("cursor", "pointer")
-                        //     .on("click", (event) => handleClick(event, d));
+                        containsGroup.append("line")
+                            .attr("class", "relation-outline")
+                            .attr("x1", x2)
+                            .attr("y1", y - 7)
+                            .attr("x2", x2)
+                            .attr("y2", y + 7)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 4)
+                            .style("cursor", "pointer")
+                            .attr("stroke-opacity", 0);
 
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
@@ -1078,22 +1066,22 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
                             .attr("stroke-opacity", 0.75)
-                            .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
-                        // Black outline line (drawn first, thicker)
-                        // containsGroup.append("line")
-                        //     .attr("class", "main_report_ER relation-icon-outline")
-                        //     .attr("data-line-type", "range")
-                        //     .attr("x1", x1)
-                        //     .attr("x2", x2)
-                        //     .attr("y1", y)
-                        //     .attr("y2", y)
-                        //     .attr("stroke", "black")
-                        //     .attr("stroke-width", lineThickness + 0.75) // Slightly thicker than the green line
-                        //     .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                        //     .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null);
+
+                        containsGroup.append("line")
+                            .attr("class", "relation-outline")
+                            .attr("x1", x1)
+                            .attr("y1", y)
+                            .attr("x2", x2)
+                            .attr("y2", y)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 7)
+                            .style("cursor", "pointer")
+                            .attr("stroke-opacity", 0);
+
 
                         // Green visible line (drawn second, on top)
                         containsGroup.append("line")
@@ -1119,18 +1107,16 @@ export default function EventRelationTimeline (props) {
 
                     if (d.tLink !== "contains") {
 
-                        // mainLineGroup.append("line")
-                        //     .attr("class", "main_report_ER relation-icon-outline")
-                        //     .attr("data-concept-id", d.conceptId)
-                        //     .attr("data-line-type", "range")
-                        //     .attr("x1", x1)
-                        //     .attr("x2", x2)
-                        //     .attr("y1", y)
-                        //     .attr("y2", y)
-                        //     .attr("stroke", 'black')
-                        //     .attr("stroke-width", lineThickness + 0.75)
-                        //     .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
-                        //     .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
+                        mainLineGroup.append("line")
+                            .attr("class", "relation-outline")
+                            .attr("x1", x1 - 1)
+                            .attr("y1", y)
+                            .attr("x2", x2 + 1)
+                            .attr("y2", y)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 7)
+                            .style("cursor", "pointer")
+                            .attr("stroke-opacity", 0);
 
                         // Append the line
                         mainLineGroup.append("line")
@@ -1155,14 +1141,14 @@ export default function EventRelationTimeline (props) {
                                 mainLineGroup.append("rect")
                                     .attr("data-concept-id", d.conceptId)
                                     .attr("data-rect-type", "before")
-                                    .attr("x", x1 - 5) // Align with arrow
+                                    .attr("x", x1 - 10) // Align with arrow
                                     .attr("y", y - 5)
                                     .attr("width", 10)
                                     .attr("height", 10)
                                     .style("fill", "transparent")
-                                    // .attr("fill-opacity", 0.75)
                                     .style("cursor", "pointer")
                                     .on("click", (event) => handleClick(event, d));
+
                             }
                             if (d.tLink === "after") {
                                 mainLineGroup.append("rect")
@@ -1173,9 +1159,9 @@ export default function EventRelationTimeline (props) {
                                     .attr("width", 10)
                                     .attr("height", 10)
                                     .style("fill", "transparent")
-                                    // .attr("fill-opacity", 0.75)
                                     .style("cursor", "pointer")
                                     .on("click", (event) => handleClick(event, d));
+
                             }
                         }
                     }
@@ -1206,9 +1192,11 @@ export default function EventRelationTimeline (props) {
                 // Emphasize matching relations
                 document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
                     skipNextEffect.current = true;
+
+
+
                     if (el.hasAttribute("marker-end")) {
                         const currentMarker = el.getAttribute("marker-end");
-                        console.log(currentMarker);
                         if (currentMarker === "url(#selectedRightArrow)"){
                             el.setAttribute("marker-end", "url(#rightArrow)");
                         }
@@ -1232,16 +1220,34 @@ export default function EventRelationTimeline (props) {
                         } else {
                             el.classList.remove("unselected");
                             el.classList.add("selected");
+
+
+
                         }
                     }
 
-                    console.log(el.getAttribute("marker-end"));
+                        // Show/hide the black outline line
+                    const group = el.closest("g");
+                    const isNowSelected = el.classList.contains("selected");
+                    if (group) {
+                        const outlines = group.querySelectorAll(".relation-outline");
+                        if (outlines.length) {
+                            outlines.forEach((outline) => {
+                                // Do something with the outlines, like showing or hiding
+                                outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
+                            });
+                        }
+                    }
 
                 });
+
 
                 // Emphasize matching circles
                 document.querySelectorAll(`circle[id*="${clickedNoteId}"]`).forEach(circle => {
                     circle.style.fillOpacity = "1";
+                    circle.style.stroke = "black";
+                    circle.style.strokeWidth = "2px";
+
                 });
             }
 
