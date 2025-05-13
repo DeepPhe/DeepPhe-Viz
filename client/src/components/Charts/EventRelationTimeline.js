@@ -823,28 +823,18 @@ export default function EventRelationTimeline (props) {
                 .attr("x", -textMargin)
                 .text(d => `${d} (${chemoTextGroupCounts[d]}):`);
 
-            // Add a small "i" icon next to it
             labelGroup.each(function (d) {
                 const group = d3.select(this);
                 const label = group.select(".report_type_label");
-                const labelNode = label.node();
-                const labelWidth = labelNode.getComputedTextLength();
 
-                group
-                    .append("text")
-                    .attr("class", "info_icon")
-                    .attr("dy", "0ex")
-                    .attr("x", -textMargin - labelWidth - 12) // 6px gap between icon and text
-                    .style("cursor", "pointer")
-                    .text("ⓘ")
-                    .append("title")
+                // Add a <title> to the label itself to show tooltip on hover
+                label.append("title")
                     .text(() => {
                         const definitions = {
                             "Finding": "(symptoms, test results)",
                             "Severity": "(stage, grade, tnm)",
                             "Disease": "(neoplasm, disease, disorder)",
                             "Treatment": "(procedure, medication)",
-
                         };
                         return definitions[d] || "No definition available.";
                     });
@@ -890,8 +880,9 @@ export default function EventRelationTimeline (props) {
                 .attr("viewBox", "0 0 12 12")
                 .attr("refX", 0)
                 .attr("refY", 6)
-                .attr("markerWidth", 4)
-                .attr("markerHeight", 4)
+                .attr("markerWidth", 3.2)
+                .attr("markerHeight", 3.2)
+                .attr("fill-opacity", 0.75)
                 .attr("orient", "auto");
 
             // black "background" arrow (slightly bigger)
@@ -934,8 +925,9 @@ export default function EventRelationTimeline (props) {
                 .attr("viewBox", "0 0 12 12")
                 .attr("refX", 4)  // Shift the arrowhead slightly left
                 .attr("refY", 6)
-                .attr("markerWidth", 4)
-                .attr("markerHeight", 4)
+                .attr("markerWidth", 3.2)
+                .attr("fill-opacity", 0.75)
+                .attr("markerHeight", 3.2)
                 .attr("orient", "auto")
 
 
@@ -1051,10 +1043,11 @@ export default function EventRelationTimeline (props) {
                             .attr("data-line-type", "x1-only")
                             .attr("x1", x1)
                             .attr("x2", x1)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
+                            .attr("y1", y - 6) // Extends above
+                            .attr("y2", y + 6) // Extends below
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
+                            .attr("stroke-opacity", 0.75)
                             .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
@@ -1080,10 +1073,11 @@ export default function EventRelationTimeline (props) {
                             .attr("data-line-type", "x2-only")
                             .attr("x1", x2)
                             .attr("x2", x2)
-                            .attr("y1", y - 10) // Extends above
-                            .attr("y2", y + 10) // Extends below
+                            .attr("y1", y - 6) // Extends above
+                            .attr("y2", y + 6) // Extends below
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", 3)
+                            .attr("stroke-opacity", 0.75)
                             .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
@@ -1112,6 +1106,7 @@ export default function EventRelationTimeline (props) {
                             .attr("y2", y)
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
+                            .attr("stroke-opacity", 0.75)
                             .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
                             .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
@@ -1148,6 +1143,7 @@ export default function EventRelationTimeline (props) {
                             .attr("y2", y)
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
+                            .attr("stroke-opacity", 0.75)
                             .attr("marker-start", d.tLink === "before" ? "url(#leftArrow)" : null)
                             .attr("marker-end", d.tLink === "after" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
@@ -1159,11 +1155,12 @@ export default function EventRelationTimeline (props) {
                                 mainLineGroup.append("rect")
                                     .attr("data-concept-id", d.conceptId)
                                     .attr("data-rect-type", "before")
-                                    .attr("x", x1 - 10) // Align with arrow
+                                    .attr("x", x1 - 5) // Align with arrow
                                     .attr("y", y - 5)
-                                    .attr("width", 15)
+                                    .attr("width", 10)
                                     .attr("height", 10)
                                     .style("fill", "transparent")
+                                    // .attr("fill-opacity", 0.75)
                                     .style("cursor", "pointer")
                                     .on("click", (event) => handleClick(event, d));
                             }
@@ -1173,9 +1170,10 @@ export default function EventRelationTimeline (props) {
                                     .attr("data-rect-type", "after")
                                     .attr("x", x2 - 5) // Align with arrow
                                     .attr("y", y - 5)
-                                    .attr("width", 15)
+                                    .attr("width", 10)
                                     .attr("height", 10)
                                     .style("fill", "transparent")
+                                    // .attr("fill-opacity", 0.75)
                                     .style("cursor", "pointer")
                                     .on("click", (event) => handleClick(event, d));
                             }

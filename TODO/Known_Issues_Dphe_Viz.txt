@@ -12,6 +12,8 @@ Sub-Tasks:
 - move arrow and componenet label to left ✅
 - add more to overview (month/year) ✅
 - add hover definitions to labels (see below) ✅
+- make vertical contains lines, 3/4 of og size as well as the arrows ✅
+- make hover definition on the labels and get rid of the I symbol ✅
 - revisit clickable part of Relation (look to make whole arrow clickable)
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
