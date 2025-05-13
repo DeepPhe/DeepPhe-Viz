@@ -21,14 +21,14 @@ Sub-Tasks:
 
 Dphe meeting:
 - hover to give more info on y-axis names ✅
-- try to show better connection between clicked mention and note
+- try to show better connection between clicked mention and note ✅
 - look to make changes to name 'severity' and 'finding'
 
 Issues/Bugs:
 - fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main) ✅
 - fix width of Event Relation Timeline zoom. ✅
 - rect needs to follow along ✅
-- click of
+- Sometimes when clicking the concepts below in the document, the last one does not unclick
 - 'Unknown' semantic group is not showing up in concept list correctly
 
 

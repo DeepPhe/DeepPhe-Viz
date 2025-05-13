@@ -13,7 +13,6 @@ export {reportTextRight};
 
 
 
-
 const PatientEpisodeTimeline = ({
                       patientId,
                       setReportId,

@@ -73,6 +73,18 @@ export default function EventRelationTimeline (props) {
     const conceptsPerDocument = props.conceptsPerDocument;
 
 
+    useEffect(() => {
+        console.log(clickedTerms);
+        if (clickedTerms.length === 0) {
+            document.querySelectorAll("circle").forEach(circle => {
+                circle.style.fillOpacity = "0.3";  // Reset fill opacity to default
+                // circle.style.stroke = "none";      // Reset stroke to none
+                circle.style.strokeWidth = "1px";  // Reset stroke width to none
+            });
+        }
+    }, [clickedTerms]);
+
+
     const fetchTSVData = async (conceptsPerDocument) => {
         try {
             const response = await fetch("/unsummarized_output.tsv");
@@ -654,12 +666,12 @@ export default function EventRelationTimeline (props) {
 
                     // Update report lines
                     group.selectAll('line[data-line-type="x1-only"]')
-                        .attr("x1", x1)
-                        .attr("x2", x1);
+                        .attr("x1", x1 - 2)
+                        .attr("x2", x1 - 2);
 
                     group.selectAll('line[data-line-type="x2-only"]')
-                        .attr("x1", x2)
-                        .attr("x2", x2);
+                        .attr("x1", x2 + 2)
+                        .attr("x2", x2 + 2);
 
                     group.selectAll('line[data-line-type="range"]')
                         .attr("x1", x1)
@@ -915,7 +927,7 @@ export default function EventRelationTimeline (props) {
                 .attr("id", "leftArrow")
                 .attr("class", "relation-icon")
                 .attr("viewBox", "0 0 12 12")
-                .attr("refX", 8)  // Shift the arrowhead slightly left
+                .attr("refX", 6)  // Shift the arrowhead slightly left
                 .attr("refY", 6)
                 .attr("markerWidth", 3.2)
                 .attr("fill-opacity", 0.75)
@@ -961,8 +973,6 @@ export default function EventRelationTimeline (props) {
                 .style("fill", "rgb(49, 163, 84)")
                 .style("stroke", "black")
                 .style("stroke-width", 1);
-
-
 
 
             let mainReports = main_ER_svg
@@ -1014,15 +1024,14 @@ export default function EventRelationTimeline (props) {
                     // 1. Create a separate group for `contains` lines (will be drawn first)
                     const containsGroup = group.append("g").attr("class", "contains-group");
 
-
                     // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
                     if (d.tLink === "contains") {
 
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
-                            .attr("x1", x1)
+                            .attr("x1", x1 - 2)
                             .attr("y1", y - 7)
-                            .attr("x2", x1)
+                            .attr("x2", x1 - 2)
                             .attr("y2", y + 7)
                             .attr("stroke", "black")
                             .attr("stroke-width", 4)
@@ -1033,8 +1042,8 @@ export default function EventRelationTimeline (props) {
                             .attr("class", "main_report_contains relation-icon")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-line-type", "x1-only")
-                            .attr("x1", x1)
-                            .attr("x2", x1)
+                            // .attr("x1",  50)
+                            // .attr("x2",  60)
                             .attr("y1", y - 6) // Extends above
                             .attr("y2", y + 6) // Extends below
                             .attr("stroke", 'rgb(49, 163, 84)')
@@ -1046,9 +1055,9 @@ export default function EventRelationTimeline (props) {
 
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
-                            .attr("x1", x2)
+                            .attr("x1", x2 + 2)
                             .attr("y1", y - 7)
-                            .attr("x2", x2)
+                            .attr("x2", x2 + 2)
                             .attr("y2", y + 7)
                             .attr("stroke", "black")
                             .attr("stroke-width", 4)
@@ -1059,8 +1068,8 @@ export default function EventRelationTimeline (props) {
                             .attr("class", "main_report_contains relation-icon")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-line-type", "x2-only")
-                            .attr("x1", x2)
-                            .attr("x2", x2)
+                            // .attr("x1", 200)
+                            // .attr("x2", 200)
                             .attr("y1", y - 6) // Extends above
                             .attr("y2", y + 6) // Extends below
                             .attr("stroke", 'rgb(49, 163, 84)')
@@ -1174,8 +1183,16 @@ export default function EventRelationTimeline (props) {
                 const clickedNoteId = d.noteId;
                 if (!clickedConceptId && !clickedNoteId) return;
 
-                console.log(d.conceptId);
-                setClickedTerms((prevTerms) => [...prevTerms, d.conceptId]);
+                setClickedTerms((prevTerms) => {
+                    // Check if the term is already in the array
+                    if (prevTerms.includes(clickedConceptId)) {
+                        // Remove it if it's already in the array (unclick)
+                        return prevTerms.filter(term => term !== clickedConceptId);
+                    } else {
+                        // Add it if it's not in the array (click)
+                        return [...prevTerms, clickedConceptId];
+                    }
+                });
 
 
                 // Set all circles and relations to light/transparent
