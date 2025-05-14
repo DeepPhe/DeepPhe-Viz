@@ -9,17 +9,23 @@ and Document and episode timeline component ✅
 Sub-Tasks:
 - move collapse arrows to left ✅
 - move label back to center ✅
-- move arrow and componenet label to left ✅
+- move arrow and component label to left ✅
 - add more to overview (month/year) ✅
 - add hover definitions to labels (see below) ✅
 - make vertical contains lines, 3/4 of og size as well as the arrows ✅
 - make hover definition on the labels and get rid of the I symbol ✅
+- ConceptList and ER Timeline don't match up on clicks (for lines, not arrows)
+
+
+
+Desirable:
 - Option to expand a lane to take up the whole graph for better view
 - option to flip between relation events for a document or the whole patient
 - look to add clickability in document, i.e. click 'right' in documentView and 'right' in conceptList will highlight
 - date anchor points
 
 Dphe meeting:
+4/24/25
 - hover to give more info on y-axis names ✅
 - try to show better connection between clicked mention and note ✅
 - look to make changes to name 'severity' and 'finding'
@@ -32,5 +38,14 @@ Issues/Bugs:
 - 'Unknown' semantic group is not showing up in concept list correctly
 
 
-Tasks For Today:
--df
+
+Logic:
+
+- if a relation is clicked and is not in clickedTerms
+    - it should be in clickedTerms
+    - it should be selected
+
+- if a relation is clicked and is already in clickedTerms
+    - it should be removed from clickedTerms
+    - it should be unselected
+

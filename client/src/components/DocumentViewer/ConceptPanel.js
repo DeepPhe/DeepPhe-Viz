@@ -189,7 +189,7 @@ export function ConceptPanel(props) {
             <Card
                 style={{
                     overflow: "hidden",
-                    marginTop: "3px",
+                    marginTop: "20px",
                     border: "none",
                     boxShadow: "none",
                 }}

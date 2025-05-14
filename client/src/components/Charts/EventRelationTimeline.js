@@ -235,7 +235,7 @@ export default function EventRelationTimeline (props) {
             skipNextEffect.current = false; // reset for next time
             return;
         }
-        if (!clickedTerms || clickedTerms.length === 0) return;
+        // if (!clickedTerms || clickedTerms.length === 0) return;
 
         document.querySelectorAll(".relation-icon").forEach(el => {
             if (!el.classList.contains("selected")) {
@@ -243,44 +243,53 @@ export default function EventRelationTimeline (props) {
             }
         });
 
+        // // Show/hide the black outline line
+        // const group = el.closest("g");
+        // const isNowSelected = el.classList.contains("selected");
+        // if (group) {
+        //     const outlines = group.querySelectorAll(".relation-outline");
+        //     if (outlines.length) {
+        //         outlines.forEach((outline) => {
+        //             // Do something with the outlines, like showing or hiding
+        //             outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
+        //         });
+        //     }
+        // }
 
-        const lastClicked = clickedTerms[clickedTerms.length - 1];
+
+        // const lastClicked = clickedTerms[clickedTerms.length - 1];
 
         // Emphasize matching relations
-        clickedTerms.forEach(clickedConceptId => {
-            document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
 
-                console.log("clickedTerms updated:", clickedTerms);
+        console.count("Relation update rendered");
 
+        document.querySelectorAll(`.relation-icon`).forEach(el => {
+
+            const conceptId = el.getAttribute("data-concept-id");
+
+            if (clickedTerms.includes(conceptId)) {
+                // Highlight it
                 if (el.hasAttribute("marker-end")) {
-                    const currentMarker = el.getAttribute("marker-end");
-                    if (currentMarker === "url(#selectedRightArrow)"){
-                        el.setAttribute("marker-end", "url(#rightArrow)");
-                    }
-                    else{
-                        el.setAttribute("marker-end", "url(#selectedRightArrow)");
-                    }
+                    el.setAttribute("marker-end", "url(#selectedRightArrow)");
+                } else if (el.hasAttribute("marker-start")) {
+                    el.setAttribute("marker-start", "url(#selectedLeftArrow)");
+                } else {
+                    el.classList.add("selected");
+                    el.classList.remove("unselected");
                 }
-                else if (el.hasAttribute("marker-start")){
-                    const currentMarker = el.getAttribute("marker-start");
-                    if (currentMarker === "url(#selectedLeftArrow)"){
-                        el.setAttribute("marker-start", "url(#leftArrow)");
-                    }
-                    else{
-                        el.setAttribute("marker-start", "url(#selectedLeftArrow)");
-                    }
+            } else {
+                // Un-highlight it
+                if (el.hasAttribute("marker-end")) {
+                    el.setAttribute("marker-end", "url(#rightArrow)");
+                } else if (el.hasAttribute("marker-start")) {
+                    el.setAttribute("marker-start", "url(#leftArrow)");
+                } else {
+                    el.classList.remove("selected");
+                    el.classList.add("unselected");
                 }
-                else{
-                    if (el.classList.contains("selected")){
-                        el.classList.remove("selected");
-                    }
-                    else {
-                        el.classList.remove("unselected");
-                        el.classList.add("selected");
-                    }
-                }
-            });
+            }
         });
+
     }, [clickedTerms]);
 
 
