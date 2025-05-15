@@ -800,24 +800,47 @@ export default function EventRelationTimeline (props) {
                     ")"
                 );
 
-            // Main report type divider lines
-            // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
+            console.log(chemoTextGroups);
+            const uniqueChemoTextGroups = Array.from(new Set(chemoTextGroups));
+
+// Skip the last group (bottom-most) so we don’t draw an extra divider
+            const groupsToDraw = uniqueChemoTextGroups.slice(0, -1);
+
             main_ER_svg
                 .append("g")
                 .selectAll(".report_type_divider")
-                // Don't create line for the first type
-                .data(chemoTextGroups)
+                .data(groupsToDraw)
                 .enter()
                 .append("line")
-                .attr("x1", 0) // relative to main area
-                .attr("y1", function (d) {
-                    return mainY(groupLaneHeights[d] * verticalPositions[d]);
-                })
+                .attr("x1", 0)
                 .attr("x2", svgWidth)
-                .attr("y2", function (d) {
-                    return mainY(groupLaneHeights[d] * verticalPositions[d]);
+                .each(function(d) {
+                    const y = mainY(groupLaneHeights[d] * verticalPositions[d]);
+                    d3.select(this)
+                        .attr("y1", y)
+                        .attr("y2", y);
                 })
                 .attr("class", "report_type_divider");
+
+
+            // Main report type divider lines
+            // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
+            // main_ER_svg
+            //     .append("g")
+            //     .selectAll(".report_type_divider")
+            //     .data(chemoTextGroups)
+            //     .enter()
+            //     .append("line")
+            //     .attr("x1", 0)
+            //     .attr("x2", svgWidth)
+            //     .each(function(d) {
+            //         const y = mainY(groupLaneHeights[d] * verticalPositions[d]);
+            //         d3.select(this)
+            //             .attr("y1", y)
+            //             .attr("y2", y);
+            //     })
+            //     .attr("class", "report_type_divider");
+
 
 
             let laneOffset = 0;

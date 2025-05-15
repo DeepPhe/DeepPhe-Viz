@@ -716,22 +716,23 @@ const PatientEpisodeTimeline = ({
             .call(brush.move, [overviewX(startDate), overviewX(endDate)]);
       };
 
+
+      const reportTypesToDraw = reportTypes.slice(0, -1); // Skip the last one
       // Main report type divider lines
       // Put this before rendering the report dots so the enlarged dot on hover will cover the divider line
       main
           .append("g")
           .selectAll(".report_type_divider")
-          // Don't create line for the first type
-          .data(reportTypes)
+          .data(reportTypesToDraw)
           .enter()
           .append("line")
-          .attr("x1", 0) // relative to main area
-          .attr("y1", function (d) {
-            return mainY(verticalPositions[d]);
-          })
+          .attr("x1", 0)
           .attr("x2", svgWidth)
-          .attr("y2", function (d) {
-            return mainY(verticalPositions[d]);
+          .each(function(d) {
+            const y = mainY(verticalPositions[d]);
+            d3.select(this)
+                .attr("y1", y)
+                .attr("y2", y);
           })
           .attr("class", "report_type_divider");
 

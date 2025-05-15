@@ -2,8 +2,7 @@
 Priority Tasks
 - Event relation timeline needs working zoom ✅
 - Patient episode timeline needs x-axis adjusted to move with zoom ✅
-- Implement forward and backward clicking between Event Timeline Component
-and Document and episode timeline component ✅
+- Implement forward and backward clicking between Event Timeline Component and Document and episode timeline component ✅
 - Check for bugs and unclear actions
 
 Sub-Tasks:
@@ -15,6 +14,20 @@ Sub-Tasks:
 - make vertical contains lines, 3/4 of og size as well as the arrows ✅
 - make hover definition on the labels and get rid of the I symbol ✅
 - ConceptList and ER Timeline don't match up on clicks (for lines, not arrows)
+- look into circle, not fully returning to normal after unclick mention
+- hover anchor points
+- debug report_type_divider ✅
+- get rid of last report_type_divider on PE Timeline ✅
+
+
+
+
+
+
+
+
+
+
 
 
 
