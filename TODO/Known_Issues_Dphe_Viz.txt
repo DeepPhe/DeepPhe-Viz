@@ -13,8 +13,8 @@ Sub-Tasks:
 - add hover definitions to labels (see below) ✅
 - make vertical contains lines, 3/4 of og size as well as the arrows ✅
 - make hover definition on the labels and get rid of the I symbol ✅
-- ConceptList and ER Timeline don't match up on clicks (for lines, not arrows)
-- look into circle, not fully returning to normal after unclick mention
+- ConceptList and ER Timeline don't match up on clicks (for lines, not arrows) ✅
+- look into circle, not fully returning to normal after unclick mention 
 - hover anchor points
 - debug report_type_divider ✅
 - get rid of last report_type_divider on PE Timeline ✅

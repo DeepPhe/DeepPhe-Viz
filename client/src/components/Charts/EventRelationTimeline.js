@@ -243,25 +243,7 @@ export default function EventRelationTimeline (props) {
             }
         });
 
-        // // Show/hide the black outline line
-        // const group = el.closest("g");
-        // const isNowSelected = el.classList.contains("selected");
-        // if (group) {
-        //     const outlines = group.querySelectorAll(".relation-outline");
-        //     if (outlines.length) {
-        //         outlines.forEach((outline) => {
-        //             // Do something with the outlines, like showing or hiding
-        //             outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
-        //         });
-        //     }
-        // }
 
-
-        // const lastClicked = clickedTerms[clickedTerms.length - 1];
-
-        // Emphasize matching relations
-
-        console.count("Relation update rendered");
 
         document.querySelectorAll(`.relation-icon`).forEach(el => {
 
@@ -286,6 +268,19 @@ export default function EventRelationTimeline (props) {
                 } else {
                     el.classList.remove("selected");
                     el.classList.add("unselected");
+                }
+            }
+
+            // Show/hide the black outline line
+            const group = el.closest("g");
+            const isNowSelected = el.classList.contains("selected");
+            if (group) {
+                const outlines = group.querySelectorAll(".relation-outline");
+                if (outlines.length) {
+                    outlines.forEach((outline) => {
+                        // Do something with the outlines, like showing or hiding
+                        outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
+                    });
                 }
             }
         });

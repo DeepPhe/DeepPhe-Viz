@@ -25,9 +25,6 @@ start_date	patient_id	chemo_text	end_date	tlink 	note_id   	concept_id
 2011-12-21	patient01	pharmacologic substance	2011-12-21	before
 2014-01-15	patient01	chemo/immuno/hormone therapy regimen	2014-03-15	overlap
 2012-09-18	patient01	intervention or procedure	2013-09-19	contains
-2013-06-03	patient01	imaging device	2013-06-03	after
-2011-06-11	patient01	mass	2011-06-11	after
-2011-08-14	patient01	gene	2011-08-14	after
 2011-03-29	patient01	gene product	2011-03-29	after
 2011-12-08	patient01	finding	2011-12-08	before
 2014-03-15	patient01	mass	2014-03-15	after
@@ -38,4 +35,3 @@ start_date	patient_id	chemo_text	end_date	tlink 	note_id   	concept_id
 2014-01-02	patient01	imaging device	2014-04-03	overlap
 2011-02-21	patient01	intervention or procedure	2011-02-21	before
 2011-06-15	patient01	chemo/immuno/hormone therapy regimen	2011-06-15	after
-2014-03-15	patient01	pharmacologic substance	2014-03-15	after
