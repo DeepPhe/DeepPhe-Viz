@@ -640,29 +640,29 @@ export default function EventRelationTimeline (props) {
                         });
                 });
 
-            let zoomIconGroup = episodeLegendGrp.append("g")
-                .attr("class", "zoom_icon_group")
-                .attr("transform", `translate(${1010}, 10)`) // 1000 + 10
-                .style("cursor", "pointer")
-                .on("click", () => {
-                    console.log("Zoom icon clicked!");
-                });
-
-// Add the magnifying glass icon
-            zoomIconGroup.append("text")
-                .attr("class", "zoom_icon")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text("🔍");
-
-// Add the label to the right
-            zoomIconGroup.append("text")
-                .attr("class", "zoom_icon_label")
-                .attr("x", 20)
-                .attr("y", 0)
-                .attr("dy", ".35em")
-                .text("Scroll to zoom");
+//             let zoomIconGroup = episodeLegendGrp.append("g")
+//                 .attr("class", "zoom_icon_group")
+//                 .attr("transform", `translate(${1010}, 10)`) // 1000 + 10
+//                 .style("cursor", "pointer")
+//                 .on("click", () => {
+//                     console.log("Zoom icon clicked!");
+//                 });
+//
+// // Add the magnifying glass icon
+//             zoomIconGroup.append("text")
+//                 .attr("class", "zoom_icon")
+//                 .attr("x", 0)
+//                 .attr("y", 0)
+//                 .attr("dy", ".35em")
+//                 .text("🔍");
+//
+// // Add the label to the right
+//             zoomIconGroup.append("text")
+//                 .attr("class", "zoom_icon_label")
+//                 .attr("x", 20)
+//                 .attr("y", 0)
+//                 .attr("dy", ".35em")
+//                 .text("Scroll to zoom");
 
 
 
