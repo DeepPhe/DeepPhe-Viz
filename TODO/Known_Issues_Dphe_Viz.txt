@@ -3,6 +3,8 @@ Priority Tasks
 - Event relation timeline needs working zoom ✅
 - Patient episode timeline needs x-axis adjusted to move with zoom ✅
 - Implement forward and backward clicking between Event Timeline Component and Document and episode timeline component ✅
+- add double color to mentions
+- make changes to Cancer and Tumor detail, make only condensed option available ✅
 - Check for bugs and unclear actions
 
 Sub-Tasks:
@@ -18,7 +20,8 @@ Sub-Tasks:
 - hover anchor points
 - debug report_type_divider ✅
 - get rid of last report_type_divider on PE Timeline ✅
-
+- change chemo-text to something else, contain = within
+- change loading... to nothing or 'click timeline to view doc'
 
 
 
