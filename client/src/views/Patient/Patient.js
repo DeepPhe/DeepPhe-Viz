@@ -219,7 +219,7 @@ function Patient(props) {
   const getComponentDocumentViewer = () => {
 
     if (!patientDocument || !patientJson?.concepts?.length) {
-      return <div> Loading... </div>;
+      return <div> </div>;
     }
     const mentionIdsInDocument = patientDocument?.mentions?.map((m) => m.id) || [];
     const conceptsInDocument = patientJson.concepts.filter((c) =>
@@ -227,7 +227,7 @@ function Patient(props) {
     );
 
     if (isEmpty(reportId) || !patientDocument?.mentions) {
-      return <div> Loading... </div>;
+      return <div> </div>;
     }
 
     return (

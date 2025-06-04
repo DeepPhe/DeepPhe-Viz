@@ -89,13 +89,20 @@ export function DocumentPanel(props) {
     return mentionConfidence;
   }
 
+  function getDpheGroupByMentionId(mentionId) {
+    const match = concepts.find(item => item.mentionIds.includes(mentionId));
+    return match ? match.dpheGroup : null;
+  }
+
   function determineBackgroundColor(obj, mentionConfidence){
     let backgroundColor = '';
-    if(mentionConfidence < confidence * 100 || semanticGroups[obj.dpheGroup].checked === false){
+    const dpheGroup = getDpheGroupByMentionId(obj.id);
+
+    if(mentionConfidence < confidence * 100 || semanticGroups[dpheGroup].checked === false){
       backgroundColor = 'lightgrey';
     }
     else{
-      const hexColor = semanticGroups[obj.dpheGroup].backgroundColor;
+      const hexColor = semanticGroups[dpheGroup].backgroundColor;
       backgroundColor = hexToRgba(hexColor, 0.65);
     }
     return backgroundColor;
@@ -421,36 +428,6 @@ export function DocumentPanel(props) {
     }
     return MentionList;
   }
-
-
-
-  // const setHTML = useCallback(() => {
-  //   let mentions = getAllMentionsInDoc();
-  //   setDocText(highlightTextMentions(createMentionObj(mentions), doc.text));
-  // }, [
-  //   getAllMentionsInDoc,
-  //   highlightTextMentions,
-  //   createMentionObj,
-  //   doc.text,
-  //   props.clickedTerms,
-  //   props.reportId, // 👈 ensure this is included
-  // ]);
-  //
-  // useEffect(() => {
-  //   if (props.filteredConcepts.length > 0) {
-  //     setDoc(props.doc);
-  //     setDocText(props.doc.text);
-  //     setHTML(); // now this will run when reportId changes
-  //   }
-  // }, [
-  //   props.doc,
-  //   props.clickedTerms,
-  //   props.confidence,
-  //   props.semanticGroups,
-  //   filterLabel,
-  //   mentionsForClickedConcepts,
-  //   props.reportId, // 👈 add this
-  // ]);
 
   const setHTML = useCallback(() => {
     const mentions = getAllMentionsInDoc();

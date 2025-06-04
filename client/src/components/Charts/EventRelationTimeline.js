@@ -74,7 +74,6 @@ export default function EventRelationTimeline (props) {
 
 
     useEffect(() => {
-        console.log(clickedTerms);
         if (clickedTerms.length === 0) {
             document.querySelectorAll("circle").forEach(circle => {
                 circle.style.fillOpacity = "0.3";  // Reset fill opacity to default
@@ -158,22 +157,8 @@ export default function EventRelationTimeline (props) {
     };
 
 
-    const getUrl = () => {
-        return (
-            "http://localhost:3001/api/patient/" + props.patientId + "/timeline"
-        );
-    }
+    const parseTxt = (txt) => {
 
-    const fetchData = async (url) => {
-        return new Promise(function (resolve, reject) {
-            fetch(url).then(function (response) {
-                if (response) {
-                    resolve(response);
-                } else {
-                    reject("User not logged in");
-                }
-            });
-        });
     };
 
     const transformTSVData = (data) => {
@@ -197,6 +182,8 @@ export default function EventRelationTimeline (props) {
 
     useEffect(() => {
         if (!conceptsPerDocument) return;
+
+        console.log(conceptsPerDocument);
 
         fetchTSVData(conceptsPerDocument).then(tsvData => {
             if (!tsvData) return;
@@ -820,7 +807,6 @@ export default function EventRelationTimeline (props) {
                     ")"
                 );
 
-            console.log(chemoTextGroups);
             const uniqueChemoTextGroups = Array.from(new Set(chemoTextGroups));
 
 // Skip the last group (bottom-most) so we don’t draw an extra divider
