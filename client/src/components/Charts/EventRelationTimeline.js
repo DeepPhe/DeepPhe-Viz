@@ -84,98 +84,162 @@ export default function EventRelationTimeline (props) {
     }, [clickedTerms]);
 
 
-    const fetchTSVData = async (conceptsPerDocument) => {
+    // const fetchTSVData = async (conceptsPerDocument) => {
+    //     try {
+    //         const response = await fetch("/unsummarized_output.tsv");
+    //         if (!response.ok) throw new Error("Failed to load file");
+    //
+    //         const text = await response.text();
+    //         // Only modify TSV if conceptsPerDocument is passed
+    //         const modifiedText = conceptsPerDocument
+    //             ? appendMentionsToTSV(text, conceptsPerDocument)
+    //             : text;
+    //
+    //         console.log(text);
+    //         console.log(modifiedText);
+    //         console.log(parseTSV(modifiedText));
+    //
+    //         return parseTSV(modifiedText);
+    //     } catch (error) {
+    //         console.error("Error loading TSV:", error);
+    //         return null;
+    //     }
+    // };
+
+
+
+    // console.log(fetchTXTData(conceptsPerDocument))
+
+    // Function to parse TSV text into an object
+    // const parseTSV = (tsvText) => {
+    //     const lines = tsvText.trim().split("\n");
+    //     const headers = lines[0].split("\t").map(h => h.trim());
+    //     const chemoCounts = {};
+    //     const chemoGroupCounts =   {};
+    //     const tLinkCounts = {};
+    //
+    //
+    //     const data = lines.slice(1).map(line => {
+    //         const values = line.split("\t"); // Split the line into columns by tab
+    //
+    //         const obj = headers.reduce((acc, header, index) => {
+    //             let value = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
+    //
+    //             if (header === "chemo_text"){
+    //                 value = value.toLowerCase()
+    //             }
+    //
+    //             if (value === 'contained-by'){
+    //                 value = 'overlap'
+    //             }
+    //
+    //             acc[header] = value;
+    //             // Assign chemo_text to a group if it exists in the lookup
+    //             if (header === "chemo_text" && chemoTextGroups[value]) {
+    //                 acc["chemo_group"] = chemoTextGroups[value]; // Add group to object
+    //                 chemoGroupCounts[chemoTextGroups[value]] = (chemoGroupCounts[chemoTextGroups[value]] || 0) + 1;
+    //             }
+    //             return acc;
+    //         }, {});
+    //
+    //         const chemoName = obj["chemo_text"];
+    //         if (chemoName) {
+    //             chemoCounts[chemoName] = (chemoCounts[chemoName] || 0) + 1;
+    //         }
+    //
+    //         // Track tlink counts
+    //         const tlinkValue = obj["tlink"];
+    //         if (tlinkValue) {
+    //             tLinkCounts[tlinkValue] = (tLinkCounts[tlinkValue] || 0) + 1;
+    //         }
+    //
+    //
+    //         return obj;
+    //     });
+    //     // Include chemoCounts inside the data array as an additional property
+    //     data.chemoTextCounts = chemoCounts;
+    //     data.chemoTextGroupCounts = chemoGroupCounts;
+    //     data.tLinkCounts = tLinkCounts;
+    //
+    //     return data; // Return data array with chemoCounts included
+    // };
+
+    const fetchTXTData = async () => {
         try {
-            const response = await fetch("/unsummarized_output.tsv");
+            const response = await fetch("/Patient01_times.txt");
             if (!response.ok) throw new Error("Failed to load file");
 
             const text = await response.text();
             // Only modify TSV if conceptsPerDocument is passed
-            const modifiedText = conceptsPerDocument
-                ? appendMentionsToTSV(text, conceptsPerDocument)
-                : text;
+            // const modifiedText = conceptsPerDocument
+            //     ? appendMentionsToTSV(text, conceptsPerDocument)
+            //     : text;
+            console.log(text);
+            return parseTXT(text);
 
-            return parseTSV(modifiedText);
         } catch (error) {
             console.error("Error loading TSV:", error);
             return null;
         }
     };
 
-    // Function to parse TSV text into an object
-    const parseTSV = (tsvText) => {
-        const lines = tsvText.trim().split("\n");
+    const parseTXT = (txt) => {
+        const lines = txt.trim().split("\n");
         const headers = lines[0].split("\t").map(h => h.trim());
-        const chemoCounts = {};
-        const chemoGroupCounts =   {};
-        const tLinkCounts = {};
+        // const chemoCounts = {};
+        // const chemoGroupCounts =   {};
+        // const tLinkCounts = {};
 
 
         const data = lines.slice(1).map(line => {
             const values = line.split("\t"); // Split the line into columns by tab
 
             const obj = headers.reduce((acc, header, index) => {
-                let value = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
-
-                if (header === "chemo_text"){
-                    value = value.toLowerCase()
-                }
-
-                if (value === 'contained-by'){
-                    value = 'overlap'
-                }
-
-                acc[header] = value;
-                // Assign chemo_text to a group if it exists in the lookup
-                if (header === "chemo_text" && chemoTextGroups[value]) {
-                    acc["chemo_group"] = chemoTextGroups[value]; // Add group to object
-                    chemoGroupCounts[chemoTextGroups[value]] = (chemoGroupCounts[chemoTextGroups[value]] || 0) + 1;
-                }
+                acc[header] = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
                 return acc;
             }, {});
 
-            const chemoName = obj["chemo_text"];
-            if (chemoName) {
-                chemoCounts[chemoName] = (chemoCounts[chemoName] || 0) + 1;
-            }
-
-            // Track tlink counts
-            const tlinkValue = obj["tlink"];
-            if (tlinkValue) {
-                tLinkCounts[tlinkValue] = (tLinkCounts[tlinkValue] || 0) + 1;
-            }
-
-
+            // console.log(obj);
             return obj;
         });
         // Include chemoCounts inside the data array as an additional property
-        data.chemoTextCounts = chemoCounts;
-        data.chemoTextGroupCounts = chemoGroupCounts;
-        data.tLinkCounts = tLinkCounts;
+        // data.chemoTextCounts = chemoCounts;
+        // data.chemoTextGroupCounts = chemoGroupCounts;
+        // data.tLinkCounts = tLinkCounts;
 
         return data; // Return data array with chemoCounts included
     };
 
-
-    const parseTxt = (txt) => {
-
-    };
-
-    const transformTSVData = (data) => {
+    const transformTXTData = (data) => {
         return {
-            startDates: data.map(d => d.start_date),
-            patientId: data.map(d => d.patient_id),
-            chemoText: data.map(d => d.chemo_text),
-            chemoTextGroups: data.map(d => d.chemo_group),
-            chemoTextGroupCounts: data.chemoTextGroupCounts,
-            endDates: data.map(d => d.end_date),
-            chemoTextCounts: data.chemoTextCounts,
-            tLinkCounts: data.tLinkCounts,
-            noteId : data.map(d => d.note_id),
-            conceptId : data.map(d => d.concept_id),
-            tLink : data.map(d => d.tlink)
-        };
+            patientId: data.map(d => d.PatientID),
+            conceptId : data.map(d => d.ConceptID),
+            startRelation : data.map(d => d.Relation1),
+            startDate: data.map(d => d.Date1),
+            endRelation : data.map(d => d.Relation2),
+            endDate: data.map(d => d.Date2),
+        }
     }
+
+
+
+    // const transformTSVData = (data) => {
+    //     return {
+    //         startDates: data.map(d => d.start_date),
+    //         patientId: data.map(d => d.patient_id),
+    //         chemoText: data.map(d => d.chemo_text),
+    //         chemoTextGroups: data.map(d => d.chemo_group),
+    //         chemoTextGroupCounts: data.chemoTextGroupCounts,
+    //         endDates: data.map(d => d.end_date),
+    //         chemoTextCounts: data.chemoTextCounts,
+    //         tLinkCounts: data.tLinkCounts,
+    //         noteId : data.map(d => d.note_id),
+    //         conceptId : data.map(d => d.concept_id),
+    //         tLink : data.map(d => d.tlink)
+    //     };
+    // }
+
+
 
 
     const skipNextEffect = useRef(false);
@@ -183,16 +247,10 @@ export default function EventRelationTimeline (props) {
     useEffect(() => {
         if (!conceptsPerDocument) return;
 
-        console.log(conceptsPerDocument);
-
-        fetchTSVData(conceptsPerDocument).then(tsvData => {
-            if (!tsvData) return;
-
-            setJson(tsvData);
-
-            const transformedData = transformTSVData(tsvData);
-
-
+        fetchTXTData(conceptsPerDocument).then(data => {
+            if (!data) return;
+            setJson(data);
+            const transformedData = transformTXTData(data);
             const container = document.getElementById(svgContainerId);
             if (container) {
                 container.innerHTML = "";
@@ -200,17 +258,12 @@ export default function EventRelationTimeline (props) {
 
             renderTimeline(
                 svgContainerId,
-                transformedData.startDates,
                 transformedData.patientId,
-                transformedData.chemoText,
-                transformedData.chemoTextGroups,
-                transformedData.chemoTextGroupCounts,
-                transformedData.endDates,
-                transformedData.chemoTextCounts,
-                transformedData.tLinkCounts,
-                transformedData.noteId,
                 transformedData.conceptId,
-                transformedData.tLink
+                transformedData.startRelation,
+                transformedData.startDate,
+                transformedData.endRelation,
+                transformedData.endDate,
             );
         });
     }, [conceptsPerDocument]);
@@ -278,17 +331,12 @@ export default function EventRelationTimeline (props) {
 
     const renderTimeline = (
         svgContainerId,
-        startDates,
-        patientId,
-        chemoText,
-        chemoTextGroups,
-        chemoTextGroupCounts,
-        endDates,
-        chemoTextCounts,
-        tLinkCounts,
-        noteId,
-        conceptId,
-        tLink
+            patientId,
+            conceptId,
+            startRelation,
+            startDate,
+            endRelation,
+            endDate,
     ) => {
         // Vertical count position of each report type
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
@@ -303,11 +351,9 @@ export default function EventRelationTimeline (props) {
 
             for (let i = 0; i < startDates.length; i++) {
                 eventData.push({
-                    start: startDates[i],
-                    end: endDates[i],
-                    patient_id: patientIds[i],
-                    chemo_text: chemoTexts[i],
-                    chemo_group: chemoTextGroups[i],
+                    start: startDate[i],
+                    end: endDate[i],
+                    patient_id: patientId[i],
                     chemo_text_group_count: chemoTextGroupCounts[i],
                     tLink: tLink[i],
                     noteId: noteId[i],
