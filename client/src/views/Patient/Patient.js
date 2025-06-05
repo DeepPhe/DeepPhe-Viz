@@ -43,7 +43,9 @@ function Patient(props) {
 
     const map = {};
 
+
     patientJson.documents.forEach((doc) => {
+      console.log(doc.mentions);
       const mentionIdsInDoc = doc.mentions.map((m) => m.id);
       const conceptsInDoc = patientJson.concepts.filter((concept) =>
           concept.mentionIds?.some((id) => mentionIdsInDoc.includes(id))
@@ -122,16 +124,32 @@ function Patient(props) {
     );
   };
 
-  const getComponentEventRelationTimeline= () => {
+
+  const getMentionIdsInDocument = (patientDocument) => {
+    return patientDocument?.mentions?.map((m) => m.id) || [];
+  }
+
+  const getConceptsInDocument = (patientJson, mentions) => {
+    return patientJson.concepts.filter((c) =>
+        c.mentionIds?.some((m) => mentions.includes(m))
+    );
+  };
+
+
+
+  const getComponentEventRelationTimeline = () => {
+    if (!patientDocument || !patientJson?.concepts?.length) {
+      return <div>Loading...</div>;
+    }
+
+    const mentionIdsInDocument = getMentionIdsInDocument(patientDocument);
+    const conceptsInDocument = getConceptsInDocument(patientJson, mentionIdsInDocument);
+    console.log(conceptsInDocument);
+
     return (
         <Card>
           <CardHeader className={"basicCardHeader"}>
-            <Box
-                // display="flex"
-                // alignItems="center"
-                // justifyContent="space-between"
-                // width="100%"
-            >
+            <Box>
               <span style={{ paddingLeft: '14px' }}><b>Event Timeline</b></span>
               <IconButton onClick={() => setExpandedEventRelation((prev) => !prev)} size="small">
                 {expandedEventRelation ? <ExpandLess /> : <ExpandMore />}
@@ -147,6 +165,7 @@ function Patient(props) {
                     svgContainerId="EventRelationTimelineSvg"
                     reportId={reportId}
                     patientJson={patientJson}
+                    concepts={conceptsInDocument}
                     patientId={patientId}
                     setReportId={setReportId}
                     conceptsPerDocument={conceptsPerDocumentRef.current}
@@ -156,6 +175,7 @@ function Patient(props) {
         </Card>
     );
   };
+
 
 
 
@@ -221,11 +241,10 @@ function Patient(props) {
     if (!patientDocument || !patientJson?.concepts?.length) {
       return <div> </div>;
     }
-    const mentionIdsInDocument = patientDocument?.mentions?.map((m) => m.id) || [];
-    const conceptsInDocument = patientJson.concepts.filter((c) =>
-        c.mentionIds?.some((m) => mentionIdsInDocument.includes(m))
-    );
-
+    const mentionIdsInDocument = getMentionIdsInDocument(patientDocument);
+    console.log(mentionIdsInDocument);
+    const conceptsInDocument = getConceptsInDocument(patientJson, mentionIdsInDocument);
+    console.log(conceptsInDocument);
     if (isEmpty(reportId) || !patientDocument?.mentions) {
       return <div> </div>;
     }

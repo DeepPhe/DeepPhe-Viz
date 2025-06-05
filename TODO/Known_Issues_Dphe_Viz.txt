@@ -1,34 +1,12 @@
-
 Priority Tasks
+
 - Refactor test data:
     - change how the data is parsed
     - need to find a way to get note_id from click, maybe we get it from conceptID somehow
     - NoteID is in conceptsPerDocument, we can look for the noteID this way by connecting it with conceptID
 
-
-
-
-Questions
-- no more chemo_text in data, meaning do we need to get that
-from somewhere so there is still lanes?
-
-
-
 Sub-Tasks:
-- move collapse arrows to left ✅
-- move label back to center ✅
-- move arrow and component label to left ✅
-- add more to overview (month/year) ✅
-- add hover definitions to labels (see below) ✅
-- make vertical contains lines, 3/4 of og size as well as the arrows ✅
-- make hover definition on the labels and get rid of the I symbol ✅
-- ConceptList and ER Timeline don't match up on clicks (for lines, not arrows) ✅
 - look into circle, not fully returning to normal after unclick mention
-- debug report_type_divider ✅
-- get rid of last report_type_divider on PE Timeline ✅
-- change loading... to nothing or 'click timeline to view doc' ✅
-
-
 
 Desirable:
 - Option to expand a lane to take up the whole graph for better view
@@ -38,14 +16,10 @@ Desirable:
 
 Dphe meeting:
 4/24/25
-- hover to give more info on y-axis names ✅
-- try to show better connection between clicked mention and note ✅
 - look to make changes to name 'severity' and 'finding'
+6/26/25
 
 Issues/Bugs:
-- fix width of PatientTimeline (The overview is spilling off to the right and left, as well as the main) ✅
-- fix width of Event Relation Timeline zoom. ✅
-- rect needs to follow along ✅
 - Sometimes when clicking the concepts below in the document, the last one does not unclick
 - 'Unknown' semantic group is not showing up in concept list correctly
 

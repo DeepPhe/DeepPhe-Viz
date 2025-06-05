@@ -7,7 +7,7 @@ const baseUri = "http://localhost:3001/api";
 const transitionDuration = 800; // time in ms
 
 
-const chemoTextGroups = {
+const laneGroups = {
 
         // Severity
         'behavior': 'Severity',
@@ -67,6 +67,7 @@ export default function EventRelationTimeline (props) {
     const setReportId = props.setReportId;
     const patientJson = props.patientJson;
     const reportId = props.reportId;
+    const concepts = props.concepts;
     const svgContainerId = props.svgContainerId;
     const clickedTerms = props.clickedTerms;
     const setClickedTerms = props.setClickedTerms;
@@ -170,11 +171,6 @@ export default function EventRelationTimeline (props) {
             if (!response.ok) throw new Error("Failed to load file");
 
             const text = await response.text();
-            // Only modify TSV if conceptsPerDocument is passed
-            // const modifiedText = conceptsPerDocument
-            //     ? appendMentionsToTSV(text, conceptsPerDocument)
-            //     : text;
-            console.log(text);
             return parseTXT(text);
 
         } catch (error) {
@@ -183,32 +179,54 @@ export default function EventRelationTimeline (props) {
         }
     };
 
+    function getDpheGroupByConceptId(conceptId) {
+        const concept = concepts.find(concept => concept.id === conceptId);
+        return concept ? concept.dpheGroup : null;
+    }
+
+
     const parseTXT = (txt) => {
         const lines = txt.trim().split("\n");
         const headers = lines[0].split("\t").map(h => h.trim());
-        // const chemoCounts = {};
-        // const chemoGroupCounts =   {};
+        const dpheGroupCounts = {};
+        const laneGroupCounts = {};
         // const tLinkCounts = {};
 
-
         const data = lines.slice(1).map(line => {
-            const values = line.split("\t"); // Split the line into columns by tab
-
+            const values = line.split("\t");
             const obj = headers.reduce((acc, header, index) => {
-                acc[header] = values[index]?.trim()?.replace(/^"|"$/g, ''); // Trim and remove quotes
+                acc[header] = values[index]?.trim()?.replace(/^"|"$/g, '');
                 return acc;
             }, {});
 
-            // console.log(obj);
+            // console.log("obj", obj);
+
+            // Get and assign dpheGroup
+            const dpheGroup = getDpheGroupByConceptId(obj.ConceptID);
+            obj.dpheGroup = dpheGroup;
+
+            // Optionally count occurrences
+            if (dpheGroup) {
+                dpheGroupCounts[dpheGroup] = (dpheGroupCounts[dpheGroup] || 0) + 1;
+
+                const laneGroup = laneGroups[dpheGroup.toLowerCase()] || 'Uncategorized';
+                obj.laneGroup = laneGroup;
+
+                laneGroupCounts[laneGroup] = (laneGroupCounts[laneGroup] || 0) + 1;
+            }
+
             return obj;
         });
-        // Include chemoCounts inside the data array as an additional property
-        // data.chemoTextCounts = chemoCounts;
-        // data.chemoTextGroupCounts = chemoGroupCounts;
+
+        data.dpheGroupCounts = dpheGroupCounts;
+        console.log(dpheGroupCounts);
+        data.laneGroupsCounts = laneGroupCounts;
+        console.log(laneGroupCounts);
         // data.tLinkCounts = tLinkCounts;
 
-        return data; // Return data array with chemoCounts included
+        return data;
     };
+
 
     const transformTXTData = (data) => {
         return {
@@ -218,6 +236,8 @@ export default function EventRelationTimeline (props) {
             startDate: data.map(d => d.Date1),
             endRelation : data.map(d => d.Relation2),
             endDate: data.map(d => d.Date2),
+            dpheGroupCounts: data.dpheGroupCounts,
+            laneGroupsCounts: data.laneGroupsCounts
         }
     }
 
@@ -264,6 +284,8 @@ export default function EventRelationTimeline (props) {
                 transformedData.startDate,
                 transformedData.endRelation,
                 transformedData.endDate,
+                transformedData.dpheGroupCounts,
+                transformedData.laneGroupsCounts
             );
         });
     }, [conceptsPerDocument]);
@@ -337,6 +359,8 @@ export default function EventRelationTimeline (props) {
             startDate,
             endRelation,
             endDate,
+            dpheGroupCount,
+            laneGroupCount
     ) => {
         // Vertical count position of each report type
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
@@ -346,7 +370,7 @@ export default function EventRelationTimeline (props) {
         // This is used to decide the domain range of mainY and overviewY
         let totalMaxVerticalCounts = 0;
 
-        function createEventData(startDates, endDates, patientIds, chemoTexts) {
+        function createEventData(startDate, endDate, patientId, dpheGroup) {
             const eventData = [];
 
             for (let i = 0; i < startDates.length; i++) {
@@ -354,7 +378,7 @@ export default function EventRelationTimeline (props) {
                     start: startDate[i],
                     end: endDate[i],
                     patient_id: patientId[i],
-                    chemo_text_group_count: chemoTextGroupCounts[i],
+                    lane_group_count: laneGroupCount[i],
                     tLink: tLink[i],
                     noteId: noteId[i],
                     conceptId: conceptId[i]
@@ -388,7 +412,7 @@ export default function EventRelationTimeline (props) {
 
 
         if (chemoText !== null) {
-            new Set(chemoTextGroups).forEach(function (key) {
+            new Set(laneGroups).forEach(function (key) {
                 // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
                 totalMaxVerticalCounts += 1;
 
@@ -464,7 +488,7 @@ export default function EventRelationTimeline (props) {
 
             const groupLaneHeights = {}; // e.g., { 'AC': 2, 'Taxol': 3, ... }
 
-            chemoTextGroups.forEach(group => {
+            laneGroups.forEach(group => {
                 // console.log(group);
                 const eventsInGroup = eventData.filter(d => d.chemo_group === group);
                 // console.log(eventsInGroup);
@@ -853,7 +877,7 @@ export default function EventRelationTimeline (props) {
                     ")"
                 );
 
-            const uniqueChemoTextGroups = Array.from(new Set(chemoTextGroups));
+            const uniqueChemoTextGroups = Array.from(new Set(laneGroups));
 
 // Skip the last group (bottom-most) so we don’t draw an extra divider
             const groupsToDraw = uniqueChemoTextGroups.slice(0, -1);
@@ -900,7 +924,7 @@ export default function EventRelationTimeline (props) {
             const labelGroup = main_ER_svg
                 .append("g")
                 .selectAll(".report_type_label_group")
-                .data([...new Set(chemoTextGroups)])
+                .data([...new Set(laneGroups)])
                 .enter()
                 .append("g")
                 .attr("class", "report_type_label_group")
@@ -1068,7 +1092,7 @@ export default function EventRelationTimeline (props) {
             laneOffset = 0;
             let groupBaseYMap = {};
 
-            [...new Set(chemoTextGroups)].forEach(group => {
+            [...new Set(laneGroups)].forEach(group => {
                 groupBaseYMap[group] = laneOffset + (groupLaneHeights[group] * 16); // center within the block if needed
                 laneOffset += groupLaneHeights[group] * 16 * 2; // double it if each lane is that tall
             });
