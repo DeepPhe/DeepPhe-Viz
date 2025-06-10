@@ -1,10 +1,10 @@
 Priority Tasks
 
 - Refactor test data:
-    - change how the data is parsed
-    - need to find a way to get note_id from click, maybe we get it from conceptID somehow
-    - NoteID is in conceptsPerDocument, we can look for the noteID this way by connecting it with conceptID
-    - need to introduce relation1 and relation2 and work out tlink
+    - I need to fix the line_divider, maybe use the report_type_label
+    - fix the bottom part, there is too much space in there
+    - look to change the relation1 and relation 2 to work
+    - also have to see if i need to add a line between two start and end date if it is a on and on
 
 Sub-Tasks:
 - look into circle, not fully returning to normal after unclick mention
