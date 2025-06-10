@@ -211,19 +211,17 @@ export default function EventRelationTimeline (props) {
 
                 const laneGroup = laneGroups[dpheGroup.toLowerCase()] || 'Uncategorized';
                 obj.laneGroup = laneGroup;
+                console.log(laneGroup);
 
                 laneGroupCounts[laneGroup] = (laneGroupCounts[laneGroup] || 0) + 1;
+
             }
 
             return obj;
         });
 
         data.dpheGroupCounts = dpheGroupCounts;
-        console.log(dpheGroupCounts);
         data.laneGroupsCounts = laneGroupCounts;
-        console.log(laneGroupCounts);
-        // data.tLinkCounts = tLinkCounts;
-
         return data;
     };
 
@@ -236,6 +234,8 @@ export default function EventRelationTimeline (props) {
             startDate: data.map(d => d.Date1),
             endRelation : data.map(d => d.Relation2),
             endDate: data.map(d => d.Date2),
+            dpheGroup: data.dpheGroup,
+            laneGroup: data.laneGroup,
             dpheGroupCounts: data.dpheGroupCounts,
             laneGroupsCounts: data.laneGroupsCounts
         }
@@ -284,6 +284,8 @@ export default function EventRelationTimeline (props) {
                 transformedData.startDate,
                 transformedData.endRelation,
                 transformedData.endDate,
+                transformedData.dpheGroup,
+                transformedData.laneGroup,
                 transformedData.dpheGroupCounts,
                 transformedData.laneGroupsCounts
             );
@@ -359,6 +361,8 @@ export default function EventRelationTimeline (props) {
             startDate,
             endRelation,
             endDate,
+            dpheGroup,
+            laneGroup,
             dpheGroupCount,
             laneGroupCount
     ) => {
@@ -373,14 +377,15 @@ export default function EventRelationTimeline (props) {
         function createEventData(startDate, endDate, patientId, dpheGroup) {
             const eventData = [];
 
-            for (let i = 0; i < startDates.length; i++) {
+            for (let i = 0; i < startDate.length; i++) {
                 eventData.push({
                     start: startDate[i],
                     end: endDate[i],
-                    patient_id: patientId[i],
+                    patient_id: patientId[i], // Use patientId as unique identifier
                     lane_group_count: laneGroupCount[i],
-                    tLink: tLink[i],
-                    noteId: noteId[i],
+                    relation1: startRelation[i],
+                    relation2: endRelation[i],
+                    dpheGroup: dpheGroup[i],
                     conceptId: conceptId[i]
                 });
             }
@@ -390,19 +395,21 @@ export default function EventRelationTimeline (props) {
 
         function removeDuplicatesFromChemoAndTlink(){
             //REMOVING DUPLICATES from chemo_text and TLink
-            const chemoTextSet = new Set();
-            const tLinkSet = new Set();
+            const dpheGroupSet = new Set();
+            const relation1Set = new Set();
+            const relation2Set = new Set();
 
 
-            for (let i = 0; i < chemoText.length; i++){
-                chemoTextSet.add(chemoText[i]);
+            for (let i = 0; i < dpheGroupCount.length; i++){
+                dpheGroupSet.add(dpheGroupCount[i]);
             }
-            for (let i = 0; i < tLink.length; i++){
-                tLinkSet.add((tLink[i]));
+            for (let i = 0; i < startRelation.length; i++){
+                relation1Set.add((startRelation[i]));
 
             }
-            chemoText = Array.from(chemoTextSet);
-            tLink = Array.from(tLinkSet);
+            dpheGroupCount = Array.from(dpheGroupSet);
+            startRelation = Array.from(relation1Set);
+            endRelation = Array.from(relation2Set);
         }
 
         // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
@@ -411,8 +418,9 @@ export default function EventRelationTimeline (props) {
         //console.log("reportData: " + JSON.stringify(reportData));
 
 
-        if (chemoText !== null) {
-            new Set(laneGroups).forEach(function (key) {
+        if (dpheGroupCount !== null && laneGroupCount && laneGroupCount.length > 0) {
+            console.log(laneGroupCount);
+            new Set(laneGroupCount).forEach(function (key) {
                 // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
                 totalMaxVerticalCounts += 1;
 
@@ -458,14 +466,14 @@ export default function EventRelationTimeline (props) {
 
         // Gap between texts and mian area left border
         const textMargin = 10;
-        const eventData = createEventData(startDates, endDates, patientId, chemoText, noteId);
+        const eventData = createEventData(startDate, endDate, patientId, dpheGroupCount);
 
 
         // Convert string to date
         if (eventData !== null) {
 
-            const minStartDate = new Date(startDates.reduce((min, date) => (new Date(date) < new Date(min) ? date : min)));
-            const maxEndDate = new Date(endDates.reduce((max, date) => (new Date(date) > new Date(max) ? date : max)));
+            const minStartDate = new Date(startDate.reduce((min, date) => (new Date(date) < new Date(min) ? date : min)));
+            const maxEndDate = new Date(endDate.reduce((max, date) => (new Date(date) > new Date(max) ? date : max)));
 
             minStartDate.setDate(minStartDate.getDate() - 50);
             maxEndDate.setDate(maxEndDate.getDate() + 50);
@@ -490,7 +498,7 @@ export default function EventRelationTimeline (props) {
 
             laneGroups.forEach(group => {
                 // console.log(group);
-                const eventsInGroup = eventData.filter(d => d.chemo_group === group);
+                const eventsInGroup = eventData.filter(d => d.dpheGroup === group);
                 // console.log(eventsInGroup);
                 const slots = [];
                 const isPoint = ([start, end]) => start === end;
@@ -537,10 +545,6 @@ export default function EventRelationTimeline (props) {
 
             // Dynamic height based on vertical counts
             const totalGroupLaneHeights = Object.values(groupLaneHeights).reduce((acc, val) => acc + val, 0);
-
-            // console.log(totalGroupLaneHeights);
-
-
             const height =
                 totalGroupLaneHeights * mainChemoTextRowHeightPerCount * 2;
 
@@ -613,7 +617,7 @@ export default function EventRelationTimeline (props) {
                 let x = 30;
 
                 for (let i = 0; i < index; i++) {
-                    let processedEpisodeStr = tLink[i].replace(/-|\s/g, "");
+                    let processedEpisodeStr = startRelation[i].replace(/-|\s/g, "");
                     let textWidth = processedEpisodeStr.length * widthPerLetter;
                     let dynamicSpacing = labelPadding + (processedEpisodeStr.length * extraPadding);
                     x += textWidth + dynamicSpacing;
@@ -650,7 +654,7 @@ export default function EventRelationTimeline (props) {
 
             let episodeLegend = episodeLegendGrp
                 .selectAll(".episode_legend")
-                .data(tLink)
+                .data(startRelation)
                 .enter()
                 .append("g")
                 .attr("class", "episode_legend")
@@ -682,17 +686,17 @@ export default function EventRelationTimeline (props) {
                 .attr("x", 0)
                 .attr("y", 10)
                 .attr("class", "episode_legend_text")
-                .text(d => `${d} (${tLinkCounts[d]})`)
+                .text(d => `${d} (${laneGroupCount[d]})`)
                 .each(function (d) {
                     // Append a <title> tag to each <text> for the tooltip
                     d3.select(this)
                         .append("title")
                         .text(() => {
                             // Customize definitions here
-                            if (d === "before") return "Event occurs *before* time/date";
-                            if (d === "contains") return "Event occurs *within* time span";
-                            if (d === "overlap") return "Event *overlaps* time span";
-                            if (d === "after") return "Event occurs *after* time/date";
+                            if (d === "Before") return "Event occurs *before* time/date";
+                            if (d === "On") return "Event occurs *within* time span";
+                            if (d === "Overlap") return "Event *overlaps* time span";
+                            if (d === "After") return "Event occurs *after* time/date";
                             return "Unspecified temporal relation.";
                         });
                 });
@@ -941,7 +945,7 @@ export default function EventRelationTimeline (props) {
                 .attr("class", "report_type_label")
                 .attr("dy", ".5ex")
                 .attr("x", -textMargin)
-                .text(d => `${d} (${chemoTextGroupCounts[d]}):`);
+                .text(d => `${d} (${laneGroupCount[d]}):`);
 
             labelGroup.each(function (d) {
                 const group = d3.select(this);

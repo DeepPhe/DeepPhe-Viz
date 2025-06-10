@@ -45,7 +45,6 @@ function Patient(props) {
 
 
     patientJson.documents.forEach((doc) => {
-      console.log(doc.mentions);
       const mentionIdsInDoc = doc.mentions.map((m) => m.id);
       const conceptsInDoc = patientJson.concepts.filter((concept) =>
           concept.mentionIds?.some((id) => mentionIdsInDoc.includes(id))
@@ -144,7 +143,6 @@ function Patient(props) {
 
     const mentionIdsInDocument = getMentionIdsInDocument(patientDocument);
     const conceptsInDocument = getConceptsInDocument(patientJson, mentionIdsInDocument);
-    console.log(conceptsInDocument);
 
     return (
         <Card>
@@ -242,9 +240,7 @@ function Patient(props) {
       return <div> </div>;
     }
     const mentionIdsInDocument = getMentionIdsInDocument(patientDocument);
-    console.log(mentionIdsInDocument);
     const conceptsInDocument = getConceptsInDocument(patientJson, mentionIdsInDocument);
-    console.log(conceptsInDocument);
     if (isEmpty(reportId) || !patientDocument?.mentions) {
       return <div> </div>;
     }

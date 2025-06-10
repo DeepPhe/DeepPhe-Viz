@@ -4,6 +4,7 @@ Priority Tasks
     - change how the data is parsed
     - need to find a way to get note_id from click, maybe we get it from conceptID somehow
     - NoteID is in conceptsPerDocument, we can look for the noteID this way by connecting it with conceptID
+    - need to introduce relation1 and relation2 and work out tlink
 
 Sub-Tasks:
 - look into circle, not fully returning to normal after unclick mention
@@ -23,3 +24,22 @@ Issues/Bugs:
 - Sometimes when clicking the concepts below in the document, the last one does not unclick
 - 'Unknown' semantic group is not showing up in concept list correctly
 
+
+
+\
+
+
+
+
+
+
+
+
+
+
+
+
+
+slaughterhouse 5
+the count of mote cristo
+at the mountains of madness
