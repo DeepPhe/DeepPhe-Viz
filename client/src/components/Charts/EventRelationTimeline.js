@@ -211,8 +211,6 @@ export default function EventRelationTimeline (props) {
 
                 const laneGroup = laneGroups[dpheGroup.toLowerCase()] || 'Uncategorized';
                 obj.laneGroup = laneGroup;
-                console.log(laneGroup);
-
                 laneGroupCounts[laneGroup] = (laneGroupCounts[laneGroup] || 0) + 1;
 
             }
@@ -234,8 +232,8 @@ export default function EventRelationTimeline (props) {
             startDate: data.map(d => d.Date1),
             endRelation : data.map(d => d.Relation2),
             endDate: data.map(d => d.Date2),
-            dpheGroup: data.dpheGroup,
-            laneGroup: data.laneGroup,
+            dpheGroup: data.map(d => d.dpheGroup),
+            laneGroup: data.map(d => d.laneGroup),
             dpheGroupCounts: data.dpheGroupCounts,
             laneGroupsCounts: data.laneGroupsCounts
         }
@@ -370,9 +368,19 @@ export default function EventRelationTimeline (props) {
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
         // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
         let verticalPositions = {};
+        console.log("svgContainerId", svgContainerId);
+        console.log("patientId", patientId);
+        console.log("conceptId", conceptId);
+        console.log("startRelation", startRelation);
+        console.log("startDate", startDate);
+        console.log("endRelation", endRelation);
+        console.log("endDate", endDate);
+        console.log("dpheGroup", dpheGroup);
+        console.log("laneGroup", laneGroup);
+        console.log("dpheGroupCount", dpheGroupCount);
+        console.log("laneGroupCount", laneGroupCount);
         // Vertical max counts from top to bottom
         // This is used to decide the domain range of mainY and overviewY
-        let totalMaxVerticalCounts = 0;
 
         function createEventData(startDate, endDate, patientId, dpheGroup) {
             const eventData = [];
@@ -414,21 +422,43 @@ export default function EventRelationTimeline (props) {
 
         // Use the order in reportTypes to calculate totalMaxVerticalCounts of each report type
         // to have a consistent report type order
-        //console.log("reportTypes: " + reportTypes);
-        //console.log("reportData: " + JSON.stringify(reportData));
 
+        async function getTotalMaxVertCounts(dictionary) {
+            while (Object.keys(dictionary).length === 0) { // Or check for a specific key
+                await new Promise(resolve => setTimeout(resolve, 100)); // Wait for a short time
+            }
+            let count = 0
 
-        if (dpheGroupCount !== null && laneGroupCount && laneGroupCount.length > 0) {
-            console.log(laneGroupCount);
-            new Set(laneGroupCount).forEach(function (key) {
-                // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
-                totalMaxVerticalCounts += 1;
+            for (let key in dictionary){
+                count += dictionary[key]
+            }
+            // dictionary[laneGroup] = (laneGroupCounts[laneGroup] || 0) + 1;
 
-                if (typeof verticalPositions[key] === "undefined") {
-                    verticalPositions[key] = totalMaxVerticalCounts;
-                }
-            });
+            // new Set(laneGroupCount).forEach(function (key) {
+            //     // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+            //     count += 1;
+            //
+            //     if (typeof verticalPositions[key] === "undefined") {
+            //         verticalPositions[key] = count;
+            //     }
+            // });
+            return count
         }
+
+        // getTotalMaxVertCounts(laneGroupCount);
+        let totalMaxVerticalCounts = 4
+        console.log("TOTAL_MAX_VERT_COUNTS", totalMaxVerticalCounts);
+        // if (dpheGroupCount !== null && laneGroupCount && laneGroupCount.length > 0) {
+        //     console.log(laneGroupCount);
+        //     new Set(laneGroupCount).forEach(function (key) {
+        //         // totalMaxVerticalCounts += maxVerticalCountsPerType[key];
+        //         totalMaxVerticalCounts += 1;
+        //
+        //         if (typeof verticalPositions[key] === "undefined") {
+        //             verticalPositions[key] = totalMaxVerticalCounts;
+        //         }
+        //     });
+        // }
 
         const margin = { top: 5, right: 20, bottom: 5, left: 200 };
         const mainChemoTextRowHeightPerCount = 16;
@@ -496,7 +526,7 @@ export default function EventRelationTimeline (props) {
 
             const groupLaneHeights = {}; // e.g., { 'AC': 2, 'Taxol': 3, ... }
 
-            laneGroups.forEach(group => {
+            dpheGroupCount.forEach(group => {
                 // console.log(group);
                 const eventsInGroup = eventData.filter(d => d.dpheGroup === group);
                 // console.log(eventsInGroup);
@@ -881,10 +911,10 @@ export default function EventRelationTimeline (props) {
                     ")"
                 );
 
-            const uniqueChemoTextGroups = Array.from(new Set(laneGroups));
+            const uniqueDpheGroups = Array.from(new Set(laneGroup));
 
 // Skip the last group (bottom-most) so we don’t draw an extra divider
-            const groupsToDraw = uniqueChemoTextGroups.slice(0, -1);
+            const groupsToDraw = uniqueDpheGroups.slice(0, -1);
 
             main_ER_svg
                 .append("g")
@@ -928,7 +958,7 @@ export default function EventRelationTimeline (props) {
             const labelGroup = main_ER_svg
                 .append("g")
                 .selectAll(".report_type_label_group")
-                .data([...new Set(laneGroups)])
+                .data([...new Set(laneGroup)])
                 .enter()
                 .append("g")
                 .attr("class", "report_type_label_group")
@@ -1095,6 +1125,7 @@ export default function EventRelationTimeline (props) {
             const occupiedSlots = new Map(); // Key: base Y, Value: array of [x1, x2] pairs
             laneOffset = 0;
             let groupBaseYMap = {};
+            console.log(laneGroup);
 
             [...new Set(laneGroups)].forEach(group => {
                 groupBaseYMap[group] = laneOffset + (groupLaneHeights[group] * 16); // center within the block if needed
@@ -1109,10 +1140,11 @@ export default function EventRelationTimeline (props) {
                 .append("g")
                 .attr("class", "main_report_group")
                 .each(function (d) {
+                    console.log(d);
                     const group = d3.select(this);
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
-                    const baseY = groupBaseYMap[d.chemo_group];
+                    const baseY = groupBaseYMap[d.dpheGroup];
                     let y = baseY;
                     let yOffset = 0;
                     const buffer = 15;
@@ -1131,13 +1163,13 @@ export default function EventRelationTimeline (props) {
                     occupiedSlots.set(y, slotList);
 
                     // Adjust line thickness if it's an overlap
-                    const lineThickness = d.tLink === "overlap" ? 5 : 5;
+                    const lineThickness = d.relation1 === "overlap" ? 5 : 5;
 
                     // 1. Create a separate group for `contains` lines (will be drawn first)
                     const containsGroup = group.append("g").attr("class", "contains-group");
 
                     // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
-                    if (d.tLink === "contains") {
+                    if (d.relation1 === "contains") {
 
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
