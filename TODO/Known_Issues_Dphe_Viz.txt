@@ -6,6 +6,7 @@ Priority Tasks
     - look to change the relation1 and relation 2 to work
     - also have to see if i need to add a line between two start and end date if it is a on and on
 
+
 Sub-Tasks:
 - look into circle, not fully returning to normal after unclick mention
 
