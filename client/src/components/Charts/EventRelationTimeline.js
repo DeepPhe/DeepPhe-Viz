@@ -948,7 +948,7 @@ export default function EventRelationTimeline (props) {
             let laneOffset = 0;
             // Report types texts
             const labelPositions = []; // Store the y-coordinates
-
+            let previousY = 0;
             const labelGroup = main_ER_svg
                 .append("g")
                 .selectAll(".report_type_label_group")
@@ -964,14 +964,13 @@ export default function EventRelationTimeline (props) {
                     labelPositions.push({
                         group: d,
                         y: y,
-                        endY: y + groupLaneHeights[d] * 16 * 2
+                        endY: y + (groupLaneHeights[d] * 16)
                     });
 
+                    previousY = y; // Update for next iteration
                     laneOffset += groupLaneHeights[d] * 16 * 2;
                     return transform;
                 });
-
-            /************ COME BACK TO HERE ***********************/
 
             // Add the main text label
             labelGroup
@@ -1143,9 +1142,7 @@ export default function EventRelationTimeline (props) {
             laneOffset = 0;
             let groupBaseYMap = {};
 
-            console.log(laneGroup);
             [...new Set(laneGroup)].forEach(group => {
-                console.log("LANE GROUP", group)
                 groupBaseYMap[group] = laneOffset + (groupLaneHeights[group] * 16); // center within the block if needed
                 laneOffset += groupLaneHeights[group] * 16 * 2; // double it if each lane is that tall
             });
@@ -1165,24 +1162,48 @@ export default function EventRelationTimeline (props) {
                     const x2 = d.formattedEndDate;
                     const baseY = groupBaseYMap[d.laneGroup];
                     let y = baseY;
-                    let yOffset = 0;
-                    const buffer = 15;
+                    const buffer = 23;
 
                     const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
-                    let slotList = occupiedSlots.get(baseY) || [];
 
-                    while (slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
-                        yOffset += buffer;
-                        y = baseY + yOffset;
-                        slotList = occupiedSlots.get(y) || [];
+                    // Check if base position is available first
+                    let slotList = occupiedSlots.get(baseY) || [];
+                    if (!slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                        y = baseY;
+                    } else {
+                        // Search for available slot by alternating up and down
+                        let found = false;
+                        let offset = buffer;
+
+                        while (!found) {
+                            // Try below first
+                            let candidateY = baseY + offset;
+                            let candidateSlots = occupiedSlots.get(candidateY) || [];
+                            if (!candidateSlots.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                                y = candidateY;
+                                found = true;
+                            } else {
+                                // Try above
+                                candidateY = baseY - offset;
+                                candidateSlots = occupiedSlots.get(candidateY) || [];
+                                if (!candidateSlots.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                                    y = candidateY;
+                                    found = true;
+                                } else {
+                                    // Increase offset and try next level
+                                    offset += buffer;
+                                }
+                            }
+                        }
                     }
 
-                    // Now reserve this slot
+                    // Reserve this slot
+                    slotList = occupiedSlots.get(y) || [];
                     slotList.push([d.formattedStartDate, d.formattedEndDate]);
                     occupiedSlots.set(y, slotList);
 
                     // Adjust line thickness if it's an overlap
-                    const lineThickness = d.relation1 === "Overlap" ? 5 : 5;
+                    const lineThickness = 5;
 
                     // 1. Create a separate group for `contains` lines (will be drawn first)
                     const containsGroup = group.append("g").attr("class", "contains-group");
@@ -1332,86 +1353,119 @@ export default function EventRelationTimeline (props) {
 
                     if (d.relation1 === "On" && d.relation2 === "On"){
                         // |----|
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1 - 2)
-                            .attr("y1", y - 7)
-                            .attr("x2", x1 - 2)
-                            .attr("y2", y + 7)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 4)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
 
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x1-only")
-                            // .attr("x1",  50)
-                            // .attr("x2",  60)
-                            .attr("y1", y - 6) // Extends above
-                            .attr("y2", y + 6) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                        if (d.formattedStartDate === d.formattedEndDate){
+                            containsGroup.append("line")
+                                .attr("class", "relation-outline")
+                                .attr("x1", x1 - 2)
+                                .attr("y1", y - 7)
+                                .attr("x2", x1 - 2)
+                                .attr("y2", y + 7)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 4)
+                                .style("cursor", "pointer")
+                                .attr("stroke-opacity", 0);
 
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x2 + 2)
-                            .attr("y1", y - 7)
-                            .attr("x2", x2 + 2)
-                            .attr("y2", y + 7)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 4)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
+                            containsGroup.append("line")
+                                .attr("class", "main_report_contains relation-icon")
+                                .attr("data-concept-id", d.conceptId)
+                                .attr("data-line-type", "x1-only")
+                                // .attr("x1",  50)
+                                // .attr("x2",  60)
+                                .attr("y1", y - 6) // Extends above
+                                .attr("y2", y + 6) // Extends below
+                                .attr("stroke", 'rgb(49, 163, 84)')
+                                .attr("stroke-width", 3)
+                                .attr("stroke-opacity", 0.75)
+                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
+                        }
+                        else{
+                            containsGroup.append("line")
+                                .attr("class", "relation-outline")
+                                .attr("x1", x1 - 2)
+                                .attr("y1", y - 7)
+                                .attr("x2", x1 - 2)
+                                .attr("y2", y + 7)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 4)
+                                .style("cursor", "pointer")
+                                .attr("stroke-opacity", 0);
 
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x2-only")
-                            // .attr("x1", 200)
-                            // .attr("x2", 200)
-                            .attr("y1", y - 6) // Extends above
-                            .attr("y2", y + 6) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
+                            containsGroup.append("line")
+                                .attr("class", "main_report_contains relation-icon")
+                                .attr("data-concept-id", d.conceptId)
+                                .attr("data-line-type", "x1-only")
+                                // .attr("x1",  50)
+                                // .attr("x2",  60)
+                                .attr("y1", y - 6) // Extends above
+                                .attr("y2", y + 6) // Extends below
+                                .attr("stroke", 'rgb(49, 163, 84)')
+                                .attr("stroke-width", 3)
+                                .attr("stroke-opacity", 0.75)
+                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
 
 
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            containsGroup.append("line")
+                                .attr("class", "relation-outline")
+                                .attr("x1", x2 + 2)
+                                .attr("y1", y - 7)
+                                .attr("x2", x2 + 2)
+                                .attr("y2", y + 7)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 4)
+                                .style("cursor", "pointer")
+                                .attr("stroke-opacity", 0);
+
+                            containsGroup.append("line")
+                                .attr("class", "main_report_contains relation-icon")
+                                .attr("data-concept-id", d.conceptId)
+                                .attr("data-line-type", "x2-only")
+                                // .attr("x1", 200)
+                                // .attr("x2", 200)
+                                .attr("y1", y - 6) // Extends above
+                                .attr("y2", y + 6) // Extends below
+                                .attr("stroke", 'rgb(49, 163, 84)')
+                                .attr("stroke-width", 3)
+                                .attr("stroke-opacity", 0.75)
+                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
+
+
+                            containsGroup.append("line")
+                                .attr("class", "relation-outline")
+                                .attr("x1", x1)
+                                .attr("y1", y)
+                                .attr("x2", x2)
+                                .attr("y2", y)
+                                .attr("stroke", "black")
+                                .attr("stroke-width", 7)
+                                .style("cursor", "pointer")
+                                .attr("stroke-opacity", 0);
+
+
+                            // Green visible line (drawn second, on top)
+                            containsGroup.append("line")
+                                .attr("class", "main_report_ER relation-icon")
+                                .attr("data-concept-id", d.conceptId)
+                                .attr("data-line-type", "range")
+                                .attr("x1", x1)
+                                .attr("x2", x2)
+                                .attr("y1", y)
+                                .attr("y2", y)
+                                .attr("stroke", 'rgb(49, 163, 84)')
+                                .attr("stroke-width", lineThickness)
+                                .attr("stroke-opacity", 0.75)
+                                .style("cursor", "pointer")
+                                .on("click", (event) => handleClick(event, d));
+                        }
                     }
+
+
 
                     if (d.relation1 === "On" && d.relation2 === "Before"){
                         // |-----<
@@ -1466,20 +1520,7 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-                        mainLineGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "before")
-                            .attr("x", x2 - 10) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
+                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1525,7 +1566,6 @@ export default function EventRelationTimeline (props) {
                             .style("cursor", "pointer")
                             .attr("stroke-opacity", 0);
 
-
                         // Green visible line (drawn second, on top)
                         containsGroup.append("line")
                             .attr("class", "main_report_ER relation-icon")
@@ -1538,8 +1578,6 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1547,19 +1585,6 @@ export default function EventRelationTimeline (props) {
 
                     if (d.relation1 === "After" && d.relation2 === "Before"){
                         // >---<
-
-
-                        mainLineGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "after")
-                            .attr("x", x1 - 5) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
 
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
@@ -1585,20 +1610,8 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-                        mainLineGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "before")
-                            .attr("x", x2 - 10) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
+                            .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1606,6 +1619,35 @@ export default function EventRelationTimeline (props) {
 
                     if (d.relation1 === "Before" && d.relation2 === "Before"){
                         //    <
+
+                        mainLineGroup.append("line")
+                            .attr("class", "relation-outline")
+                            .attr("x1", x1 - 1)
+                            .attr("y1", y)
+                            .attr("x2", x2 + 1)
+                            .attr("y2", y)
+                            .attr("stroke", "black")
+                            .attr("stroke-width", 7)
+                            .style("cursor", "pointer")
+                            .attr("stroke-opacity", 0);
+
+                        // Append the line
+                        mainLineGroup.append("line")
+                            .attr("class", "main_report_ER relation-icon")
+                            .attr("data-concept-id", d.conceptId)
+                            .attr("data-line-type", "range")
+                            .attr("x1", x1)
+                            .attr("x2", x2)
+                            .attr("y1", y)
+                            .attr("y2", y)
+                            .attr("stroke", 'rgb(49, 163, 84)')
+                            .attr("stroke-width", lineThickness)
+                            .attr("stroke-opacity", 0.75)
+                            .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
+                            .attr("marker-end", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                            .style("cursor", "pointer")
+                            .on("click", (event) => handleClick(event, d));
+
                         mainLineGroup.append("rect")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-rect-type", "before")
@@ -1621,19 +1663,6 @@ export default function EventRelationTimeline (props) {
                     if (d.relation1 === "Before" && d.relation2 === "Overlaps"){
                         // <-------
 
-                        mainLineGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "before")
-                            .attr("x", x1 - 10) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
                             .attr("x1", x1)
@@ -1657,8 +1686,7 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
+                            .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1688,20 +1716,7 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-                        mainLineGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "before")
-                            .attr("x", x2 - 10) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
+                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1732,8 +1747,6 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
@@ -1769,7 +1782,6 @@ export default function EventRelationTimeline (props) {
 
                     if (d.relation1 === "Overlaps" && d.relation2 === "Overlaps"){
                         // ------
-
                         containsGroup.append("line")
                             .attr("class", "relation-outline")
                             .attr("x1", x1)
@@ -1792,165 +1804,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", 'rgb(49, 163, 84)')
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
                     }
-
-
-
-
-
-                    // // Append vertical lines at both start (x1) and end (x2) for "contains" tLink
-                    // if (d.relation1 === "contains") {
-                    //
-                    //     containsGroup.append("line")
-                    //         .attr("class", "relation-outline")
-                    //         .attr("x1", x1 - 2)
-                    //         .attr("y1", y - 7)
-                    //         .attr("x2", x1 - 2)
-                    //         .attr("y2", y + 7)
-                    //         .attr("stroke", "black")
-                    //         .attr("stroke-width", 4)
-                    //         .style("cursor", "pointer")
-                    //         .attr("stroke-opacity", 0);
-                    //
-                    //     containsGroup.append("line")
-                    //         .attr("class", "main_report_contains relation-icon")
-                    //         .attr("data-concept-id", d.conceptId)
-                    //         .attr("data-line-type", "x1-only")
-                    //         // .attr("x1",  50)
-                    //         // .attr("x2",  60)
-                    //         .attr("y1", y - 6) // Extends above
-                    //         .attr("y2", y + 6) // Extends below
-                    //         .attr("stroke", 'rgb(49, 163, 84)')
-                    //         .attr("stroke-width", 3)
-                    //         .attr("stroke-opacity", 0.75)
-                    //         // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                    //         .style("cursor", "pointer")
-                    //         .on("click", (event) => handleClick(event, d));
-                    //
-                    //     containsGroup.append("line")
-                    //         .attr("class", "relation-outline")
-                    //         .attr("x1", x2 + 2)
-                    //         .attr("y1", y - 7)
-                    //         .attr("x2", x2 + 2)
-                    //         .attr("y2", y + 7)
-                    //         .attr("stroke", "black")
-                    //         .attr("stroke-width", 4)
-                    //         .style("cursor", "pointer")
-                    //         .attr("stroke-opacity", 0);
-                    //
-                    //     containsGroup.append("line")
-                    //         .attr("class", "main_report_contains relation-icon")
-                    //         .attr("data-concept-id", d.conceptId)
-                    //         .attr("data-line-type", "x2-only")
-                    //         // .attr("x1", 200)
-                    //         // .attr("x2", 200)
-                    //         .attr("y1", y - 6) // Extends above
-                    //         .attr("y2", y + 6) // Extends below
-                    //         .attr("stroke", 'rgb(49, 163, 84)')
-                    //         .attr("stroke-width", 3)
-                    //         .attr("stroke-opacity", 0.75)
-                    //         // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                    //         .style("cursor", "pointer")
-                    //         .on("click", (event) => handleClick(event, d));
-                    //
-                    //
-                    //     containsGroup.append("line")
-                    //         .attr("class", "relation-outline")
-                    //         .attr("x1", x1)
-                    //         .attr("y1", y)
-                    //         .attr("x2", x2)
-                    //         .attr("y2", y)
-                    //         .attr("stroke", "black")
-                    //         .attr("stroke-width", 7)
-                    //         .style("cursor", "pointer")
-                    //         .attr("stroke-opacity", 0);
-                    //
-                    //
-                    //     // Green visible line (drawn second, on top)
-                    //     containsGroup.append("line")
-                    //         .attr("class", "main_report_ER relation-icon")
-                    //         .attr("data-concept-id", d.conceptId)
-                    //         .attr("data-line-type", "range")
-                    //         .attr("x1", x1)
-                    //         .attr("x2", x2)
-                    //         .attr("y1", y)
-                    //         .attr("y2", y)
-                    //         .attr("stroke", 'rgb(49, 163, 84)')
-                    //         .attr("stroke-width", lineThickness)
-                    //         .attr("stroke-opacity", 0.75)
-                    //         .attr("marker-start", d.relation1 === "before" ? "url(#leftArrow)" : null)
-                    //         .attr("marker-end", d.relation1 === "after" ? "url(#rightArrow)" : null)
-                    //         .style("cursor", "pointer")
-                    //         .on("click", (event) => handleClick(event, d));
-                    // }
-                    //
-                    //
-                    //
-                    //
-                    // if (d.relation1 !== "contains") {
-                    //
-                    //     mainLineGroup.append("line")
-                    //         .attr("class", "relation-outline")
-                    //         .attr("x1", x1 - 1)
-                    //         .attr("y1", y)
-                    //         .attr("x2", x2 + 1)
-                    //         .attr("y2", y)
-                    //         .attr("stroke", "black")
-                    //         .attr("stroke-width", 7)
-                    //         .style("cursor", "pointer")
-                    //         .attr("stroke-opacity", 0);
-                    //
-                    //     // Append the line
-                    //     mainLineGroup.append("line")
-                    //         .attr("class", "main_report_ER relation-icon")
-                    //         .attr("data-concept-id", d.conceptId)
-                    //         .attr("data-line-type", "range")
-                    //         .attr("x1", x1)
-                    //         .attr("x2", x2)
-                    //         .attr("y1", y)
-                    //         .attr("y2", y)
-                    //         .attr("stroke", 'rgb(49, 163, 84)')
-                    //         .attr("stroke-width", lineThickness)
-                    //         .attr("stroke-opacity", 0.75)
-                    //         .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
-                    //         .attr("marker-end", d.relation1 === "After" ? "url(#rightArrow)" : null)
-                    //         .style("cursor", "pointer")
-                    //         .on("click", (event) => handleClick(event, d));
-                    //
-                    //     // If start and end are the same, ensure arrow is clickable
-                    //     if (x1 === x2) {
-                    //         if (d.relation1 === "Before") {
-                    //             mainLineGroup.append("rect")
-                    //                 .attr("data-concept-id", d.conceptId)
-                    //                 .attr("data-rect-type", "before")
-                    //                 .attr("x", x1 - 10) // Align with arrow
-                    //                 .attr("y", y - 5)
-                    //                 .attr("width", 10)
-                    //                 .attr("height", 10)
-                    //                 .style("fill", "transparent")
-                    //                 .style("cursor", "pointer")
-                    //                 .on("click", (event) => handleClick(event, d));
-                    //
-                    //         }
-                    //         if (d.relation1 === "after") {
-                    //             mainLineGroup.append("rect")
-                    //                 .attr("data-concept-id", d.conceptId)
-                    //                 .attr("data-rect-type", "after")
-                    //                 .attr("x", x2 - 5) // Align with arrow
-                    //                 .attr("y", y - 5)
-                    //                 .attr("width", 10)
-                    //                 .attr("height", 10)
-                    //                 .style("fill", "transparent")
-                    //                 .style("cursor", "pointer")
-                    //                 .on("click", (event) => handleClick(event, d));
-                    //
-                    //         }
-                    //     }
-                    // }
 
                 });
 
@@ -2014,9 +1870,6 @@ export default function EventRelationTimeline (props) {
                         } else {
                             el.classList.remove("unselected");
                             el.classList.add("selected");
-
-
-
                         }
                     }
 

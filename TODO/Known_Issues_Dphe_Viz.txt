@@ -1,10 +1,11 @@
 Priority Tasks
 
 - Refactor test data:
-    - I need to fix the line_divider, maybe use the report_type_label
+    - I need to fix the line_divider ✅
+    - if both relations are On and they have the same date, then I will just use one vertical line ✅
     - fix the bottom part, there is too much space in there
-    - look to change the relation1 and relation 2 to work
-    - also have to see if i need to add a line between two start and end date if it is a on and on
+    - get onClick working
+    - figure out the random line that is "Overlap" to "Overlap" and why the line thickness is half regular size
 
 
 Sub-Tasks:
@@ -16,31 +17,8 @@ Desirable:
 - look to add clickability in document, i.e. click 'right' in documentView and 'right' in conceptList will highlight
 - date anchor points
 
-Dphe meeting:
-4/24/25
-- look to make changes to name 'severity' and 'finding'
-6/26/25
-
 Issues/Bugs:
 - Sometimes when clicking the concepts below in the document, the last one does not unclick
 - 'Unknown' semantic group is not showing up in concept list correctly
 
 
-
-\
-
-
-
-
-
-
-
-
-
-
-
-
-
-slaughterhouse 5
-the count of mote cristo
-at the mountains of madness
