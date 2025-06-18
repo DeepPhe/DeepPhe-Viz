@@ -525,10 +525,11 @@ export default function EventRelationTimeline (props) {
             });
 
             removeDuplicatesFromDpheAndLane();
-
+            console.log("LANEGROUP:", laneGroup);
+            const desiredOrder = ["Finding", "Disease", "Severity", "Treatment"];
 
             const groupLaneHeights = {}; // e.g., { 'AC': 2, 'Taxol': 3, ... }
-            laneGroup.forEach(group => {
+            desiredOrder.forEach(group => {
                 const eventsInGroup = eventData.filter(d => d.laneGroup === group);
                 const slots = [];
                 const isPoint = ([start, end]) => start === end;
@@ -936,10 +937,12 @@ export default function EventRelationTimeline (props) {
             // Report types texts
             const labelPositions = []; // Store the y-coordinates
             let previousY = 0;
+            console.log("LANEGROUP:", laneGroup);
+            console.log(laneGroupCount);
             const labelGroup = main_ER_svg
                 .append("g")
                 .selectAll(".report_type_label_group")
-                .data([...new Set(laneGroup)])
+                .data([...new Set(desiredOrder)])
                 .enter()
                 .append("g")
                 .attr("class", "report_type_label_group")
@@ -996,6 +999,19 @@ export default function EventRelationTimeline (props) {
                 .attr("x2", svgWidth)
                 .attr("y1", d => d.endY) // or just d.y if you want lines at the start of each group
                 .attr("y2", d => d.endY);
+
+            const tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "custom-tooltip")
+                .style("position", "absolute")
+                .style("padding", "6px 10px")
+                .style("background", "rgba(0,0,0,0.75)")
+                .style("color", "#fff")
+                .style("border-radius", "4px")
+                .style("font-size", "12px")
+                .style("pointer-events", "none")
+                .style("opacity", 0)
+                .style("z-index", 1000);
 
             const defs = d3.select("svg").append("defs");
 
@@ -1151,7 +1167,7 @@ export default function EventRelationTimeline (props) {
             laneOffset = 0;
             let groupBaseYMap = {};
 
-            [...new Set(laneGroup)].forEach(group => {
+            [...new Set(desiredOrder)].forEach(group => {
                 groupBaseYMap[group] = laneOffset + (groupLaneHeights[group] * 10); // center within the block if needed
                 laneOffset += groupLaneHeights[group] * 10 * 2; // double it if each lane is that tall
             });
@@ -1189,6 +1205,8 @@ export default function EventRelationTimeline (props) {
                     const buffer = 15;
 
                     const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
+
+
 
                     // Check if base position is available first
                     let slotList = occupiedSlots.get(baseY) || [];
@@ -1260,6 +1278,7 @@ export default function EventRelationTimeline (props) {
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d));
 
+
                         containsGroup.append("rect")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-rect-type", "after")
@@ -1269,7 +1288,10 @@ export default function EventRelationTimeline (props) {
                             .attr("height", 10)
                             .style("fill", "transparent")
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+
 
                     }
                     if (d.relation1 === "After" && d.relation2 === "Overlaps"){
@@ -1305,7 +1327,9 @@ export default function EventRelationTimeline (props) {
                             .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
                             .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
 
@@ -1340,7 +1364,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-dasharray", "4,2")
                             .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                         containsGroup.append("line")
@@ -1367,7 +1393,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-opacity", 0.75)
                             // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
 
@@ -1399,7 +1427,9 @@ export default function EventRelationTimeline (props) {
                                 .attr("stroke-opacity", 0.75)
                                 // .attr("stroke-solid", "4 2") // Dashed line for clarity
                                 .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));
+                                .on("click", (event) => handleClick(event, d))
+                                .append("title")
+                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                         }
                         else{
                             containsGroup.append("line")
@@ -1426,7 +1456,9 @@ export default function EventRelationTimeline (props) {
                                 .attr("stroke-opacity", 0.75)
                                 // .attr("stroke-solid", "4 2") // Dashed line for clarity
                                 .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));
+                                .on("click", (event) => handleClick(event, d))
+                                .append("title")
+                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                             containsGroup.append("line")
@@ -1453,7 +1485,9 @@ export default function EventRelationTimeline (props) {
                                 .attr("stroke-opacity", 0.75)
                                 // .attr("stroke-solid", "4 2") // Dashed line for clarity
                                 .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));
+                                .on("click", (event) => handleClick(event, d))
+                                .append("title")
+                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                             containsGroup.append("line")
@@ -1481,7 +1515,9 @@ export default function EventRelationTimeline (props) {
                                 .attr("stroke-width", lineThickness)
                                 .attr("stroke-opacity", 0.75)
                                 .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d));
+                                .on("click", (event) => handleClick(event, d))
+                                .append("title")
+                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                         }
                     }
 
@@ -1513,7 +1549,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-opacity", 0.75)
                             // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                         containsGroup.append("line")
@@ -1543,7 +1581,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-dasharray", "4,2")
                             .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "On" && d.relation2 === "Overlaps"){
@@ -1573,7 +1613,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-opacity", 0.75)
                             // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                         containsGroup.append("line")
@@ -1600,7 +1642,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
 
@@ -1635,7 +1679,9 @@ export default function EventRelationTimeline (props) {
                             .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
                             .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
 
@@ -1679,7 +1725,9 @@ export default function EventRelationTimeline (props) {
                             .attr("height", 10)
                             .style("fill", "transparent")
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "Before" && d.relation2 === "Overlaps"){
@@ -1711,7 +1759,9 @@ export default function EventRelationTimeline (props) {
                             .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
                             .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "Overlaps" && d.relation2 === "Before"){
@@ -1742,7 +1792,9 @@ export default function EventRelationTimeline (props) {
                             .attr("marker-start", d.relation1 === "Overlaps" ? "url(#leftCap)" : null)
                             .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
 
@@ -1772,7 +1824,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                         containsGroup.append("line")
@@ -1799,7 +1853,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-opacity", 0.75)
                             // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                     }
@@ -1829,7 +1885,9 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-width", lineThickness)
                             .attr("stroke-opacity", 0.75)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                     }
 
                 });
@@ -1870,31 +1928,24 @@ export default function EventRelationTimeline (props) {
 
                     if (el.hasAttribute("marker-end")) {
                         const currentMarker = el.getAttribute("marker-end");
-                        if (currentMarker === "url(#selectedRightArrow)"){
+                        if (currentMarker === "url(#selectedRightArrow)") {
                             el.setAttribute("marker-end", "url(#rightArrow)");
-                        }
-                        else if (currentMarker === "url(#rightArrow)"){
+                        } else if (currentMarker === "url(#rightArrow)") {
                             el.setAttribute("marker-end", "url(#selectedRightArrow)");
-                        }
-                        else if (currentMarker === "url(#selectedLeftArrow)"){
+                        } else if (currentMarker === "url(#selectedLeftArrow)") {
                             el.setAttribute("marker-end", "url(#leftArrow)");
-                        }
-                        else{
+                        } else {
                             el.setAttribute("marker-end", "url(#selectedLeftArrow)");
                         }
-                    }
-                    else if (el.hasAttribute("marker-start")){
+                    } else if (el.hasAttribute("marker-start")) {
                         const currentMarker = el.getAttribute("marker-start");
-                        if (currentMarker === "url(#selectedRightArrow)"){
+                        if (currentMarker === "url(#selectedRightArrow)") {
                             el.setAttribute("marker-start", "url(#rightArrow)");
-                        }
-                        else if (currentMarker === "url(#rightArrow)"){
+                        } else if (currentMarker === "url(#rightArrow)") {
                             el.setAttribute("marker-start", "url(#selectedRightArrow)");
-                        }
-                        else if (currentMarker === "url(#selectedLeftArrow)"){
+                        } else if (currentMarker === "url(#selectedLeftArrow)") {
                             el.setAttribute("marker-start", "url(#leftArrow)");
-                        }
-                        else{
+                        } else {
                             el.setAttribute("marker-start", "url(#selectedLeftArrow)");
                         }
                     }
@@ -1908,7 +1959,7 @@ export default function EventRelationTimeline (props) {
                     }
 
 
-                        // Show/hide the black outline line
+                    // Show/hide the black outline line
                     const group = el.closest("g");
                     const isNowSelected = el.classList.contains("selected");
                     if (group) {
@@ -1924,6 +1975,16 @@ export default function EventRelationTimeline (props) {
                 });
 
                 // TODO: Figure out how to get noteID from conceptID
+
+                const matchingNotes = Object.entries(conceptsPerDocument)
+                    .filter(([_, objArray]) => objArray.some(obj => obj.id === clickedConceptId)
+                    )
+                    .map(([note]) => note);
+
+                console.log(conceptsPerDocument, conceptsPerDocument[0], clickedConceptId);
+
+                console.log(matchingNotes);
+
                 // Emphasize matching circles
                 // document.querySelectorAll(`circle[id*="${clickedNoteId}"]`).forEach(circle => {
                 //     circle.style.fillOpacity = "1";
@@ -1931,6 +1992,15 @@ export default function EventRelationTimeline (props) {
                 //     circle.style.strokeWidth = "2px";
                 //
                 // });
+
+                matchingNotes.forEach(noteKey => {
+                    console.log(noteKey);
+                    document.querySelectorAll(`circle[id*="${noteKey}"]`).forEach(circle => {
+                        circle.style.fillOpacity = "1";
+                        circle.style.stroke = "black";
+                        circle.style.strokeWidth = "2px";
+                    });
+                });
             }
 
 

@@ -12,10 +12,11 @@ Priority Tasks
     - also need to make a horizontal marker to represent overlap ✅
     - make arrows smaller ✅
     - change overlap so it goes longer than dates given ✅
-    - finding, disease, severity, treatment
-    - hover over relation timeline: Concept, first relation, second relation
-    - get onClick working
+    - finding, disease, severity, treatment ✅
+    - hover over relation timeline: Concept, first relation, second relation ✅
+    - get onClick working ✅
     - figure out the random line that is "Overlap" to "Overlap" and why the line thickness is half regular size
+
 
 
         - list of ctakes-dockers and ctakes-example etc

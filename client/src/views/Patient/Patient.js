@@ -53,6 +53,7 @@ function Patient(props) {
     });
 
     conceptsPerDocumentRef.current = map;
+    console.log(conceptsPerDocumentRef);
     setProcessingDone(true);
   }, [patientJson]);
 
