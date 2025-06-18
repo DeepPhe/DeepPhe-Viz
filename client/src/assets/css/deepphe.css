@@ -1489,7 +1489,6 @@ white text with more shading
     stroke-width: 1px;
     shape-rendering: crispEdges;
     stroke: #666;
-    stroke-dasharray: 1.5, 1.5;
 }
 
 .encounter_age_guideline {

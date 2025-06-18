@@ -3,10 +3,23 @@ Priority Tasks
 - Refactor test data:
     - I need to fix the line_divider ✅
     - if both relations are On and they have the same date, then I will just use one vertical line ✅
-    - fix the bottom part, there is too much space in there
+    - fix the bottom part, there is too much space in there ✅
+    - clean up top legend ✅
+    - look into adding an x-axis on top as well ✅
+    - less padding between relations vertically ✅
+    - change divider lines to solid ✅
+    - Sort conceptId by occurrence ✅
+    - also need to make a horizontal marker to represent overlap ✅
+    - make arrows smaller ✅
+    - change overlap so it goes longer than dates given ✅
+    - finding, disease, severity, treatment
+    - hover over relation timeline: Concept, first relation, second relation
     - get onClick working
     - figure out the random line that is "Overlap" to "Overlap" and why the line thickness is half regular size
 
+
+        - list of ctakes-dockers and ctakes-example etc
+       - maintenence, documentation, official contributer
 
 Sub-Tasks:
 - look into circle, not fully returning to normal after unclick mention
@@ -16,6 +29,7 @@ Desirable:
 - option to flip between relation events for a document or the whole patient
 - look to add clickability in document, i.e. click 'right' in documentView and 'right' in conceptList will highlight
 - date anchor points
+- relations that are exactly the same start and end date could be combined and shown in hover
 
 Issues/Bugs:
 - Sometimes when clicking the concepts below in the document, the last one does not unclick
