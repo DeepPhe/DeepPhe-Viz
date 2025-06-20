@@ -19,7 +19,7 @@ const PatientEpisodeTimeline = ({
                       patientJson,
                       reportId,
                       svgContainerId,
-                      setCurrDoc,
+                      setCurrDocId
                   }) => {
   const [json, setJson] = useState(null);
 
@@ -817,7 +817,7 @@ const PatientEpisodeTimeline = ({
               );
               console.log(docIndex);
               if (docIndex !== -1) {
-                setCurrDoc(docIndex);
+                setCurrDocId(docIndex);
               } else {
                 console.warn("❗Could not find document for reportId:", d.id);
               }
