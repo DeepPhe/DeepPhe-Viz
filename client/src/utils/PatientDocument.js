@@ -7,4 +7,8 @@ export class PatientDocument {
     getConceptsInDocument(concepts) {
         throw new Error('Method not implemented.');
     }
+
+    getDocumentText() {
+        throw new Error('Method not implemented.');
+    }
 }

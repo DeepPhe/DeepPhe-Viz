@@ -25,7 +25,7 @@ function Patient(props) {
     const {patientId} = useParams();
     const [summary, setSummary] = useState({});
     const [patientDocument, setPatientDocument] = useState({});
-    const [patientObject, setPatientObject] = useState({});
+    const [patientObject, setPatientObject] = useState(undefined);
     const [reportId, setReportId] = useState("");
     const [factId, setFactId] = useState({});
     const [gettingSummary, setGettingSummary] = useState(false);
@@ -62,7 +62,7 @@ function Patient(props) {
 
 
     const isLoading = () => {
-        return patientDocument !== {}
+        return patientDocument === undefined || patientObject === undefined || !processingDone;
     }
 
 
@@ -128,9 +128,9 @@ function Patient(props) {
     const getComponentEventRelationTimeline = () => {
         if (isLoading()) {
             console.log("Stuck here?");
-            return <div>Loading...</div>;
+            return <div>Loading Event Relation Table...</div>;
         }
-        console.log("loading...");
+        console.log("loading Event Relation Table...");
         const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
 
 
@@ -223,11 +223,11 @@ function Patient(props) {
     const getComponentDocumentViewer = () => {
 
         if (isLoading()) {
-            return <div></div>;
+            return <div>Loading Document Viewer...</div>;
         }
         const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
-        if (isEmpty(reportId) || !patientDocument?.mentions) {
-            return <div></div>;
+        if (isEmpty(reportId) || patientDocument.getMentionIdsInDocument() == 0) {
+            return <div>Report ID is empty or no mentions...</div>;
         }
 
         return (

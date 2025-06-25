@@ -299,7 +299,7 @@ export function DocumentViewer(props) {
                                     <GridItem md={12} id="mentions_container2" className="mentions_container2"
                                               style={{margin: 0, padding: 0}}>
                                         <ConceptPanel
-                                            mentions={patientDocument.mentions}
+                                            mentions={patientDocument.getMentionIdsInDocument()}
                                             concepts={concepts}
                                             getCheckboxGridVisible={getCheckboxGridVisible}
                                             setCheckboxGridVisible={setCheckboxGridVisible}

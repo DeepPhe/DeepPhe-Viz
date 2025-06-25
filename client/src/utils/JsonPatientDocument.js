@@ -17,4 +17,8 @@ export class JsonPatientDocument extends PatientDocument {
             concept.mentionIds?.some((m) => this.#mentionIdsInDocument.includes(m))
         );
     }
+
+    getDocumentText() {
+        return this.patientDocument.text;
+    }
 }

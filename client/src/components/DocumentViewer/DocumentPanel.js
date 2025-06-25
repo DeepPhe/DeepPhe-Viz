@@ -7,7 +7,7 @@ import {hexToRgba} from "./ColorUtils";
 
 export function DocumentPanel(props) {
   // const [doc, setDoc] = useState(props.doc);
-  const [docText, setDocText] = useState(props.doc.text);
+  const [docText, setDocText] = useState(props.doc.getDocumentText());
   const concepts = props.concepts;
   const clickedTerms = props.clickedTerms;
   const semanticGroups = props.semanticGroups;
@@ -46,7 +46,7 @@ export function DocumentPanel(props) {
       if (idx === -1) return [];
 
       return concepts[idx].mentionIds.filter((mentionId) =>
-          props.doc.mentions.some((m) => m.id === mentionId)
+          props.doc.getMentionIdsInDocument().some((m) => m.id === mentionId)
       );
     });
   };
