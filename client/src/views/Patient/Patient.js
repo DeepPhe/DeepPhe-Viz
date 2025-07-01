@@ -36,8 +36,6 @@ function Patient(props) {
     const [expandedEventRelation, setExpandedEventRelation] = useState(true); // initially open
     const [expandedPatientID, setExpandedPatientID] = useState(true); // initially open
     const [expandedCancerDetail, setExpandedCancerDetail] = useState(true); // initially open
-
-
     const conceptsPerDocumentRef = useRef({});
     const mentionIdsInDocumentRef = useRef({});
 
@@ -49,13 +47,16 @@ function Patient(props) {
     }, [patientObject]);
 
     useEffect(() => {
+        console.log("WHAT IS DOCUMENT ID", currDocId);
         if (hasDocuments(patientObject)) {
+            console.log("GETTTING PATIENT DOC", getPatientDocument(currDocId, patientObject));
             setPatientDocument(getPatientDocument(currDocId, patientObject));
         }
     }, [currDocId, patientObject]);
 
     useEffect(() => {
         if (!isLoading()) {
+            console.log(mentionIdsInDocumentRef.current);
             mentionIdsInDocumentRef.current = patientDocument.getMentionIdsInDocument();
         }
     }, [patientDocument]);
@@ -226,7 +227,9 @@ function Patient(props) {
             return <div>Loading Document Viewer...</div>;
         }
         const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
-        if (isEmpty(reportId) || patientDocument.getMentionIdsInDocument() == 0) {
+        console.log("CONCEPTS IN DOCUMENT", conceptsInDocument);
+        console.log("THSI IS PATIENT DOC", patientDocument);
+        if (isEmpty(reportId) || patientDocument.getMentionIdsInDocument() === 0) {
             return <div>Report ID is empty or no mentions...</div>;
         }
 

@@ -10,7 +10,7 @@ export function ConceptListPanel(props) {
     const confidence = props.confidence;
     const filteredConcepts = props.filteredConcepts;
     const setFilteredConcepts = props.setFilteredConcepts;
-    const doc = props.doc;
+    // const doc = props.doc;
     // const selectedOptions = props.selectedOptions;
     const clickedTerms = props.clickedTerms;
 

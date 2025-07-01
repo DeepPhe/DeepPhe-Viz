@@ -1,20 +1,22 @@
 import {PatientDocument} from "./PatientDocument";
 
 export class JsonPatientDocument extends PatientDocument {
-    #mentionIdsInDocument = []
+    #mentionsInDocument = []
     constructor(currDocId, patientObject) {
         super();
         this.patientDocument = patientObject.documents[currDocId];
-        this.#mentionIdsInDocument = this.patientDocument?.mentions?.map((m) => m.id) || [];
+        this.#mentionsInDocument = this.patientDocument?.mentions || [];
+        console.log("Mentions in document:", this.patientDocument?.mentions);
     }
 
     getMentionIdsInDocument = () => {
-        return this.#mentionIdsInDocument
+        return this.#mentionsInDocument
     }
 
     getConceptsInDocument = (concepts) => {
+        const mentionIdSet = new Set(this.#mentionsInDocument.map(m => m.id));
         return concepts.filter((concept) =>
-            concept.mentionIds?.some((m) => this.#mentionIdsInDocument.includes(m))
+            concept.mentionIds?.some((id) => mentionIdSet.has(id))
         );
     }
 

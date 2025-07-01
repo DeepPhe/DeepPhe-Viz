@@ -815,7 +815,7 @@ const PatientEpisodeTimeline = ({
               const docIndex = patientJson?.documents?.findIndex(
                   (doc) => d.id.startsWith(doc.name)
               );
-              console.log(docIndex);
+              console.log("FIND ME HERE", docIndex);
               if (docIndex !== -1) {
                 setCurrDocId(docIndex);
               } else {

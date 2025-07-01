@@ -516,7 +516,7 @@ export default function EventRelationTimeline (props) {
                 .range([0, svgWidth]);
 
             eventData.forEach(function (d) {
-                console.log("FORMATTED",d);
+                // console.log("FORMATTED",d);
                 const startDate = new Date(d.start);
                 const endDate = new Date(d.end);
 
@@ -1120,14 +1120,6 @@ export default function EventRelationTimeline (props) {
                 .attr("markerHeight", 2.5)
                 .attr("orient", "auto")
 
-
-            // leftArrow.append("path")
-            //     .attr("d", "M 12 0 L 0 6 L 12 12")
-            //     .attr("transform", "translate(1.5, 0)") // Shift just slightly left
-            //     .style("fill", "black")
-            //     .style("stroke", "black")
-            //     .style("stroke-width", 1.7);
-
             leftArrow.append("path")
                 .attr("class", "relation-icon")
                 .attr("d", "M 12 0 L 0 6 L 12 12")  // Left-pointing triangle
@@ -1143,19 +1135,27 @@ export default function EventRelationTimeline (props) {
                 .attr("markerHeight", 2.5)
                 .attr("orient", "auto")
 
-
-            // leftArrow.append("path")
-            //     .attr("d", "M 12 0 L 0 6 L 12 12")
-            //     .attr("transform", "translate(1.5, 0)") // Shift just slightly left
-            //     .style("fill", "black")
-            //     .style("stroke", "black")
-            //     .style("stroke-width", 1.7);
-
             selectedLeftArrow.append("path")
                 .attr("d", "M 12 0 L 0 6 L 12 12 Z")  // Close the triangle
                 .style("fill", "rgb(49, 163, 84)")
                 .style("stroke", "black")
                 .style("stroke-width", 1);
+
+            const verticalLineCap = defs.append("marker")
+                .attr("id", "verticalLineCap")
+                .attr("viewBox", "0 0 12 12")
+                .attr("refX", 6)   // Center horizontally
+                .attr("refY", 6)   // Center vertically
+                .attr("markerWidth", 2.5)
+                .attr("markerHeight", 2.5)
+                .attr("orient", "auto");
+
+            verticalLineCap.append("path")
+                .attr("d", "M6 0 L6 12") // vertical line from top to bottom
+                .style("fill", "rgb(49, 163, 84)")
+                .style("stroke", "black")
+                .style("stroke-width", 1);
+
 
 
             let mainReports = main_ER_svg
@@ -1172,9 +1172,6 @@ export default function EventRelationTimeline (props) {
                 laneOffset += groupLaneHeights[group] * 10 * 2; // double it if each lane is that tall
             });
 
-
-
-            // console.log(eventData);
             mainReports
                 .selectAll(".main_report_ER")
                 .data(
@@ -1196,7 +1193,7 @@ export default function EventRelationTimeline (props) {
                 .attr("class", "main_report_group")
                 .each(function (d) {
 
-                    console.log(d.conceptId);
+                    // console.log(d.conceptId);
                     const group = d3.select(this);
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
@@ -1245,12 +1242,10 @@ export default function EventRelationTimeline (props) {
                     occupiedSlots.set(y, slotList);
 
                     // Adjust line thickness if it's an overlap
-                    const lineThickness = 5;
                     const containsGroup = group.append("g").attr("class", "contains-group");
 
-                    if (d.relation1 === "After" && d.relation2 === "After"){
-                        //   >
-                        containsGroup.append("line")
+                    function drawRelationLine({ group, d, x1, x2, y, markerStart, markerEnd, handleClick }) {
+                        group.append("line")
                             .attr("class", "relation-outline")
                             .attr("x1", x1 - 1)
                             .attr("y1", y)
@@ -1261,8 +1256,7 @@ export default function EventRelationTimeline (props) {
                             .style("cursor", "pointer")
                             .attr("stroke-opacity", 0);
 
-                        // Append the line
-                        containsGroup.append("line")
+                        const mainLine = group.append("line")
                             .attr("class", "main_report_ER relation-icon")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-line-type", "range")
@@ -1270,19 +1264,27 @@ export default function EventRelationTimeline (props) {
                             .attr("x2", x2)
                             .attr("y1", y)
                             .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
+                            .attr("stroke", "rgb(49, 163, 84)")
+                            .attr("stroke-width", 5)
                             .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                            // .attr("marker-start", markerStart)
+                            // .attr("marker-end", markerEnd)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-
-                        containsGroup.append("rect")
+                            .on("click", (event) => handleClick(event, d))
+                            if (markerStart) {
+                                mainLine.attr("marker-start", markerStart);
+                            }
+                            if (markerEnd) {
+                                mainLine.attr("marker-end", markerEnd);
+                            }
+                            mainLine.append("title")
+                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                    }
+                    function drawSoloAfterRelation({group, d, x, y, handleClick}) {
+                        group.append("rect")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-rect-type", "after")
-                            .attr("x", x2 - 5) // Align with arrow
+                            .attr("x", x - 5) // Align with arrow
                             .attr("y", y - 5)
                             .attr("width", 10)
                             .attr("height", 10)
@@ -1291,89 +1293,27 @@ export default function EventRelationTimeline (props) {
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
                             .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
                     }
-                    if (d.relation1 === "After" && d.relation2 === "Overlaps"){
-                        // >------
-
-
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-
-                        // TODO: ADD A rightArrowLeft option >----- in defs
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
+                    function drawSoloBeforeRelation({group, d, x, y, handleClick}) {
+                        group.append("rect")
                             .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
-                            .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
+                            .attr("data-rect-type", "before")
+                            .attr("x", x - 10) // Align with arrow
+                            .attr("y", y - 5)
+                            .attr("width", 10)
+                            .attr("height", 10)
+                            .style("fill", "transparent")
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
                             .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
                     }
-
-                    // TODO: NO AFTER , ON to test on
-                    if (d.relation1 === "After" && d.relation2 === "On"){
-                        // >---|
-
-                        containsGroup.append("line")
+                    function drawOnRelation({group, d, x, y, lineType, handleClick}) {
+                        group.append("line")
                             .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x2 + 2)
+                            .attr("x1", x + 2)
                             .attr("y1", y - 7)
-                            .attr("x2", x2 + 2)
+                            .attr("x2", x + 2)
                             .attr("y2", y + 7)
                             .attr("stroke", "black")
                             .attr("stroke-width", 4)
@@ -1383,7 +1323,7 @@ export default function EventRelationTimeline (props) {
                         containsGroup.append("line")
                             .attr("class", "main_report_contains relation-icon")
                             .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x2-only")
+                            .attr("data-line-type", lineType)
                             // .attr("x1", 200)
                             // .attr("x2", 200)
                             .attr("y1", y - 6) // Extends above
@@ -1396,500 +1336,729 @@ export default function EventRelationTimeline (props) {
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
                             .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
                     }
 
+                    if (d.relation1 === "After" && d.relation2 === "After"){
+                        //   >
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            handleClick
+                        });
+                        drawSoloAfterRelation({
+                            group:containsGroup,
+                            d,
+                            x: x2,
+                            y,
+                            handleClick});
+
+                    }
+                    if (d.relation1 === "After" && d.relation2 === "Overlaps"){
+                        // >------
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart: "url(#rightArrow)",
+                            markerEnd: "url(#rightCap)",
+                            handleClick});
+
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        //
+                        // // TODO: ADD A rightArrowLeft option >----- in defs
+                        // // Green visible line (drawn second, on top)
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                        //     .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+
+                    }
+                    // TODO: NO AFTER , ON to test on
+                    if (d.relation1 === "After" && d.relation2 === "On"){
+                        // >---|
+                        drawRelationLine({group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart: "url(#rightArrow)",
+                            markerEnd: "url(#verticalLineCap)",
+                            handleClick});
+
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        //
+                        // // Green visible line (drawn second, on top)
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        //
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x2 + 2)
+                        //     .attr("y1", y - 7)
+                        //     .attr("x2", x2 + 2)
+                        //     .attr("y2", y + 7)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 4)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_contains relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "x2-only")
+                        //     // .attr("x1", 200)
+                        //     // .attr("x2", 200)
+                        //     .attr("y1", y - 6) // Extends above
+                        //     .attr("y2", y + 6) // Extends below
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", 3)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+
+                    }
                     if (d.relation1 === "On" && d.relation2 === "On"){
                         // |----|
 
                         if (d.formattedStartDate === d.formattedEndDate){
-                            containsGroup.append("line")
-                                .attr("class", "relation-outline")
-                                .attr("x1", x1 - 2)
-                                .attr("y1", y - 7)
-                                .attr("x2", x1 - 2)
-                                .attr("y2", y + 7)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 4)
-                                .style("cursor", "pointer")
-                                .attr("stroke-opacity", 0);
 
-                            containsGroup.append("line")
-                                .attr("class", "main_report_contains relation-icon")
-                                .attr("data-concept-id", d.conceptId)
-                                .attr("data-line-type", "x1-only")
-                                // .attr("x1",  50)
-                                // .attr("x2",  60)
-                                .attr("y1", y - 6) // Extends above
-                                .attr("y2", y + 6) // Extends below
-                                .attr("stroke", 'rgb(49, 163, 84)')
-                                .attr("stroke-width", 3)
-                                .attr("stroke-opacity", 0.75)
-                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d))
-                                .append("title")
-                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            drawOnRelation({
+                               group: containsGroup,
+                               d,
+                               x: x1,
+                               y,
+                               lineType: "x1-only",
+                               handleClick});
+
+                            // containsGroup.append("line")
+                            //     .attr("class", "relation-outline")
+                            //     .attr("x1", x1 - 2)
+                            //     .attr("y1", y - 7)
+                            //     .attr("x2", x1 - 2)
+                            //     .attr("y2", y + 7)
+                            //     .attr("stroke", "black")
+                            //     .attr("stroke-width", 4)
+                            //     .style("cursor", "pointer")
+                            //     .attr("stroke-opacity", 0);
+                            //
+                            // containsGroup.append("line")
+                            //     .attr("class", "main_report_contains relation-icon")
+                            //     .attr("data-concept-id", d.conceptId)
+                            //     .attr("data-line-type", "x1-only")
+                            //     // .attr("x1",  50)
+                            //     // .attr("x2",  60)
+                            //     .attr("y1", y - 6) // Extends above
+                            //     .attr("y2", y + 6) // Extends below
+                            //     .attr("stroke", 'rgb(49, 163, 84)')
+                            //     .attr("stroke-width", 3)
+                            //     .attr("stroke-opacity", 0.75)
+                            //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            //     .style("cursor", "pointer")
+                            //     .on("click", (event) => handleClick(event, d))
+                            //     .append("title")
+                            //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                         }
                         else{
-                            containsGroup.append("line")
-                                .attr("class", "relation-outline")
-                                .attr("x1", x1 - 2)
-                                .attr("y1", y - 7)
-                                .attr("x2", x1 - 2)
-                                .attr("y2", y + 7)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 4)
-                                .style("cursor", "pointer")
-                                .attr("stroke-opacity", 0);
 
-                            containsGroup.append("line")
-                                .attr("class", "main_report_contains relation-icon")
-                                .attr("data-concept-id", d.conceptId)
-                                .attr("data-line-type", "x1-only")
-                                // .attr("x1",  50)
-                                // .attr("x2",  60)
-                                .attr("y1", y - 6) // Extends above
-                                .attr("y2", y + 6) // Extends below
-                                .attr("stroke", 'rgb(49, 163, 84)')
-                                .attr("stroke-width", 3)
-                                .attr("stroke-opacity", 0.75)
-                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d))
-                                .append("title")
-                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
-                            containsGroup.append("line")
-                                .attr("class", "relation-outline")
-                                .attr("x1", x2 + 2)
-                                .attr("y1", y - 7)
-                                .attr("x2", x2 + 2)
-                                .attr("y2", y + 7)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 4)
-                                .style("cursor", "pointer")
-                                .attr("stroke-opacity", 0);
-
-                            containsGroup.append("line")
-                                .attr("class", "main_report_contains relation-icon")
-                                .attr("data-concept-id", d.conceptId)
-                                .attr("data-line-type", "x2-only")
-                                // .attr("x1", 200)
-                                // .attr("x2", 200)
-                                .attr("y1", y - 6) // Extends above
-                                .attr("y2", y + 6) // Extends below
-                                .attr("stroke", 'rgb(49, 163, 84)')
-                                .attr("stroke-width", 3)
-                                .attr("stroke-opacity", 0.75)
-                                // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d))
-                                .append("title")
-                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
-                            containsGroup.append("line")
-                                .attr("class", "relation-outline")
-                                .attr("x1", x1)
-                                .attr("y1", y)
-                                .attr("x2", x2)
-                                .attr("y2", y)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 7)
-                                .style("cursor", "pointer")
-                                .attr("stroke-opacity", 0);
-
-
-                            // Green visible line (drawn second, on top)
-                            containsGroup.append("line")
-                                .attr("class", "main_report_ER relation-icon")
-                                .attr("data-concept-id", d.conceptId)
-                                .attr("data-line-type", "range")
-                                .attr("x1", x1)
-                                .attr("x2", x2)
-                                .attr("y1", y)
-                                .attr("y2", y)
-                                .attr("stroke", 'rgb(49, 163, 84)')
-                                .attr("stroke-width", lineThickness)
-                                .attr("stroke-opacity", 0.75)
-                                .style("cursor", "pointer")
-                                .on("click", (event) => handleClick(event, d))
-                                .append("title")
-                                .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            drawRelationLine({
+                                group: containsGroup,
+                                d,
+                                x1,
+                                x2,
+                                y,
+                                markerStart: "url(#verticalLineCap)",
+                                markerEnd: "url(#verticalLineCap)",
+                                handleClick});
+                            // containsGroup.append("line")
+                            //     .attr("class", "relation-outline")
+                            //     .attr("x1", x1 - 2)
+                            //     .attr("y1", y - 7)
+                            //     .attr("x2", x1 - 2)
+                            //     .attr("y2", y + 7)
+                            //     .attr("stroke", "black")
+                            //     .attr("stroke-width", 4)
+                            //     .style("cursor", "pointer")
+                            //     .attr("stroke-opacity", 0);
+                            //
+                            // containsGroup.append("line")
+                            //     .attr("class", "main_report_contains relation-icon")
+                            //     .attr("data-concept-id", d.conceptId)
+                            //     .attr("data-line-type", "x1-only")
+                            //     // .attr("x1",  50)
+                            //     // .attr("x2",  60)
+                            //     .attr("y1", y - 6) // Extends above
+                            //     .attr("y2", y + 6) // Extends below
+                            //     .attr("stroke", 'rgb(49, 163, 84)')
+                            //     .attr("stroke-width", 3)
+                            //     .attr("stroke-opacity", 0.75)
+                            //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            //     .style("cursor", "pointer")
+                            //     .on("click", (event) => handleClick(event, d))
+                            //     .append("title")
+                            //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            //
+                            //
+                            // containsGroup.append("line")
+                            //     .attr("class", "relation-outline")
+                            //     .attr("x1", x2 + 2)
+                            //     .attr("y1", y - 7)
+                            //     .attr("x2", x2 + 2)
+                            //     .attr("y2", y + 7)
+                            //     .attr("stroke", "black")
+                            //     .attr("stroke-width", 4)
+                            //     .style("cursor", "pointer")
+                            //     .attr("stroke-opacity", 0);
+                            //
+                            // containsGroup.append("line")
+                            //     .attr("class", "main_report_contains relation-icon")
+                            //     .attr("data-concept-id", d.conceptId)
+                            //     .attr("data-line-type", "x2-only")
+                            //     // .attr("x1", 200)
+                            //     // .attr("x2", 200)
+                            //     .attr("y1", y - 6) // Extends above
+                            //     .attr("y2", y + 6) // Extends below
+                            //     .attr("stroke", 'rgb(49, 163, 84)')
+                            //     .attr("stroke-width", 3)
+                            //     .attr("stroke-opacity", 0.75)
+                            //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                            //     .style("cursor", "pointer")
+                            //     .on("click", (event) => handleClick(event, d))
+                            //     .append("title")
+                            //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            //
+                            //
+                            // containsGroup.append("line")
+                            //     .attr("class", "relation-outline")
+                            //     .attr("x1", x1)
+                            //     .attr("y1", y)
+                            //     .attr("x2", x2)
+                            //     .attr("y2", y)
+                            //     .attr("stroke", "black")
+                            //     .attr("stroke-width", 7)
+                            //     .style("cursor", "pointer")
+                            //     .attr("stroke-opacity", 0);
+                            //
+                            //
+                            // // Green visible line (drawn second, on top)
+                            // containsGroup.append("line")
+                            //     .attr("class", "main_report_ER relation-icon")
+                            //     .attr("data-concept-id", d.conceptId)
+                            //     .attr("data-line-type", "range")
+                            //     .attr("x1", x1)
+                            //     .attr("x2", x2)
+                            //     .attr("y1", y)
+                            //     .attr("y2", y)
+                            //     .attr("stroke", 'rgb(49, 163, 84)')
+                            //     .attr("stroke-width", lineThickness)
+                            //     .attr("stroke-opacity", 0.75)
+                            //     .style("cursor", "pointer")
+                            //     .on("click", (event) => handleClick(event, d))
+                            //     .append("title")
+                            //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                         }
                     }
-
-
-
                     if (d.relation1 === "On" && d.relation2 === "Before"){
                         // |-----<
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1 - 2)
-                            .attr("y1", y - 7)
-                            .attr("x2", x1 - 2)
-                            .attr("y2", y + 7)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 4)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
 
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x1-only")
-                            // .attr("x1",  50)
-                            // .attr("x2",  60)
-                            .attr("y1", y - 6) // Extends above
-                            .attr("y2", y + 6) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart: "url(#verticalLineCap)",
+                            markerEnd: "url(#leftArrow)",
+                            handleClick});
 
-
-                        containsGroup.append("line")
-                                .attr("class", "relation-outline")
-                                .attr("x1", x1)
-                                .attr("y1", y)
-                                .attr("x2", x2)
-                                .attr("y2", y)
-                                .attr("stroke", "black")
-                                .attr("stroke-width", 7)
-                                .style("cursor", "pointer")
-                                .attr("stroke-opacity", 0);
-
-
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1 - 2)
+                        //     .attr("y1", y - 7)
+                        //     .attr("x2", x1 - 2)
+                        //     .attr("y2", y + 7)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 4)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_contains relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "x1-only")
+                        //     // .attr("x1",  50)
+                        //     // .attr("x2",  60)
+                        //     .attr("y1", y - 6) // Extends above
+                        //     .attr("y2", y + 6) // Extends below
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", 3)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        //
+                        //
+                        // containsGroup.append("line")
+                        //         .attr("class", "relation-outline")
+                        //         .attr("x1", x1)
+                        //         .attr("y1", y)
+                        //         .attr("x2", x2)
+                        //         .attr("y2", y)
+                        //         .attr("stroke", "black")
+                        //         .attr("stroke-width", 7)
+                        //         .style("cursor", "pointer")
+                        //         .attr("stroke-opacity", 0);
+                        //
+                        //
+                        // // Green visible line (drawn second, on top)
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "On" && d.relation2 === "Overlaps"){
                         // |----
 
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1 - 2)
-                            .attr("y1", y - 7)
-                            .attr("x2", x1 - 2)
-                            .attr("y2", y + 7)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 4)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart: "url(#verticalLineCap)",
+                            markerEnd: "url(#rightCap)",
+                            handleClick})
 
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x1-only")
-                            // .attr("x1",  50)
-                            // .attr("x2",  60)
-                            .attr("y1", y - 6) // Extends above
-                            .attr("y2", y + 6) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1 - 2)
+                        //     .attr("y1", y - 7)
+                        //     .attr("x2", x1 - 2)
+                        //     .attr("y2", y + 7)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 4)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_contains relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "x1-only")
+                        //     // .attr("x1",  50)
+                        //     // .attr("x2",  60)
+                        //     .attr("y1", y - 6) // Extends above
+                        //     .attr("y2", y + 6) // Extends below
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", 3)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        //
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // // Green visible line (drawn second, on top)
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
-
                     if (d.relation1 === "After" && d.relation2 === "Before"){
                         // >---<
 
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart : "url(#rightArrow)",
+                            markerEnd : "url(#leftArrow)",
+                            handleClick});
 
-
-                        // Green visible line (drawn second, on top)
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
-                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        //
+                        // // Green visible line (drawn second, on top)
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-start", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                        //     .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
-
                     if (d.relation1 === "Before" && d.relation2 === "Before"){
                         //    <
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            handleClick
+                        })
 
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1 - 1)
-                            .attr("y1", y)
-                            .attr("x2", x2 + 1)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-                        // Append the line
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation1 === "After" ? "url(#rightArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d));
-
-                        containsGroup.append("rect")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-rect-type", "before")
-                            .attr("x", x1 - 10) // Align with arrow
-                            .attr("y", y - 5)
-                            .attr("width", 10)
-                            .attr("height", 10)
-                            .style("fill", "transparent")
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        drawSoloBeforeRelation({
+                            group: containsGroup,
+                            d,
+                            x : x1,
+                            y,
+                            handleClick})
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1 - 1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2 + 1)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // // Append the line
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
+                        //     .attr("marker-end", d.relation1 === "After" ? "url(#rightArrow)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d));
+                        //
+                        // containsGroup.append("rect")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-rect-type", "before")
+                        //     .attr("x", x1 - 10) // Align with arrow
+                        //     .attr("y", y - 5)
+                        //     .attr("width", 10)
+                        //     .attr("height", 10)
+                        //     .style("fill", "transparent")
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "Before" && d.relation2 === "Overlaps"){
                         // <-------
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
-                            .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart : "url(#leftArrow)",
+                            markerEnd : "url(#rightCap)",
+                            handleClick});
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-start", d.relation1 === "Before" ? "url(#leftArrow)" : null)
+                        //     .attr("marker-end", d.relation2 === "Overlaps" ? "url(#rightCap)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
                     if (d.relation1 === "Overlaps" && d.relation2 === "Before"){
                         // --------<
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .attr("stroke-dasharray", "4,2")
-                            .attr("marker-start", d.relation1 === "Overlaps" ? "url(#leftCap)" : null)
-                            .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart : "url(#leftCap)",
+                            markerEnd : "url(#leftArrow)",
+                            handleClick});
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .attr("stroke-dasharray", "4,2")
+                        //     .attr("marker-start", d.relation1 === "Overlaps" ? "url(#leftCap)" : null)
+                        //     .attr("marker-end", d.relation2 === "Before" ? "url(#leftArrow)" : null)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
                     }
-
                     if (d.relation1 === "Overlaps" && d.relation2 === "On"){
                         // -----|
 
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1)
-                            .attr("y1", y)
-                            .attr("x2", x2)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart : "url(#leftCap)",
+                            markerEnd : "url(#verticalLineCap)",
+                            handleClick});
 
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1)
-                            .attr("x2", x2)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
-
-
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x2 + 2)
-                            .attr("y1", y - 7)
-                            .attr("x2", x2 + 2)
-                            .attr("y2", y + 7)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 4)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_contains relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "x2-only")
-                            // .attr("x1", 200)
-                            // .attr("x2", 200)
-                            .attr("y1", y - 6) // Extends above
-                            .attr("y2", y + 6) // Extends below
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
-                            .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1)
+                        //     .attr("x2", x2)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        //
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x2 + 2)
+                        //     .attr("y1", y - 7)
+                        //     .attr("x2", x2 + 2)
+                        //     .attr("y2", y + 7)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 4)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_contains relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "x2-only")
+                        //     // .attr("x1", 200)
+                        //     // .attr("x2", 200)
+                        //     .attr("y1", y - 6) // Extends above
+                        //     .attr("y2", y + 6) // Extends below
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", 3)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     // .attr("stroke-solid", "4 2") // Dashed line for clarity
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
 
 
                     }
-
                     if (d.relation1 === "Overlaps" && d.relation2 === "Overlaps"){
                         // ------
-                        containsGroup.append("line")
-                            .attr("class", "relation-outline")
-                            .attr("x1", x1 - 10)
-                            .attr("y1", y)
-                            .attr("x2", x2 + 10)
-                            .attr("y2", y)
-                            .attr("stroke", "black")
-                            .attr("stroke-width", 7)
-                            .style("cursor", "pointer")
-                            .attr("stroke-opacity", 0);
-
-                        containsGroup.append("line")
-                            .attr("class", "main_report_ER relation-icon")
-                            .attr("data-concept-id", d.conceptId)
-                            .attr("data-line-type", "range")
-                            .attr("x1", x1 - 10)
-                            .attr("x2", x2 + 10)
-                            .attr("y1", y)
-                            .attr("y2", y)
-                            .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", lineThickness)
-                            .attr("stroke-opacity", 0.75)
-                            .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
-                            .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                        drawRelationLine({
+                            group: containsGroup,
+                            d,
+                            x1,
+                            x2,
+                            y,
+                            markerStart: "url(#leftCap)",
+                            markerEnd: "url(#rightCap)"
+                        })
+                        // containsGroup.append("line")
+                        //     .attr("class", "relation-outline")
+                        //     .attr("x1", x1 - 10)
+                        //     .attr("y1", y)
+                        //     .attr("x2", x2 + 10)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", "black")
+                        //     .attr("stroke-width", 7)
+                        //     .style("cursor", "pointer")
+                        //     .attr("stroke-opacity", 0);
+                        //
+                        // containsGroup.append("line")
+                        //     .attr("class", "main_report_ER relation-icon")
+                        //     .attr("data-concept-id", d.conceptId)
+                        //     .attr("data-line-type", "range")
+                        //     .attr("x1", x1 - 10)
+                        //     .attr("x2", x2 + 10)
+                        //     .attr("y1", y)
+                        //     .attr("y2", y)
+                        //     .attr("stroke", 'rgb(49, 163, 84)')
+                        //     .attr("stroke-width", lineThickness)
+                        //     .attr("stroke-opacity", 0.75)
+                        //     .style("cursor", "pointer")
+                        //     .on("click", (event) => handleClick(event, d))
+                        //     .append("title")
+                        //     .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
                     }
-
                 });
 
 
