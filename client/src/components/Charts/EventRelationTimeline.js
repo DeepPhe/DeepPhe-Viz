@@ -371,17 +371,17 @@ export default function EventRelationTimeline (props) {
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
         // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
         let verticalPositions = {};
-        console.log("svgContainerId", svgContainerId);
-        console.log("patientId", patientId);
-        console.log("conceptId", conceptId);
-        console.log("startRelation", startRelation);
-        console.log("startDate", startDate);
-        console.log("endRelation", endRelation);
-        console.log("endDate", endDate);
-        console.log("dpheGroup", dpheGroup);
-        console.log("laneGroup", laneGroup);
-        console.log("dpheGroupCount", dpheGroupCount);
-        console.log("laneGroupCount", laneGroupCount);
+        // console.log("svgContainerId", svgContainerId);
+        // console.log("patientId", patientId);
+        // console.log("conceptId", conceptId);
+        // console.log("startRelation", startRelation);
+        // console.log("startDate", startDate);
+        // console.log("endRelation", endRelation);
+        // console.log("endDate", endDate);
+        // console.log("dpheGroup", dpheGroup);
+        // console.log("laneGroup", laneGroup);
+        // console.log("dpheGroupCount", dpheGroupCount);
+        // console.log("laneGroupCount", laneGroupCount);
         // Vertical max counts from top to bottom
         // This is used to decide the domain range of mainY and overviewY
 
@@ -535,16 +535,25 @@ export default function EventRelationTimeline (props) {
                 const isPoint = ([start, end]) => start === end;
 
 
-                const checkOverlap = (a, b) => {
-                    if (isPoint(a) && isPoint(b)) {
-                        return a[0] === b[0];
-                    } else if (isPoint(a)) {
-                        return b[0] <= a[0] && a[0] <= b[1];
-                    } else if (isPoint(b)) {
-                        return a[0] <= b[0] && b[0] <= a[1];
-                    } else {
-                        return Math.max(a[0], b[0]) < Math.min(a[1], b[1]);
-                    }
+                // const checkOverlap = (a, b) => {
+                //     if (isPoint(a) && isPoint(b)) {
+                //         return a[0] === b[0];
+                //     } else if (isPoint(a)) {
+                //         return b[0] <= a[0] && a[0] <= b[1];
+                //     } else if (isPoint(b)) {
+                //         return a[0] <= b[0] && b[0] <= a[1];
+                //     } else {
+                //         return Math.max(a[0], b[0]) < Math.min(a[1], b[1]);
+                //     }
+                // };
+
+                const pixelPadding = 8;
+                const checkOverlapWithPadding = (a, b, padding) => {
+                    const aStart = a[0] - padding;
+                    const aEnd = a[1] + padding;
+                    const bStart = b[0] - padding;
+                    const bEnd = b[1] + padding;
+                    return Math.max(aStart, bStart) <= Math.min(aEnd, bEnd);
                 };
 
                 eventsInGroup.forEach(d => {
@@ -556,7 +565,7 @@ export default function EventRelationTimeline (props) {
                     while (true) {
                         if (!slots[row]) slots[row] = [];
 
-                        const hasOverlap = slots[row].some(slot => checkOverlap([x1, x2], slot));
+                        const hasOverlap = slots[row].some(slot => checkOverlapWithPadding([x1, x2], slot, pixelPadding));
 
                         if (!hasOverlap) {
                             slots[row].push([x1, x2]);
@@ -785,12 +794,18 @@ export default function EventRelationTimeline (props) {
 
                     // Update report lines
                     group.selectAll('line[data-line-type="x1-only"]')
-                        .attr("x1", x1 - 2)
-                        .attr("x2", x1 - 2);
+                        .attr("x1", x1)
+                        .attr("x2", x1);
 
                     group.selectAll('line[data-line-type="x2-only"]')
-                        .attr("x1", x2 + 2)
-                        .attr("x2", x2 + 2);
+                        .attr("x1", x2)
+                        .attr("x2", x2);
+
+                    group.selectAll('circle[data-marker-type="start"]')
+                        .attr("cx", x1);
+
+                    group.selectAll('circle[data-marker-type="end"]')
+                        .attr("cx", x2)
 
                     group.selectAll('line[data-line-type="range"]')
                         .attr("x1", x1)
@@ -950,8 +965,6 @@ export default function EventRelationTimeline (props) {
             // Report types texts
             const labelPositions = []; // Store the y-coordinates
             let previousY = 0;
-            console.log("LANEGROUP:", laneGroup);
-            console.log(laneGroupCount);
             const labelGroup = main_ER_svg
                 .append("g")
                 .selectAll(".report_type_label_group")
@@ -1013,53 +1026,21 @@ export default function EventRelationTimeline (props) {
                 .attr("y1", d => d.endY) // or just d.y if you want lines at the start of each group
                 .attr("y2", d => d.endY);
 
-            const tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "custom-tooltip")
-                .style("position", "absolute")
-                .style("padding", "6px 10px")
-                .style("background", "rgba(0,0,0,0.75)")
-                .style("color", "#fff")
-                .style("border-radius", "4px")
-                .style("font-size", "12px")
-                .style("pointer-events", "none")
-                .style("opacity", 0)
-                .style("z-index", 1000);
+            // const tooltip = d3.select("body")
+            //     .append("div")
+            //     .attr("class", "custom-tooltip")
+            //     .style("position", "absolute")
+            //     .style("padding", "6px 10px")
+            //     .style("background", "rgba(0,0,0,0.75)")
+            //     .style("color", "#fff")
+            //     .style("border-radius", "4px")
+            //     .style("font-size", "12px")
+            //     .style("pointer-events", "none")
+            //     .style("opacity", 0)
+            //     .style("z-index", 1000);
 
             const defs = d3.select("svg").append("defs");
 
-
-            // Define the vertical line markers
-            // defs.append("marker")
-            //     .attr("id", "verticalStart")
-            //     .attr("viewBox", "0 0 10 10")
-            //     .attr("refX", 10)  // Position at the middle of the line
-            //     .attr("refY", 5)  // Position at the middle of the line
-            //     .attr("markerWidth", 4)
-            //     .attr("markerHeight", 8)
-            //     .attr("orient", "auto")
-            //     .append("line")
-            //     .attr("x1", 0)
-            //     .attr("x2", 0)
-            //     .attr("y1", 0)
-            //     .attr("y2", 15)
-            //     .style("stroke", "rgb(49, 163, 84)")
-            //     .style("stroke-width", 10)
-            //     .style("pointer-events", "none"); // Ensure the line is above everything else
-
-
-            // Define the right arrow marker
-            // defs.append("marker")
-            //     .attr("id", "rightArrow")
-            //     .attr("viewBox", "0 0 12 12")  // Marker size
-            //     .attr("refX", 2)  // Position of the marker on the line
-            //     .attr("refY", 6)
-            //     .attr("markerWidth", 4)
-            //     .attr("markerHeight", 4)
-            //     .attr("orient", "auto")
-            //     .append("path")
-            //     .attr("d", "M 0 0 L 12 6 L 0 12")  // Right-pointing triangle
-            //     .style("fill", "rgb(49, 163, 84)");
             const rightArrow = defs.append("marker")
                 .attr("id", "rightArrow")
                 .attr("class", "relation-icon")
@@ -1095,14 +1076,36 @@ export default function EventRelationTimeline (props) {
             const rightCap = defs.append("marker")
                 .attr("id", "rightCap")
                 .attr("viewBox", "0 0 20 12")
-                .attr("refX", 8)              // Position at the end of the line
+                .attr("refX", 8)
                 .attr("refY", 6)
                 .attr("markerWidth", 6)
                 .attr("markerHeight", 4)
                 .attr("orient", "auto");
 
             rightCap.append("path")
-                .attr("d", "M 0 6 L 8 6") // vertical line segment centered at right end
+                .attr("d", "M 0 6 L 8 6")
+                .style("stroke", "rgb(49, 163, 84)")
+                .style("stroke-width", 4);
+
+
+            const selectedRightCap = defs.append("marker")
+                .attr("id", "selectedRightCap")
+                .attr("viewBox", "0 0 20 12")
+                .attr("refX", 8)
+                .attr("refY", 6)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 4)
+                .attr("orient", "auto");
+
+            // Add black outline stroke (slightly wider)
+            selectedRightCap.append("path")
+                .attr("d", "M 0 6 L 8 6")
+                .style("stroke", "black")
+                .style("stroke-width", 6); // wider for outline
+
+            // Add green stroke on top
+            selectedRightCap.append("path")
+                .attr("d", "M 0 6 L 8 6")
                 .style("stroke", "rgb(49, 163, 84)")
                 .style("stroke-width", 4);
 
@@ -1117,6 +1120,27 @@ export default function EventRelationTimeline (props) {
 
             leftCap.append("path")
                 .attr("d", "M 12 6 L 20 6")     // horizontal line extending leftward from the line start
+                .style("stroke", "rgb(49, 163, 84)")
+                .style("stroke-width", 4);
+
+            const selectedLeftCap = defs.append("marker")
+                .attr("id", "selectedLeftCap")
+                .attr("viewBox", "0 0 20 12")
+                .attr("refX", 12)  // Position at the start of the line
+                .attr("refY", 6)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 4)
+                .attr("orient", "auto");
+
+            // Black outline (wider stroke underneath)
+            selectedLeftCap.append("path")
+                .attr("d", "M 12 6 L 20 6")
+                .style("stroke", "black")
+                .style("stroke-width", 6);
+
+            // Green line on top
+            selectedLeftCap.append("path")
+                .attr("d", "M 12 6 L 20 6")
                 .style("stroke", "rgb(49, 163, 84)")
                 .style("stroke-width", 4);
 
@@ -1170,12 +1194,34 @@ export default function EventRelationTimeline (props) {
                 .attr("stroke-width", 3)
                 .attr("stroke-opacity", 0.75);
 
+            const selectedVerticalLineCap = defs.append("marker")
+                .attr("id", "selectedVerticalLineCap")
+                .attr("viewBox", "0 0 12 12")
+                .attr("refX", 6)   // Center horizontally
+                .attr("refY", 6)   // Center vertically
+                .attr("markerWidth", 2.5)
+                .attr("markerHeight", 2.5)
+                .attr("orient", "auto");
+
+            // Black stroke underneath (wider for outline)
+            selectedVerticalLineCap.append("path")
+                .attr("d", "M6 0 L6 12")
+                .style("stroke", "black")
+                .style("stroke-width", 5) // slightly wider than green
+                .style("stroke-opacity", 1);
+
+            // Green stroke on top
+            selectedVerticalLineCap.append("path")
+                .attr("d", "M6 0 L6 12")
+                .style("stroke", "rgb(49, 163, 84)")
+                .style("stroke-width", 3)
+                .style("stroke-opacity", 0.75);
+
 
 
             let mainReports = main_ER_svg
                 .append("g")
                 .attr("clip-path", "url(#secondary_area_clip)")
-                // .attr("transform", "translate(0, 10)");
 
 
             const occupiedSlots = new Map(); // Key: base Y, Value: array of [x1, x2] pairs
@@ -1216,13 +1262,21 @@ export default function EventRelationTimeline (props) {
                     let y = baseY;
                     const buffer = 15;
 
-                    const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
+                    // const checkOverlap = (a, b) => Math.max(a[0], b[0]) <= Math.min(a[1], b[1]);
 
+                    const checkOverlapWithPadding = (a, b, padding) => {
+                        const aStart = a[0] - padding;
+                        const aEnd = a[1] + padding;
+                        const bStart = b[0] - padding;
+                        const bEnd = b[1] + padding;
+                        return Math.max(aStart, bStart) <= Math.min(aEnd, bEnd);
+                    };
 
+                    const pixelPadding = 8; // or however much buffer you want
 
                     // Check if base position is available first
                     let slotList = occupiedSlots.get(baseY) || [];
-                    if (!slotList.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                    if (!slotList.some(slot => checkOverlapWithPadding([d.formattedStartDate, d.formattedEndDate], slot, pixelPadding))) {
                         y = baseY;
                     } else {
                         // Search for available slot by alternating up and down
@@ -1233,14 +1287,14 @@ export default function EventRelationTimeline (props) {
                             // Try below first
                             let candidateY = baseY + offset;
                             let candidateSlots = occupiedSlots.get(candidateY) || [];
-                            if (!candidateSlots.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                            if (!candidateSlots.some(slot => checkOverlapWithPadding([d.formattedStartDate, d.formattedEndDate], slot, pixelPadding))) {
                                 y = candidateY;
                                 found = true;
                             } else {
                                 // Try above
                                 candidateY = baseY - offset;
                                 candidateSlots = occupiedSlots.get(candidateY) || [];
-                                if (!candidateSlots.some(slot => checkOverlap([d.formattedStartDate, d.formattedEndDate], slot))) {
+                                if (!candidateSlots.some(slot => checkOverlapWithPadding([d.formattedStartDate, d.formattedEndDate], slot, pixelPadding))) {
                                     y = candidateY;
                                     found = true;
                                 } else {
@@ -1262,6 +1316,7 @@ export default function EventRelationTimeline (props) {
                     function drawRelationLine({ group, d, x1, x2, y, markerStart, markerEnd, handleClick }) {
                         group.append("line")
                             .attr("class", "relation-outline")
+                            .attr("data-line-type", "range")
                             .attr("x1", x1 - 1)
                             .attr("y1", y)
                             .attr("x2", x2 + 1)
@@ -1282,8 +1337,6 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke", "rgb(49, 163, 84)")
                             .attr("stroke-width", 5)
                             .attr("stroke-opacity", 0.75)
-                            // .attr("marker-start", markerStart)
-                            // .attr("marker-end", markerEnd)
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d))
                             if (markerStart) {
@@ -1293,6 +1346,31 @@ export default function EventRelationTimeline (props) {
                                 mainLine.attr("marker-end", markerEnd);
                             }
                             mainLine.append("title")
+                            .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
+
+
+                        group.append("circle")
+                            .attr("cx", x2)
+                            .attr("cy", y)
+                            .attr("data-marker-type", "end")
+                            .attr("r", 8) // increase as needed to ensure easy hover/click
+                            .style("fill", "transparent")
+                            .style("cursor", "pointer")
+                            .attr("pointer-events", "all")
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
+                            .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
+
+                        group.append("circle")
+                            .attr("cx", x1)
+                            .attr("cy", y)
+                            .attr("data-marker-type", "start")
+                            .attr("r", 8) // increase as needed to ensure easy hover/click
+                            .style("fill", "transparent")
+                            .style("cursor", "pointer")
+                            .attr("pointer-events", "all")
+                            .on("click", (event) => handleClick(event, d))
+                            .append("title")
                             .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
                     }
                     function drawSoloAfterRelation({group, d, x, y, handleClick}) {
@@ -1326,27 +1404,25 @@ export default function EventRelationTimeline (props) {
                     function drawOnRelation({group, d, x, y, lineType, handleClick}) {
                         group.append("line")
                             .attr("class", "relation-outline")
-                            .attr("x1", x + 2)
+                            .attr("data-line-type", lineType)
+                            .attr("x1", x)
                             .attr("y1", y - 7)
-                            .attr("x2", x + 2)
+                            .attr("x2", x)
                             .attr("y2", y + 7)
                             .attr("stroke", "black")
-                            .attr("stroke-width", 4)
+                            .attr("stroke-width", 5)
                             .style("cursor", "pointer")
                             .attr("stroke-opacity", 0);
 
-                        containsGroup.append("line")
+                        group.append("line")
                             .attr("class", "main_report_contains relation-icon")
                             .attr("data-concept-id", d.conceptId)
                             .attr("data-line-type", lineType)
-                            // .attr("x1", 200)
-                            // .attr("x2", 200)
                             .attr("y1", y - 6) // Extends above
                             .attr("y2", y + 6) // Extends below
                             .attr("stroke", 'rgb(49, 163, 84)')
-                            .attr("stroke-width", 3)
+                            .attr("stroke-width", 4)
                             .attr("stroke-opacity", 0.75)
-                            // .attr("stroke-solid", "4 2") // Dashed line for clarity
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
@@ -1410,7 +1486,6 @@ export default function EventRelationTimeline (props) {
                                handleClick});
                         }
                         else{
-
                             drawRelationLine({
                                 group: containsGroup,
                                 d,
@@ -1524,8 +1599,8 @@ export default function EventRelationTimeline (props) {
                             x2,
                             y,
                             markerStart: "url(#leftCap)",
-                            markerEnd: "url(#rightCap)"
-                        })
+                            markerEnd: "url(#rightCap)",
+                            handleClick});
                     }
                 });
 
@@ -1533,7 +1608,6 @@ export default function EventRelationTimeline (props) {
             function handleClick(event, d) {
                 const clickedConceptId = d.conceptId;
                 console.log(d);
-                // const clickedNoteId = d.noteId;
                 if (!clickedConceptId) return;
 
                 setClickedTerms((prevTerms) => {
@@ -1559,31 +1633,34 @@ export default function EventRelationTimeline (props) {
                     }
                 });
 
+                const markerToggleMap = {
+                    "url(#rightCap)": "url(#selectedRightCap)",
+                    "url(#selectedRightCap)": "url(#rightCap)",
+                    "url(#leftCap)": "url(#selectedLeftCap)",
+                    "url(#selectedLeftCap)": "url(#leftCap)",
+                    "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
+                    "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
+                    "url(#rightArrow)":"url(#selectedRightArrow)",
+                    "url(#selectedRightArrow)":"url(#rightArrow)",
+                    "url(#leftArrow)":"url(#selectedLeftArrow)",
+                    "url(#selectedLeftArrow)":"url(#leftArrow)"
+                };
+
                 // Emphasize matching relations
                 document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
                     skipNextEffect.current = true;
 
-                    if (el.hasAttribute("marker-end")) {
+                    if (el.hasAttribute("marker-end")){
                         const currentMarker = el.getAttribute("marker-end");
-                        if (currentMarker === "url(#selectedRightArrow)") {
-                            el.setAttribute("marker-end", "url(#rightArrow)");
-                        } else if (currentMarker === "url(#rightArrow)") {
-                            el.setAttribute("marker-end", "url(#selectedRightArrow)");
-                        } else if (currentMarker === "url(#selectedLeftArrow)") {
-                            el.setAttribute("marker-end", "url(#leftArrow)");
-                        } else {
-                            el.setAttribute("marker-end", "url(#selectedLeftArrow)");
+                        if (markerToggleMap[currentMarker]) {
+                            el.setAttribute("marker-end", markerToggleMap[currentMarker]);
                         }
-                    } else if (el.hasAttribute("marker-start")) {
+                    }
+
+                    if (el.hasAttribute("marker-start")){
                         const currentMarker = el.getAttribute("marker-start");
-                        if (currentMarker === "url(#selectedRightArrow)") {
-                            el.setAttribute("marker-start", "url(#rightArrow)");
-                        } else if (currentMarker === "url(#rightArrow)") {
-                            el.setAttribute("marker-start", "url(#selectedRightArrow)");
-                        } else if (currentMarker === "url(#selectedLeftArrow)") {
-                            el.setAttribute("marker-start", "url(#leftArrow)");
-                        } else {
-                            el.setAttribute("marker-start", "url(#selectedLeftArrow)");
+                        if (markerToggleMap[currentMarker]) {
+                            el.setAttribute("marker-start", markerToggleMap[currentMarker]);
                         }
                     }
 
@@ -1617,10 +1694,6 @@ export default function EventRelationTimeline (props) {
                     .filter(([_, objArray]) => objArray.some(obj => obj.id === clickedConceptId)
                     )
                     .map(([note]) => note);
-
-                console.log(conceptsPerDocument, conceptsPerDocument[0], clickedConceptId);
-
-                console.log(matchingNotes);
 
                 // Emphasize matching circles
                 // document.querySelectorAll(`circle[id*="${clickedNoteId}"]`).forEach(circle => {
@@ -1909,13 +1982,6 @@ export default function EventRelationTimeline (props) {
                 .html("<button>Reset</button>");
         }
     };
-
-        // this.fetchData(url).then(function (response) {
-        //     response.json().then(function (jsonResponse) {
-        //         processTimelineResponse(jsonResponse);
-        //     });
-        // });
-    // }
 
 
     return (<div className="Timeline" id={svgContainerId}></div>);
