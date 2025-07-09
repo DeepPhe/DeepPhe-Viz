@@ -78,7 +78,6 @@ export default function EventRelationTimeline (props) {
         if (clickedTerms.length === 0) {
             document.querySelectorAll("circle").forEach(circle => {
                 circle.style.fillOpacity = "0.3";  // Reset fill opacity to default
-                // circle.style.stroke = "none";      // Reset stroke to none
                 circle.style.strokeWidth = "1px";  // Reset stroke width to none
             });
         }
@@ -308,33 +307,51 @@ export default function EventRelationTimeline (props) {
             }
         });
 
-
+        const markerToggleMap = {
+            "url(#rightCap)": "url(#selectedRightCap)",
+            "url(#selectedRightCap)": "url(#rightCap)",
+            "url(#leftCap)": "url(#selectedLeftCap)",
+            "url(#selectedLeftCap)": "url(#leftCap)",
+            "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
+            "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
+            "url(#rightArrow)":"url(#selectedRightArrow)",
+            "url(#selectedRightArrow)":"url(#rightArrow)",
+            "url(#leftArrow)":"url(#selectedLeftArrow)",
+            "url(#selectedLeftArrow)":"url(#leftArrow)"
+        };
 
         document.querySelectorAll(`.relation-icon`).forEach(el => {
 
             const conceptId = el.getAttribute("data-concept-id");
+            console.log(conceptId);
 
             if (clickedTerms.includes(conceptId)) {
-                // Highlight it
                 if (el.hasAttribute("marker-end")) {
-                    el.setAttribute("marker-end", "url(#selectedRightArrow)");
-                } else if (el.hasAttribute("marker-start")) {
-                    el.setAttribute("marker-start", "url(#selectedLeftArrow)");
-                } else {
-                    el.classList.add("selected");
-                    el.classList.remove("unselected");
+                    const currentMarker = el.getAttribute("marker-end");
+                    if (markerToggleMap[currentMarker]) {
+                        el.setAttribute("marker-end", markerToggleMap[currentMarker]);
+                    }
                 }
-            } else {
-                // Un-highlight it
-                if (el.hasAttribute("marker-end")) {
-                    el.setAttribute("marker-end", "url(#rightArrow)");
-                } else if (el.hasAttribute("marker-start")) {
-                    el.setAttribute("marker-start", "url(#leftArrow)");
-                } else {
+
+                if (el.hasAttribute("marker-start")) {
+                    const currentMarker = el.getAttribute("marker-start");
+                    if (markerToggleMap[currentMarker]) {
+                        el.setAttribute("marker-start", markerToggleMap[currentMarker]);
+                    }
+                }
+
+                if (el.classList.contains("selected")) {
                     el.classList.remove("selected");
                     el.classList.add("unselected");
+                } else {
+                    el.classList.remove("unselected");
+                    el.classList.add("selected");
                 }
             }
+            else{
+
+            }
+
 
             // Show/hide the black outline line
             const group = el.closest("g");
@@ -348,6 +365,45 @@ export default function EventRelationTimeline (props) {
                     });
                 }
             }
+        //
+        // document.querySelectorAll(`.relation-icon`).forEach(el => {
+        //
+        //     const conceptId = el.getAttribute("data-concept-id");
+        //
+        //     if (clickedTerms.includes(conceptId)) {
+        //         // Highlight it
+        //         if (el.hasAttribute("marker-end")) {
+        //             el.setAttribute("marker-end", "url(#selectedRightArrow)");
+        //         } else if (el.hasAttribute("marker-start")) {
+        //             el.setAttribute("marker-start", "url(#selectedLeftArrow)");
+        //         } else {
+        //             el.classList.add("selected");
+        //             el.classList.remove("unselected");
+        //         }
+        //     } else {
+        //         // Un-highlight it
+        //         if (el.hasAttribute("marker-end")) {
+        //             el.setAttribute("marker-end", "url(#rightArrow)");
+        //         } else if (el.hasAttribute("marker-start")) {
+        //             el.setAttribute("marker-start", "url(#leftArrow)");
+        //         } else {
+        //             el.classList.remove("selected");
+        //             el.classList.add("unselected");
+        //         }
+        //     }
+        //
+        //     // Show/hide the black outline line
+        //     const group = el.closest("g");
+        //     const isNowSelected = el.classList.contains("selected");
+        //     if (group) {
+        //         const outlines = group.querySelectorAll(".relation-outline");
+        //         if (outlines.length) {
+        //             outlines.forEach((outline) => {
+        //                 // Do something with the outlines, like showing or hiding
+        //                 outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
+        //             });
+        //         }
+        //     }
         });
 
     }, [clickedTerms]);
@@ -371,17 +427,6 @@ export default function EventRelationTimeline (props) {
         // E.g., "Progress Note" has max 6 vertical reports, "Surgical Pathology Report" has 3
         // then the vertical position of "Progress Note" bottom line is 6, and "Surgical Pathology Report" is 6+3=9
         let verticalPositions = {};
-        // console.log("svgContainerId", svgContainerId);
-        // console.log("patientId", patientId);
-        // console.log("conceptId", conceptId);
-        // console.log("startRelation", startRelation);
-        // console.log("startDate", startDate);
-        // console.log("endRelation", endRelation);
-        // console.log("endDate", endDate);
-        // console.log("dpheGroup", dpheGroup);
-        // console.log("laneGroup", laneGroup);
-        // console.log("dpheGroupCount", dpheGroupCount);
-        // console.log("laneGroupCount", laneGroupCount);
         // Vertical max counts from top to bottom
         // This is used to decide the domain range of mainY and overviewY
 
@@ -440,11 +485,9 @@ export default function EventRelationTimeline (props) {
             let count = 0
 
             for (let key in dictionary){
-                console.log(key, dictionary[key]);
                 count += dictionary[key]
 
                 if (typeof verticalPositions[key] !== "undefined") {
-                    console.log(verticalPositions[key]);
                     verticalPositions[key] = totalMaxVerticalCounts;
                 }
             }
@@ -525,7 +568,6 @@ export default function EventRelationTimeline (props) {
             });
 
             removeDuplicatesFromDpheAndLane();
-            console.log("LANEGROUP:", laneGroup);
             const desiredOrder = ["Finding", "Disease", "Severity", "Treatment"];
 
             const groupLaneHeights = {}; // e.g., { 'AC': 2, 'Taxol': 3, ... }
@@ -1026,19 +1068,6 @@ export default function EventRelationTimeline (props) {
                 .attr("y1", d => d.endY) // or just d.y if you want lines at the start of each group
                 .attr("y2", d => d.endY);
 
-            // const tooltip = d3.select("body")
-            //     .append("div")
-            //     .attr("class", "custom-tooltip")
-            //     .style("position", "absolute")
-            //     .style("padding", "6px 10px")
-            //     .style("background", "rgba(0,0,0,0.75)")
-            //     .style("color", "#fff")
-            //     .style("border-radius", "4px")
-            //     .style("font-size", "12px")
-            //     .style("pointer-events", "none")
-            //     .style("opacity", 0)
-            //     .style("z-index", 1000);
-
             const defs = d3.select("svg").append("defs");
 
             const rightArrow = defs.append("marker")
@@ -1254,7 +1283,7 @@ export default function EventRelationTimeline (props) {
                 .attr("class", "main_report_group")
                 .each(function (d) {
 
-                    // console.log(d.conceptId);
+                    const preferredText = concepts.find(c => c.id === d.conceptId)?.preferredText;
                     const group = d3.select(this);
                     const x1 = d.formattedStartDate;
                     const x2 = d.formattedEndDate;
@@ -1346,7 +1375,7 @@ export default function EventRelationTimeline (props) {
                                 mainLine.attr("marker-end", markerEnd);
                             }
                             mainLine.append("title")
-                            .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Name: ${preferredText}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
 
 
                         group.append("circle")
@@ -1359,7 +1388,7 @@ export default function EventRelationTimeline (props) {
                             .attr("pointer-events", "all")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
-                            .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Name: ${preferredText}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
 
                         group.append("circle")
                             .attr("cx", x1)
@@ -1371,7 +1400,7 @@ export default function EventRelationTimeline (props) {
                             .attr("pointer-events", "all")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
-                            .text(`Concept ID: ${d.conceptId}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Name: ${preferredText}\n${d.relation1}: ${d.start}\n${d.relation2}: ${d.end}`);
                     }
                     function drawSoloAfterRelation({group, d, x, y, handleClick}) {
                         group.append("rect")
@@ -1385,7 +1414,7 @@ export default function EventRelationTimeline (props) {
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Name: ${preferredText}\n${d.relation1}: ${d.start} - ${d.end}`);
                     }
                     function drawSoloBeforeRelation({group, d, x, y, handleClick}) {
                         group.append("rect")
@@ -1399,7 +1428,7 @@ export default function EventRelationTimeline (props) {
                             .style("cursor", "pointer")
                             .on("click", (event) => handleClick(event, d))
                             .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Name: ${preferredText}\n${d.relation1}: ${d.start} - ${d.end}`);
                     }
                     function drawOnRelation({group, d, x, y, lineType, handleClick}) {
                         group.append("line")
@@ -1424,9 +1453,12 @@ export default function EventRelationTimeline (props) {
                             .attr("stroke-width", 4)
                             .attr("stroke-opacity", 0.75)
                             .style("cursor", "pointer")
-                            .on("click", (event) => handleClick(event, d))
+                            .on("click", (event) => {
+                                console.log("Data bound to this line:", d);
+                                handleClick(event, d)
+                            })
                             .append("title")
-                            .text(`Concept ID: ${d.conceptId}\nFirst Relation: ${d.relation1}\nSecond Relation: ${d.relation2}`);
+                            .text(`Concept ID: ${d.conceptId}\nConcept Text: ${preferredText}\n${d.relation1}: ${d.start} - ${d.end}`);
                     }
 
                     if (d.relation1 === "After" && d.relation2 === "After"){
@@ -1649,6 +1681,7 @@ export default function EventRelationTimeline (props) {
                 // Emphasize matching relations
                 document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
                     skipNextEffect.current = true;
+                    console.log(clickedConceptId);
 
                     if (el.hasAttribute("marker-end")){
                         const currentMarker = el.getAttribute("marker-end");

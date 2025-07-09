@@ -133,9 +133,10 @@ export function DocumentPanel(props) {
       nestedArray.forEach(function(obj) {
         // console.log(mentionsForClickedConcepts.has(obj.id));
         const mentionConfidence = calculateMentionConfidence(obj);
-        console.log(mentionsForClickedConcepts);
+        // console.log(mentionsForClickedConcepts);
+        console.log("OBJ", obj);
         let textMentionObj = {
-          preferredText: obj["preferredText"],
+          // preferredText: obj["preferredText"],
           begin: obj.begin,
           end: obj.end,
           id: obj.id,
@@ -145,6 +146,7 @@ export function DocumentPanel(props) {
           backgroundColor: determineBackgroundColor(obj, mentionConfidence),
           clickedTerm: mentionsForClickedConcepts.has(obj.id),
         };
+        console.log(textMentionObj);
 
         textMentions.push(textMentionObj);
       });

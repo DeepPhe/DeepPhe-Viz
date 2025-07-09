@@ -6,8 +6,8 @@ export class JsonPatientDocument extends PatientDocument {
         super();
         this.patientDocument = patientObject.documents[currDocId];
         this.#mentionsInDocument = this.patientDocument?.mentions || [];
-        console.log("Mentions in document:", this.patientDocument?.mentions);
     }
+
 
     getMentionIdsInDocument = () => {
         return this.#mentionsInDocument
