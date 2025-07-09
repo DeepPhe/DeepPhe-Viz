@@ -114,18 +114,6 @@ function Patient(props) {
         );
     };
 
-
-    // const getMentionIdsInDocument = (patientDocument) => {
-    //     return patientDocument?.mentions?.map((m) => m.id) || [];
-    // }
-
-    // const getConceptsInDocument = (patientObject) => {
-    //     return patientObject.concepts.filter((c) =>
-    //         c.mentionIds?.some((m) => mentionIdsInDocumentRef.current.includes(m))
-    //     );
-    // };
-
-
     const getComponentEventRelationTimeline = () => {
         if (isLoading()) {
             console.log("Stuck here?");
@@ -133,7 +121,7 @@ function Patient(props) {
         }
         console.log("loading Event Relation Table...");
         const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
-
+        console.log("CONCEPTS", conceptsInDocument);
 
         return (
             <Card>

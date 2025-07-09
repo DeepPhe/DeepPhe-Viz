@@ -20,7 +20,7 @@ export function DocumentPanel(props) {
   const reportId = props.reportId;
 
   useEffect(() => {
-    console.log(filteredConcepts);
+    // console.log(filteredConcepts);
     // Only set the copy once, when the component mounts
     if (Array.isArray(filteredConcepts) && filteredConcepts.length > 0 && filteredConceptsStartingCopy.length === 0) {
       setFilteredConceptsStartingCopy(filteredConcepts);
@@ -29,7 +29,9 @@ export function DocumentPanel(props) {
 
   // When clickedTerms change:
   useEffect(() => {
+    // console.log("STEP 1, CLICKEDTERMs:",clickedTerms);
     const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
+    // console.log("DO I GET MENTIONS FROM GETMENTIONSFORCLICKEDCONCEPT", mentions);
     setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
   }, [props.clickedTerms]);
 
@@ -39,15 +41,18 @@ export function DocumentPanel(props) {
 
   const getMentionsForClickedConcept = (conceptIds) => {
     if (!conceptIds || conceptIds.length === 0) return [];
-
+    // console.log("CONCEPT IDS",conceptIds);
     return conceptIds.flatMap((conceptId) => {
       if (conceptId === "") return [];
-
+      // console.log(concepts);
       const idx = concepts.findIndex((c) => c.id === conceptId);
-      if (idx === -1) return [];
+      // console.log(idx);
 
+      if (idx === -1) return [];
+      // console.log(concepts[idx].mentionIds);
+      // console.log(props.doc.getMentionIdsInDocument());
       return concepts[idx].mentionIds.filter((mentionId) =>
-          props.doc.getMentionIdsInDocument().some((m) => m === mentionId)
+          props.doc.getMentionIdsInDocument().some((m) => m.id === mentionId)
       );
     });
   };
@@ -57,11 +62,11 @@ export function DocumentPanel(props) {
     if (conceptId !== undefined) {
       const idx = concepts.findIndex((c) => c.id === conceptId);
       if (idx === -1) return [];
-      console.log(concepts, props.doc.getMentionIdsInDocument());
+      // console.log(concepts, props.doc.getMentionIdsInDocument());
       const validMentionIds = concepts[idx].mentionIds.filter((mentionId) => {
         // console.log(`mentionId ${mentionId} is ${result ? "valid" : "invalid"}`);
         return props.doc.getMentionIdsInDocument().some((m) => {
-          console.log(`Comparing mentionId: ${mentionId} with m: ${m.id}`);
+          // console.log(`Comparing mentionId: ${mentionId} with m: ${m.id}`);
           return m.id === mentionId;
         });
       });
@@ -83,14 +88,14 @@ export function DocumentPanel(props) {
     let mentionConfidence = 0;
 
     if(filterLabel === "Concepts"){
-      console.log(filteredConceptsStartingCopy);
-      console.log(obj.id);
+      // console.log(filteredConceptsStartingCopy);
+      // console.log(obj.id);
       const result = filteredConceptsStartingCopy.find(category =>
           category.mentionIds && category.mentionIds.includes(obj.id)
       );
-      console.log(result);
+      // console.log(result);
       if (result) {
-        mentionConfidence = Math.round(result.confidence * 100);
+        mentionConfidence = Math.round(result.confidence);
       }
       else{
         console.log(result.preferredText, "has no confidence");
@@ -123,12 +128,12 @@ export function DocumentPanel(props) {
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
-    console.log(FilteredConceptsIds);
+    // console.log(FilteredConceptsIds);
     FilteredConceptsIds.forEach(function (nestedArray) {
       nestedArray.forEach(function(obj) {
         // console.log(mentionsForClickedConcepts.has(obj.id));
         const mentionConfidence = calculateMentionConfidence(obj);
-        console.log(obj);
+        console.log(mentionsForClickedConcepts);
         let textMentionObj = {
           preferredText: obj["preferredText"],
           begin: obj.begin,
@@ -209,7 +214,7 @@ export function DocumentPanel(props) {
 
   function highlightTextMentions(textMentions, reportText) {
     //No mentions in reportText, we return just reportText
-    console.log(textMentions);
+    // console.log(textMentions);
     if(textMentions.length === 0){
       return reportText;
     }
@@ -439,12 +444,12 @@ export function DocumentPanel(props) {
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
       const conceptId = filteredConceptsStartingCopy[i].id;
       const mentionIdsFromConceptId = getMentionsForConcept(conceptId);
-      console.log(mentionIdsFromConceptId);
+      // console.log(mentionIdsFromConceptId);
       const mentions = getMentionsGivenMentionIds(mentionIdsFromConceptId);
-      console.log(mentions);
+      // console.log(mentions);
       MentionList.push(mentions);
     }
-    console.log(MentionList);
+    // console.log(MentionList);
     return MentionList;
   }
 
@@ -472,9 +477,11 @@ export function DocumentPanel(props) {
 
   useEffect(() => {
     // Combined the checks for filteredConcepts and filteredConceptsStartingCopy
-    console.log(props.filteredConcepts.length, filteredConceptsStartingCopy.length, docText);
+    // console.log(props.filteredConcepts.length, filteredConceptsStartingCopy.length, docText);
+    console.log("IS THIS BEING CALLED");
+    console.log(props.clickedTerms);
     if ((props.filteredConcepts.length > 0 || filteredConceptsStartingCopy.length > 0) && docText) {
-      console.log("does this get called");
+      // console.log("does this get called");
       setHTML();
     }
   }, [

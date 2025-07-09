@@ -138,7 +138,7 @@ export function ConceptListPanel(props) {
                                 <span style={{ display: 'block', marginLeft: '40px' }}>
                                     {`Document Mention Count: ${getDocMentionsCountForConcept(obj.id)}`}<br />
                                     {`Patient Mention Count: ${getPatientMentionsCountForConcept(obj.id)}`}<br />
-                                    {`Concept Confidence: ${Math.round(obj.confidence * 100)}%`}<br />
+                                    {`Concept Confidence: ${Math.round(obj.confidence)}%`}<br />
                                     {`DeepPhe Semantic Group: ${obj.dpheGroup}`}
                                 </span>
                             )}

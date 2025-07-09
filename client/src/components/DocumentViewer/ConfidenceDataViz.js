@@ -16,13 +16,11 @@ export function ConfidenceDataViz(props) {
     const handleConfidenceChange = props.handleConfidenceChange;
     const concepts = props.concepts;
     const doc = props.doc;
-    // const value = props.value;
-    // const [confidencePercent, setConfidencePercent] = useState(0);
+    const mentions = props.mentions;
     const confidencePercent = props.confidencePercent;
     const setConfidencePercent = props.setConfidencePercent;
     const sliderPosition = props.sliderPostion;
     const setSliderPosition = props.setSliderPostion;
-    // const [sliderPosition, setSliderPosition] = useState(40);
     const onFilterChange = props.onFilterChange;
     const filterLabel = props.filterLabel;
     const setFilterLabel = props.setFilterLabel;
@@ -34,34 +32,44 @@ export function ConfidenceDataViz(props) {
         setFilterLabel(value === "option1" ? "Concepts" : "Mentions")
     };
 
-    const getMentionsGivenMentionIds = (mentionIds) => {
-        return doc.mentions.filter((m) => mentionIds.includes(m.id));
-    };
-    const getMentionsForConcept = (conceptId) => {
-        if(conceptId === ""){
-            return [];
-        }
-        if(conceptId !== undefined) {
-            const idx = concepts.findIndex((c) => c.id === conceptId);
-            if(idx === -1){
-                return [];
-            }
-            return concepts[idx].mentionIds.filter((mentionId) => {
-                return doc.mentions.some((m) => m.id === mentionId);
-            });
-        }
-        else{
-            return [];
-        }
-    };
+    // const getMentionsGivenMentionIds = (mentionIds) => {
+    //     return mentions.filter((m) => mentionIds.includes(m.id));
+    // };
+    // const getMentionsForConcept = (conceptId) => {
+    //     if(conceptId === ""){
+    //         return [];
+    //     }
+    //     if(conceptId !== undefined) {
+    //         const idx = concepts.findIndex((c) => c.id === conceptId);
+    //         if(idx === -1){
+    //             return [];
+    //         }
+    //         return concepts[idx].mentionIds.filter((mentionId) => {
+    //             return mentions.some((m) => m.id === mentionId);
+    //         });
+    //     }
+    //     else{
+    //         return [];
+    //     }
+    // };
+    //
+    // function getAllMentionIDs(){
+    //     let conceptIDList = [];
+    //     console.log(mentions);
+    //     for(let i = 0; i < concepts.length; i++){
+    //         const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
+    //         conceptIDList.push(mentions);
+    //     }
+    //     return conceptIDList;
+    // }
 
-    function getAllMentionIDs(){
-        let conceptIDList = [];
-        for(let i = 0; i < concepts.length; i++){
-            const mentions = getMentionsGivenMentionIds(getMentionsForConcept(concepts[i].id));
-            conceptIDList.push(mentions);
+    function getDpheGroupOfMention(mentionId) {
+        for (const concept of concepts) {
+            if (concept.mentionIds?.includes(mentionId)) {
+                return concept.dpheGroup;
+            }
         }
-        return conceptIDList;
+        return null; // or undefined, if not found
     }
 
     function getSemanticGroupConfidenceCount(name, filterLabel){
@@ -70,19 +78,23 @@ export function ConfidenceDataViz(props) {
         if (filterLabel === "Concepts"){
             for(let i = 0; i < concepts.length; i++){
                 if (name === concepts[i].dpheGroup) {
-                    const conceptConfidence = concepts[i].confidence;
+                    // console.log(concepts[i]);
+                    const conceptConfidence = concepts[i].confidence / 100;
+                    // console.log(conceptConfidence);
                     confidenceList.push(conceptConfidence);
                 }
             }
         }
         else if (filterLabel === "Mentions"){
-            getAllMentionIDs().forEach(function (nestedArray){
+            // console.log(getAllMentionIDs());
+            // console.log(getDpheGroupOfMention());
+            mentions.forEach(function (obj){
+                const dpheGroupByMention = getDpheGroupOfMention(obj.id);
+                console.log("NAME:",name, "DPHE", dpheGroupByMention);
 
-                nestedArray.forEach(function(obj) {
-                    if (name === obj.dpheGroup) {
-                        confidenceList.push(obj.confidence/100);
-                    }
-                });
+                if (name === dpheGroupByMention) {
+                    confidenceList.push(obj.confidence / 100);
+                }
             });
         }
         return percentCounter(confidenceList);
@@ -90,6 +102,7 @@ export function ConfidenceDataViz(props) {
 
 
     function percentCounter(confidenceList){
+        console.log("CONFIDENCE LIST:", confidenceList);
         const buckets = Array(10).fill(0); //fill all buckets as 0 init
         confidenceList.forEach(item => {
             if (item >= 0 && item <= 1) {
@@ -238,7 +251,7 @@ export function ConfidenceDataViz(props) {
         let newValue = event.clientX - (chartRect.left);
         if (newValue >= yAxisBuffer && newValue <= chartRect.width-endOfGraphBuffer) {
             const graphPercent = ((chartRect.width - endOfGraphBuffer) - yAxisBuffer) / 100
-            const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / graphPercent)
+            const confidencePercent = Math.ceil((newValue - yAxisBuffer ) / graphPercent);
             setSliderPosition(newValue);
             setConfidencePercent(confidencePercent);
             throttledHandleConfidenceChange(confidencePercent);

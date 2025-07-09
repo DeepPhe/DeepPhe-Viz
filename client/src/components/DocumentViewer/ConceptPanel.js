@@ -243,6 +243,7 @@ export function ConceptPanel(props) {
                                         handleConfidenceChange={handleConfidenceChange}
                                         concepts={concepts}
                                         doc={doc}
+                                        mentions={mentions}
                                         filterLabel={filterLabel}
                                         setFilterLabel={setFilterLabel}
                                         onFilterChange={handleFilterChange}

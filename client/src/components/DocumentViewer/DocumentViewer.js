@@ -232,7 +232,9 @@ export function DocumentViewer(props) {
 
     const handleTermClick = (e) => {
         const clickedElement = e.currentTarget;
+        console.log("CLICKED ELE", clickedElement);
         const clickedId = clickedElement.dataset.id;
+        console.log("CLICKED ID", clickedId);
 
         if (clickedTerms.includes(clickedId)) {
             setClickedTerms((prev) => prev.filter((id) => id !== clickedId)); // Remove from state
