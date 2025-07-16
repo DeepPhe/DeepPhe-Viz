@@ -804,6 +804,21 @@ const PatientEpisodeTimeline = ({
             })
             .style("cursor", "pointer")
             .on("click", function (d) {
+              const $circle = $("#main_" + d.id);
+              const isSelected = $circle.hasClass("selected_report");
+
+              if (isSelected) {
+                // UNHIGHLIGHT
+                removeFactBasedHighlighting(d.id);
+                $(".main_report_PE").removeClass("selected_report");
+                $(".overview_report").removeClass("selected_report");
+                $(".selected_report_icon").remove();
+                $("#docs").hide();
+                $("#report_instance").hide();
+                return; // stop further processing
+              }
+
+
               $("#docs").show();
               if (Object.keys(factBasedReports).indexOf(d.id) === -1) {
                 removeFactBasedHighlighting(d.id);
@@ -890,17 +905,17 @@ const PatientEpisodeTimeline = ({
       let xAxis = d3.axisBottom(mainX)
           .tickSizeInner(5)
           .tickSizeOuter(0)
-          .tickFormat(function (d) {
-            const diff = mainX.domain()[1] - mainX.domain()[0]; // time range in ms
-
-            if (diff < 1000 * 60 * 60 * 24 * 31 * 4.5) {
-              // Less than ~2 months: show day + month
-              return d3.timeFormat("%b %d")(d); // e.g., "Jan 12"
-            } else {
-              // Show month only
-              return d3.timeFormat("%b")(d); // e.g., "Jan"
-            }
-          });
+          // .tickFormat(function (d) {
+          //   const diff = mainX.domain()[1] - mainX.domain()[0]; // time range in ms
+          //
+          //   if (diff < 1000 * 60 * 60 * 24 * 31 * 4.5) {
+          //     // Less than ~2 months: show day + month
+          //     return d3.timeFormat("%b %d")(d); // e.g., "Jan 12"
+          //   } else {
+          //     // Show month only
+          //     return d3.timeFormat("%b")(d); // e.g., "Jan"
+          //   }
+          // });
 
       // Append x axis to the bottom of main area
       main
@@ -1002,7 +1017,7 @@ const PatientEpisodeTimeline = ({
           .tickSizeInner(5)
           .tickSizeOuter(0)
           // Abbreviated month format
-          .tickFormat(d3.timeFormat("%b"));
+          // .tickFormat(d3.timeFormat("%b"));
 
       // Append x axis to the bottom of overview area
       overview

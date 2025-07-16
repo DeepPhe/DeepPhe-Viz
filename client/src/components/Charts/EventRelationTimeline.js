@@ -1785,7 +1785,7 @@ export default function EventRelationTimeline (props) {
             let encounterDates = [minStartDate, maxEndDate];
             // We use the calculated ages to render the text of age
             // TODO: NEED TO MAKE ENCOUNTER AGE DYNAMIC
-            let encounterAges = [53, 56];
+            let encounterAges = [56, 59];
 
             age_ER
                 .selectAll(".encounter_age")
@@ -1865,7 +1865,7 @@ export default function EventRelationTimeline (props) {
                 .tickSizeInner(5)
                 .tickSizeOuter(0)
                 // Abbreviated month format
-                .tickFormat(d3.timeFormat("%b"));
+                // .tickFormat(d3.timeFormat("%b %Y"));
 
             // Append x axis to the bottom of overview area
             overview

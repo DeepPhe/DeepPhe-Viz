@@ -29,11 +29,8 @@ export function DocumentPanel(props) {
 
   // When clickedTerms change:
   useEffect(() => {
-    // console.log("STEP 1, CLICKEDTERMs:",clickedTerms);
     const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
-    // console.log("DO I GET MENTIONS FROM GETMENTIONSFORCLICKEDCONCEPT", mentions);
     setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
-    console.log(mentionsForClickedConcepts);
   }, [props.clickedTerms, props.doc]);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
