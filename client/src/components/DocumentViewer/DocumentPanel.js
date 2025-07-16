@@ -33,7 +33,8 @@ export function DocumentPanel(props) {
     const mentions = new Set(getMentionsForClickedConcept(clickedTerms)); // Store mentions in a Set
     // console.log("DO I GET MENTIONS FROM GETMENTIONSFORCLICKEDCONCEPT", mentions);
     setMentionsForClickedConcepts(mentions); // Store the mentions in state for efficient lookups
-  }, [props.clickedTerms]);
+    console.log(mentionsForClickedConcepts);
+  }, [props.clickedTerms, props.doc]);
 
   const getMentionsGivenMentionIds = (mentionIds) => {
     return props.doc.getMentionIdsInDocument().filter((m) => mentionIds.includes(m.id));
@@ -491,7 +492,7 @@ export function DocumentPanel(props) {
     // Combined the checks for filteredConcepts and filteredConceptsStartingCopy
     // console.log(props.filteredConcepts.length, filteredConceptsStartingCopy.length, docText);
     // console.log("IS THIS BEING CALLED");
-    // console.log(props.clickedTerms);
+    console.log(props.clickedTerms);
     if ((props.filteredConcepts.length > 0 || filteredConceptsStartingCopy.length > 0) && docText) {
       // console.log("does this get called");
       setHTML();
