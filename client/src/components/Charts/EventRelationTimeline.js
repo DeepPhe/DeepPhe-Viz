@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useLayoutEffect, useRef, useState} from "react";
 import * as d3 from "d3v4";
 import { appendMentionsToTSV } from '../../scripts/appendConceptAndMention';
 import {indexOf, sum} from "lodash";
@@ -72,6 +72,7 @@ export default function EventRelationTimeline (props) {
     const clickedTerms = props.clickedTerms;
     const setClickedTerms = props.setClickedTerms;
     const conceptsPerDocument = props.conceptsPerDocument;
+    const expandedPatientID = props.expandedPatientID;
 
 
     useEffect(() => {
@@ -261,7 +262,7 @@ export default function EventRelationTimeline (props) {
 
     const skipNextEffect = useRef(false);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!conceptsPerDocument) return;
 
         fetchTXTData(conceptsPerDocument).then(data => {
@@ -270,7 +271,7 @@ export default function EventRelationTimeline (props) {
             const transformedData = transformTXTData(data);
             const container = document.getElementById(svgContainerId);
             if (container) {
-                container.innerHTML = "";
+                d3.select(container).selectAll("*").remove();
             }
             const filteredDpheGroup = transformedData.dpheGroup.filter(item => item != null);
             const filteredLaneGroup = transformedData.laneGroup.filter(item => item != null);
@@ -290,7 +291,7 @@ export default function EventRelationTimeline (props) {
                 );
             }
         });
-    }, [conceptsPerDocument]);
+    }, [conceptsPerDocument, expandedPatientID]);
 
 
     useEffect(() => {
@@ -323,7 +324,7 @@ export default function EventRelationTimeline (props) {
         document.querySelectorAll(`.relation-icon`).forEach(el => {
 
             const conceptId = el.getAttribute("data-concept-id");
-            console.log(conceptId);
+            // console.log(conceptId);
 
             if (clickedTerms.includes(conceptId)) {
                 if (el.hasAttribute("marker-end")) {
@@ -662,7 +663,7 @@ export default function EventRelationTimeline (props) {
 
             // Create the container if it doesn't exist
             if (!document.getElementById(svgContainerId)) {
-                console.log(svgContainerId);
+                // console.log(svgContainerId);
                 const container = document.createElement("div");
                 container.id = svgContainerId;
                 document.body.appendChild(container); // Append to the desired parent (body, or other parent element)
@@ -1639,7 +1640,7 @@ export default function EventRelationTimeline (props) {
 
             function handleClick(event, d) {
                 const clickedConceptId = d.conceptId;
-                console.log(d);
+                // console.log(d);
                 if (!clickedConceptId) return;
 
                 setClickedTerms((prevTerms) => {
@@ -1681,7 +1682,7 @@ export default function EventRelationTimeline (props) {
                 // Emphasize matching relations
                 document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
                     skipNextEffect.current = true;
-                    console.log(clickedConceptId);
+                    // console.log(clickedConceptId);
 
                     if (el.hasAttribute("marker-end")){
                         const currentMarker = el.getAttribute("marker-end");

@@ -9,6 +9,7 @@ export function DocumentPanel(props) {
   // const [doc, setDoc] = useState(props.doc);
   const [docText, setDocText] = useState(props.doc.getDocumentText());
   const concepts = props.concepts;
+  const mentions = props.mentions;
   const clickedTerms = props.clickedTerms;
   const semanticGroups = props.semanticGroups;
   const filteredConcepts = props.filteredConcepts;
@@ -20,12 +21,11 @@ export function DocumentPanel(props) {
   const reportId = props.reportId;
 
   useEffect(() => {
-    // console.log(filteredConcepts);
-    // Only set the copy once, when the component mounts
-    if (Array.isArray(filteredConcepts) && filteredConcepts.length > 0 && filteredConceptsStartingCopy.length === 0) {
+    if (Array.isArray(filteredConcepts) && filteredConcepts.length > 0) {
       setFilteredConceptsStartingCopy(filteredConcepts);
     }
-  }, [filteredConcepts, filteredConceptsStartingCopy]);
+  }, [filteredConcepts]);
+
 
   // When clickedTerms change:
   useEffect(() => {
@@ -112,29 +112,35 @@ export function DocumentPanel(props) {
     return match ? match.dpheGroup : null;
   }
 
-  function determineBackgroundColor(obj, mentionConfidence){
+  function determineBackgroundColor(obj, mentionConfidence) {
     let backgroundColor = '';
     const dpheGroup = getDpheGroupByMentionId(obj.id);
+    const groupInfo = semanticGroups[dpheGroup];
 
-    if(mentionConfidence < confidence * 100 || semanticGroups[dpheGroup].checked === false){
+    if (
+        !groupInfo || // group not found
+        mentionConfidence < confidence * 100 ||
+        groupInfo.checked === false
+    ) {
       backgroundColor = 'lightgrey';
+    } else {
+      backgroundColor = hexToRgba(groupInfo.backgroundColor, 0.65);
     }
-    else{
-      const hexColor = semanticGroups[dpheGroup].backgroundColor;
-      backgroundColor = hexToRgba(hexColor, 0.65);
-    }
+
     return backgroundColor;
   }
+
 
   function createMentionObj(FilteredConceptsIds) {
     let textMentions = [];
     // console.log(FilteredConceptsIds);
     FilteredConceptsIds.forEach(function (nestedArray) {
+      // console.log(nestedArray);
       nestedArray.forEach(function(obj) {
         // console.log(mentionsForClickedConcepts.has(obj.id));
         const mentionConfidence = calculateMentionConfidence(obj);
         // console.log(mentionsForClickedConcepts);
-        console.log("OBJ", obj);
+        // console.log("OBJ", obj);
         let textMentionObj = {
           // preferredText: obj["preferredText"],
           begin: obj.begin,
@@ -146,7 +152,7 @@ export function DocumentPanel(props) {
           backgroundColor: determineBackgroundColor(obj, mentionConfidence),
           clickedTerm: mentionsForClickedConcepts.has(obj.id),
         };
-        console.log(textMentionObj);
+        // console.log(textMentionObj);
 
         textMentions.push(textMentionObj);
       });
@@ -216,7 +222,8 @@ export function DocumentPanel(props) {
 
   function highlightTextMentions(textMentions, reportText) {
     //No mentions in reportText, we return just reportText
-    // console.log(textMentions);
+    // console.log("ALL TEXTMENTIONS IN DOC:", textMentions);
+
     if(textMentions.length === 0){
       return reportText;
     }
@@ -443,6 +450,8 @@ export function DocumentPanel(props) {
   function getAllMentionsInDoc(){
     let MentionList = [];
 
+    console.log("filtereDCONEPTS", filteredConceptsStartingCopy);
+
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
       const conceptId = filteredConceptsStartingCopy[i].id;
       const mentionIdsFromConceptId = getMentionsForConcept(conceptId);
@@ -457,6 +466,7 @@ export function DocumentPanel(props) {
 
   const setHTML = useCallback(() => {
     const mentions = getAllMentionsInDoc();
+    // console.log(mentions);
     // const mentions =
     const hasAtLeastOneMention = mentions.some(group => group.length > 0);
 
@@ -480,8 +490,8 @@ export function DocumentPanel(props) {
   useEffect(() => {
     // Combined the checks for filteredConcepts and filteredConceptsStartingCopy
     // console.log(props.filteredConcepts.length, filteredConceptsStartingCopy.length, docText);
-    console.log("IS THIS BEING CALLED");
-    console.log(props.clickedTerms);
+    // console.log("IS THIS BEING CALLED");
+    // console.log(props.clickedTerms);
     if ((props.filteredConcepts.length > 0 || filteredConceptsStartingCopy.length > 0) && docText) {
       // console.log("does this get called");
       setHTML();
@@ -495,6 +505,7 @@ export function DocumentPanel(props) {
     props.semanticGroups,
     filterLabel,
     mentionsForClickedConcepts,
+    props.doc,
     props.reportId,
   ]);
 

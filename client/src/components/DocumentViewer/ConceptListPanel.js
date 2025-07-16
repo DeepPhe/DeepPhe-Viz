@@ -37,7 +37,12 @@ export function ConceptListPanel(props) {
 
 
     useEffect(() => {
+        // Wait until semanticGroups is populated
+        if (!semanticGroups || Object.keys(semanticGroups).length === 0) return;
+
         const sortedConcepts = filterConceptsByConfidenceAndSemanticGroup(concepts);
+        console.log("SORTED CONCEPTS", sortedConcepts);
+
         if (sortedConcepts.length === 0) {
             setFilteredConcepts([-1]);
         } else {
@@ -58,18 +63,27 @@ export function ConceptListPanel(props) {
 
     // FilterConceptsByConfidenceAndSemanticGroup keeps an array of concepts that are updated dynamically
     // based on confidence and Semantic group selection
-    function filterConceptsByConfidenceAndSemanticGroup(concepts){
-        let filteredConcepts = []
-        for(let i = 0; i < concepts.length; i++){
-            if(parseFloat(concepts[i].confidence) >= parseFloat(confidence) && conceptGroupIsSelected(concepts[i])){
-
-                // console.log(semanticGroups[concepts[i].dpheGroup].concept);
-                concepts[i].conceptClump =semanticGroups[concepts[i].dpheGroup].conceptClump;
-                filteredConcepts.push(concepts[i]);
+    function filterConceptsByConfidenceAndSemanticGroup(concepts) {
+        let filteredConcepts = [];
+        console.log("concepts in conceptListPanel", concepts);
+        for (let i = 0; i < concepts.length; i++) {
+            const concept = concepts[i];
+            // console.log(concept);
+            // console.log(concept.dpheGroup);
+            if (parseFloat(concept.confidence) >= parseFloat(confidence) && (conceptGroupIsSelected(concept) || concept.dpheGroup === "Unknown")) {
+                if (semanticGroups.hasOwnProperty(concept.dpheGroup)) {
+                    concept.conceptClump = semanticGroups[concept.dpheGroup].conceptClump;
+                } else {
+                    // console.log(concept);
+                    // fallback if dpheGroup not in semanticGroups for some reason
+                    concept.conceptClump = "Unknown";
+                }
+                filteredConcepts.push(concept);
             }
         }
         return sortConceptsByConceptClump(filteredConcepts);
     }
+
 
     function sortConceptsByConceptClump(filteredConcepts){
         filteredConcepts.sort((a, b) => {
@@ -107,7 +121,10 @@ export function ConceptListPanel(props) {
                             style={{
                                 fontSize: "14px",
                                 fontFamily: "Monaco, monospace",
-                                backgroundColor: hexToRgba(semanticGroups[obj.dpheGroup].backgroundColor, 0.65),
+                                backgroundColor: hexToRgba(
+                                    semanticGroups[obj.dpheGroup]?.backgroundColor || "#9e9e9e", // fallback to grey
+                                    0.65
+                                ),
                                 margin: "4px",
                                 borderStyle: 'solid',
                                 borderColor: clickedTerms.includes(obj.id) ? 'black' : 'transparent', // Use .includes here

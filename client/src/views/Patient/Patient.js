@@ -76,12 +76,7 @@ function Patient(props) {
         return (
             <Card>
                 <CardHeader className={"basicCardHeader"}>
-                    <Box
-                        // display="flex"
-                        alignItems="center"
-                        // justifyContent="space-between"
-                        // width="100%"
-                    >
+                    <Box alignItems="center">
                         <span style={{paddingLeft: '14px'}}><b>Patient Episode Timeline</b></span>
                         <IconButton onClick={() => setExpandedPatientEpisode((prev) => !prev)} size="small">
                             {expandedPatientEpisode ? <ExpandLess/> : <ExpandMore/>}
@@ -140,6 +135,7 @@ function Patient(props) {
                             patientId={patientId}
                             setReportId={setReportId}
                             conceptsPerDocument={conceptsPerDocumentRef.current}
+                            expandedPatientID={expandedPatientID}
                         />
                     </CardBody>
                 )}
@@ -150,14 +146,9 @@ function Patient(props) {
 
     const getComponentPatientIdAndDemographics = () => {
         return (
-            <Card style={{marginTop: "45px"}}>
+            <Card>
                 <CardHeader className={"basicCardHeader"}>
-                    <Box
-                        // display="flex"
-                        alignItems="center"
-                        // justifyContent="space-between"
-                        // width="100%"
-                    >
+                    <Box alignItems="center">
                         <span style={{paddingLeft: '14px'}}><b>Patient ID and Demographics</b></span>
                         <IconButton onClick={() => setExpandedPatientID((prev) => !prev)} size="small">
                             {expandedPatientID ? <ExpandLess/> : <ExpandMore/>}
@@ -167,12 +158,13 @@ function Patient(props) {
 
                 {expandedPatientID && (
                     <CardBody>
-                        <CustomTable/>
+                        <CustomTable />
                     </CardBody>
                 )}
             </Card>
         );
     };
+
     const getComponentFooter = () => {
         return (
             <React.Fragment>
@@ -223,6 +215,7 @@ function Patient(props) {
                 factBasedReports={factBasedReports}
                 patientDocument={patientDocument}
                 concepts={conceptsInDocument}
+                mentions={mentionIdsInDocumentRef.current}
                 clickedTerms={clickedTerms}
                 setClickedTerms={setClickedTerms}
             ></DocumentViewer>
@@ -234,12 +227,7 @@ function Patient(props) {
             <React.Fragment>
                 <Card>
                     <CardHeader className={"basicCardHeader"}>
-                        <Box
-                            // display="flex"
-                            alignItems="center"
-                            // justifyContent="space-between"
-                            // width="100%"
-                        >
+                        <Box alignItems="center">
                             <span style={{paddingLeft: '14px'}}><b>Cancer and Tumor Detail</b></span>
                             <IconButton onClick={() => setExpandedCancerDetail((prev) => !prev)} size="small">
                                 {expandedCancerDetail ? <ExpandLess/> : <ExpandMore/>}
@@ -328,7 +316,7 @@ function Patient(props) {
     return (
         <React.Fragment>
             {getComponentNavBar()}
-            <GridContainer>
+            <GridContainer spacing={0}>
                 <GridItem xs={12} sm={12} md={1}/>
                 <GridItem xs={12} sm={12} md={10}>
                     {getComponentPatientIdAndDemographics()}

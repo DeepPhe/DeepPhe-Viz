@@ -16,6 +16,7 @@ export function DocumentViewer(props) {
     const factBasedReports = props.factBasedReports;
     const reportId = props.reportId;
     const factId = props.factId;
+    const mentions = props.mentions;
     const concepts = props.concepts;
     const [filteredConcepts, setFilteredConcepts] = useState([]);
     const [semanticGroups, setSemanticGroups] = useState({});
@@ -111,7 +112,7 @@ export function DocumentViewer(props) {
     const severityRoot = new TreeNode('Severity');
     const attrRoot = new TreeNode('Attribute');
     const interventionRoot = new TreeNode('Intervention');
-    const otherRoot = new TreeNode('Other');
+    const unkownRoot = new TreeNode('Unknown');
 
 
     // Anatomy
@@ -160,7 +161,7 @@ export function DocumentViewer(props) {
     interventionRoot.addSubtopic(new TreeNode('Intervention or Procedure', '#ca99f4'));
 
     // Other
-    otherRoot.addSubtopic(new TreeNode('Unknown', '#808080'));
+    unkownRoot.addSubtopic(new TreeNode('Unknown', '#808080'));
 
 
     semanticRoot.addSubtopic(anatomyRoot);
@@ -170,7 +171,7 @@ export function DocumentViewer(props) {
     semanticRoot.addSubtopic(severityRoot);
     semanticRoot.addSubtopic(attrRoot);
     semanticRoot.addSubtopic(interventionRoot);
-    semanticRoot.addSubtopic(otherRoot);
+    semanticRoot.addSubtopic(unkownRoot);
 
 
 
@@ -180,7 +181,17 @@ export function DocumentViewer(props) {
         const uniqueConcepts = Array.from(
             new Set(concepts.map((c) => c.dpheGroup))
         );
+        console.log("concepts in docviewer",concepts);
 
+        const hasUnknown = concepts.some(concept => concept.dpheGroup === "Unknown");
+
+        if (hasUnknown) {
+            console.log("There is at least one concept with dpheGroup 'Unknown'");
+        } else {
+            console.log("No concepts with dpheGroup 'Unknown' found");
+        }
+
+        // console.log(uniqueConcepts);
         const mappedGroups = uniqueConcepts.map((group) => {
             const conceptClump = searchTreeForClumpParent(semanticRoot, group);
             if (conceptClump === null) {
@@ -189,29 +200,38 @@ export function DocumentViewer(props) {
             return { group, conceptClump };
         });
 
-        const sortedUniqueConcepts = mappedGroups
-            .filter(({ conceptClump }) => conceptClump !== null)
-            .sort((a, b) => a.conceptClump.localeCompare(b.conceptClump));
+        // Split known and unknown groups
+        const knownGroups = mappedGroups.filter(({ conceptClump }) => conceptClump !== null);
+        const unknownGroups = mappedGroups.filter(({ conceptClump }) => conceptClump === null);
 
-        // // Sort alphabetically by conceptClump
-        // const sortedUniqueConcepts = uniqueConcepts
-        //     .map((group) => ({
-        //         group,
-        //         conceptClump: searchTreeForClumpParent(semanticRoot, group)
-        //     }))
-        //     .sort((a, b) => a.conceptClump.localeCompare(b.conceptClump));
+        // Sort known groups by conceptClump
+        knownGroups.sort((a, b) => a.conceptClump.localeCompare(b.conceptClump));
 
-        // Step 2: Map over the sorted array to build the groups object
-        sortedUniqueConcepts.forEach(({ group, conceptClump }) => {
+        // Optional: give unknown groups a default conceptClump for sorting or grouping
+        const defaultUnknownClump = 'Unknown';
+
+        // Combine known and unknown (unknown appended at the end)
+        const allGroups = [...knownGroups, ...unknownGroups.map(g => ({
+            group: g.group,
+            conceptClump: defaultUnknownClump,
+        }))];
+
+        // Build groups object
+        allGroups.forEach(({ group, conceptClump }) => {
             groups[group] = {
                 checked: true,
                 conceptClump: conceptClump,
-                backgroundColor: searchTreeForColor(semanticRoot, group),
-                id: concepts.find((c) => c.dpheGroup === group).id,
+                backgroundColor: conceptClump === defaultUnknownClump
+                    ? '#e0e0e0' // grey for unknown
+                    : searchTreeForColor(semanticRoot, group),
+                id: concepts.find((c) => c.dpheGroup === group)?.id || group,
             };
         });
+
+        console.log("SEMANTIC GROUPS", groups);
         setSemanticGroups(groups);
     };
+
 
 
     const handleSemanticGroupChange = (group, checked) => {
@@ -232,9 +252,9 @@ export function DocumentViewer(props) {
 
     const handleTermClick = (e) => {
         const clickedElement = e.currentTarget;
-        console.log("CLICKED ELE", clickedElement);
+        // console.log("CLICKED ELE", clickedElement);
         const clickedId = clickedElement.dataset.id;
-        console.log("CLICKED ID", clickedId);
+        // console.log("CLICKED ID", clickedId);
 
         if (clickedTerms.includes(clickedId)) {
             setClickedTerms((prev) => prev.filter((id) => id !== clickedId)); // Remove from state
@@ -335,6 +355,7 @@ export function DocumentViewer(props) {
                                 <DocumentPanel
                                     doc={patientDocument}
                                     concepts={concepts}
+                                    mentions={mentions}
                                     reportId={reportId}
                                     semanticGroups={semanticGroups}
                                     handleSemanticGroupChange={handleSemanticGroupChange}
