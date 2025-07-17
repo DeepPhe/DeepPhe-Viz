@@ -293,121 +293,93 @@ export default function EventRelationTimeline (props) {
         });
     }, [conceptsPerDocument, expandedPatientID]);
 
-
     useEffect(() => {
-
-        if (skipNextEffect.current) {
-            skipNextEffect.current = false; // reset for next time
-            return;
-        }
-        // if (!clickedTerms || clickedTerms.length === 0) return;
+        // Reset everything to default
+        document.querySelectorAll("circle").forEach(circle => {
+            circle.style.fillOpacity = "0.3";
+        });
 
         document.querySelectorAll(".relation-icon").forEach(el => {
-            if (!el.classList.contains("selected")) {
-                el.classList.add("unselected");
+            el.classList.remove("selected");
+            el.classList.add("unselected");
+
+            // Reset markers
+            const markerToggleMap = {
+                "url(#selectedRightCap)": "url(#rightCap)",
+                "url(#selectedLeftCap)": "url(#leftCap)",
+                "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
+                "url(#selectedRightArrow)": "url(#rightArrow)",
+                "url(#selectedLeftArrow)": "url(#leftArrow)"
+            };
+
+            if (el.hasAttribute("marker-end")) {
+                const current = el.getAttribute("marker-end");
+                if (markerToggleMap[current]) {
+                    el.setAttribute("marker-end", markerToggleMap[current]);
+                }
+            }
+
+            if (el.hasAttribute("marker-start")) {
+                const current = el.getAttribute("marker-start");
+                if (markerToggleMap[current]) {
+                    el.setAttribute("marker-start", markerToggleMap[current]);
+                }
+            }
+
+            // Hide outlines
+            const group = el.closest("g");
+            if (group) {
+                const outlines = group.querySelectorAll(".relation-outline");
+                outlines.forEach(outline => outline.setAttribute("stroke-opacity", "0"));
             }
         });
 
-        const markerToggleMap = {
-            "url(#rightCap)": "url(#selectedRightCap)",
-            "url(#selectedRightCap)": "url(#rightCap)",
-            "url(#leftCap)": "url(#selectedLeftCap)",
-            "url(#selectedLeftCap)": "url(#leftCap)",
-            "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
-            "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
-            "url(#rightArrow)":"url(#selectedRightArrow)",
-            "url(#selectedRightArrow)":"url(#rightArrow)",
-            "url(#leftArrow)":"url(#selectedLeftArrow)",
-            "url(#selectedLeftArrow)":"url(#leftArrow)"
-        };
+        // Now reapply highlights only for currently clicked terms
+        clickedTerms.forEach(termId => {
+            // Highlight relevant circles
+            document.querySelectorAll(`circle[data-concept-id="${termId}"]`).forEach(circle => {
+                circle.style.fillOpacity = "1";
+            });
 
-        document.querySelectorAll(`.relation-icon`).forEach(el => {
+            // Highlight relevant relations
+            document.querySelectorAll(`.relation-icon[data-concept-id="${termId}"]`).forEach(el => {
+                el.classList.remove("unselected");
+                el.classList.add("selected");
 
-            const conceptId = el.getAttribute("data-concept-id");
-            // console.log(conceptId);
+                const markerMap = {
+                    "url(#rightCap)": "url(#selectedRightCap)",
+                    "url(#leftCap)": "url(#selectedLeftCap)",
+                    "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
+                    "url(#rightArrow)": "url(#selectedRightArrow)",
+                    "url(#leftArrow)": "url(#selectedLeftArrow)",
+                };
 
-            if (clickedTerms.includes(conceptId)) {
                 if (el.hasAttribute("marker-end")) {
-                    const currentMarker = el.getAttribute("marker-end");
-                    if (markerToggleMap[currentMarker]) {
-                        el.setAttribute("marker-end", markerToggleMap[currentMarker]);
+                    const current = el.getAttribute("marker-end");
+                    if (markerMap[current]) {
+                        el.setAttribute("marker-end", markerMap[current]);
                     }
                 }
 
                 if (el.hasAttribute("marker-start")) {
-                    const currentMarker = el.getAttribute("marker-start");
-                    if (markerToggleMap[currentMarker]) {
-                        el.setAttribute("marker-start", markerToggleMap[currentMarker]);
+                    const current = el.getAttribute("marker-start");
+                    if (markerMap[current]) {
+                        el.setAttribute("marker-start", markerMap[current]);
                     }
                 }
 
-                if (el.classList.contains("selected")) {
-                    el.classList.remove("selected");
-                    el.classList.add("unselected");
-                } else {
-                    el.classList.remove("unselected");
-                    el.classList.add("selected");
+                // Show outlines
+                const group = el.closest("g");
+                if (group) {
+                    const outlines = group.querySelectorAll(".relation-outline");
+                    outlines.forEach(outline => outline.setAttribute("stroke-opacity", "1"));
                 }
-            }
-            else{
-
-            }
-
-
-            // Show/hide the black outline line
-            const group = el.closest("g");
-            const isNowSelected = el.classList.contains("selected");
-            if (group) {
-                const outlines = group.querySelectorAll(".relation-outline");
-                if (outlines.length) {
-                    outlines.forEach((outline) => {
-                        // Do something with the outlines, like showing or hiding
-                        outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
-                    });
-                }
-            }
-        //
-        // document.querySelectorAll(`.relation-icon`).forEach(el => {
-        //
-        //     const conceptId = el.getAttribute("data-concept-id");
-        //
-        //     if (clickedTerms.includes(conceptId)) {
-        //         // Highlight it
-        //         if (el.hasAttribute("marker-end")) {
-        //             el.setAttribute("marker-end", "url(#selectedRightArrow)");
-        //         } else if (el.hasAttribute("marker-start")) {
-        //             el.setAttribute("marker-start", "url(#selectedLeftArrow)");
-        //         } else {
-        //             el.classList.add("selected");
-        //             el.classList.remove("unselected");
-        //         }
-        //     } else {
-        //         // Un-highlight it
-        //         if (el.hasAttribute("marker-end")) {
-        //             el.setAttribute("marker-end", "url(#rightArrow)");
-        //         } else if (el.hasAttribute("marker-start")) {
-        //             el.setAttribute("marker-start", "url(#leftArrow)");
-        //         } else {
-        //             el.classList.remove("selected");
-        //             el.classList.add("unselected");
-        //         }
-        //     }
-        //
-        //     // Show/hide the black outline line
-        //     const group = el.closest("g");
-        //     const isNowSelected = el.classList.contains("selected");
-        //     if (group) {
-        //         const outlines = group.querySelectorAll(".relation-outline");
-        //         if (outlines.length) {
-        //             outlines.forEach((outline) => {
-        //                 // Do something with the outlines, like showing or hiding
-        //                 outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
-        //             });
-        //         }
-        //     }
+            });
         });
 
     }, [clickedTerms]);
+
+
 
 
 
@@ -457,11 +429,9 @@ export default function EventRelationTimeline (props) {
             const relation1Set = new Set();
             const relation2Set = new Set();
 
-
             for (let i = 0; i < dpheGroup.length; i++){
                 dpheGroupSet.add(dpheGroup[i]);
             }
-
 
             for (let i = 0; i < laneGroup.length; i++){
                 if (laneGroup[i] !== undefined){
@@ -1655,7 +1625,7 @@ export default function EventRelationTimeline (props) {
                 });
 
 
-                // Set all circles and relations to light/transparent
+                // // Set all circles and relations to light/transparent
                 document.querySelectorAll("circle").forEach(circle => {
                     circle.style.fillOpacity = "0.3";  // very light by default
                 });
@@ -1665,65 +1635,65 @@ export default function EventRelationTimeline (props) {
                         el.classList.add("unselected");
                     }
                 });
-
-                const markerToggleMap = {
-                    "url(#rightCap)": "url(#selectedRightCap)",
-                    "url(#selectedRightCap)": "url(#rightCap)",
-                    "url(#leftCap)": "url(#selectedLeftCap)",
-                    "url(#selectedLeftCap)": "url(#leftCap)",
-                    "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
-                    "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
-                    "url(#rightArrow)":"url(#selectedRightArrow)",
-                    "url(#selectedRightArrow)":"url(#rightArrow)",
-                    "url(#leftArrow)":"url(#selectedLeftArrow)",
-                    "url(#selectedLeftArrow)":"url(#leftArrow)"
-                };
-
-                // Emphasize matching relations
-                document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
-                    skipNextEffect.current = true;
-                    // console.log(clickedConceptId);
-
-                    if (el.hasAttribute("marker-end")){
-                        const currentMarker = el.getAttribute("marker-end");
-                        if (markerToggleMap[currentMarker]) {
-                            el.setAttribute("marker-end", markerToggleMap[currentMarker]);
-                        }
-                    }
-
-                    if (el.hasAttribute("marker-start")){
-                        const currentMarker = el.getAttribute("marker-start");
-                        if (markerToggleMap[currentMarker]) {
-                            el.setAttribute("marker-start", markerToggleMap[currentMarker]);
-                        }
-                    }
-
-                    if (el.classList.contains("selected")) {
-                        el.classList.remove("selected");
-                        el.classList.add("unselected");
-                    } else {
-                        el.classList.remove("unselected");
-                        el.classList.add("selected");
-                    }
-
-
-                    // Show/hide the black outline line
-                    const group = el.closest("g");
-                    const isNowSelected = el.classList.contains("selected");
-                    if (group) {
-                        const outlines = group.querySelectorAll(".relation-outline");
-                        if (outlines.length) {
-                            outlines.forEach((outline) => {
-                                // Do something with the outlines, like showing or hiding
-                                outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
-                            });
-                        }
-                    }
-
-                });
-
-                // TODO: Figure out how to get noteID from conceptID
-
+                //
+                // const markerToggleMap = {
+                //     "url(#rightCap)": "url(#selectedRightCap)",
+                //     "url(#selectedRightCap)": "url(#rightCap)",
+                //     "url(#leftCap)": "url(#selectedLeftCap)",
+                //     "url(#selectedLeftCap)": "url(#leftCap)",
+                //     "url(#verticalLineCap)": "url(#selectedVerticalLineCap)",
+                //     "url(#selectedVerticalLineCap)": "url(#verticalLineCap)",
+                //     "url(#rightArrow)":"url(#selectedRightArrow)",
+                //     "url(#selectedRightArrow)":"url(#rightArrow)",
+                //     "url(#leftArrow)":"url(#selectedLeftArrow)",
+                //     "url(#selectedLeftArrow)":"url(#leftArrow)"
+                // };
+                //
+                // // Emphasize matching relations
+                // document.querySelectorAll(`.relation-icon[data-concept-id="${clickedConceptId}"]`).forEach(el => {
+                //     skipNextEffect.current = true;
+                //     // console.log(clickedConceptId);
+                //
+                //     if (el.hasAttribute("marker-end")){
+                //         const currentMarker = el.getAttribute("marker-end");
+                //         if (markerToggleMap[currentMarker]) {
+                //             el.setAttribute("marker-end", markerToggleMap[currentMarker]);
+                //         }
+                //     }
+                //
+                //     if (el.hasAttribute("marker-start")){
+                //         const currentMarker = el.getAttribute("marker-start");
+                //         if (markerToggleMap[currentMarker]) {
+                //             el.setAttribute("marker-start", markerToggleMap[currentMarker]);
+                //         }
+                //     }
+                //
+                //     if (el.classList.contains("selected")) {
+                //         el.classList.remove("selected");
+                //         el.classList.add("unselected");
+                //     } else {
+                //         el.classList.remove("unselected");
+                //         el.classList.add("selected");
+                //     }
+                //
+                //
+                //     // Show/hide the black outline line
+                //     const group = el.closest("g");
+                //     const isNowSelected = el.classList.contains("selected");
+                //     if (group) {
+                //         const outlines = group.querySelectorAll(".relation-outline");
+                //         if (outlines.length) {
+                //             outlines.forEach((outline) => {
+                //                 // Do something with the outlines, like showing or hiding
+                //                 outline.setAttribute("stroke-opacity", isNowSelected ? "1" : "0");
+                //             });
+                //         }
+                //     }
+                //
+                // });
+                //
+                // // TODO: Figure out how to get noteID from conceptID
+                //
                 const matchingNotes = Object.entries(conceptsPerDocument)
                     .filter(([_, objArray]) => objArray.some(obj => obj.id === clickedConceptId)
                     )
