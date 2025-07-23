@@ -20,6 +20,7 @@ import Box from "@mui/material/Box";
 import {getConceptsPerDocumentRef, hasDocuments} from "../../utils/PersonObjectHelper";
 import {getNewPatientObject} from "../../utils/PersonObjectGetter";
 import {getPatientDocument} from "../../utils/PatientDocumentGetter";
+import createEpisodeTimeline from "../../utils/CreateEpisodeTimeline";
 
 function Patient(props) {
     const {patientId} = useParams();
@@ -38,19 +39,21 @@ function Patient(props) {
     const [expandedCancerDetail, setExpandedCancerDetail] = useState(true); // initially open
     const conceptsPerDocumentRef = useRef({});
     const mentionIdsInDocumentRef = useRef({});
+    const [fullJson, setFullJson] = useState(undefined);
 
     useEffect(() => {
-        if (hasDocuments(patientObject)) {
-            conceptsPerDocumentRef.current = getConceptsPerDocumentRef(patientObject);
+        if (hasDocuments(fullJson)) {
+            conceptsPerDocumentRef.current = getConceptsPerDocumentRef(fullJson);
             setProcessingDone(true);
         }
-    }, [patientObject]);
+    }, [fullJson]);
 
     useEffect(() => {
-        if (hasDocuments(patientObject)) {
-            setPatientDocument(getPatientDocument(currDocId, patientObject));
+        debugger;
+        if (hasDocuments(fullJson)) {
+            setPatientDocument(getPatientDocument(currDocId, fullJson));
         }
-    }, [currDocId, patientObject]);
+    }, [currDocId, fullJson]);
 
     useEffect(() => {
         if (!isLoading()) {
@@ -60,7 +63,7 @@ function Patient(props) {
 
 
     const isLoading = () => {
-        return patientDocument === undefined || patientObject === undefined || !processingDone;
+        return patientDocument === undefined || patientObject === undefined || fullJson === undefined || !processingDone;
     }
 
 
@@ -90,7 +93,8 @@ function Patient(props) {
                             <PatientEpisodeTimeline
                                 svgContainerId="PatientEpisodeTimelineSvg"
                                 reportId={reportId}
-                                patientJson={patientObject}
+                                patientJson={fullJson}
+                                timeline={patientObject}
                                 patientId={patientId}
                                 setReportId={setReportId}
                                 setCurrDocId={setCurrDocId}
@@ -110,7 +114,7 @@ function Patient(props) {
         if (isLoading()) {
             return <div>Loading Event Relation Table...</div>;
         }
-        const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
+        const conceptsInDocument = patientDocument.getConceptsInDocument(fullJson.concepts);
 
         return (
             <Card>
@@ -130,7 +134,7 @@ function Patient(props) {
                             clickedTerms={clickedTerms}
                             svgContainerId="EventRelationTimelineSvg"
                             reportId={reportId}
-                            patientJson={patientObject}
+                            patientJson={fullJson}
                             concepts={conceptsInDocument}
                             patientId={patientId}
                             setReportId={setReportId}
@@ -158,7 +162,7 @@ function Patient(props) {
 
                 {expandedPatientID && (
                     <CardBody>
-                        <CustomTable />
+                        <CustomTable/>
                     </CardBody>
                 )}
             </Card>
@@ -200,7 +204,7 @@ function Patient(props) {
         if (isLoading()) {
             return <div>Loading Document Viewer...</div>;
         }
-        const conceptsInDocument = patientDocument.getConceptsInDocument(patientObject.concepts);
+        const conceptsInDocument = patientDocument.getConceptsInDocument(fullJson.concepts);
         // console.log("CONCEPTS IN DOCUMENT", conceptsInDocument);
         // console.log("THSI IS PATIENT DOC", patientDocument);
         if (isEmpty(reportId) || patientDocument.getMentionIdsInDocument() === 0) {
@@ -289,15 +293,19 @@ function Patient(props) {
 
 
     useEffect(() => {
-        if (summary.length && patientId) {
-            getNewPatientObject(patientId).then((patientObject) => {
+        if (patientId) {
+            createEpisodeTimeline(patientId).then((obj) => {
+                const patientObject = obj.timeline;
+                const fullJson = obj.fullJson;
+                debugger;
                 if (!patientObject || Object.keys(patientObject).length === 0) {
                     console.warn("Empty or invalid patientJson received!");
                 }
                 setPatientObject(patientObject);
+                setFullJson(fullJson);
             });
         }
-    }, [summary, patientId]);
+    }, [patientId]);
 
 
     if (isEmpty(summary)) {
@@ -311,6 +319,10 @@ function Patient(props) {
             );
         }
         return <div> Loading... </div>;
+    }
+
+    if (isLoading()) {
+        return <div>Loading Patient Data...</div>;
     }
 
     return (
