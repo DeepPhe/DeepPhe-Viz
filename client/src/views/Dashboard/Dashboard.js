@@ -14,7 +14,7 @@ export default function Dashboard() {
         <Navbar className={"mainNavBar"}>
             <Container>
                 <Navbar.Brand className={"mainNavBar"} href="#home">DeepPhe Visualizer<span
-                    style={{"fontSize": '20px'}}> v2.0.0.0</span></Navbar.Brand>
+                    style={{"fontSize": '20px'}}> v2.1</span></Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="justify-content-end" style={{width: "100%"}}>
@@ -43,7 +43,7 @@ export default function Dashboard() {
                 <Col md={1}></Col>
                 <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer" href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
                 <Col md={1}></Col>
-                <Col md={5}>©2023 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
+                <Col md={5}>©2025 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
                <Col md={1}></Col>
             </Row>
         </div>

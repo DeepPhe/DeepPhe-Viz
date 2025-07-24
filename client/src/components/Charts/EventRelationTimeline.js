@@ -64,6 +64,8 @@ export { reportTextRight };
 export default function EventRelationTimeline (props) {
     const [json, setJson] = useState(undefined);
     const [patientId, setPatientId] = useState(props.patientId);
+    const [noData, setNoData] = useState(false);
+
     const setReportId = props.setReportId;
     const patientJson = props.patientJson;
     const reportId = props.reportId;
@@ -240,42 +242,29 @@ export default function EventRelationTimeline (props) {
     }
 
 
-
-    // const transformTSVData = (data) => {
-    //     return {
-    //         startDates: data.map(d => d.start_date),
-    //         patientId: data.map(d => d.patient_id),
-    //         chemoText: data.map(d => d.chemo_text),
-    //         chemoTextGroups: data.map(d => d.chemo_group),
-    //         chemoTextGroupCounts: data.chemoTextGroupCounts,
-    //         endDates: data.map(d => d.end_date),
-    //         chemoTextCounts: data.chemoTextCounts,
-    //         tLinkCounts: data.tLinkCounts,
-    //         noteId : data.map(d => d.note_id),
-    //         conceptId : data.map(d => d.concept_id),
-    //         tLink : data.map(d => d.tlink)
-    //     };
-    // }
-
-
-
-
     const skipNextEffect = useRef(false);
 
     useLayoutEffect(() => {
         if (!conceptsPerDocument) return;
 
         fetchTXTData(conceptsPerDocument).then(data => {
-            if (!data) return;
+            if (!data) {
+                setNoData(true);
+                return;
+            }
             setJson(data);
             const transformedData = transformTXTData(data);
             const container = document.getElementById(svgContainerId);
             if (container) {
                 d3.select(container).selectAll("*").remove();
             }
+
             const filteredDpheGroup = transformedData.dpheGroup.filter(item => item != null);
             const filteredLaneGroup = transformedData.laneGroup.filter(item => item != null);
-            if(filteredDpheGroup.length !== 0 && filteredLaneGroup.length !== 0) {
+
+            const hasValidData = filteredDpheGroup.length !== 0 && filteredLaneGroup.length !== 0;
+
+            if (hasValidData) {
                 renderTimeline(
                     svgContainerId,
                     transformedData.patientId,
@@ -289,8 +278,12 @@ export default function EventRelationTimeline (props) {
                     transformedData.dpheGroupCounts,
                     transformedData.laneGroupsCounts
                 );
+                setNoData(false);
+            } else {
+                setNoData(true);
             }
         });
+
     }, [conceptsPerDocument, expandedPatientID]);
 
     useEffect(() => {
@@ -1988,5 +1981,13 @@ export default function EventRelationTimeline (props) {
     };
 
 
-    return (<div className="Timeline" id={svgContainerId}></div>);
+    return (
+        <>
+            {noData ? (
+                <span>No Event Relations</span>
+            ) : (
+                <div className="Timeline" id={svgContainerId}></div>
+            )}
+        </>
+    );
 }
