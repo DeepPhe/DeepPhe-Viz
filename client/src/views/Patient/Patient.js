@@ -21,6 +21,7 @@ import {getConceptsPerDocumentRef, hasDocuments} from "../../utils/PersonObjectH
 import {getNewPatientObject} from "../../utils/PersonObjectGetter";
 import {getPatientDocument} from "../../utils/PatientDocumentGetter";
 import createEpisodeTimeline from "../../utils/CreateEpisodeTimeline";
+import createCancerAndTumorSummary from "../../utils/CreateCancerAndTumorSummary";
 
 function Patient(props) {
     const {patientId} = useParams();
@@ -49,7 +50,6 @@ function Patient(props) {
     }, [fullJson]);
 
     useEffect(() => {
-        debugger;
         if (hasDocuments(fullJson)) {
             setPatientDocument(getPatientDocument(currDocId, fullJson));
         }
@@ -297,7 +297,6 @@ function Patient(props) {
             createEpisodeTimeline(patientId).then((obj) => {
                 const patientObject = obj.timeline;
                 const fullJson = obj.fullJson;
-                debugger;
                 if (!patientObject || Object.keys(patientObject).length === 0) {
                     console.warn("Empty or invalid patientJson received!");
                 }
@@ -311,12 +310,10 @@ function Patient(props) {
     if (isEmpty(summary)) {
         if (!gettingSummary) {
             setGettingSummary(true);
-            getSummary(patientId).then((response) =>
-                response.json().then((json) => {
-                    setSummary(json);
-                    setGettingSummary(false); // optional, useful if you want to reset
-                })
-            );
+            createCancerAndTumorSummary(patientId).then((json) => {
+                setSummary(json);
+                setGettingSummary(false);
+            });
         }
         return <div> Loading... </div>;
     }
