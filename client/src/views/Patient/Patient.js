@@ -189,7 +189,7 @@ function Patient(props) {
                         </Col>
                         <Col md={1}></Col>
                         <Col md={5}>
-                            ©2021 Harvard Medical School, University of Pittsburgh, and
+                            ©2025 Harvard Medical School, University of Pittsburgh, and
                             Vanderbilt University Medical Center.
                         </Col>
                         <Col md={1}></Col>
@@ -257,7 +257,7 @@ function Patient(props) {
                 <Container>
                     <Navbar.Brand className={"mainNavBar"} href="/">
                         DeepPhe Visualizer
-                        <span style={{fontSize: "20px"}}> v2.0.0.0</span>
+                        <span style={{fontSize: "20px"}}> v2.1</span>
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                     <Navbar.Collapse id="basic-navbar-nav">
