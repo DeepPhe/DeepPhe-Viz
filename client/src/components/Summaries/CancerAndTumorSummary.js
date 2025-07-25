@@ -14,53 +14,132 @@ const source = `
             <div class="cancer_id">Cancer ID: {{title}}</div>
             
             <div class="cancer_and_tnm">
-                <ul class="cancer_facts">
-                    {{#each collatedCancerFacts}}
-                    <li class="cancer_facts_item">
-                        <span class="cancer_fact_category_name">{{categoryName}}: </span>
-                        <ul class="cancer_fact_list">
-                            {{#each facts}}
-                            <li><span class="fact" id="{{id}}">{{value}}</span></li>
+              <ul class="cancer_facts">
+                {{#each collatedCancerFacts}}
+                  <li class="cancer_facts_item">
+                    <span class="cancer_fact_category_name">{{categoryName}}: </span>
+                    <ul class="cancer_fact_list">
+                      {{#each facts}}
+                        <li><span class="fact" id="{{id}}">{{value}}{{#unless @last}}, {{/unless}}</span></li>
+                      {{/each}}
+                    </ul>
+                  </li>
+                {{/each}}
+              </ul>
+            
+              {{#each tnm}}
+                {{#if data.T}}
+                  <div class="tnm clearfix">
+                    <div class="tnm_by_type">
+                      <span class="tnm_type">{{type}} TNM: </span>
+            
+                      {{#if data.T}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.T}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
                             {{/each}}
+                          </li>
                         </ul>
-                    </li>
-                    {{/each}}
-                </ul>
-
-                {{#if tnm.length}}
-                    <div class="tnm clearfix">
-                        {{#each tnm}}
-                        <div class="tnm_by_type">
-                            <span class="tnm_type">{{type}} TNM: </span>
-                            
-                            {{#if data.T}}
-                            <ul class="cancer_tnm_fact_list">
-                                {{#each data.T}}
-                                <li><span class="fact" id="{{id}}">{{value}}</span></li>
-                                {{/each}}
-                            </ul>
-                            {{/if}}
-
-                            {{#if data.N}}
-                            <ul class="cancer_tnm_fact_list">
-                                {{#each data.N}}
-                                <li><span class="fact" id="{{id}}">{{value}}</span></li>
-                                {{/each}}
-                            </ul>
-                            {{/if}}
-
-                            {{#if data.M}}
-                            <ul class="cancer_tnm_fact_list">
-                                {{#each data.M}}
-                                <li><span class="fact" id="{{id}}">{{value}}</span></li>
-                                {{/each}}
-                            </ul>
-                            {{/if}}
-                        </div>
-                        {{/each}}
+                      {{/if}}
+            
+                      {{#if data.N}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.N}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+            
+                      {{#if data.M}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.M}}
+                                <span class="fact" id="{{id}}">{{value}}{{#unless @last}}, {{/unless}}</span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
                     </div>
+                  </div>
+                {{else if data.N}}
+                  <div class="tnm clearfix">
+                    <div class="tnm_by_type">
+                      <span class="tnm_type">{{type}} TNM: </span>
+            
+                      {{#if data.T}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.T}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+            
+                      {{#if data.N}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.N}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+            
+                      {{#if data.M}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.M}}
+                                <span class="fact" id="{{id}}">{{value}}{{#unless @last}}, {{/unless}}</span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+                    </div>
+                  </div>
+                {{else if data.M}}
+                  <div class="tnm clearfix">
+                    <div class="tnm_by_type">
+                      <span class="tnm_type">{{type}} TNM: </span>
+            
+                      {{#if data.T}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.T}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+            
+                      {{#if data.N}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.N}}
+                              <span class="fact" id="{{id}}">{{value}}, </span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+            
+                      {{#if data.M}}
+                        <ul class="cancer_tnm_fact_list">
+                          <li>
+                            {{#each data.M}}
+                                <span class="fact" id="{{id}}">{{value}}{{#unless @last}}, {{/unless}}</span>
+                            {{/each}}
+                          </li>
+                        </ul>
+                      {{/if}}
+                    </div>
+                  </div>
                 {{/if}}
+              {{/each}}
             </div>
+
 
             {{#if tumors.tumors.length}}
             <div class="tumor_summary">
@@ -71,15 +150,15 @@ const source = `
                     {{#each tumors.listViewData}}
                     <div class="list_view_tumor clearfix">
                         <div class="list_view_tumor_type">
-                        {{type}}
+                        <b>Tumor ID:</b>  {{type}}
                             <ul class="list_view_tumor_list clearfix">
                                 {{#each data}}
                                     {{#if facts}}
-                                    <li class="list_view_tumor_list_item">
+                                    <li class="list_view_tumor_list_item" style="font-weight: normal;">
                                         {{category}}:
                                         <ul class="list_view_tumor_fact_list">
                                             {{#each facts}}
-                                            <li><span class="fact" id="list_view_{{id}}">{{value}}</span></li>
+                                            <li><span class="fact" id="list_view_{{id}}">{{value}}{{#unless @last}}, {{/unless}}</span></li>
                                             {{/each}}
                                         </ul>
                                     </li>
