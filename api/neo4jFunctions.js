@@ -11,6 +11,7 @@
 
 // The neo4j function deepphe.getCohortData() returns a list of patient data
 const getCohortData = () => {
+    console.log("is this being called");
     return 'return deepphe.getCohortData() AS cohortData';
 }
 

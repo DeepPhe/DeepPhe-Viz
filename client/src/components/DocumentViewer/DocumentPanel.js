@@ -448,7 +448,7 @@ export function DocumentPanel(props) {
   function getAllMentionsInDoc(){
     let MentionList = [];
 
-    console.log("filtereDCONEPTS", filteredConceptsStartingCopy);
+    // console.log("filtereDCONEPTS", filteredConceptsStartingCopy);
 
     for(let i = 0; i < filteredConceptsStartingCopy.length; i++){
       const conceptId = filteredConceptsStartingCopy[i].id;
@@ -489,7 +489,7 @@ export function DocumentPanel(props) {
     // Combined the checks for filteredConcepts and filteredConceptsStartingCopy
     // console.log(props.filteredConcepts.length, filteredConceptsStartingCopy.length, docText);
     // console.log("IS THIS BEING CALLED");
-    console.log(props.clickedTerms);
+    // console.log(props.clickedTerms);
     if ((props.filteredConcepts.length > 0 || filteredConceptsStartingCopy.length > 0) && docText) {
       // console.log("does this get called");
       setHTML();
