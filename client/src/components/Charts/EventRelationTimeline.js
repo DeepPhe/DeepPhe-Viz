@@ -1980,14 +1980,13 @@ export default function EventRelationTimeline (props) {
         }
     };
 
-
-    return (
-        <>
-            {noData ? (
-                <span>No Event Relations</span>
-            ) : (
-                <div className="Timeline" id={svgContainerId}></div>
-            )}
-        </>
-    );
+    if (noData) {
+        return (
+            <span>No Event Relations</span>
+        );
+    } else {
+        return (
+            <div className="Timeline" id={svgContainerId}></div>
+        );
+    }
 }
