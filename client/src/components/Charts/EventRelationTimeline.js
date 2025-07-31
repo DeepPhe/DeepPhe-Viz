@@ -248,7 +248,9 @@ export default function EventRelationTimeline (props) {
         if (!conceptsPerDocument) return;
 
         fetchTXTData(conceptsPerDocument).then(data => {
+            console.log(data);
             if (!data) {
+                console.log("are we reaching here?");
                 setNoData(true);
                 return;
             }
@@ -258,13 +260,15 @@ export default function EventRelationTimeline (props) {
             if (container) {
                 d3.select(container).selectAll("*").remove();
             }
+            console.log(transformedData);
 
             const filteredDpheGroup = transformedData.dpheGroup.filter(item => item != null);
             const filteredLaneGroup = transformedData.laneGroup.filter(item => item != null);
 
             const hasValidData = filteredDpheGroup.length !== 0 && filteredLaneGroup.length !== 0;
-
+            console.log(hasValidData);
             if (hasValidData) {
+                console.log("Is render being set");
                 renderTimeline(
                     svgContainerId,
                     transformedData.patientId,

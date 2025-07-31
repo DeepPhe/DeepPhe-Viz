@@ -60,7 +60,7 @@ export function DocumentViewer(props) {
         // Method to print the tree structure with concept, subtopics, and associated colors
         print(indent = 0) {
             const colorText = this.color ? ` (Color: ${this.color})` : ''; // Show color if available
-            console.log(" ".repeat(indent) + this.concept + colorText); // Print concept and color
+            // console.log(" ".repeat(indent) + this.concept + colorText); // Print concept and color
             this.subtopics.forEach(subtopic => subtopic.print(indent + 2)); // Recursively print subtopics
         }
     }
@@ -181,14 +181,14 @@ export function DocumentViewer(props) {
         const uniqueConcepts = Array.from(
             new Set(concepts.map((c) => c.dpheGroup))
         );
-        console.log("concepts in docviewer",concepts);
+        // console.log("concepts in docviewer",concepts);
 
         const hasUnknown = concepts.some(concept => concept.dpheGroup === "Unknown");
 
         if (hasUnknown) {
-            console.log("There is at least one concept with dpheGroup 'Unknown'");
+            // console.log("There is at least one concept with dpheGroup 'Unknown'");
         } else {
-            console.log("No concepts with dpheGroup 'Unknown' found");
+            // console.log("No concepts with dpheGroup 'Unknown' found");
         }
 
         // console.log(uniqueConcepts);
@@ -228,7 +228,7 @@ export function DocumentViewer(props) {
             };
         });
 
-        console.log("SEMANTIC GROUPS", groups);
+        // console.log("SEMANTIC GROUPS", groups);
         setSemanticGroups(groups);
     };
 
