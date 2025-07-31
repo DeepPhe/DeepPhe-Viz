@@ -207,7 +207,6 @@ class CancerAndTumorSummary extends Component {
     // };
 
     render() {
-        debugger;
         return (
             <div
                 className="container"
