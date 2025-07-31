@@ -18,10 +18,10 @@ class CustomTable extends React.Component {
       if (arr[i]["patientId"] === this.props.match.params.patientId) {
         let item = arr[i];
         this.setState({
-          ptId: item["patientId"],
-          ptName: item["patientName"],
-          ptAgeB: item["firstEncounterAge"],
-          ptAgeE: item["lastEncounterAge"],
+          ptId: item["PatientID"],
+          ptName: item["PatientName"],
+          ptAgeB: item["AgeOfFirstEncounter"],
+          ptAgeE: item["AgeOfLastEncounter"],
         });
         break;
       }
