@@ -1,16 +1,16 @@
-import React from "react";
+import React, {Component} from "react";
 import Slider from "rc-slider";
+import ToggleSwitch from "../../CustomButtons/ToggleSwitch";
 import {ChangeResult} from "multi-range-slider-react";
-import SwitchControl from "./controls/SwitchControl";
-import RangeSelector from "./RangeSelector";
 
-class CategoricalRangeSelector extends RangeSelector {
-
+class CategoricalRangeSelector extends Component {
     constructor(props) {
         super(props);
-    }
-    broadcastUpdate = (definition) => {
-        this.props.broadcastUpdate(definition)
+        this.state = {
+            definition: props.definition,
+            selected: props.selected,
+            onSelect: props.onSelect
+        }
     }
 
     // handleStageChange = (e: ChangeResult) => {

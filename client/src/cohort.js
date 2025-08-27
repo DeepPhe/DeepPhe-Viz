@@ -74,22 +74,22 @@ export const topLevelStages = [
 // Return the intersection of two patient arrays
 export function getTargetPatients(patientsByStage, patientsByFirstEncounterAge) {
     // Create a list of IDs
-    let patientsByStageIds = patientsByStage.map(function (obj) {
+    let patientsByStageIds = patientsByStage.map(function(obj) {
         return obj.patientId;
     });
 
-    let patientsByFirstEncounterAgeIds = patientsByFirstEncounterAge.map(function (obj) {
+    let patientsByFirstEncounterAgeIds = patientsByFirstEncounterAge.map(function(obj) {
         return obj.patientId;
     });
 
     // Find common patient Ids
-    let targetPatientIds = patientsByStageIds.filter(function (id) {
+    let targetPatientIds = patientsByStageIds.filter(function(id) {
         return patientsByFirstEncounterAgeIds.indexOf(id) > -1;
     });
 
     // Find the patient objects based on common patient IDs
     // No need to sort/order the targetPatients since it's already sorted in dataProcessor
-    let targetPatients = patientsByStage.filter(function (obj) {
+    let targetPatients = patientsByStage.filter(function(obj) {
         return targetPatientIds.indexOf(obj.patientId) > -1;
     });
 
@@ -100,7 +100,7 @@ export function getTargetPatients(patientsByStage, patientsByFirstEncounterAge) 
 export function sortByProvidedOrder(array, orderArr) {
     let orderMap = new Map();
 
-    orderArr.forEach(function (item) {
+    orderArr.forEach(function(item) {
         // Remember the index of each item in order array
         orderMap.set(item, orderArr.indexOf(item));
     });
@@ -109,7 +109,7 @@ export function sortByProvidedOrder(array, orderArr) {
     // It's very possible that items are in array may not be in orderArr
     // so we assign index starting from orderArr.length for those items
     let i = orderArr.length;
-    let sortedArray = array.sort(function (a, b) {
+    let sortedArray = array.sort(function(a, b){
         if (!orderMap.has(a)) {
             orderMap.set(a, i++);
         }
@@ -123,6 +123,7 @@ export function sortByProvidedOrder(array, orderArr) {
 
     return sortedArray;
 }
+
 
 
 // function getDiagnosis(patientIds) {

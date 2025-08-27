@@ -56,8 +56,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
             JSON.stringify(this.props.patientsAndStagesInfo))
-        const internalUpdate = JSON.stringify(prevState.biomarkerData) !== JSON.stringify(this.state.biomarkerData)
-        const sizeChange = prevState.width !== this.state.width;
+        const internalUpdate = JSON.stringify(prevState.biomarkerData) !==JSON.stringify(this.state.biomarkerData)
+        const sizeChange = prevState.width !==this.state.width;
         if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
 
@@ -196,6 +196,8 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                 })
 
 
+
+
                 // console.log("Patients to show: ")
                 // console.log(selectedPatients);
             })
@@ -296,7 +298,7 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                 .text(function (d) {
                     // Capitalized
                     return d.charAt(0).toUpperCase() + d.slice(1);
-
+                    ;
                 });
         } else {
             // Update the data
@@ -342,6 +344,7 @@ export default class PatientsWithBiomarkersFound extends React.Component {
                 });
         }
     }
+
 
 
     render() {

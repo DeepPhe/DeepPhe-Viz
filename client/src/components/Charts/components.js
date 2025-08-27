@@ -1,6 +1,6 @@
 // @flow weak
 
-import React, {Fragment} from "react";
+import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
 // *******************************************************
@@ -26,11 +26,11 @@ const railInnerStyle = {
     backgroundColor: "rgb(155,155,155)"
 };
 
-export function SliderRail({getRailProps}) {
+export function SliderRail({ getRailProps }) {
     return (
         <Fragment>
             <div style={railOuterStyle} {...getRailProps()} />
-            <div style={railInnerStyle}/>
+            <div style={railInnerStyle} />
         </Fragment>
     );
 }
@@ -44,7 +44,7 @@ SliderRail.propTypes = {
 // *******************************************************
 export function Handle({
                            domain: [min, max],
-                           handle: {id, value, percent},
+                           handle: { id, value, percent },
                            disabled,
                            getHandleProps
                        }) {
@@ -107,7 +107,7 @@ Handle.defaultProps = {
 // *******************************************************
 export function KeyboardHandle({
                                    domain: [min, max],
-                                   handle: {id, value, percent},
+                                   handle: { id, value, percent },
                                    disabled,
                                    getHandleProps
                                }) {
@@ -151,7 +151,7 @@ KeyboardHandle.defaultProps = {
 // *******************************************************
 // TRACK COMPONENT
 // *******************************************************
-export function Track({source, target, getTrackProps, disabled}) {
+export function Track({ source, target, getTrackProps, disabled }) {
     return (
         <div
             style={{
@@ -192,7 +192,7 @@ Track.defaultProps = {
 // *******************************************************
 // TICK COMPONENT
 // *******************************************************
-export function Tick({tick, count, format}) {
+export function Tick({ tick, count, format }) {
     return (
         <div>
             <div

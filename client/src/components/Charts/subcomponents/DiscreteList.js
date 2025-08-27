@@ -3,18 +3,21 @@ import React, {Component} from "react";
 class DiscreteList extends Component {
     constructor(props) {
         super(props);
-
+        this.state = {
+            definition: props.definition,
+            selected: props.selected,
+            onSelect: props.onSelect
+        }
     }
 
     render() {
-        const {definition} = this.props
+
         return (
             <React.Fragment>
-                <div id={definition.fieldName.replaceAll(" ", "-").toLowerCase() + "-overlay-row"}>
+                <div id={"diagnosis-overlay-row"}>
                     <div id={"diagnosis-row"} className={"row no-gutter"}>
-                        {definition.globalPatientCountsForCategories.map((item, index) => {
-                            return <span key={index}
-                                         className={"box-for-word-filter blue-border-for-word-filter"}>{item.category}</span>
+                        {this.state.definition.globalPatientCountsForCategories.map((item, index) => {
+                           return <span className={"box-for-word-filter blue-border-for-word-filter"}>{item.category}</span>
                         })}
                     </div>
                 </div>

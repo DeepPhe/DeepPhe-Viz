@@ -19,79 +19,79 @@ import bgImage from "assets/img/sidebar-5.jpg";
 let ps;
 
 const switchRoutes = (
-    <Switch>
-        {routes.map((prop, key) => {
-            if (prop.layout === "/deepphe") {
-                return (
-                    <Route
-                        path={prop.layout + prop.path}
-                        component={prop.component}
-                        key={key}
-                    />
-                );
-            }
-            return null;
-        })}
-        <Redirect from="/deepphe" to="/deepphe/dashboard"/>
-    </Switch>
+  <Switch>
+    {routes.map((prop, key) => {
+      if (prop.layout === "/deepphe") {
+        return (
+          <Route
+            path={prop.layout + prop.path}
+            component={prop.component}
+            key={key}
+          />
+        );
+      }
+      return null;
+    })}
+    <Redirect from="/deepphe" to="/deepphe/dashboard" />
+  </Switch>
 );
 
 const useStyles = makeStyles(styles);
 
-export default function Deepphe({...rest}) {
-    // styles
-    const classes = useStyles();
-    // ref to help us initialize PerfectScrollbar on windows devices
-    const mainPanel = React.createRef();
-    // states and functions
-    const [image, setImage] = React.useState(bgImage);
-    const [color, setColor] = React.useState("blue");
-    const [fixedClasses, setFixedClasses] = React.useState("dropdown show");
-    //const [mobileOpen, setMobileOpen] = React.useState(false);
-    const handleImageClick = image => {
-        setImage(image);
+export default function Deepphe({ ...rest }) {
+  // styles
+  const classes = useStyles();
+  // ref to help us initialize PerfectScrollbar on windows devices
+  const mainPanel = React.createRef();
+  // states and functions
+  const [image, setImage] = React.useState(bgImage);
+  const [color, setColor] = React.useState("blue");
+  const [fixedClasses, setFixedClasses] = React.useState("dropdown show");
+  //const [mobileOpen, setMobileOpen] = React.useState(false);
+  const handleImageClick = image => {
+    setImage(image);
+  };
+  const handleColorClick = color => {
+    setColor(color);
+  };
+  const handleFixedClick = () => {
+    if (fixedClasses === "dropdown") {
+      setFixedClasses("dropdown show");
+    } else {
+      setFixedClasses("dropdown");
+    }
+  };
+  // const handleDrawerToggle = () => {
+  //   //setMobileOpen(!mobileOpen);
+  // };
+  const getRoute = () => {
+    return window.location.pathname !== "/admin/maps";
+  };
+  const resizeFunction = () => {
+    if (window.innerWidth >= 960) {
+      //setMobileOpen(false);
+    }
+  };
+  // initialize and destroy the PerfectScrollbar plugin
+  React.useEffect(() => {
+    if (navigator.platform.indexOf("Win") > -1) {
+      ps = new PerfectScrollbar(mainPanel.current, {
+        suppressScrollX: true,
+        suppressScrollY: false
+      });
+      // hidden breaks some Chrome configurations.
+      //document.body.style.overflow = "hidden";
+    }
+    window.addEventListener("resize", resizeFunction);
+    // Specify how to clean up after this effect:
+    return function cleanup() {
+      if (navigator.platform.indexOf("Win") > -1) {
+        ps.destroy();
+      }
+      window.removeEventListener("resize", resizeFunction);
     };
-    const handleColorClick = color => {
-        setColor(color);
-    };
-    const handleFixedClick = () => {
-        if (fixedClasses === "dropdown") {
-            setFixedClasses("dropdown show");
-        } else {
-            setFixedClasses("dropdown");
-        }
-    };
-    // const handleDrawerToggle = () => {
-    //   //setMobileOpen(!mobileOpen);
-    // };
-    const getRoute = () => {
-        return window.location.pathname !== "/admin/maps";
-    };
-    const resizeFunction = () => {
-        if (window.innerWidth >= 960) {
-            //setMobileOpen(false);
-        }
-    };
-    // initialize and destroy the PerfectScrollbar plugin
-    React.useEffect(() => {
-        if (navigator.platform.indexOf("Win") > -1) {
-            ps = new PerfectScrollbar(mainPanel.current, {
-                suppressScrollX: true,
-                suppressScrollY: false
-            });
-            // hidden breaks some Chrome configurations.
-            //document.body.style.overflow = "hidden";
-        }
-        window.addEventListener("resize", resizeFunction);
-        // Specify how to clean up after this effect:
-        return function cleanup() {
-            if (navigator.platform.indexOf("Win") > -1) {
-                ps.destroy();
-            }
-            window.removeEventListener("resize", resizeFunction);
-        };
-    }, [mainPanel]);
-    return (
+  }, [mainPanel]);
+  return (
 
         <div ref={mainPanel}>
         {/*<Navbar*/}
@@ -118,5 +118,5 @@ export default function Deepphe({...rest}) {
         />
       </div>
 
-    );
+  );
 }

@@ -8,8 +8,7 @@ import './ToggleSwitch.css';
 
 class ToggleSwitch extends Component {
 
-    state = {enabled: this.enabledFromProps(), wantsdivs: this.props.wantsdivs}
-
+    state = {enabled: this.enabledFromProps()}
 
     isEnabled = () => this.state.enabled
 
@@ -42,7 +41,7 @@ class ToggleSwitch extends Component {
     }
 
     render() {
-        const wantsDivs = this.props.wantsdivs;
+        const wantsDivs = this.props.wantsDivs;
         const {enabled} = this.state;
 
         // Isolate special props and store the remaining as restProps
@@ -50,9 +49,9 @@ class ToggleSwitch extends Component {
 
         // Use default as a fallback theme if valid theme is not passed
         const switchTheme = (theme && isString(theme)) ? theme : 'default';
-        const switchEnabled = enabled ? "switch-enabled" : "switch-disabled"
+
         const switchClasses = classnames(
-            `switch switch-box switch--${switchTheme} ${switchEnabled}`,
+            `switch switch-box switch--${switchTheme}`,
             className
         )
 
@@ -60,7 +59,6 @@ class ToggleSwitch extends Component {
             'switch-toggle',
             `switch-toggle--${enabled ? 'on' : 'off'}`
         )
-
         let label, switchControl;
         if (wantsDivs) {
             label = <div className={"switch_label"}> {this.props.label}</div>;

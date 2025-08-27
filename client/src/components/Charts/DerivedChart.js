@@ -37,7 +37,7 @@ export default class DerivedChart extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-
+    
     }
 
     render() {
@@ -47,51 +47,50 @@ export default class DerivedChart extends React.Component {
                     <Grid container direction="row" justifyContent="center" align="center" spacing={1}>
                         <Grid item xs={12} sm={12} md={3} lg={3} xl={3}>
                             <ul id="patient_list">
-                                {this.props.patientsAndStagesInfo.patients.map((patient, index) => (
-                                    <li key={index}>
-                                        <a id={patient.patientId} className="target_patient"
-                                           href={baseGuiUri + "/./patient/" + patient.patientId}
-                                           target="_blank"
-                                           rel="noopener noreferrer">{patient.patientId}</a>({patient.firstEncounterAge})
-                                    </li>
+                        {this.props.patientsAndStagesInfo.patients.map((patient, index) => (
+                            <li key={index}>
+                                <a  id={patient.patientId} className="target_patient"
+                                   href={baseGuiUri + "/./patient/" + patient.patientId}
+                                   target="_blank" rel="noopener noreferrer">{patient.patientId}</a>({patient.firstEncounterAge})
+                            </li>
 
-                                ))}
+                        ))}
                             </ul>
                         </Grid>
 
 
-                        <Grid item xs={12} sm={12} md={9} lg={9} xl={9}>
-                            <DiagnosisChart
-                                loading={this.props.isLoading}
-                                patientsAndStagesInfo={this.props.patientsAndStagesInfo}
-                                patientsAndStagesInfoSetter={this.props.setPatientsAndStagesInfo}
-                                minAge={this.props.minAge}
-                                maxAge={this.props.maxAge}>
-                            </DiagnosisChart>
-                        </Grid>
-                    </Grid>
-                </div>
-
-                <Grid container direction="row" justifyContent="center" align="center" spacing={1}>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <BiomarkerOverview
+                    <Grid item xs={12} sm={12} md={9} lg={9} xl={9}>
+                        <DiagnosisChart
                             loading={this.props.isLoading}
                             patientsAndStagesInfo={this.props.patientsAndStagesInfo}
-                            patientsAndStagesInfoSetter={this.props.patientsAndStagesInfoSetter}
+                            patientsAndStagesInfoSetter={this.props.setPatientsAndStagesInfo}
                             minAge={this.props.minAge}
                             maxAge={this.props.maxAge}>
-                        </BiomarkerOverview>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
-                        <PatientsWithBiomarkersFound
-                            loading={this.props.isLoading}
-                            patientsAndStagesInfo={this.props.patientsAndStagesInfo}
-                            patientsAndStagesInfoSetter={this.props.patientsAndStagesInfoSetter}
-                            minAge={this.props.minAge}
-                            maxAge={this.props.maxAge}>
-                        </PatientsWithBiomarkersFound>
+                        </DiagnosisChart>
                     </Grid>
                 </Grid>
+            </div>
+
+                 <Grid container direction="row" justifyContent="center" align="center" spacing={1}>
+                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                         <BiomarkerOverview
+                             loading={this.props.isLoading}
+                             patientsAndStagesInfo={this.props.patientsAndStagesInfo}
+                             patientsAndStagesInfoSetter={this.props.patientsAndStagesInfoSetter}
+                             minAge={this.props.minAge}
+                             maxAge={this.props.maxAge}>
+                         </BiomarkerOverview>
+                     </Grid>
+                     <Grid item xs={12} sm={12} md={6} lg={6} xl={6}>
+                         <PatientsWithBiomarkersFound
+                             loading={this.props.isLoading}
+                             patientsAndStagesInfo={this.props.patientsAndStagesInfo}
+                             patientsAndStagesInfoSetter={this.props.patientsAndStagesInfoSetter}
+                             minAge={this.props.minAge}
+                             maxAge={this.props.maxAge}>
+                         </PatientsWithBiomarkersFound>
+                     </Grid>
+                 </Grid>
             </React.Fragment>
         );
 

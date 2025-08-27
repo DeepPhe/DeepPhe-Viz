@@ -43,7 +43,6 @@ $switch-class: 'switch-toggle';
       left: 0;
       position: absolute !important;
     }
-
     &::before {
       height: inherit;
       width: inherit;
@@ -51,7 +50,6 @@ $switch-class: 'switch-toggle';
       will-change: background;
       transition: background .4s .3s ease-out;
     }
-
     &::after {
       top: $ball-spacing;
       height: $ball-size;
@@ -66,7 +64,6 @@ $switch-class: 'switch-toggle';
     &::before {
       background: $active-color !important;
     }
-
     &::after {
       transform: translateX($ball-slide-size);
     }
@@ -75,7 +72,6 @@ $switch-class: 'switch-toggle';
     &::before {
       background: $inactive-color !important;
     }
-
     &::after {
       transform: translateX($ball-spacing);
     }
@@ -95,13 +91,12 @@ $switch-class: 'switch-toggle';
   $toggle: #{$self}-toggle;
   $class: get-switch-class($toggle);
   // default theme
-  &#{$self}--default > #{$toggle} {
+  &#{$self}--default>#{$toggle} {
     // Always pass the $class to the mixin
     @include switch($class: $class);
   }
-
   // graphite-small theme
-  &#{$self}--graphite-small > #{$toggle} {
+  &#{$self}--graphite-small>#{$toggle} {
     // A smaller switch with a `gray` active color
     // Always pass the $class to the mixin
     @include switch($color: gray, $size: 20px, $class: $class);

@@ -30,8 +30,6 @@
     "d3-scale": "^4.0.2",
     "d3v3": "^1.0.3",
     "d3v4": "^4.2.2",
-    "danfojs": "^1.1.2",
-    "danfojs-node": "^1.1.2",
     "font-awesome": "^4.7.0",
     "handlebars": "^4.7.7",
     "history": "4.10.1",
@@ -102,11 +100,7 @@
       "not dead",
       "not op_mini all"
     ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "development": []
   },
   "proxy": "http://localhost:3001"
 }

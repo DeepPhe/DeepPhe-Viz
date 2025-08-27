@@ -5,6 +5,7 @@ iframe {
 }
 
 
+
 html {
     color: #363636;
     font-family: Monaco, monospace;
@@ -1950,7 +1951,7 @@ div.footer > div > a {
     box-shadow: none !important;
 }
 
-.range-slider::before {
+.range-slider::before{
     left: 0;
     content: "Coming Soon";
     background: rgba(255, 255, 255, 0.59);
@@ -1961,7 +1962,6 @@ div.footer > div > a {
     font-weight: 600;
     position: absolute;
 }
-
 .multi-range-slider .thumb::before {
     box-shadow: none !important;
     width: 10px !important;

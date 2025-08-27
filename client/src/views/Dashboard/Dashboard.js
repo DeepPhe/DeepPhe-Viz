@@ -27,27 +27,25 @@ export default function Dashboard() {
                 </Navbar.Collapse>
             </Container>
         </Navbar>
-            <div id={"top-charts"}>{TopCharts()}</div>
+            <div id={"top-charts"}>{ TopCharts()}</div>
 
-            {/*<Grid container direction="row" justifyContent="center" align="center" spacing={10} >*/}
+              {/*<Grid container direction="row" justifyContent="center" align="center" spacing={10} >*/}
 
-            {/*  <Grid item xs={12} sm={12} md={10} xl={8}>*/}
-            {/*              <DerivedChart>*/}
-            {/*              </DerivedChart>*/}
-            {/*  </Grid>*/}
-            {/* =*/}
-            {/*</Grid>*/}
+              {/*  <Grid item xs={12} sm={12} md={10} xl={8}>*/}
+              {/*              <DerivedChart>*/}
+              {/*              </DerivedChart>*/}
+              {/*  </Grid>*/}
+              {/* =*/}
+              {/*</Grid>*/}
 
-            <div className={"mainFooter"}>
+        <div className={"mainFooter"}>
             <Row>
                 <Col md={1}></Col>
-                <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer"
-                                                href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
+                <Col md={4}>Supported by the <a target="_blank" rel="noopener noreferrer" href="https://itcr.cancer.gov/">National Cancer Institute's Information Technology for Cancer Research</a> initiative. (Grant #U24CA248010)</Col>
                 <Col md={1}></Col>
                 <Col md={5}>©2025 Harvard Medical School, University of Pittsburgh, and Vanderbilt University Medical Center.</Col>
                <Col md={1}></Col>
             </Row>
         </div>
         </span>
-    )
-}
+)}

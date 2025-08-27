@@ -54,8 +54,8 @@ export default class BiomarkerOverview extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const externalUpdate = (JSON.stringify(prevProps.patientsAndStagesInfo) !==
             JSON.stringify(this.props.patientsAndStagesInfo))
-        const internalUpdate = JSON.stringify(prevState.biomarkerData) !== JSON.stringify(this.state.biomarkerData)
-        const sizeChange = prevState.width !== this.state.width;
+        const internalUpdate = JSON.stringify(prevState.biomarkerData) !==JSON.stringify(this.state.biomarkerData)
+        const sizeChange = prevState.width !==this.state.width;
         if ((internalUpdate || externalUpdate || sizeChange) && !this.state.loading) {
 
             this.show("biomarkers")

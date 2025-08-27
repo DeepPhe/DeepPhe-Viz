@@ -41,7 +41,9 @@ const TopCharts = () => {
     )
 
 
-    const Button = styled('button')({});
+    const Button = styled('button')({
+
+    });
 
 
     useEffect(() => {
@@ -125,9 +127,8 @@ const TopCharts = () => {
                 <Grid container direction="row" justifyContent="center" align="center" spacing={1}>
                     <Grid item xs={10} sm={10} md={10} lg={10} xl={10}>
                         <Card id={"chart3"}>
-                            <CardHeader className={'basicCardHeader'}>Case Details Given Age and Inclusion
-                                Criteria</CardHeader>
-                            <CardBody>
+                            <CardHeader className={'basicCardHeader'}>Case Details Given Age and Inclusion Criteria</CardHeader>
+                            <CardBody >
                                 <DerivedChart
                                     loading={isLoading}
                                     patientsAndStagesInfo={patientsAndStagesInfo}
@@ -135,7 +136,7 @@ const TopCharts = () => {
                                     minAge={minAge}
                                     maxAge={maxAge}
 
-                                />
+                                    />
                             </CardBody>
                         </Card>
                     </Grid>

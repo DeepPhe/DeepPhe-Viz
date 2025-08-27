@@ -40,7 +40,7 @@ const themeDark = createTheme({
     palette: {
         background: {
             default: "#f5f5f5",
-            secondary: "#333"
+            secondary:"#333"
         },
         text: {
             primary: "#ffffff"
@@ -75,12 +75,11 @@ ReactDOM.render(
             <CssBaseline/>
             <Switch>
                 <Route exact path="/deepphe/dashboard" component={Deepphe}/>
-                <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary"
-                       component={CancerAndTumorSummaryView}/>
+                <Route exact path="/deepphe/patient/:patientId/cancerAndTumorSummary" component={CancerAndTumorSummaryView}/>
                 {/*<Route path="/patient/:patientId/timeline" component={TimelineView}/>*/}
                 <Route exact path="/deepphe/patient/:patientId" component={Patient}/>
 
-                <Redirect from="/" to="/deepphe/dashboard"/>
+                <Redirect from="/" to="/deepphe/dashboard" />
             </Switch>
         </ThemeProvider>
     </Router>
