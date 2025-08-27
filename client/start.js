@@ -10,7 +10,6 @@ app.get('/*', function (req, res) {
 
 app.listen(3001);
 
-/
 // #! /usr/bin/env node
 // const handler = require("serve-handler");
 // const http = require("http");
