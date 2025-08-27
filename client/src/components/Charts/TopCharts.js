@@ -81,7 +81,7 @@ const TopCharts = () => {
             <>
                 <Grid container direction="row" justifyContent="center" align="center" spacing={10}>
                     <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                        <CohortFilter></CohortFilter>
+                        {/*<CohortFilter></CohortFilter>*/}
                     </Grid>
                 </Grid>
                 <Grid container direction="row" justifyContent="center" align="center" spacing={10}>

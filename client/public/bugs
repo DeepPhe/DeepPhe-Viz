@@ -1,0 +1,12 @@
+// fake_patient1_23052025115154_C_101 is "Core Biopsy", but the Semantic Group is "Unknown" (Bug).
+// fake_patient1_23052025115154_C_49 is "N2 Stage", but the Semantic Group is "Unknown" (Bug).
+// fake_patient1_23052025115154_C_160 is" Metastatic Carcinoma", but the Semantic Group is "Unknown" (Bug).
+// fake_patient1_23052025115154_C_156 is "Cyanosis", but the Semantic Group is "Unknown" (Bug).
+// fake_patient1_23052025115154_C_179 is "Digital Clubbing", but the Semantic Group is "Unknown" (Bug).
+// fake_patient1_23052025115154_C_71 is "Partial Remission", but the Semantic Group is "Unknown" (Bug).
+
+
+//	fake_patient1_23052025115154_C_181 and fake_patient1_23052025115154_C_183 are negated, but that is incorrect.
+//	fake_patient1_23052025115154_C_182 is negated, but that is incorrect.
+// fake_patient1_23052025115154_C_12 should be two or more masses/concepts.
+// fake_patient1_23052025115154_C_129 should be two masses/concepts, both are negated, different locations.

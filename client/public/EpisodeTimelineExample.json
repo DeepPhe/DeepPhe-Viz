@@ -1,0 +1,217 @@
+{
+  "patientInfo": {
+    "patientId": "fake_patient5",
+    "patientName": "martha van zandt",
+    "birthDate": "1965-07-23",
+    "lastEncounterAge": "55",
+    "firstEncounterAge": "54",
+    "lastEncounterDate": "2020-09-03",
+    "firstEncounterDate": "2019-10-12",
+    "gender": "F"
+  },
+  "reportData": [
+    {
+      "id": "fake_patient5_doc10_NOTE_1590032769",
+      "date": "2010/02/15",
+      "type": "Clinical note",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc9_SP_-51247919",
+      "date": "2010/02/07",
+      "type": "Surgical pathology report",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc8_RAD_-536271957",
+      "date": "2010/02/06",
+      "type": "Radiology report",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc7_NOTE_-781370300",
+      "date": "2010/02/05",
+      "type": "Clinical note",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc6_NOTE_2015302953",
+      "date": "2009/10/01",
+      "type": "Clinical note",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc5_SP_-1762744257",
+      "date": "2009/09/02",
+      "type": "Surgical pathology report",
+      "episode": "Diagnostic"
+    },
+    {
+      "id": "fake_patient5_doc4_NOTE_367559967",
+      "date": "2009/06/30",
+      "type": "Clinical note",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc3_NOTE_-1818572823",
+      "date": "2009/05/10",
+      "type": "Clinical note",
+      "episode": "Unknown"
+    },
+    {
+      "id": "fake_patient5_doc2_SP_654927331",
+      "date": "2009/05/05",
+      "type": "Surgical pathology report",
+      "episode": "Pre-diagnostic"
+    },
+    {
+      "id": "fake_patient5_doc1_RAD_-896054553",
+      "date": "2009/05/05",
+      "type": "Radiology report",
+      "episode": "Pre-diagnostic"
+    }
+  ],
+  "typeCounts": {
+    "Clinical note": 5,
+    "Surgical pathology report": 3,
+    "Radiology report": 2
+  },
+  "episodes": [
+    "Pre-diagnostic",
+    "Diagnostic",
+    "Unknown"
+  ],
+  "episodeCounts": {
+    "Unknown": 7,
+    "Diagnostic": 1,
+    "Pre-diagnostic": 2
+  },
+  "reportTypes": [
+    "Surgical pathology report",
+    "Clinical note",
+    "Radiology report"
+  ],
+  "episodeDates": {
+    "Unknown": [
+      "2010/02/15",
+      "2010/02/07",
+      "2010/02/06",
+      "2010/02/05",
+      "2009/10/01",
+      "2009/06/30",
+      "2009/05/10"
+    ],
+    "Diagnostic": [
+      "2009/09/02"
+    ],
+    "Pre-diagnostic": [
+      "2009/05/05",
+      "2009/05/05"
+    ]
+  },
+  "reportsGroupedByDateAndTypeObj": {
+    "2010/02/15": {
+      "Clinical note": [
+        {
+          "id": "fake_patient5_doc10_NOTE_1590032769",
+          "date": "2010/02/15",
+          "type": "Clinical note",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2010/02/07": {
+      "Surgical pathology report": [
+        {
+          "id": "fake_patient5_doc9_SP_-51247919",
+          "date": "2010/02/07",
+          "type": "Surgical pathology report",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2010/02/06": {
+      "Radiology report": [
+        {
+          "id": "fake_patient5_doc8_RAD_-536271957",
+          "date": "2010/02/06",
+          "type": "Radiology report",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2010/02/05": {
+      "Clinical note": [
+        {
+          "id": "fake_patient5_doc7_NOTE_-781370300",
+          "date": "2010/02/05",
+          "type": "Clinical note",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2009/10/01": {
+      "Clinical note": [
+        {
+          "id": "fake_patient5_doc6_NOTE_2015302953",
+          "date": "2009/10/01",
+          "type": "Clinical note",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2009/09/02": {
+      "Surgical pathology report": [
+        {
+          "id": "fake_patient5_doc5_SP_-1762744257",
+          "date": "2009/09/02",
+          "type": "Surgical pathology report",
+          "episode": "Diagnostic"
+        }
+      ]
+    },
+    "2009/06/30": {
+      "Clinical note": [
+        {
+          "id": "fake_patient5_doc4_NOTE_367559967",
+          "date": "2009/06/30",
+          "type": "Clinical note",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2009/05/10": {
+      "Clinical note": [
+        {
+          "id": "fake_patient5_doc3_NOTE_-1818572823",
+          "date": "2009/05/10",
+          "type": "Clinical note",
+          "episode": "Unknown"
+        }
+      ]
+    },
+    "2009/05/05": {
+      "Surgical pathology report": [
+        {
+          "id": "fake_patient5_doc2_SP_654927331",
+          "date": "2009/05/05",
+          "type": "Surgical pathology report",
+          "episode": "Pre-diagnostic"
+        }
+      ],
+      "Radiology report": [
+        {
+          "id": "fake_patient5_doc1_RAD_-896054553",
+          "date": "2009/05/05",
+          "type": "Radiology report",
+          "episode": "Pre-diagnostic"
+        }
+      ]
+    }
+  },
+  "maxVerticalCountsPerType": {
+    "Clinical note": 1,
+    "Surgical pathology report": 1,
+    "Radiology report": 1
+  }
+}

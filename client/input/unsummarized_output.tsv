@@ -1,0 +1,10 @@
+2012-02-24	patient01	reduction	2012-07-30	contains	patient01_report012_RAD
+2012-04-24	patient01	reduction mammoplasty	2012-04-30	contained-by	patient01_report012_RAD
+2012-04-24	patient01	mammoplasty	2012-04-30	after	patient01_report012_RAD
+2012-04-24	patient01	enlarged	2012-04-30	before	patient01_report012_RAD
+2012-05-18	patient01	chemotherapy	2012-07-30	contained-by	patient01_report014_RAD
+2012-05-18	patient01	PROCEDURE	2012-08-30	contains	patient01_report014_RAD
+2012-05-18	patient01	procedure	2012-05-18	after	patient01_report014_RAD
+2012-02-17	patient01	chemotherapy	2012-04-30	after	patient01_report017_NOTE
+2012-02-17	patient01	treatment	2012-04-30	after	patient01_report017_NOTE
+2012-02-17	patient01	treatment	2012-04-30	after	patient01_report017_NOTE
